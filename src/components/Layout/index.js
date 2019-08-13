@@ -21,7 +21,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems } from './listItems';
+import { mainListItems, secondaryListItems } from './listItems';
 import LinearLoading from "../LinearLoading";
 import { logout } from '../../redux/actions/authActions';
 import styles from './styles';
@@ -66,6 +66,7 @@ class Layout extends React.Component {
     const { classes, title, loading, auth } = this.props;
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
+    console.log(auth);
 
     if (auth.token === null) {
       return <Redirect to="/login" />
@@ -144,8 +145,8 @@ class Layout extends React.Component {
           </div>
           <Divider />
           <List>{mainListItems}</List>
-          {/*<Divider />*/}
-          {/*<List>{secondaryListItems}</List>*/}
+          <Divider />
+          <List>{secondaryListItems}</List>
         </Drawer>
         <main className={classes.content}>
 

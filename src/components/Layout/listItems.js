@@ -5,6 +5,10 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import DashboardIcon from '@material-ui/icons/Dashboard';
+import ReportingIcon from '@material-ui/icons/Assessment';
+import ProjectIcon from '@material-ui/icons/Work';
+import RolesIcon from '@material-ui/icons/AssignmentInd';
+import CustomersIcon from '@material-ui/icons/HowToReg';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 
 import UserIcon from '@material-ui/icons/GroupOutlined';
@@ -25,50 +29,67 @@ import StarBorder from '@material-ui/icons/StarBorder';
 */
 
 const DashboardLink = props => <RouterLink to="/home" {...props} />;
+const ReportingLink = props => <RouterLink to="/reports" {...props} />;
+const ProjectLink = props => <RouterLink to="/projects" {...props} />;
 const UsersLink = props => <RouterLink to="/users" {...props} />;
-
+const RolesLink = props => <RouterLink to="/roles" {...props} />;
+const CustomersLink = props => <RouterLink to="/customers" {...props} />;
 
 export const mainListItems = (
   <div>
-    <Link component={DashboardLink}>
-      <ListItem button>
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItem>
-    </Link>
     <Link component={UsersLink}>
       <ListItem button>
         <ListItemIcon>
           <UserIcon />
         </ListItemIcon>
-        <ListItemText primary="Users" />
+        <ListItemText primary="Admin Users" />
+      </ListItem>
+    </Link>
+    <Link component={RolesLink}>
+      <ListItem button>
+        <ListItemIcon>
+          <RolesIcon />
+        </ListItemIcon>
+        <ListItemText primary="Admin Roles" />
+      </ListItem>
+    </Link>
+
+    <Link component={CustomersLink}>
+      <ListItem button>
+        <ListItemIcon>
+          <CustomersIcon />
+        </ListItemIcon>
+        <ListItemText primary="Admin Customers" />
       </ListItem>
     </Link>
   </div>
 );
 
 export const secondaryListItems = (
-  <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Current month" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Last quarter" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
-    </ListItem>
-  </div>
-);
+      <div>
+        <Link component={DashboardLink}>
+          <ListItem button>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+        </Link>
+        <Link component={ReportingLink}>
+          <ListItem button>
+            <ListItemIcon>
+              <ReportingIcon />
+            </ListItemIcon>
+            <ListItemText primary="Reports" />
+          </ListItem>
+        </Link>
+        <Link component={ProjectLink}>
+          <ListItem button>
+            <ListItemIcon>
+              <ProjectIcon />
+            </ListItemIcon>
+            <ListItemText primary="Projects" />
+          </ListItem>
+        </Link>
+      </div>
+    );
