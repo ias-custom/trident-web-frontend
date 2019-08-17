@@ -1,4 +1,4 @@
-const drawerWidth = 240;
+const drawerWidth = 275;
 
 const styles = theme => ({
   root: {
@@ -14,6 +14,14 @@ const styles = theme => ({
     padding: '0 8px',
     ...theme.mixins.toolbar,
   },
+  subMenu: {
+    paddingLeft: 72
+  },
+  listItem: {
+    '&:focus': {
+      backgroundColor: 'white',
+    }
+  },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
@@ -21,6 +29,7 @@ const styles = theme => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
   },
+
   appBarShift: {
     marginLeft: drawerWidth,
     width: `calc(100% - ${drawerWidth}px)`,
@@ -74,6 +83,23 @@ const styles = theme => ({
   },
   h5: {
     marginBottom: theme.spacing.unit * 2,
+  },
+  a: {
+    '&:hover': {
+      textDecoration: 'none !important' ,
+    }
+  },
+  selectCustomer: {
+    color: "white",
+    fontSize: 18,
+    marginRight: 15
+  },
+  divSelect: {
+    borderBottom: "1px solid white",
+    paddingBottom: 2
+  },
+  IconSelect: {
+    color: "white"
   }
 });
 

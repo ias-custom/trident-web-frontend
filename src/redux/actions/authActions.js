@@ -3,7 +3,8 @@ import {
   LOGIN_ERROR,
   LOGOUT,
   ON_LOADING,
-  REFRESH_TOKEN
+  REFRESH_TOKEN,
+  SET_CUSTOMERS
 } from '../actionTypes';
 import AuthService from '../../services/AuthService';
 
@@ -42,7 +43,12 @@ export const login = (username, password) => {
       const response = await service.login(username, password);
 
       if (response.status === 200) {
-        const { id, first_name = '', last_name = '', username, token } = response.data;
+        const { id, first_name = '', last_name = '', username, token, customers } = response.data;
+        
+        const customersList = customers.map( ({id, logo, name}) => ({id, logo, name}));
+        dispatch({ type: SET_CUSTOMERS, payload: customersList })
+        localStorage.setItem('customers',  JSON.stringify(customersList));
+
         const fullName = first_name ? `${first_name} ${last_name}` : username;
         const avatar = fullName.replace(/\s/g, '').substr(0, 2).toUpperCase();
         const auth = { id, fullName, username, avatar, token };
@@ -65,6 +71,7 @@ export const login = (username, password) => {
 
 export const logout = () => {
   localStorage.removeItem('auth');
+  localStorage.removeItem('customers')
 
   return { type: LOGOUT };
 };

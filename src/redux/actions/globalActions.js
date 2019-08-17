@@ -1,4 +1,5 @@
 import RoleService from '../../services/RoleService';
+import CustomerService from '../../services/CustomerService';
 import {
   ENQUEUE_SNACKBAR,
   GET_ROLES,
@@ -6,11 +7,14 @@ import {
   ON_LOADING,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
-  SET_CURRENT_FORM
+  SET_CURRENT_FORM,
+  SET_CUSTOMER_SELECTED,
+  SET_CUSTOMERS
 } from "../actionTypes";
 import GlobalService from "../../services/GlobalService";
 
 const roleService = new RoleService();
+const customerService = new CustomerService();
 const globalService = new GlobalService();
 
 export const setLoading = (loading) => ({ type: ON_LOADING, loading });
@@ -81,3 +85,31 @@ export const setCurrentForm = (currentForm) => ({
   type: SET_CURRENT_FORM,
   currentForm,
 })
+
+export const setCustomerSelected = (payload) => ({
+  type: SET_CUSTOMER_SELECTED,
+  payload,
+})
+
+export const setCustomers = () => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await customerService.list();
+
+      if (response.status === 200) {
+        dispatch({type: SET_CUSTOMERS, payload: response.data});
+      } else {
+        dispatch({type: SET_CUSTOMERS, payload: []});
+      }
+      return response;
+
+    } catch (error) {
+      return error;
+
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}

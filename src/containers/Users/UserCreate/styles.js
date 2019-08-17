@@ -7,7 +7,14 @@ const styles = theme => ({
   },
   textField: {
     width: '100%',
-  }
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: theme.spacing.unit / 4,
+  },
 
 });
 

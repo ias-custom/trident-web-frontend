@@ -5,7 +5,10 @@ export const ENQUEUE_SNACKBAR = 'ENQUEUE_SNACKBAR';
 export const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR';
 export const GET_ROLES = 'GET_ROLES';
 export const GET_US_STATES = 'GET_US_STATES';
-
+export const CHANGE_OPEN_MENU = 'CHANGE_OPEN_MENU';
+export const CHANGE_SELECTED_MENU = 'CHANGE_SELECTED_MENU';
+export const SET_CUSTOMERS = 'SET_CUSTOMERS';
+export const SET_CUSTOMER_SELECTED = 'SET_CUSTOMER_SELECTED';
 // Auth types
 export const LOGIN = 'LOGIN';
 export const LOGIN_ERROR = 'LOGIN_ERROR';

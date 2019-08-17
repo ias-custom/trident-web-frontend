@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from "recompose";
 import { getUsers, deleteUser } from '../../../redux/actions/userActions';
+import {  toggleItemMenu, selectedItemMenu } from '../../../redux/actions/layoutActions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import {
   Table,
@@ -22,6 +23,13 @@ import SimpleBreadcrumbs from '../../../components/SimpleBreadcrumbs';
 import Panel from '../../../components/Panel';
 import styles from './styles';
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { withSnackbar } from 'notistack';
+
 
 const breadcrumbs = [
   {name: 'Home', to: '/home'},
@@ -31,10 +39,17 @@ const breadcrumbs = [
 class UserList extends React.Component {
 
   state = {
-    search: ''
+    search: '',
+    open: false,
+    userId: null,
   };
 
   componentDidMount() {
+    const nameItem = 'users'
+    const nameSubItem = 'list'
+    const open = true
+    this.props.toggleItemMenu({nameItem, open})
+    this.props.selectedItemMenu({nameItem, nameSubItem})
     this.props.getUsers();
   }
 
@@ -42,10 +57,17 @@ class UserList extends React.Component {
     this.setState({ search: event.target.value });
   };
 
+  showModal (userId) {
+    this.setState({open: true, userId})
+  }
+
+  closeModal = () => {
+    this.setState({open: false})
+  }
   filter = (users, keyword) => {
     if (keyword === '') return users;
 
-    const fields = ['first_name', 'last_name', 'middle_name', 'email', 'username'];
+    const fields = ['first_name', 'last_name', 'email', 'username'];
     const regex = new RegExp(keyword, 'i');
 
     return users.filter(user => {
@@ -57,19 +79,50 @@ class UserList extends React.Component {
     });
   };
 
-  handleDelete = (id) => {
-    if (this.props.auth.id !== id) {
-      this.props.deleteUser(id);
+  handleDelete = async () => {
+    this.setState({open: false})
+    if (this.props.auth.id !== this.state.userId) {
+      const response = await this.props.deleteUser(this.state.userId);
+      if(response.status === 200 || response.status === 204) {
+        // SHOW NOTIFICACION SUCCCESS
+        this.props.enqueueSnackbar('¡User successfully removed!', {
+          variant: "success",
+          anchorOrigin: {vertical: 'top', horizontal: 'center'}
+        })
+      }
     }
   };
 
 
   render() {
     const { classes, users, loading, auth } = this.props;
-    const { search } = this.state;
+    const { search, open } = this.state;
 
     return (
+      
       <Layout title="Users">
+        <Dialog
+          open={open}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          onBackdropClick= {this.closeModal}
+          onEscapeKeyDown= {this.closeModal}
+        >
+          <DialogTitle id="alert-dialog-title">{"Are you sure you want to delete?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              If you delete the user it will be permanently.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" className={classes.buttonCancel} onClick= {this.closeModal}>
+              Cancel
+            </Button>
+            <Button variant="outlined" color="primary" className={classes.buttonAccept} onClick={this.handleDelete}>
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
 
@@ -96,11 +149,11 @@ class UserList extends React.Component {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
-                  <TableCell align="right">Email</TableCell>
-                  <TableCell align="right">Username</TableCell>
-                  <TableCell align="right">Status</TableCell>
-                  <TableCell align="right">Role</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell align="left">Email</TableCell>
+                  <TableCell align="left">Username</TableCell>
+                  <TableCell align="left">Status</TableCell>
+                  <TableCell align="left">Role</TableCell>
+                  <TableCell align="left">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -126,9 +179,7 @@ class UserList extends React.Component {
                             <Edit />
                           </IconButton>
                         </Link>
-                        <IconButton aria-label="Edit" color="secondary" disabled={auth.id === user.id || loading}
-                                    onClick={() => this.handleDelete(user.id)}
-                        >
+                        <IconButton aria-label="Edit" className={classes.iconDelete} disabled={auth.id === user.id || loading} onClick={() => this.showModal(user.id)}>
                           <Delete/>
                         </IconButton>
                       </div>
@@ -152,10 +203,11 @@ const mapStateToProps = state => {
   }
 };
 
-const mapDispatchToProps = { getUsers, deleteUser };
+const mapDispatchToProps = { getUsers, deleteUser, toggleItemMenu, selectedItemMenu };
 
 export default compose(
   withRouter,
   withStyles(styles, {name: 'UserList'}),
-  connect(mapStateToProps, mapDispatchToProps)
+  connect(mapStateToProps, mapDispatchToProps),
+  withSnackbar
 )(UserList);

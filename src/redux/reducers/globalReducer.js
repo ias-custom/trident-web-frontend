@@ -5,9 +5,12 @@ import {
   ENQUEUE_SNACKBAR,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
-  SET_CURRENT_FORM
+  SET_CURRENT_FORM,
+  SET_CUSTOMERS,
+  SET_CUSTOMER_SELECTED
 } from '../actionTypes';
 
+const customersStorage = JSON.parse(localStorage.getItem('customers'));
 const initialState = {
   loading: false,
   handleForm: false,
@@ -18,6 +21,8 @@ const initialState = {
   patientTags: [],
   productTypes: [],
   productCategories: [],
+  customers: customersStorage,
+  customerSelectedId: ''
 };
 
 export default (state = initialState, action) => {
@@ -55,7 +60,13 @@ export default (state = initialState, action) => {
 
     case GET_ROLES:
       return {...state, roles: action.payload};
-
+    
+    case SET_CUSTOMERS:
+      return {...state, customers: action.payload}
+    
+    case SET_CUSTOMER_SELECTED:
+      return {...state, customerSelectedId: action.payload}
+      
     default:
       return state;
 

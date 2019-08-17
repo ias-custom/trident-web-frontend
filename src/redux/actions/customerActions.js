@@ -29,27 +29,6 @@ export const removeSnackbar = key => ({
 });
 
 
-export const fetchRoles = () => {
-  return async (dispatch) => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await roleService.list();
-
-      if (response.status === 200) {
-        dispatch({type: GET_ROLES, payload: response.data});
-      } else {
-        dispatch({type: GET_ROLES, payload: []});
-      }
-      return response;
-    } catch (error) {
-      return error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  }
-};
-
 export const fetchStates = () => {
   return async (dispatch) => {
     dispatch(setLoading(true));

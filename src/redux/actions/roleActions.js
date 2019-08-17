@@ -6,7 +6,8 @@ import {
   ON_LOADING,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
-  SET_CURRENT_FORM
+  SET_CURRENT_FORM,
+  SHOW_ALERT
 } from "../actionTypes";
 import GlobalService from "../../services/GlobalService";
 
@@ -81,3 +82,27 @@ export const setCurrentForm = (currentForm) => ({
   type: SET_CURRENT_FORM,
   currentForm,
 })
+
+export const deleteRole = (id) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await roleService.delete(id);
+
+      if (response.status === 204) {
+        dispatch(fetchRoles());
+      } else {
+        const alert = {type: 'error', message: 'The request could not be processed!'};
+        dispatch({ type: SHOW_ALERT, alert});
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+

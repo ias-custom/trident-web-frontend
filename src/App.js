@@ -12,9 +12,13 @@ import UserList from './containers/Users/UserList'
 import UserEdit from './containers/Users/UserEdit';
 import UserCreate from './containers/Users/UserCreate';
 
+import RolesList from './containers/Roles/RolesList'
+import RoleCreate from './containers/Roles/RoleCreate'
+
 import PrivateRoute from './components/PrivateRoute';
 
 import { refreshToken} from './redux/actions/authActions';
+
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -52,6 +56,9 @@ class App extends Component {
           <PrivateRoute exact path="/users/create" component={UserCreate} />
           <PrivateRoute exact path="/users/:id" component={UserEdit} />
 
+          <PrivateRoute exact path="/roles" component={RolesList}></PrivateRoute>
+          <PrivateRoute exact path="/roles/create" component={RoleCreate}></PrivateRoute>
+          
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
         </Switch>
@@ -66,6 +73,9 @@ const mapStateToProps = state => {
     handleForm: state.global.handleForm,
   }
 };
+
+
+
 
 const mapDispatchToProps = { refreshToken };
 

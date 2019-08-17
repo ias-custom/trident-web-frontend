@@ -13,18 +13,18 @@ import {
   Typography,
   Divider,
   IconButton,
-  Badge,
   Menu,
   MenuItem,
   Avatar
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
+import  MainListItems, { secondaryListItems } from './listItems';
 import LinearLoading from "../LinearLoading";
 import { logout } from '../../redux/actions/authActions';
+import { setCustomerSelected } from '../../redux/actions/globalActions';
 import styles from './styles';
+import Select from '@material-ui/core/Select';
 
 class Layout extends React.Component {
   constructor(props) {
@@ -32,10 +32,17 @@ class Layout extends React.Component {
 
     this.state = {
       open: true,
-      anchorEl: null
+      anchorEl: null,
     };
   }
 
+  componentDidMount () {
+    this.props.setCustomerSelected(this.props.customers[0].id)
+  }
+
+  changeSelectCustomer = (event) => {
+    this.props.setCustomerSelected(event.target.value)
+  }
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -63,10 +70,9 @@ class Layout extends React.Component {
   };
 
   render() {
-    const { classes, title, loading, auth } = this.props;
+    const { classes, title, loading, auth, customers, customerSelectedId } = this.props;
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
-    console.log(auth);
 
     if (auth.token === null) {
       return <Redirect to="/login" />
@@ -102,11 +108,20 @@ class Layout extends React.Component {
             >
               {title || 'Dashboard'}
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            { customers.length > 0 ? (
+              <Select
+                value={customerSelectedId}
+                autoWidth={true}
+                className={classes.selectCustomer}
+                classes={{select: classes.divSelect, icon: classes.IconSelect }}
+                onChange={this.changeSelectCustomer}
+              > 
+                {customers.map( ({id, name}) => (
+                  <MenuItem value={id} key={id}>{name}</MenuItem>
+                ))}
+                <MenuItem value="2" key="2">select 2</MenuItem>
+              </Select>
+            ): null}
             <IconButton color="inherit" onClick={this.handleMenu}>
               <Avatar>{auth.avatar}</Avatar>
             </IconButton>
@@ -144,7 +159,7 @@ class Layout extends React.Component {
             </IconButton>
           </div>
           <Divider />
-          <List>{mainListItems}</List>
+          <List><MainListItems/></List>
           <Divider />
           <List>{secondaryListItems}</List>
         </Drawer>
@@ -171,11 +186,13 @@ Layout.defaultProps = {
 const mapStateToProps = (state) => {
   return {
     auth: state.auth,
-    loading: state.global.loading
+    loading: state.global.loading,
+    customers: state.global.customers,
+    customerSelectedId: state.global.customerSelectedId
   }
 };
 
-const mapDispatchToProps = { logout };
+const mapDispatchToProps = { logout, setCustomerSelected };
 
 export default connect(
   mapStateToProps,

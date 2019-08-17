@@ -24,6 +24,7 @@ class Home extends React.Component {
     const { classes } = this.props;
 
     return (
+
       <Layout title="Dashboard">
         <div className={classes.root}>
 
@@ -34,7 +35,7 @@ class Home extends React.Component {
                 <Card>
                   <CardContent className={classes.card}>
                     <UserIcon className={classes.icon} color="primary" />
-                    <Typography component="h6" variant="h6">Users</Typography>
+                    <Typography component="p" variant="h6">Users</Typography>
                   </CardContent>
                 </Card>
               </Link>
@@ -46,5 +47,7 @@ class Home extends React.Component {
     )
   }
 }
+
+
 
 export default withStyles(styles)(Home);
