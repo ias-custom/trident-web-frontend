@@ -16,7 +16,8 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Avatar
+  Avatar,
+  Grid
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -74,6 +75,7 @@ class Layout extends React.Component {
 
   render() {
     const { classes, title, loading, auth, customers, customerSelectedId } = this.props;
+    const logoCustomer = (customers.find( c => c.id === customerSelectedId)).thumbnail
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
 
@@ -102,50 +104,60 @@ class Layout extends React.Component {
             >
               <MenuIcon />
             </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            >
-              {title || 'Dashboard'}
-            </Typography>
-            { customers.length > 0 ? (
-              <Select
-                value={customerSelectedId}
-                autoWidth={true}
-                className={classes.selectCustomer}
-                classes={{select: classes.divSelect, icon: classes.IconSelect }}
-                onChange={this.changeSelectCustomer}
-              > 
-                {customers.map( ({id, name}) => (
-                  <MenuItem value={id} key={id}>{name}</MenuItem>
-                ))}
-              </Select>
-            ): null}
-            <IconButton color="inherit" onClick={this.handleMenu}>
-              <Avatar>{auth.avatar}</Avatar>
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={open}
-              onClose={this.handleCloseMenu}
-            >
-              <MenuItem onClick={this.handleCloseMenu}>
-                {auth.fullName}
-              </MenuItem>
-              <MenuItem onClick={this.logout}>Log Out</MenuItem>
-            </Menu>
+            <Grid container className={classes.divRight}>
+              <Grid item className={classes.divTitle}>
+                <Typography
+                  component="h1"
+                  variant="h6"
+                  color="inherit"
+                  noWrap
+                >
+                  {title || 'Dashboard'}
+                </Typography>
+              </Grid>
+              <Grid item className={classes.divAvatar}>
+                <img src={logoCustomer} alt="logoCustomer"/>
+              </Grid>
+              <Grid item>
+              { customers.length > 0 ? (
+                <Select
+                  value={customerSelectedId}
+                  autoWidth={true}
+                  className={classes.selectCustomer}
+                  classes={{select: classes.divSelect, icon: classes.IconSelect }}
+                  onChange={this.changeSelectCustomer}
+                > 
+                  {customers.map( ({id, name}) => (
+                    <MenuItem value={id} key={id}>{name}</MenuItem>
+                  ))}
+                </Select>
+              ): null}
+              <IconButton color="inherit" onClick={this.handleMenu}>
+                <Avatar>{auth.avatar}</Avatar>
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={open}
+                onClose={this.handleCloseMenu}
+              >
+                <MenuItem onClick={this.handleCloseMenu}>
+                  {auth.fullName}
+                </MenuItem>
+                <MenuItem onClick={this.logout}>Log Out</MenuItem>
+              </Menu>
+              </Grid>
+              
+            
+            </Grid>
           </Toolbar>
         </AppBar>
         <Drawer

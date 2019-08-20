@@ -35,7 +35,7 @@ const FakeRoles = [
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Roles", to: "/roles" },
-  { name: "Create Role", to: null }
+  { name: "Edit Role", to: null }
 ];
 
 class RoleEdit extends React.Component {
@@ -194,7 +194,7 @@ class RoleEdit extends React.Component {
                     color="primary"
                     fullWidth
                   >
-                    Create Role
+                    SAVE
                   </Button>
                 </Form>
               );

@@ -1,4 +1,5 @@
-const styles = theme => ({
+const styles = theme => {
+  return ({
   root: {
 
   },
@@ -11,11 +12,25 @@ const styles = theme => ({
   divLogo: {
     marginTop: 20
   },
-  nameLogo: {
-    marginLeft: 10,
-    display: 'inline-block'
+  gridLogo: {
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '5px',
+    border: `1px dashed ${theme.palette.primary.main}`,
+    cursor: 'pointer',
+    '& > img': {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }
+  },
+  inputImage: {
+    width: '100%'
   }
 
 });
+}
 
 export default styles;

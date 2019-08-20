@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  Button,
-  Typography
-} from "@material-ui/core";
+import { Grid, TextField, Button, Typography } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
@@ -23,7 +18,8 @@ import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { createCustomer } from "../../../redux/actions/customerActions";
-import InputFiles from 'react-input-files';
+import AddIcon from "@material-ui/icons/Add";
+import InputFiles from "react-input-files";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -50,12 +46,12 @@ class CustomerCreate extends React.Component {
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name, logo } = values
+    const { name, logo } = values;
 
-    let formData = new FormData()
-    formData.append("name", name)
-    formData.append("logo", logo)
-    
+    let formData = new FormData();
+    formData.append("name", name);
+    formData.append("logo", logo);
+
     try {
       const response = await this.props.createCustomer(formData);
 
@@ -139,25 +135,44 @@ class CustomerCreate extends React.Component {
                           </Grid>
                         </Grid>
 
-                        <Grid container spacing={16} className={classes.divLogo}>
+                        <Grid
+                          container
+                          spacing={16}
+                          className={classes.divLogo}
+                        >
                           <Grid item xs className={classes.divPermissions}>
                             <Typography variant="subtitle1" gutterBottom>
-                              Logo
+                              Logo *
                             </Typography>
                           </Grid>
                         </Grid>
                         <Grid container spacing={16}>
-                          <Grid item xs>
-                            <InputFiles name="logo" accept="images/*" onChange={ files => (
-                              setFieldValue("logo", files[0])
-                            )}>
-                              <Button variant="contained" color="primary">
-                                SUBIR IMAGEN
-                              </Button>
+                          <Grid item xs={3}>
+                            <InputFiles
+                              name="logo"
+                              style={{ width: "100%", height: "140px" }}
+                              accept="images/*"
+                              onChange={files => {
+                                setFieldValue("logo", files[0]);
+                              }}
+                            >
+                              <Grid item xs className={classes.gridLogo}>
+                                {values.logo ? (
+                                  <img
+                                    src={
+                                      values.logo &&
+                                      URL.createObjectURL(values.logo)
+                                    }
+                                    alt="logo"
+                                  />
+                                ) : (
+                                  <AddIcon
+                                    color="primary"
+                                    style={{ fontSize: 30 }}
+                                  />
+                                )}
+                              </Grid>
                             </InputFiles>
-                            <Typography variant="subtitle1" gutterBottom className={classes.nameLogo}>
-                            { values.logo && values.logo.name }
-                            </Typography>
                           </Grid>
                         </Grid>
                       </Panel>

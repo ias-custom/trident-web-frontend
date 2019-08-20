@@ -7,6 +7,22 @@ const styles = theme => ({
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
   },
+  divRight: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  divTitle: {
+    paddingTop: 16
+  },
+  divAvatar: {
+    width: '100px',
+    height: '64px',
+    '& > img': {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain'
+    }
+  },
   toolbarIcon: {
     display: 'flex',
     alignItems: 'center',
@@ -46,7 +62,7 @@ const styles = theme => ({
     display: 'none',
   },
   title: {
-    flexGrow: 1,
+    //flexGrow: 1,
   },
   drawerPaper: {
     position: 'relative',

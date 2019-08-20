@@ -76,6 +76,42 @@ export const createCustomer = (body) => {
   }
 }
 
+export const getCustomer = (id) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await customerService.get(id);
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+};
+
+export const updateCustomer = (id, body) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await customerService.update(id, body);
+
+      if (response.status === 200) {
+        dispatch(getCustomers());
+      } 
+
+      return response;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+};
+
 export const setHandleForm = (handleForm) => ({
   type: HANDLE_FORM,
   handleForm,

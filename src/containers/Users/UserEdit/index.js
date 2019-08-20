@@ -356,7 +356,7 @@ class UserEdit extends React.Component {
                     color="primary"
                     fullWidth
                   >
-                    GUARDAR
+                    SAVE
                   </Button>
                 </Form>
               );

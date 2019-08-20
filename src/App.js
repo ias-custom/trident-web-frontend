@@ -18,6 +18,7 @@ import RoleEdit from "./containers/Roles/RoleEdit";
 
 import CustomersList from "./containers/Customers/CustomersList";
 import CustomerCreate from "./containers/Customers/CustomerCreate";
+import CustomerEdit from "./containers/Customers/CustomerEdit";
 
 import PrivateRoute from './components/PrivateRoute';
 
@@ -67,6 +68,7 @@ class App extends Component {
 
           <PrivateRoute exact path="/customers" component={CustomersList}></PrivateRoute>
           <PrivateRoute exact path="/customers/create" component={CustomerCreate}></PrivateRoute>
+          <PrivateRoute exact path="/customers/:id" component={CustomerEdit}></PrivateRoute>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

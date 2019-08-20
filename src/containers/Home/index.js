@@ -8,10 +8,23 @@ import UserIcon from '@material-ui/icons/GroupOutlined';
 import { withStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom'
 import Link from '@material-ui/core/Link';
-
+import { compose } from "recompose";
+import { connect } from "react-redux";
+import {
+  toggleItemMenu,
+  selectedItemMenu
+} from "../../redux/actions/layoutActions";
 import styles from './styles';
 
 class Home extends React.Component {
+
+  componentDidMount () {
+    const open = false;
+    this.props.toggleItemMenu({ nameItem: "users", open});
+    this.props.toggleItemMenu({ nameItem: "roles", open});
+    this.props.toggleItemMenu({ nameItem: "customers", open});
+    this.props.selectedItemMenu({ nameItem: "home", nameSubItem: "home" });
+  }
 
   render() {
     const { classes } = this.props;
@@ -41,6 +54,19 @@ class Home extends React.Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {};
+};
 
+const mapDispatchToProps = {
+  toggleItemMenu,
+  selectedItemMenu
+};
 
-export default withStyles(styles)(Home);
+export default compose(
+  withStyles(styles),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
+)(Home);

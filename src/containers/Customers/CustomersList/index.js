@@ -97,7 +97,6 @@ class CustomersList extends React.Component {
   render() {
     const { classes, customers, loading } = this.props;
     const { search, open } = this.state;
-
     return (
       <Layout title="Roles">
         <Dialog
@@ -159,7 +158,7 @@ class CustomersList extends React.Component {
                       {customer.name}
                     </TableCell>
                     <TableCell component="td">
-                    <Avatar src={customer.logo}></Avatar>
+                    <Avatar src={customer.thumbnail}></Avatar>
                     </TableCell>
                     <TableCell>
                       <div style={{display: 'flex'}}>

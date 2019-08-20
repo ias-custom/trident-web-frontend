@@ -45,7 +45,7 @@ export const login = (username, password) => {
       if (response.status === 200) {
         const { id, first_name = '', last_name = '', username, token, customers } = response.data;
         
-        const customersList = customers.map( ({id, logo, name}) => ({id, logo, name}));
+        const customersList = customers.map( ({id, logo, thumbnail, name}) => ({id, logo, thumbnail, name}));
         dispatch({ type: SET_CUSTOMERS, payload: customersList })
         localStorage.setItem('customers',  JSON.stringify(customersList));
         localStorage.setItem('customerSelectedId',  JSON.stringify(customersList[0].id));
