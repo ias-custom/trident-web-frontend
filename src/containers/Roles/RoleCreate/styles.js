@@ -7,6 +7,9 @@ const styles = theme => ({
   },
   textField: {
     width: '100%',
+  },
+  divPermissions: {
+    marginTop: 20
   }
 
 });

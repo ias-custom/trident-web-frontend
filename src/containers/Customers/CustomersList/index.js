@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from "recompose";
-import { fetchRoles } from '../../../redux/actions/globalActions';
 import { Link as RouterLink, withRouter } from 'react-router-dom';
 import {
   Table,
@@ -18,14 +17,15 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Avatar
 } from '@material-ui/core';
 import { Edit, Delete } from '@material-ui/icons';
 import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { deleteRole } from '../../../redux/actions/roleActions'
+import { getCustomers, deleteCustomer } from "../../../redux/actions/customerActions"
 import Layout from '../../../components/Layout/index';
 import SimpleBreadcrumbs from '../../../components/SimpleBreadcrumbs';
 import Panel from '../../../components/Panel';
@@ -34,20 +34,20 @@ import styles from './styles';
 
 const breadcrumbs = [
   {name: 'Home', to: '/home'},
-  {name: 'Roles', to: null},
+  {name: 'Customers', to: null},
 ];
 
-class RolesList extends React.Component {
+class CustomersList extends React.Component {
 
   state = {
     search: '',
     open: false,
-    roleId: ''
+    customerId: ''
   };
 
   componentDidMount() {
-    this.props.fetchRoles();
-    const nameItem = "roles";
+    this.props.getCustomers();
+    const nameItem = "customers";
     const nameSubItem = "list";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
@@ -75,18 +75,18 @@ class RolesList extends React.Component {
 
   handleDelete = async () => {
     this.setState({open: false})
-    const response = await this.props.deleteRole(this.state.roleId);
+    const response = await this.props.deleteCustomer(this.state.customerId);
     if(response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar('Role successfully removed!', {
+      this.props.enqueueSnackbar('Customer successfully removed!', {
         variant: "success",
         anchorOrigin: {vertical: 'top', horizontal: 'center'}
       })
     }
   }
 
-  showModal (roleId) {
-    this.setState({open: true, roleId})
+  showModal (customerId) {
+    this.setState({open: true, customerId})
   }
 
   closeModal = () => {
@@ -95,7 +95,7 @@ class RolesList extends React.Component {
 
 
   render() {
-    const { classes, roles, loading } = this.props;
+    const { classes, customers, loading } = this.props;
     const { search, open } = this.state;
 
     return (
@@ -128,8 +128,8 @@ class RolesList extends React.Component {
           <Panel>
 
             <div className={classes.header}>
-              <Link component={RouterLink} color="inherit" to="/roles/create">
-                <Button variant="outlined" color="primary">Create Role</Button>
+              <Link component={RouterLink} color="inherit" to="/customers/create">
+                <Button variant="outlined" color="primary">Create Customer</Button>
               </Link>
 
               <Input
@@ -147,24 +147,28 @@ class RolesList extends React.Component {
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
-                  <TableCell style={{width: '80%'}}>Name</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Logo</TableCell>
                   <TableCell colSpan={1}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {this.filter(roles, search).map((role) => (
-                  <TableRow key={role.id}>
-                    <TableCell component="td" style={{width: '80%'}}>
-                      {role.name}
+                {this.filter(customers, search).map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell component="td">
+                      {customer.name}
+                    </TableCell>
+                    <TableCell component="td">
+                    <Avatar src={customer.logo}></Avatar>
                     </TableCell>
                     <TableCell>
                       <div style={{display: 'flex'}}>
-                        <Link component={RouterLink} to={`/roles/${role.id}`}>
+                        <Link component={RouterLink} to={`/customers/${customer.id}`}>
                           <IconButton aria-label="Edit" color="primary" disabled={loading}>
                             <Edit />
                           </IconButton>
                         </Link>
-                        <IconButton aria-label="Delete" className={classes.iconDelete} disabled={loading} onClick={() => this.showModal(role.id)}
+                        <IconButton aria-label="Delete" className={classes.iconDelete} disabled={loading} onClick={() => this.showModal(customer.id)}
                         >
                           <Delete/>
                         </IconButton>
@@ -184,14 +188,14 @@ class RolesList extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    roles: state.global.roles
+    customers: state.customers.customers
   }
 };
 
-const mapDispatchToProps = { fetchRoles, deleteRole, toggleItemMenu, selectedItemMenu };
+const mapDispatchToProps = { getCustomers, deleteCustomer, toggleItemMenu, selectedItemMenu };
 
 export default compose(
   withRouter,
-  withStyles(styles, {name: 'RolesList'}),
+  withStyles(styles, {name: 'CustomersList'}),
   connect(mapStateToProps, mapDispatchToProps)
-)(RolesList);
+)(CustomersList);

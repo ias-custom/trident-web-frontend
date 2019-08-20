@@ -35,7 +35,7 @@ class UserService extends Service {
 
   async update(id, body = {}) {
     try {
-      const url = `/customers/${this.getCustomerSelectedId}/users/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/users/${id}/`;
       return await this.http.patch(url, body);
     } catch (error) {
       return error.response;

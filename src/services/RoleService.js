@@ -11,7 +11,7 @@ class RoleService extends Service {
     }
     async get(id) {
       try {
-        const url = `/roles/${id}/`;
+        const url = `/groups/${id}/`;
         return await this.http.get(url);
       } catch (error) {
         return error.response;
@@ -28,7 +28,7 @@ class RoleService extends Service {
 
     async update(id, body = {}) {
       try {
-        const url = `/${id}/`;
+        const url = `/groups/${id}/`;
         return await this.http.patch(url, body);
       } catch (error) {
         return error.response;

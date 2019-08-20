@@ -11,6 +11,7 @@ import {
 } from '../actionTypes';
 
 const customersStorage = JSON.parse(localStorage.getItem('customers'));
+const customerSelectedIdStorage = parseInt(JSON.parse(localStorage.getItem('customerSelectedId')));
 const initialState = {
   loading: false,
   handleForm: false,
@@ -22,7 +23,7 @@ const initialState = {
   productTypes: [],
   productCategories: [],
   customers: customersStorage,
-  customerSelectedId: ''
+  customerSelectedId: customerSelectedIdStorage
 };
 
 export default (state = initialState, action) => {
@@ -62,7 +63,7 @@ export default (state = initialState, action) => {
       return {...state, roles: action.payload};
     
     case SET_CUSTOMERS:
-      return {...state, customers: action.payload}
+      return {...state, customers: action.payload, customerSelectedId: action.payload[0].id}
     
     case SET_CUSTOMER_SELECTED:
       return {...state, customerSelectedId: action.payload}

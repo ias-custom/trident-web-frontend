@@ -23,8 +23,8 @@ import Panel from "../../../components/Panel";
 import {
   fetchRoles,
   setLoading,
-  setCustomers
 } from "../../../redux/actions/globalActions";
+import { getCustomers } from "../../../redux/actions/customerActions"
 import { getUser, updateUser } from "../../../redux/actions/userActions";
 import ListItemText from "@material-ui/core/ListItemText";
 import Input from "@material-ui/core/Input";
@@ -57,7 +57,7 @@ class UserEdit extends React.Component {
 
   componentDidMount = async () => {
     await this.props.fetchRoles()
-    this.props.setCustomers();
+    await this.props.getCustomers();
     try {
       this.userId = this.props.match.params.id;
       const response = await this.props.getUser(this.userId);
@@ -72,14 +72,14 @@ class UserEdit extends React.Component {
   };
 
   loadForm = data => {
-    const { first_name, last_name, email, username, groups } = data;
+    const { first_name, last_name, email, username, groups, customer_ids } = data;
     this.form.username = username;
     this.form.email = email;
     this.form.first_name = first_name;
     this.form.last_name = last_name;
     this.form.role_id = groups[0] || "";
     this.form.enterApp = data.app_access || false;
-    this.form.customersId = data.customers || [];
+    this.form.customersId = customer_ids
     this.setState({})
   };
 
@@ -104,17 +104,18 @@ class UserEdit extends React.Component {
       username,
       password
     } = values;
-    const customersId = values.customersId.map(({id}) => id)
+    const customer_ids = values.customersId
     const groups = [values.role_id]
     const app_access = values.enterApp
 
-    const form = { first_name, last_name, username, password, email, groups, app_access, customersId };
+    const form = { first_name, last_name, username, password, email, groups, app_access, customer_ids };
     
     try {
-      const response = await this.props.updateUser(this.userID, form);
+      const response = await this.props.updateUser(this.userId, form);
 
       if (response.status === 200) {
         resetForm();
+        this.props.history.push("/users");
         this.props.enqueueSnackbar("The user has been updated!", {
           variant: "success"
         });
@@ -305,10 +306,10 @@ class UserEdit extends React.Component {
                                 input={<Input id="select-multiple-chip" />}
                                 renderValue={selected => (
                                   <div className={classes.chips}>
-                                    {selected.map(({ id, name }) => (
+                                    {selected.map( selectedId => (
                                       <Chip
-                                        key={id}
-                                        label={name}
+                                        key={selectedId}
+                                        label={(customers.find( ({id}) => id === selectedId)).name}
                                         className={classes.chip}
                                       />
                                     ))}
@@ -317,11 +318,11 @@ class UserEdit extends React.Component {
                                 fullWidth
                               >
                                 {customers.map(customer => (
-                                  <MenuItem key={customer.id} value={customer}>
+                                  <MenuItem key={customer.id} value={customer.id}>
                                     <Checkbox
                                       checked={
                                         !!values.customersId.find(
-                                          c => c.id === customer.id
+                                          id => id === customer.id
                                         )
                                       }
                                     />
@@ -335,7 +336,7 @@ class UserEdit extends React.Component {
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControlLabel
-                              control={<Checkbox checked={values.enterApp} />}
+                              control={<Checkbox checked={values.enterApp} name="enterApp" onChange={handleChange}/>}
                               label="Has access to the mobile application"
                             />
                           </Grid>
@@ -347,7 +348,7 @@ class UserEdit extends React.Component {
                   <br />
 
                   <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
+                    disabled={loading || isSubmitting || (isValid && !dirty) || (!isValid && dirty)}
                     onClick={e => {
                       handleSubmit(e);
                     }}
@@ -355,7 +356,7 @@ class UserEdit extends React.Component {
                     color="primary"
                     fullWidth
                   >
-                    Create User
+                    GUARDAR
                   </Button>
                 </Form>
               );
@@ -371,13 +372,13 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     roles: state.global.roles,
-    customers: state.global.customers
+    customers: state.customers.customers
   };
 };
 
 const mapDispatchToProps = {
   fetchRoles,
-  setCustomers,
+  getCustomers,
   getUser,
   updateUser,
   setLoading

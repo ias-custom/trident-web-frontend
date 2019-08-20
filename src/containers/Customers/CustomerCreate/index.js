@@ -22,31 +22,25 @@ import {
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import CheckboxGroup  from "../../../components/CheckboxGroup";
-import { createRole } from "../../../redux/actions/roleActions";
+import { createCustomer } from "../../../redux/actions/customerActions";
+import InputFiles from 'react-input-files';
 
-const FakeRoles = [
-  { id: 1, name: "user" },
-  { id: 2, name: "superUser" },
-  { id: 3, name: "employee" },
-  { id: 4, name: "bussiness man" }
-];
 const breadcrumbs = [
   { name: "Home", to: "/home" },
-  { name: "Roles", to: "/roles" },
-  { name: "Create Role", to: null }
+  { name: "Customers", to: "/customers" },
+  { name: "Create Customer", to: null }
 ];
 
-class RoleCreate extends React.Component {
+class CustomerCreate extends React.Component {
   state = {};
 
   form = {
     name: "",
-    permissionsId: []
+    logo: null
   };
 
   componentDidMount() {
-    const nameItem = "roles";
+    const nameItem = "customers";
     const nameSubItem = "create";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
@@ -56,17 +50,19 @@ class RoleCreate extends React.Component {
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name, permissionsId } = values
+    const { name, logo } = values
 
-    const form = { name, permissionsId };
+    let formData = new FormData()
+    formData.append("name", name)
+    formData.append("logo", logo)
     
     try {
-      const response = await this.props.createRole(form);
+      const response = await this.props.createCustomer(formData);
 
       if (response.status === 201) {
         resetForm();
-        this.props.history.push("/roles");
-        this.props.enqueueSnackbar("The role has been created!", {
+        this.props.history.push("/customers");
+        this.props.enqueueSnackbar("The customer has been created!", {
           variant: "success"
         });
       } else {
@@ -81,22 +77,11 @@ class RoleCreate extends React.Component {
     this.props.setLoading(false);
   };
 
-  changeCheckbox (roleId, add, props) {
-    const { setFieldValue, values } = props
-    if (add) {
-      setFieldValue("permissionsId", [
-        ...values.permissionsId,
-        roleId
-      ])
-      return      
-    }
-    setFieldValue("permissionsId", values.permissionsId.filter( id => id !== roleId))
-  }
   render() {
     const { classes, loading } = this.props;
 
     return (
-      <Layout title="Create Role">
+      <Layout title="Create Customer">
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
 
@@ -108,9 +93,7 @@ class RoleCreate extends React.Component {
             }}
             validationSchema={Yup.object().shape({
               name: Yup.string().required("Name is required"),
-              permissionsId: Yup.array()
-                .min(1)
-                .required("Permissions is required")
+              logo: Yup.mixed().required("Logo is required")
             })}
             enableReinitialize
           >
@@ -156,14 +139,27 @@ class RoleCreate extends React.Component {
                           </Grid>
                         </Grid>
 
-                        <Grid container spacing={16}>
+                        <Grid container spacing={16} className={classes.divLogo}>
                           <Grid item xs className={classes.divPermissions}>
                             <Typography variant="subtitle1" gutterBottom>
-                              Permissions
+                              Logo
                             </Typography>
                           </Grid>
                         </Grid>
-                        <CheckboxGroup roles={FakeRoles} permissionsId={values.permissionsId} onChange={ (roleId, add) => {this.changeCheckbox(roleId, add, props)}}></CheckboxGroup>
+                        <Grid container spacing={16}>
+                          <Grid item xs>
+                            <InputFiles name="logo" accept="images/*" onChange={ files => (
+                              setFieldValue("logo", files[0])
+                            )}>
+                              <Button variant="contained" color="primary">
+                                SUBIR IMAGEN
+                              </Button>
+                            </InputFiles>
+                            <Typography variant="subtitle1" gutterBottom className={classes.nameLogo}>
+                            { values.logo && values.logo.name }
+                            </Typography>
+                          </Grid>
+                        </Grid>
                       </Panel>
                     </Grid>
                   </Grid>
@@ -179,7 +175,7 @@ class RoleCreate extends React.Component {
                     color="primary"
                     fullWidth
                   >
-                    Create Role
+                    Create Customer
                   </Button>
                 </Form>
               );
@@ -201,15 +197,15 @@ const mapDispatchToProps = {
   setLoading,
   toggleItemMenu,
   selectedItemMenu,
-  createRole
+  createCustomer
 };
 
 export default compose(
   withRouter,
   withSnackbar,
-  withStyles(styles, { name: "RoleCreate" }),
+  withStyles(styles, { name: "CustomerCreate" }),
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
-)(RoleCreate);
+)(CustomerCreate);

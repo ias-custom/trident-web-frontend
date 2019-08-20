@@ -82,7 +82,6 @@ export const updateUser = (id, body) => {
 
     try {
       const response = await service.update(id, body);
-      console.log(response);
 
       if (response.status === 200) {
         dispatch({ type: UPDATE_USER, payload: response.data });

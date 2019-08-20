@@ -22,9 +22,9 @@ import {
   fetchRoles,
   fetchStates,
   setHandleForm,
-  setLoading,
-  setCustomers
+  setLoading
 } from "../../../redux/actions/globalActions";
+import { getCustomers } from "../../../redux/actions/customerActions"
 import { createUser } from "../../../redux/actions/userActions";
 import {
   toggleItemMenu,
@@ -65,8 +65,8 @@ class UserCreate extends React.Component {
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });
     try {
+      this.props.getCustomers();
       this.props.fetchRoles();
-      this.props.fetchStates();
     } catch (error) {
       console.error(error.message);
     }
@@ -82,11 +82,11 @@ class UserCreate extends React.Component {
       username,
       password
     } = values;
-    const customersId = values.customersId.map(({id}) => id)
+    const customer_ids = values.customersId.map(({id}) => id)
     const groups = [values.role_id]
     const app_access = values.enterApp
 
-    const form = { first_name, last_name, username, password, email, groups, app_access, customersId };
+    const form = { first_name, last_name, username, password, email, groups, app_access, customer_ids };
     
     try {
       const response = await this.props.createUser(form);
@@ -123,7 +123,6 @@ class UserCreate extends React.Component {
       <Layout title="Create User">
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
-
           <Formik
             onSubmit={this.handleSubmit}
             validateOnChange
@@ -333,7 +332,7 @@ class UserCreate extends React.Component {
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControlLabel
-                              control={<Checkbox checked={values.enterApp} />}
+                              control={<Checkbox checked={values.enterApp} name="enterApp" onChange={handleChange}/>}
                               label="Has access to the mobile application"
                             />
                           </Grid>
@@ -369,7 +368,7 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     roles: state.global.roles,
-    customers: state.global.customers
+    customers: state.customers.customers
   };
 };
 
@@ -381,7 +380,7 @@ const mapDispatchToProps = {
   setLoading,
   toggleItemMenu,
   selectedItemMenu,
-  setCustomers
+  getCustomers
 };
 
 export default compose(

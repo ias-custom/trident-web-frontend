@@ -21,7 +21,10 @@ class CustomerService extends Service {
 
   async create(body = {}) {
     try {
-      return await this.http.post('/customers/', body);
+      const config = {     
+        headers: { 'content-type': 'multipart/form-data' }
+      }
+      return await this.http.post('/customers/', body, config);
     } catch (error) {
       return error.response;
     }

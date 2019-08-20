@@ -106,3 +106,72 @@ export const deleteRole = (id) => {
   }
 }
 
+export const createRole = (body) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await roleService.create(body);
+
+      if (response.status === 201) {
+        dispatch(fetchRoles());
+      } else {
+        const alert = {type: 'error', message: 'The request could not be processed!'};
+        dispatch({ type: SHOW_ALERT, alert});
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+
+export const getRole = (id) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await roleService.get(id);
+
+      if (response.status === 200) {
+       dispatch(fetchRoles());
+      } else {
+        const alert = {type: 'error', message: 'The request could not be processed!'};
+        dispatch({ type: SHOW_ALERT, alert});
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+};
+
+export const updateRole = (id, body) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await roleService.update(id, body);
+
+      if (response.status === 200) {
+        dispatch(fetchRoles());
+      } else {
+        const alert = {type: 'error', message: 'The request could not be processed!'};
+        dispatch({ type: SHOW_ALERT, alert});
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+};
+

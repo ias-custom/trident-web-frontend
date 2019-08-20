@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { withRouter, Redirect } from "react-router-dom";
+import { compose } from "recompose";
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,7 +20,8 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import  MainListItems, { secondaryListItems } from './listItems';
+import  MainListItems from './listItems';
+import  SecondaryListItems from './secondaryItems';
 import LinearLoading from "../LinearLoading";
 import { logout } from '../../redux/actions/authActions';
 import { setCustomerSelected } from '../../redux/actions/globalActions';
@@ -37,11 +39,12 @@ class Layout extends React.Component {
   }
 
   componentDidMount () {
-    this.props.setCustomerSelected(this.props.customers[0].id)
   }
 
   changeSelectCustomer = (event) => {
-    this.props.setCustomerSelected(event.target.value)
+    this.props.setCustomerSelected(parseInt(event.target.value))
+    localStorage.setItem("customerSelectedId", event.target.value)
+    this.props.history.push("/home")
   }
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -119,7 +122,6 @@ class Layout extends React.Component {
                 {customers.map( ({id, name}) => (
                   <MenuItem value={id} key={id}>{name}</MenuItem>
                 ))}
-                <MenuItem value="2" key="2">select 2</MenuItem>
               </Select>
             ): null}
             <IconButton color="inherit" onClick={this.handleMenu}>
@@ -161,7 +163,7 @@ class Layout extends React.Component {
           <Divider />
           <List><MainListItems/></List>
           <Divider />
-          <List>{secondaryListItems}</List>
+          <List><SecondaryListItems/></List>
         </Drawer>
         <main className={classes.content}>
 
@@ -194,7 +196,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = { logout, setCustomerSelected };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Layout));
+export default compose(
+  withRouter,
+  withStyles(styles),
+  connect(mapStateToProps, mapDispatchToProps)
+)(Layout);

@@ -6,9 +6,6 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import ReportingIcon from '@material-ui/icons/Assessment';
-import ProjectIcon from '@material-ui/icons/Work';
 import RolesIcon from '@material-ui/icons/AssignmentInd';
 import CustomersIcon from '@material-ui/icons/HowToReg';
 
@@ -27,9 +24,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import StarBorder from '@material-ui/icons/StarBorder';
 */
 
-const DashboardLink = props => <RouterLink to="/home" {...props} />;
-const ReportingLink = props => <RouterLink to="/reports" {...props} />;
-const ProjectLink = props => <RouterLink to="/projects" {...props} />;
+
 const UsersLink = props => <RouterLink to="/users" {...props} />;
 const UsersCreateLink = props => <RouterLink to="/users/create" {...props} />;
 const RolesLink = props => <RouterLink to="/roles" {...props} />;
@@ -42,6 +37,7 @@ class MainListItems extends React.Component {
   changeStateOpen = (nameItem, open) => {
     this.props.toggleItemMenu({nameItem, open})
   };
+  
   
   render () {
     const { classes, itemsMenu } = this.props
@@ -99,12 +95,12 @@ class MainListItems extends React.Component {
           <Collapse in={itemsMenu.customers.open}>
             <List component="div">
               <Link component={CustomersLink} underline="none">
-                <ListItem button className={classes.subMenu}>
+                <ListItem button className={classes.subMenu} selected={itemsMenu.customers.list}>
                   <ListItemText primary="Customers List" />
                 </ListItem>
               </Link>
               <Link component={CustomersCreateLink} underline="none">
-                <ListItem button className={classes.subMenu}>
+                <ListItem button className={classes.subMenu} selected={itemsMenu.customers.create}>
                   <ListItemText primary="Customer Create" />
                 </ListItem>
               </Link>
@@ -118,6 +114,8 @@ class MainListItems extends React.Component {
 const mapStateToProps = (state) => {
   return {
     itemsMenu: state.layout.itemsMenu,
+    customerSelectedId: state.global.customerSelectedId,
+    customers: state.global.customers
   }
 };
 
@@ -129,31 +127,3 @@ export default compose(
 )(MainListItems);
 
 
-export const secondaryListItems = (
-      <div>
-        <Link component={DashboardLink}>
-          <ListItem button>
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-        </Link>
-        <Link component={ReportingLink}>
-          <ListItem button>
-            <ListItemIcon>
-              <ReportingIcon />
-            </ListItemIcon>
-            <ListItemText primary="Reports" />
-          </ListItem>
-        </Link>
-        <Link component={ProjectLink}>
-          <ListItem button>
-            <ListItemIcon>
-              <ProjectIcon />
-            </ListItemIcon>
-            <ListItemText primary="Projects" />
-          </ListItem>
-        </Link>
-      </div>
-    );

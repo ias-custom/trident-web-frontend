@@ -23,21 +23,22 @@ import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import CheckboxGroup  from "../../../components/CheckboxGroup";
-import { createRole } from "../../../redux/actions/roleActions";
+import { getRole, updateRole } from "../../../redux/actions/roleActions";
 
 const FakeRoles = [
-  { id: 1, name: "user" },
-  { id: 2, name: "superUser" },
-  { id: 3, name: "employee" },
-  { id: 4, name: "bussiness man" }
-];
+  { id: 70, name: "user" },
+  { id: 69, name: "superUser" },
+  { id: 71, name: "employee" },
+  { id: 72, name: "bussiness man" },
+  { id: 73, name: "role test" }
+];  
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Roles", to: "/roles" },
   { name: "Create Role", to: null }
 ];
 
-class RoleCreate extends React.Component {
+class RoleEdit extends React.Component {
   state = {};
 
   form = {
@@ -45,12 +46,19 @@ class RoleCreate extends React.Component {
     permissionsId: []
   };
 
-  componentDidMount() {
-    const nameItem = "roles";
-    const nameSubItem = "create";
-    const open = true;
-    this.props.toggleItemMenu({ nameItem, open });
-    this.props.selectedItemMenu({ nameItem, nameSubItem });
+  roleId = null
+  componentDidMount = async () => {
+    try {
+      this.roleId = this.props.match.params.id
+      const response = await this.props.getRole(this.roleId);
+      if (response.status === 200) {
+        this.loadForm(response.data);
+      } else {
+        this.props.history.push("/404");
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   handleSubmit = async (values, formikActions) => {
@@ -58,15 +66,15 @@ class RoleCreate extends React.Component {
     this.props.setLoading(true);
     const { name, permissionsId } = values
 
-    const form = { name, permissionsId };
+    const form = { name, permissions: permissionsId };
     
     try {
-      const response = await this.props.createRole(form);
+      const response = await this.props.updateRole(this.roleId, form);
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         resetForm();
         this.props.history.push("/roles");
-        this.props.enqueueSnackbar("The role has been created!", {
+        this.props.enqueueSnackbar("The role has been updated", {
           variant: "success"
         });
       } else {
@@ -79,6 +87,13 @@ class RoleCreate extends React.Component {
     }
     setSubmitting(false);
     this.props.setLoading(false);
+  };
+
+  loadForm = data => {
+    const { name, permissions, } = data;
+    this.form.name = name;
+    this.form.permissionsId = permissions;  
+    this.setState({})
   };
 
   changeCheckbox (roleId, add, props) {
@@ -169,9 +184,9 @@ class RoleCreate extends React.Component {
                   </Grid>
 
                   <br />
-
+                  
                   <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
+                    disabled={loading || isSubmitting || (isValid && !dirty) || (!isValid && dirty) }
                     onClick={e => {
                       handleSubmit(e);
                     }}
@@ -201,7 +216,8 @@ const mapDispatchToProps = {
   setLoading,
   toggleItemMenu,
   selectedItemMenu,
-  createRole
+  updateRole,
+  getRole
 };
 
 export default compose(
@@ -212,4 +228,4 @@ export default compose(
     mapStateToProps,
     mapDispatchToProps
   )
-)(RoleCreate);
+)(RoleEdit);

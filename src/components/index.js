@@ -6,6 +6,7 @@ import Panel from './Panel';
 import SimpleBreadcrumbs from './SimpleBreadcrumbs';
 import TabContainer from './TabContainer';
 import { PhoneMask, NpiMask } from './InputMask';
+import CheckboxGroup from './CheckboxGroup';
 import Errors from './Errors';
 
 export {
@@ -18,5 +19,6 @@ export {
   TabContainer,
   PhoneMask,
   NpiMask,
+  CheckboxGroup,
   Errors
 }

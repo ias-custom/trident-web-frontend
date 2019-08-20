@@ -5,13 +5,6 @@ import Card from '@material-ui/core/Card/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid/Grid';
 import UserIcon from '@material-ui/icons/GroupOutlined';
-import ProductIcon from '@material-ui/icons/Opacity';
-import PatientIcon from '@material-ui/icons/Accessible';
-import OrderIcon from '@material-ui/icons/ShoppingCartOutlined';
-import ExpirationIcon from '@material-ui/icons/CalendarToday';
-import CallCustomersIcon from '@material-ui/icons/CallOutlined';
-import CheckEligibilityIcon from '@material-ui/icons/MobileFriendly';
-import ShippingStatusIcon from '@material-ui/icons/LocalShippingOutlined';
 import { withStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom'
 import Link from '@material-ui/core/Link';
