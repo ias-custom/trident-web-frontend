@@ -105,6 +105,13 @@ const styles = theme => ({
   tableContainer: {
     height: 320,
   },
+  textEllipsis: {
+    '& > span': {
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden'
+    }
+  },
   h5: {
     marginBottom: theme.spacing.unit * 2,
   },

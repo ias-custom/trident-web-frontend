@@ -9,7 +9,8 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  Chip
+  Chip,
+  FormHelperText
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
@@ -20,11 +21,8 @@ import { withStyles } from "@material-ui/core/styles";
 import styles from "./styles";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
-import {
-  fetchRoles,
-  setLoading,
-} from "../../../redux/actions/globalActions";
-import { getCustomers } from "../../../redux/actions/customerActions"
+import { fetchRoles, setLoading } from "../../../redux/actions/globalActions";
+import { getCustomers } from "../../../redux/actions/customerActions";
 import { getUser, updateUser } from "../../../redux/actions/userActions";
 import ListItemText from "@material-ui/core/ListItemText";
 import Input from "@material-ui/core/Input";
@@ -53,10 +51,10 @@ class UserEdit extends React.Component {
     enterApp: false
   };
 
-  userId = null
+  userId = null;
 
   componentDidMount = async () => {
-    await this.props.fetchRoles()
+    await this.props.fetchRoles();
     await this.props.getCustomers();
     try {
       this.userId = this.props.match.params.id;
@@ -72,15 +70,22 @@ class UserEdit extends React.Component {
   };
 
   loadForm = data => {
-    const { first_name, last_name, email, username, groups, customer_ids } = data;
+    const {
+      first_name,
+      last_name,
+      email,
+      username,
+      groups,
+      customer_ids
+    } = data;
     this.form.username = username;
     this.form.email = email;
     this.form.first_name = first_name;
     this.form.last_name = last_name;
     this.form.role_id = groups[0] || "";
     this.form.enterApp = data.app_access || false;
-    this.form.customersId = customer_ids
-    this.setState({})
+    this.form.customersId = customer_ids;
+    this.setState({});
   };
 
   handleChange = event => {
@@ -94,22 +99,25 @@ class UserEdit extends React.Component {
     this.setState({ tab });
   };
 
-  handleSubmit = async (values, formikActions) => {   
+  handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const {
+    const { first_name, last_name, email, username, password } = values;
+    const customer_ids = values.customersId;
+    const groups = [values.role_id];
+    const app_access = values.enterApp;
+
+    const form = {
       first_name,
       last_name,
-      email,
       username,
-      password
-    } = values;
-    const customer_ids = values.customersId
-    const groups = [values.role_id]
-    const app_access = values.enterApp
+      password,
+      email,
+      groups,
+      app_access,
+      customer_ids
+    };
 
-    const form = { first_name, last_name, username, password, email, groups, app_access, customer_ids };
-    
     try {
       const response = await this.props.updateUser(this.userId, form);
 
@@ -132,12 +140,7 @@ class UserEdit extends React.Component {
   };
 
   render() {
-    const {
-      classes,
-      loading,
-      roles,
-      customers
-    } = this.props;
+    const { classes, loading, roles, customers } = this.props;
 
     return (
       <Layout title="Edit User">
@@ -159,7 +162,7 @@ class UserEdit extends React.Component {
               username: Yup.string().required("Username is required"),
               role_id: Yup.mixed().required("Role is required"),
               customersId: Yup.array()
-                .min(1)
+                .min(1, "Select at least one customer")
                 .required("Role is required")
             })}
           >
@@ -265,7 +268,7 @@ class UserEdit extends React.Component {
                             />
                           </Grid>
                         </Grid>
-                        
+
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <TextField
@@ -295,21 +298,29 @@ class UserEdit extends React.Component {
                           </Grid>
                           <Grid item xs>
                             <FormControl fullWidth margin="normal">
-                              <InputLabel htmlFor="select-multiple-chip">
+                              <InputLabel
+                                htmlFor="select-multiple-chip"
+                                error={!!errors.customersId}
+                              >
                                 Customers
                               </InputLabel>
                               <Select
                                 multiple
                                 name="customersId"
                                 value={values.customersId}
+                                error={!!errors.customersId}
                                 onChange={handleChange}
                                 input={<Input id="select-multiple-chip" />}
                                 renderValue={selected => (
                                   <div className={classes.chips}>
-                                    {selected.map( selectedId => (
+                                    {selected.map(selectedId => (
                                       <Chip
                                         key={selectedId}
-                                        label={(customers.find( ({id}) => id === selectedId)).name}
+                                        label={
+                                          customers.find(
+                                            ({ id }) => id === selectedId
+                                          ).name
+                                        }
                                         className={classes.chip}
                                       />
                                     ))}
@@ -318,7 +329,10 @@ class UserEdit extends React.Component {
                                 fullWidth
                               >
                                 {customers.map(customer => (
-                                  <MenuItem key={customer.id} value={customer.id}>
+                                  <MenuItem
+                                    key={customer.id}
+                                    value={customer.id}
+                                  >
                                     <Checkbox
                                       checked={
                                         !!values.customersId.find(
@@ -330,13 +344,22 @@ class UserEdit extends React.Component {
                                   </MenuItem>
                                 ))}
                               </Select>
+                              <FormHelperText error={!!errors.customersId}>
+                                {!!errors.customersId && errors.customersId}
+                              </FormHelperText>
                             </FormControl>
                           </Grid>
                         </Grid>
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControlLabel
-                              control={<Checkbox checked={values.enterApp} name="enterApp" onChange={handleChange}/>}
+                              control={
+                                <Checkbox
+                                  checked={values.enterApp}
+                                  name="enterApp"
+                                  onChange={handleChange}
+                                />
+                              }
                               label="Has access to the mobile application"
                             />
                           </Grid>
@@ -348,7 +371,12 @@ class UserEdit extends React.Component {
                   <br />
 
                   <Button
-                    disabled={loading || isSubmitting || (isValid && !dirty) || (!isValid && dirty)}
+                    disabled={
+                      loading ||
+                      isSubmitting ||
+                      (isValid && !dirty) ||
+                      (!isValid && dirty)
+                    }
                     onClick={e => {
                       handleSubmit(e);
                     }}

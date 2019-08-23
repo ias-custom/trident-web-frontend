@@ -25,7 +25,7 @@ import {
   setHandleForm,
   setLoading
 } from "../../../redux/actions/globalActions";
-import { getCustomers } from "../../../redux/actions/customerActions"
+import { getCustomers } from "../../../redux/actions/customerActions";
 import { createUser } from "../../../redux/actions/userActions";
 import {
   toggleItemMenu,
@@ -76,19 +76,22 @@ class UserCreate extends React.Component {
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const {
+    const { first_name, last_name, email, username, password } = values;
+    const customer_ids = values.customersId.map(({ id }) => id);
+    const groups = [values.role_id];
+    const app_access = values.enterApp;
+
+    const form = {
       first_name,
       last_name,
-      email,
       username,
-      password
-    } = values;
-    const customer_ids = values.customersId.map(({id}) => id)
-    const groups = [values.role_id]
-    const app_access = values.enterApp
+      password,
+      email,
+      groups,
+      app_access,
+      customer_ids
+    };
 
-    const form = { first_name, last_name, username, password, email, groups, app_access, customer_ids };
-    
     try {
       const response = await this.props.createUser(form);
 
@@ -110,15 +113,8 @@ class UserCreate extends React.Component {
     this.props.setLoading(false);
   };
 
-  
-
   render() {
-    const {
-      classes,
-      roles,
-      loading,
-      customers
-    } = this.props;
+    const { classes, roles, loading, customers } = this.props;
 
     return (
       <Layout title="Create User">
@@ -136,10 +132,14 @@ class UserCreate extends React.Component {
                 .required("Email is required"),
               first_name: Yup.string().required("First name is required"),
               last_name: Yup.string().required("Last name is required"),
-              password: Yup.string().min(8).required("Password is required"),
+              password: Yup.string()
+                .min(8)
+                .required("Password is required"),
               username: Yup.string().required("Username is required"),
               role_id: Yup.mixed().required("Role is required"),
-              customersId: Yup.array().min(1, "Select at least one customer").required("Customer is required")
+              customersId: Yup.array()
+                .min(1, "Select at least one customer")
+                .required("Customer is required")
             })}
           >
             {props => {
@@ -294,7 +294,12 @@ class UserCreate extends React.Component {
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControl fullWidth margin="normal">
-                              <InputLabel htmlFor="select-multiple-chip" error={!!touched.customersId && !!errors.customersId}>
+                              <InputLabel
+                                htmlFor="select-multiple-chip"
+                                error={
+                                  !!touched.customersId && !!errors.customersId
+                                }
+                              >
                                 Customers
                               </InputLabel>
                               <Select
@@ -303,11 +308,13 @@ class UserCreate extends React.Component {
                                 value={values.customersId}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={!!touched.customersId && !!errors.customersId}
+                                error={
+                                  !!touched.customersId && !!errors.customersId
+                                }
                                 input={<Input id="select-multiple-chip" />}
                                 renderValue={selected => (
                                   <div className={classes.chips}>
-                                    {selected.map(({ id, name}) => (
+                                    {selected.map(({ id, name }) => (
                                       <Chip
                                         key={id}
                                         label={name}
@@ -322,23 +329,37 @@ class UserCreate extends React.Component {
                                   <MenuItem key={customer.id} value={customer}>
                                     <Checkbox
                                       checked={
-                                        !!values.customersId.find(c => c.id === customer.id)
+                                        !!values.customersId.find(
+                                          c => c.id === customer.id
+                                        )
                                       }
                                     />
                                     <ListItemText primary={customer.name} />
                                   </MenuItem>
                                 ))}
                               </Select>
-                              <FormHelperText error={!!touched.customersId && !!errors.customersId}>{!!touched.customersId &&
-                                    !!errors.customersId &&
-                                    errors.customersId}</FormHelperText>
+                              <FormHelperText
+                                error={
+                                  !!touched.customersId && !!errors.customersId
+                                }
+                              >
+                                {!!touched.customersId &&
+                                  !!errors.customersId &&
+                                  errors.customersId}
+                              </FormHelperText>
                             </FormControl>
                           </Grid>
                         </Grid>
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControlLabel
-                              control={<Checkbox checked={values.enterApp} name="enterApp" onChange={handleChange}/>}
+                              control={
+                                <Checkbox
+                                  checked={values.enterApp}
+                                  name="enterApp"
+                                  onChange={handleChange}
+                                />
+                              }
                               label="Has access to the mobile application"
                             />
                           </Grid>
@@ -350,7 +371,7 @@ class UserCreate extends React.Component {
                   <br />
 
                   <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty }
+                    disabled={loading || isSubmitting || !isValid || !dirty}
                     onClick={e => {
                       handleSubmit(e);
                     }}

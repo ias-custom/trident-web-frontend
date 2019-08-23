@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  Button,
-  Typography
-} from "@material-ui/core";
+import { Grid, TextField, Button, Typography } from "@material-ui/core";
 import { compose } from "recompose";
-import { withRouter, Prompt, Redirect } from "react-router-dom";
+import { withRouter, Prompt } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { withSnackbar } from "notistack";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
@@ -22,7 +17,10 @@ import {
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import { getCustomer, updateCustomer } from "../../../redux/actions/customerActions";
+import {
+  getCustomer,
+  updateCustomer
+} from "../../../redux/actions/customerActions";
 import AddIcon from "@material-ui/icons/Add";
 import InputFiles from "react-input-files";
 
@@ -40,10 +38,10 @@ class CustomerEdit extends React.Component {
     logo: null
   };
 
-  customerId = null
-  logoFile = null
+  customerId = null;
+  logoFile = null;
 
-  componentDidMount = async() => {
+  componentDidMount = async () => {
     try {
       this.customerId = this.props.match.params.id;
       const response = await this.props.getCustomer(this.customerId);
@@ -55,26 +53,29 @@ class CustomerEdit extends React.Component {
     } catch (error) {
       console.error(error);
     }
-  }
-  
-  loadForm (data) {
+  };
+
+  loadForm(data) {
     const { name, thumbnail } = data;
     this.form.name = name;
-    this.form.logo = thumbnail;  
-    this.setState({})
-  };
+    this.form.logo = thumbnail;
+    this.setState({});
+  }
 
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name } = values
+    const { name } = values;
 
-    let formData = new FormData()
-    formData.append("name", name)
-    if(this.logoFile) formData.append("logo", this.logoFile)
-    
+    let formData = new FormData();
+    formData.append("name", name);
+    if (this.logoFile) formData.append("logo", this.logoFile);
+
     try {
-      const response = await this.props.updateCustomer(this.customerId, formData);
+      const response = await this.props.updateCustomer(
+        this.customerId,
+        formData
+      );
 
       if (response.status === 200) {
         resetForm();
@@ -95,11 +96,8 @@ class CustomerEdit extends React.Component {
   };
 
   render() {
-    const { classes, loading, is_superuser } = this.props;
+    const { classes, loading } = this.props;
 
-    if (!is_superuser) {
-      return <Redirect to="/home" />
-    }
     return (
       <Layout title="Create Customer">
         <div className={classes.root}>
@@ -159,7 +157,11 @@ class CustomerEdit extends React.Component {
                           </Grid>
                         </Grid>
 
-                        <Grid container spacing={16} className={classes.divLogo}>
+                        <Grid
+                          container
+                          spacing={16}
+                          className={classes.divLogo}
+                        >
                           <Grid item xs className={classes.divPermissions}>
                             <Typography variant="subtitle1" gutterBottom>
                               Logo
@@ -173,17 +175,16 @@ class CustomerEdit extends React.Component {
                               style={{ width: "100%", height: "140px" }}
                               accept="images/*"
                               onChange={files => {
-                                this.logoFile = files[0]
-                                setFieldValue("logo", URL.createObjectURL(files[0]));
+                                this.logoFile = files[0];
+                                setFieldValue(
+                                  "logo",
+                                  URL.createObjectURL(files[0])
+                                );
                               }}
                             >
                               <Grid item xs className={classes.gridLogo}>
                                 {values.logo ? (
-                                  <img
-                                    src={
-                                      values.logo}
-                                    alt="logo"
-                                  />
+                                  <img src={values.logo} alt="logo" />
                                 ) : (
                                   <AddIcon
                                     color="primary"
@@ -201,7 +202,12 @@ class CustomerEdit extends React.Component {
                   <br />
 
                   <Button
-                    disabled={loading || isSubmitting || (isValid && !dirty) || (!isValid && dirty)}
+                    disabled={
+                      loading ||
+                      isSubmitting ||
+                      (isValid && !dirty) ||
+                      (!isValid && dirty)
+                    }
                     onClick={e => {
                       handleSubmit(e);
                     }}
@@ -223,8 +229,7 @@ class CustomerEdit extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    loading: state.global.loading,
-    is_superuser: state.auth.is_superuser
+    loading: state.global.loading
   };
 };
 

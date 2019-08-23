@@ -26,6 +26,7 @@ class SecondaryListItems extends React.Component {
   render () { 
     const customerSelected = this.props.customers.find( ({id}) => id === this.props.customerSelectedId)
     const customerName = customerSelected.name
+    const { classes } = this.props
     return (
       <div>
         <Link component={DashboardLink}>
@@ -33,7 +34,7 @@ class SecondaryListItems extends React.Component {
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
-            <ListItemText primary={`${customerName} Dashboard`} />
+            <ListItemText primary={`${customerName} Dashboard`} className={classes.textEllipsis}/>
           </ListItem>
         </Link>
         <Link component={ReportingLink}>
@@ -66,5 +67,5 @@ return {
 
 export default compose(
 connect(mapStateToProps),
-withStyles(styles)
+withStyles(styles, {name: 'Layout'})
 )(SecondaryListItems);

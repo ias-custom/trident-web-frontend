@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  Button,
-  Typography
-} from "@material-ui/core";
+import { Grid, TextField, Button, Typography } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
@@ -22,7 +17,7 @@ import {
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import CheckboxGroup  from "../../../components/CheckboxGroup";
+import CheckboxGroup from "../../../components/CheckboxGroup";
 import { getRole, updateRole } from "../../../redux/actions/roleActions";
 
 const breadcrumbs = [
@@ -39,10 +34,10 @@ class RoleEdit extends React.Component {
     permissionsId: []
   };
 
-  roleId = null
+  roleId = null;
   componentDidMount = async () => {
     try {
-      this.roleId = this.props.match.params.id
+      this.roleId = this.props.match.params.id;
       const response = await this.props.getRole(this.roleId);
       if (response.status === 200) {
         this.loadForm(response.data);
@@ -52,15 +47,15 @@ class RoleEdit extends React.Component {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name, permissionsId } = values
+    const { name, permissionsId } = values;
 
     const form = { name, permissions: permissionsId };
-    
+
     try {
       const response = await this.props.updateRole(this.roleId, form);
 
@@ -83,23 +78,23 @@ class RoleEdit extends React.Component {
   };
 
   loadForm = data => {
-    const { name, permissions, } = data;
+    const { name, permissions } = data;
     this.form.name = name;
-    this.form.permissionsId = permissions;  
-    this.setState({})
+    this.form.permissionsId = permissions;
+    this.setState({});
   };
 
-  changeCheckbox (permissions, add, props) {
-    const { setFieldValue, values } = props
-    const permissionsFinal = new Set([...values.permissionsId, ...permissions])
+  changeCheckbox(permissions, add, props) {
+    const { setFieldValue, values } = props;
+    const permissionsFinal = new Set([...values.permissionsId, ...permissions]);
     if (add) {
-      setFieldValue("permissionsId", [
-        ...permissionsFinal
-      ])
-      return      
+      setFieldValue("permissionsId", [...permissionsFinal]);
+      return;
     }
-    setFieldValue("permissionsId", values.permissionsId.filter( id => !permissions.includes(id)))
-  
+    setFieldValue(
+      "permissionsId",
+      values.permissionsId.filter(id => !permissions.includes(id))
+    );
   }
   render() {
     const { classes, loading } = this.props;
@@ -172,15 +167,25 @@ class RoleEdit extends React.Component {
                             </Typography>
                           </Grid>
                         </Grid>
-                        <CheckboxGroup permissionsId={values.permissionsId} onChange={ (permissions, add) => {this.changeCheckbox(permissions, add, props)}}></CheckboxGroup>
+                        <CheckboxGroup
+                          permissionsId={values.permissionsId}
+                          onChange={(permissions, add) => {
+                            this.changeCheckbox(permissions, add, props);
+                          }}
+                        />
                       </Panel>
                     </Grid>
                   </Grid>
 
                   <br />
-                  
+
                   <Button
-                    disabled={loading || isSubmitting || (isValid && !dirty) || (!isValid && dirty) }
+                    disabled={
+                      loading ||
+                      isSubmitting ||
+                      (isValid && !dirty) ||
+                      (!isValid && dirty)
+                    }
                     onClick={e => {
                       handleSubmit(e);
                     }}
