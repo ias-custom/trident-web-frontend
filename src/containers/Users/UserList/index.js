@@ -29,7 +29,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { withSnackbar } from 'notistack';
-
+import { CAN_ADD_USER, CAN_CHANGE_USER, CAN_DELETE_USER } from '../../../redux/permissions'
 
 const breadcrumbs = [
   {name: 'Home', to: '/home'},
@@ -95,9 +95,13 @@ class UserList extends React.Component {
 
 
   render() {
-    const { classes, users, loading, auth } = this.props;
+    const { classes, users, loading, auth, is_superuser, permissions } = this.props;
+    const canCreateUser = permissions.includes(CAN_ADD_USER)
+    const canChangeUser = permissions.includes(CAN_CHANGE_USER)
+    const canDeleteUser = permissions.includes(CAN_DELETE_USER)
     const { search, open } = this.state;
 
+    
     return (
       
       <Layout title="Users">
@@ -128,11 +132,12 @@ class UserList extends React.Component {
 
           <Panel>
 
-            <div className={classes.header}>
-              <Link component={RouterLink} color="inherit" to="/users/create">
-                <Button variant="outlined" color="primary">Create User</Button>
-              </Link>
-
+            <div className={ canCreateUser || is_superuser ? (classes.header): (classes.headerRight)}>
+              {canCreateUser || is_superuser ? (
+                <Link component={RouterLink} color="inherit" to="/users/create">
+                  <Button variant="outlined" color="primary">Create User</Button>
+                </Link>
+              ): null}  
               <Input
                 style={{width: 300}}
                 defaultValue=""
@@ -174,12 +179,18 @@ class UserList extends React.Component {
                     <TableCell>{user.role ? user.role.label : '-'}</TableCell>
                     <TableCell align="center">
                       <div style={{display: 'flex'}}>
-                        <Link component={RouterLink} to={`/users/${user.id}`}>
-                          <IconButton aria-label="Edit" color="primary" disabled={loading}>
+                        {(canChangeUser || is_superuser) ? (
+                          <Link component={RouterLink} to={`/users/${user.id}`}>
+                            <IconButton aria-label="Edit" color="primary" disabled={loading}>
+                              <Edit />
+                            </IconButton>
+                          </Link>
+                        ): (
+                          <IconButton aria-label="Edit" color="primary" disabled={loading || !canChangeUser || !is_superuser}>
                             <Edit />
                           </IconButton>
-                        </Link>
-                        <IconButton aria-label="Edit" className={classes.iconDelete} disabled={auth.id === user.id || loading} onClick={() => this.showModal(user.id)}>
+                        )}
+                        <IconButton aria-label="Edit" className={classes.iconDelete} disabled={auth.id === user.id || loading || (!canDeleteUser && !is_superuser)} onClick={() => this.showModal(user.id)}>
                           <Delete/>
                         </IconButton>
                       </div>
@@ -199,7 +210,9 @@ const mapStateToProps = state => {
   return {
     auth: state.auth,
     loading: state.global.loading,
-    users: state.users.list
+    users: state.users.list,
+    permissions: state.auth.permissions,
+    is_superuser: state.auth.is_superuser
   }
 };
 

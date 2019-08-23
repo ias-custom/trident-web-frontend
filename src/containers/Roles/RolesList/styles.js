@@ -17,13 +17,25 @@ const styles = theme => ({
     alignItems: 'center',
     padding: 20
   },
+  headerRight: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 20
+  },
   iconDelete: {
     '& svg': {
       color: "#f50057"      
     },
     '&:hover': {
       backgroundColor: "rgba(237,83,85, 0.08)"
-    }
+    },
+    '&:disabled': {
+      '& svg': {
+        color: "gray"      
+      },
+    },
   },
   buttonAccept: {
     borderColor: '#22c722',

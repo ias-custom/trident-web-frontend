@@ -17,10 +17,18 @@ const styles = theme => ({
   divAvatar: {
     width: '100px',
     height: '64px',
+    position: 'relative',
     '& > img': {
       width: '100%',
       height: '100%',
       objectFit: 'contain'
+    },
+    '& > div': {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      width: '100%',
+      backgroundColor: 'rgba(0,0,0,0.3)'
     }
   },
   toolbarIcon: {

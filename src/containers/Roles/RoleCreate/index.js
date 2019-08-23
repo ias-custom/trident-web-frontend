@@ -25,12 +25,6 @@ import * as Yup from "yup";
 import CheckboxGroup  from "../../../components/CheckboxGroup";
 import { createRole } from "../../../redux/actions/roleActions";
 
-const FakeRoles = [
-  { id: 1, name: "user" },
-  { id: 2, name: "superUser" },
-  { id: 3, name: "employee" },
-  { id: 4, name: "bussiness man" }
-];
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Roles", to: "/roles" },
@@ -57,8 +51,7 @@ class RoleCreate extends React.Component {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
     const { name, permissionsId } = values
-
-    const form = { name, permissionsId };
+    const form = { name, permissions:permissionsId };
     
     try {
       const response = await this.props.createRole(form);
@@ -81,19 +74,20 @@ class RoleCreate extends React.Component {
     this.props.setLoading(false);
   };
 
-  changeCheckbox (roleId, add, props) {
+  changeCheckbox (permissions, add, props) {
     const { setFieldValue, values } = props
+    const permissionsFinal = new Set([...values.permissionsId, ...permissions])
     if (add) {
       setFieldValue("permissionsId", [
-        ...values.permissionsId,
-        roleId
+        ...permissionsFinal
       ])
       return      
     }
-    setFieldValue("permissionsId", values.permissionsId.filter( id => id !== roleId))
+    setFieldValue("permissionsId", values.permissionsId.filter( id => !permissions.includes(id)))
   }
   render() {
     const { classes, loading } = this.props;
+    
 
     return (
       <Layout title="Create Role">
@@ -163,7 +157,7 @@ class RoleCreate extends React.Component {
                             </Typography>
                           </Grid>
                         </Grid>
-                        <CheckboxGroup roles={FakeRoles} permissionsId={values.permissionsId} onChange={ (roleId, add) => {this.changeCheckbox(roleId, add, props)}}></CheckboxGroup>
+                        <CheckboxGroup permissionsId={values.permissionsId} onChange={ (permissions, add) => {this.changeCheckbox(permissions, add, props)}}></CheckboxGroup>
                       </Panel>
                     </Grid>
                   </Grid>
@@ -193,7 +187,7 @@ class RoleCreate extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    loading: state.global.loading
+    loading: state.global.loading,
   };
 };
 

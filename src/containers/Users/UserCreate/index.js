@@ -8,7 +8,8 @@ import {
   Checkbox,
   Chip,
   InputLabel,
-  FormControl
+  FormControl,
+  FormHelperText
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
@@ -138,7 +139,7 @@ class UserCreate extends React.Component {
               password: Yup.string().min(8).required("Password is required"),
               username: Yup.string().required("Username is required"),
               role_id: Yup.mixed().required("Role is required"),
-              customersId: Yup.array().min(1).required("Role is required")
+              customersId: Yup.array().min(1, "Select at least one customer").required("Customer is required")
             })}
           >
             {props => {
@@ -293,40 +294,45 @@ class UserCreate extends React.Component {
                         <Grid container spacing={16}>
                           <Grid item xs>
                             <FormControl fullWidth margin="normal">
-                            <InputLabel htmlFor="select-multiple-chip">
-                              Customers
-                            </InputLabel>
-                            <Select
-                              multiple
-                              name="customersId"
-                              value={values.customersId}
-                              onChange={handleChange}
-                              input={<Input id="select-multiple-chip" />}
-                              renderValue={selected => (
-                                <div className={classes.chips}>
-                                  {selected.map(({ id, name}) => (
-                                    <Chip
-                                      key={id}
-                                      label={name}
-                                      className={classes.chip}
+                              <InputLabel htmlFor="select-multiple-chip" error={!!touched.customersId && !!errors.customersId}>
+                                Customers
+                              </InputLabel>
+                              <Select
+                                multiple
+                                name="customersId"
+                                value={values.customersId}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.customersId && !!errors.customersId}
+                                input={<Input id="select-multiple-chip" />}
+                                renderValue={selected => (
+                                  <div className={classes.chips}>
+                                    {selected.map(({ id, name}) => (
+                                      <Chip
+                                        key={id}
+                                        label={name}
+                                        className={classes.chip}
+                                      />
+                                    ))}
+                                  </div>
+                                )}
+                                fullWidth
+                              >
+                                {customers.map(customer => (
+                                  <MenuItem key={customer.id} value={customer}>
+                                    <Checkbox
+                                      checked={
+                                        !!values.customersId.find(c => c.id === customer.id)
+                                      }
                                     />
-                                  ))}
-                                </div>
-                              )}
-                              fullWidth
-                            >
-                              {customers.map(customer => (
-                                <MenuItem key={customer.id} value={customer}>
-                                  <Checkbox
-                                    checked={
-                                      !!values.customersId.find(c => c.id === customer.id)
-                                    }
-                                  />
-                                  <ListItemText primary={customer.name} />
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
+                                    <ListItemText primary={customer.name} />
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              <FormHelperText error={!!touched.customersId && !!errors.customersId}>{!!touched.customersId &&
+                                    !!errors.customersId &&
+                                    errors.customersId}</FormHelperText>
+                            </FormControl>
                           </Grid>
                         </Grid>
                         <Grid container spacing={16}>

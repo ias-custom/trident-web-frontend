@@ -43,16 +43,17 @@ export const login = (username, password) => {
       const response = await service.login(username, password);
 
       if (response.status === 200) {
-        const { id, first_name = '', last_name = '', username, token, customers } = response.data;
-        
+        const { id, first_name = '', last_name = '', username, token, customers, is_superuser, permissions } = response.data;
         const customersList = customers.map( ({id, logo, thumbnail, name}) => ({id, logo, thumbnail, name}));
+        
         dispatch({ type: SET_CUSTOMERS, payload: customersList })
         localStorage.setItem('customers',  JSON.stringify(customersList));
         localStorage.setItem('customerSelectedId',  JSON.stringify(customersList[0].id));
 
         const fullName = first_name ? `${first_name} ${last_name}` : username;
         const avatar = fullName.replace(/\s/g, '').substr(0, 2).toUpperCase();
-        const auth = { id, fullName, username, avatar, token };
+        const permissionsList = permissions.map( ({codename}) => codename)
+        const auth = { id, fullName, username, avatar, token, is_superuser, permissions:permissionsList };
 
         localStorage.setItem('auth', JSON.stringify(auth));
 

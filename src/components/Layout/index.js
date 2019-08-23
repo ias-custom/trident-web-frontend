@@ -117,6 +117,7 @@ class Layout extends React.Component {
               </Grid>
               <Grid item className={classes.divAvatar}>
                 <img src={logoCustomer} alt="logoCustomer"/>
+                <div></div>
               </Grid>
               <Grid item>
               { customers.length > 0 ? (

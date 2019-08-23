@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, TextField, Button, Typography } from "@material-ui/core";
 import { compose } from "recompose";
-import { withRouter, Prompt } from "react-router-dom";
+import { withRouter, Prompt, Redirect } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { withSnackbar } from "notistack";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
@@ -74,7 +74,11 @@ class CustomerCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading } = this.props;
+    const { classes, loading, is_superuser } = this.props;
+
+    if (!is_superuser) {
+      return <Redirect to="/home" />
+    }
 
     return (
       <Layout title="Create Customer">
@@ -204,7 +208,8 @@ class CustomerCreate extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    loading: state.global.loading
+    loading: state.global.loading,
+    is_superuser: state.auth.is_superuser
   };
 };
 

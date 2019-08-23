@@ -30,7 +30,7 @@ import Layout from '../../../components/Layout/index';
 import SimpleBreadcrumbs from '../../../components/SimpleBreadcrumbs';
 import Panel from '../../../components/Panel';
 import styles from './styles';
-
+import { CAN_ADD_ROLE, CAN_CHANGE_ROLE, CAN_DELETE_ROLE } from '../../../redux/permissions'
 
 const breadcrumbs = [
   {name: 'Home', to: '/home'},
@@ -95,7 +95,10 @@ class RolesList extends React.Component {
 
 
   render() {
-    const { classes, roles, loading } = this.props;
+    const { classes, roles, loading, is_superuser, permissions } = this.props;
+    const canCreateRole = permissions.includes(CAN_ADD_ROLE)
+    const canChangeRole = permissions.includes(CAN_CHANGE_ROLE)
+    const canDeleteRole = permissions.includes(CAN_DELETE_ROLE)
     const { search, open } = this.state;
 
     return (
@@ -127,11 +130,12 @@ class RolesList extends React.Component {
 
           <Panel>
 
-            <div className={classes.header}>
-              <Link component={RouterLink} color="inherit" to="/roles/create">
-                <Button variant="outlined" color="primary">Create Role</Button>
-              </Link>
-
+            <div className={canCreateRole || is_superuser ? (classes.header): (classes.headerRight)}>
+              {canCreateRole || is_superuser ? (
+                <Link component={RouterLink} color="inherit" to="/roles/create">
+                  <Button variant="outlined" color="primary">Create Role</Button>
+                </Link>
+              ): null} 
               <Input
                 style={{width: 300}}
                 defaultValue=""
@@ -159,12 +163,18 @@ class RolesList extends React.Component {
                     </TableCell>
                     <TableCell>
                       <div style={{display: 'flex'}}>
+                      {(canChangeRole || is_superuser) ? (
                         <Link component={RouterLink} to={`/roles/${role.id}`}>
                           <IconButton aria-label="Edit" color="primary" disabled={loading}>
                             <Edit />
                           </IconButton>
                         </Link>
-                        <IconButton aria-label="Delete" className={classes.iconDelete} disabled={loading} onClick={() => this.showModal(role.id)}
+                      ): (
+                        <IconButton aria-label="Edit" color="primary" disabled={loading || !canChangeRole ||!is_superuser}>
+                          <Edit />
+                        </IconButton>
+                      )}
+                        <IconButton aria-label="Delete" className={classes.iconDelete} disabled={loading || (!canDeleteRole && !is_superuser)} onClick={() => this.showModal(role.id)}
                         >
                           <Delete/>
                         </IconButton>
@@ -184,7 +194,9 @@ class RolesList extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    roles: state.global.roles
+    roles: state.global.roles,
+    permissions: state.auth.permissions,
+    is_superuser: state.auth.is_superuser
   }
 };
 

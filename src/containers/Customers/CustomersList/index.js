@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from "recompose";
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Link as RouterLink, withRouter, Redirect } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -95,8 +95,13 @@ class CustomersList extends React.Component {
 
 
   render() {
-    const { classes, customers, loading } = this.props;
+    const { classes, customers, loading, is_superuser } = this.props;
     const { search, open } = this.state;
+
+    if (!is_superuser) {
+      return <Redirect to="/home" />
+    }
+
     return (
       <Layout title="Roles">
         <Dialog
@@ -187,7 +192,8 @@ class CustomersList extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    customers: state.customers.customers
+    customers: state.customers.customers,
+    is_superuser: state.auth.is_superuser
   }
 };
 

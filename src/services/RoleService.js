@@ -20,7 +20,7 @@ class RoleService extends Service {
 
     async create(body = {}) {
       try {
-        return await this.http.post('/roles/', body);
+        return await this.http.post('/groups/', body);
       } catch (error) {
         return error.response;
       }

@@ -24,6 +24,14 @@ import PrivateRoute from './components/PrivateRoute';
 
 import { refreshToken} from './redux/actions/authActions';
 
+import {
+  CAN_VIEW_USER,
+  CAN_ADD_USER,
+  CAN_CHANGE_USER,
+  CAN_VIEW_ROLE,
+  CAN_ADD_ROLE,
+  CAN_CHANGE_ROLE
+} from './redux/permissions'
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -56,18 +64,18 @@ class App extends Component {
           <Route exact path="/forgot-password" component={ForgotPassword} />
           <Route exact path="/reset-password/:token" component={ResetPassword} />
 
-          <PrivateRoute exact path="/home" component={Home} />
+          <Route exact path="/home" component={Home} />
 
-          <PrivateRoute exact path="/users" component={UserList} />
-          <PrivateRoute exact path="/users/create" component={UserCreate} />
-          <PrivateRoute exact path="/users/:id" component={UserEdit} />
+          <PrivateRoute exact path="/users" component={UserList} allowedPermission={CAN_VIEW_USER}/>
+          <PrivateRoute exact path="/users/create" component={UserCreate} allowedPermission={CAN_ADD_USER}/>
+          <PrivateRoute exact path="/users/:id" component={UserEdit} allowedPermission={CAN_CHANGE_USER}/>
 
-          <PrivateRoute exact path="/roles" component={RolesList}></PrivateRoute>
-          <PrivateRoute exact path="/roles/create" component={RoleCreate}></PrivateRoute>
-          <PrivateRoute exact path="/roles/:id" component={RoleEdit}></PrivateRoute>
+          <PrivateRoute exact path="/roles" component={RolesList} allowedPermission={CAN_VIEW_ROLE}></PrivateRoute>
+          <PrivateRoute exact path="/roles/create" component={RoleCreate} allowedPermission={CAN_ADD_ROLE}></PrivateRoute>
+          <PrivateRoute exact path="/roles/:id" component={RoleEdit} allowedPermission={CAN_CHANGE_ROLE}></PrivateRoute>
 
-          <PrivateRoute exact path="/customers" component={CustomersList}></PrivateRoute>
-          <PrivateRoute exact path="/customers/create" component={CustomerCreate}></PrivateRoute>
+          <PrivateRoute exact path="/customers" component={CustomersList} allowedPermission={null}></PrivateRoute>
+          <PrivateRoute exact path="/customers/create" component={CustomerCreate} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/:id" component={CustomerEdit}></PrivateRoute>
           
           <Route exact path="/404" component={Error404} />

@@ -25,13 +25,6 @@ import * as Yup from "yup";
 import CheckboxGroup  from "../../../components/CheckboxGroup";
 import { getRole, updateRole } from "../../../redux/actions/roleActions";
 
-const FakeRoles = [
-  { id: 70, name: "user" },
-  { id: 69, name: "superUser" },
-  { id: 71, name: "employee" },
-  { id: 72, name: "bussiness man" },
-  { id: 73, name: "role test" }
-];  
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Roles", to: "/roles" },
@@ -96,16 +89,17 @@ class RoleEdit extends React.Component {
     this.setState({})
   };
 
-  changeCheckbox (roleId, add, props) {
+  changeCheckbox (permissions, add, props) {
     const { setFieldValue, values } = props
+    const permissionsFinal = new Set([...values.permissionsId, ...permissions])
     if (add) {
       setFieldValue("permissionsId", [
-        ...values.permissionsId,
-        roleId
+        ...permissionsFinal
       ])
       return      
     }
-    setFieldValue("permissionsId", values.permissionsId.filter( id => id !== roleId))
+    setFieldValue("permissionsId", values.permissionsId.filter( id => !permissions.includes(id)))
+  
   }
   render() {
     const { classes, loading } = this.props;
@@ -178,7 +172,7 @@ class RoleEdit extends React.Component {
                             </Typography>
                           </Grid>
                         </Grid>
-                        <CheckboxGroup roles={FakeRoles} permissionsId={values.permissionsId} onChange={ (roleId, add) => {this.changeCheckbox(roleId, add, props)}}></CheckboxGroup>
+                        <CheckboxGroup permissionsId={values.permissionsId} onChange={ (permissions, add) => {this.changeCheckbox(permissions, add, props)}}></CheckboxGroup>
                       </Panel>
                     </Grid>
                   </Grid>

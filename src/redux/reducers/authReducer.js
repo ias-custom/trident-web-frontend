@@ -12,7 +12,9 @@ const defaultState = {
   fullName: '',
   username: '',
   avatar: 'RE',
-  token: null
+  token: null,
+  permissions: [],
+  is_superuser: false
 };
 
 const initialState = {...defaultState, ...authStorage};
@@ -40,7 +42,7 @@ export default (state = initialState, action) => {
 
     case LOGOUT:
       return defaultState;
-
+    
     default:
       return state;
   }
