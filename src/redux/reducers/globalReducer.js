@@ -1,29 +1,17 @@
 import {
   GET_ROLES,
-  GET_US_STATES,
   ON_LOADING,
   ENQUEUE_SNACKBAR,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
-  SET_CURRENT_FORM,
-  SET_CUSTOMERS,
-  SET_CUSTOMER_SELECTED
+  SET_CURRENT_FORM
 } from '../actionTypes';
 
-const customersStorage = JSON.parse(localStorage.getItem('customers'));
-const customerSelectedIdStorage = parseInt(JSON.parse(localStorage.getItem('customerSelectedId')));
 const initialState = {
   loading: false,
   handleForm: false,
   currentForm: null,
-  notifications: [],
-  us_states: [],
-  roles: [],
-  patientTags: [],
-  productTypes: [],
-  productCategories: [],
-  customers: customersStorage,
-  customerSelectedId: customerSelectedIdStorage
+  notifications: []
 };
 
 export default (state = initialState, action) => {
@@ -56,17 +44,8 @@ export default (state = initialState, action) => {
         ),
       };
 
-    case GET_US_STATES:
-      return {...state, us_states: action.payload};
-
     case GET_ROLES:
       return {...state, roles: action.payload};
-    
-    case SET_CUSTOMERS:
-      return {...state, customers: action.payload, customerSelectedId: action.payload[0].id}
-    
-    case SET_CUSTOMER_SELECTED:
-      return {...state, customerSelectedId: action.payload}
       
     default:
       return state;

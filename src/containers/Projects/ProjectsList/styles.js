@@ -17,6 +17,13 @@ const styles = theme => ({
     alignItems: 'center',
     padding: 20
   },
+  headerRight: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 20
+  },
   iconDelete: {
     '& svg': {
       color: "#f50057"      

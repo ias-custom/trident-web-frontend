@@ -6,7 +6,8 @@ import {
     FormControlLabel,
     Checkbox,
     Switch,
-    Grid
+    Grid,
+    Divider
   } from "@material-ui/core";
 import { 
   CAN_ADD_USER, 
@@ -16,7 +17,11 @@ import {
   CAN_ADD_ROLE,
   CAN_VIEW_ROLE,
   CAN_CHANGE_ROLE,
-  CAN_DELETE_ROLE
+  CAN_DELETE_ROLE,
+  CAN_ADD_PROJECT,
+  CAN_CHANGE_PROJECT,
+  CAN_VIEW_PROJECT,
+  CAN_DELETE_PROJECT
 } from '../../redux/permissions';
 
 class CheckboxGroup extends React.Component {
@@ -26,13 +31,13 @@ class CheckboxGroup extends React.Component {
     return codenames.length === (this.props.permissionsId.filter( id => (codenames.includes(id)))).length
   }
   render() {
-    let { permissionsId  } = this.props;
+    let { permissionsId, classes  } = this.props;
     const roles = [
       {
-        title: "All module user",
+        title: "ALL MODULE USERS",
         permissions: [
           {
-            title: "User list",
+            title: "Users list",
             codename: CAN_VIEW_USER
           }, {
             title: "User create",
@@ -47,10 +52,10 @@ class CheckboxGroup extends React.Component {
         ]
       },
       {
-        title: "All module role",
+        title: "ALL MODULE ROLES",
         permissions: [
           {
-            title: "Role list",
+            title: "Roles list",
             codename: CAN_VIEW_ROLE
           }, {
             title: "Role create",
@@ -63,27 +68,49 @@ class CheckboxGroup extends React.Component {
             codename: CAN_DELETE_ROLE
           }
         ]
-      }
+      },
+      {
+        title: "ALL MODULE PROJECTS",
+        permissions: [
+          {
+            title: "Projects list",
+            codename: CAN_VIEW_PROJECT
+          }, {
+            title: "Project create",
+            codename: CAN_ADD_PROJECT
+          }, {
+            title: "Project edit",
+            codename: CAN_CHANGE_PROJECT
+          }, {
+            title: "Project delete",
+            codename: CAN_DELETE_PROJECT
+          }
+        ]
+      },
+      
     ]
     return (
         <Grid container spacing={16}>
-            {roles.map(role => (
-              <Grid item xs={6} key={role.title}>
-                <FormControlLabel
-                  control={
-                    <Switch checked={this.havePermissions(role.permissions)} onChange={ () => {
-                      if (this.havePermissions(role.permissions)) {
-                          this.props.onChange(role.permissions.map( ({codename}) => codename), false)
-                      } else {
-                          this.props.onChange(role.permissions.map( ({codename}) => codename), true)
-                      }
-                    }} />
-                  }
-                  label={role.title}
-                />
+            {roles.map((role, index) => (
+              <Grid item container xs={12} key={role.title}>
+                <Divider style={{'display': index === 0 ? 'none': 'block'}} className={classes.divider}></Divider>
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    control={
+                      <Switch checked={this.havePermissions(role.permissions)} onChange={ () => {
+                        if (this.havePermissions(role.permissions)) {
+                            this.props.onChange(role.permissions.map( ({codename}) => codename), false)
+                        } else {
+                            this.props.onChange(role.permissions.map( ({codename}) => codename), true)
+                        }
+                      }} />
+                    }
+                    label={role.title}
+                  />
+                </Grid>
                 {role.permissions.map( ({title, codename}) => (
-                  <Grid item xs={12} key={title}>
-                    <FormControlLabel
+                  <Grid item xs={6} key={title}>
+                    <FormControlLabel 
                       key={codename}
                       control={
                         <Checkbox

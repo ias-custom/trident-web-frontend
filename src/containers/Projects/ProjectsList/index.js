@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
+import { fetchProjects } from "../../../redux/actions/projectActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
 import {
   Table,
@@ -17,38 +18,39 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions,
-  Avatar
+  DialogActions
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import {
-  getCustomers,
-  deleteCustomer
-} from "../../../redux/actions/customerActions";
+import { deleteProject } from "../../../redux/actions/projectActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
+import {
+  CAN_ADD_PROJECT,
+  CAN_CHANGE_PROJECT,
+  CAN_DELETE_PROJECT
+} from "../../../redux/permissions";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
-  { name: "Customers", to: null }
+  { name: "Projects", to: null }
 ];
 
-class CustomersList extends React.Component {
+class ProjectsList extends React.Component {
   state = {
     search: "",
     open: false,
-    customerId: ""
+    projectId: ""
   };
 
   componentDidMount() {
-    this.props.getCustomers();
-    const nameItem = "customers";
+    this.props.fetchProjects();
+    const nameItem = "projects";
     const nameSubItem = "list";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
@@ -78,18 +80,18 @@ class CustomersList extends React.Component {
 
   handleDelete = async () => {
     this.setState({ open: false });
-    const response = await this.props.deleteCustomer(this.state.customerId);
+    const response = await this.props.deleteProject(this.state.projectId);
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("Customer successfully removed!", {
+      this.props.enqueueSnackbar("Project successfully removed!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
     }
   };
 
-  showModal(customerId) {
-    this.setState({ open: true, customerId });
+  showModal(projectId) {
+    this.setState({ open: true, projectId });
   }
 
   closeModal = () => {
@@ -97,11 +99,14 @@ class CustomersList extends React.Component {
   };
 
   render() {
-    const { classes, customers, loading, customerSelectedId } = this.props;
+    const { classes, loading, is_superuser, permissions, projects } = this.props;
+    const canCreateProject = permissions.includes(CAN_ADD_PROJECT);
+    const canChangeProject = permissions.includes(CAN_CHANGE_PROJECT);
+    const canDeleteProject = permissions.includes(CAN_DELETE_PROJECT);
     const { search, open } = this.state;
 
     return (
-      <Layout title="Roles">
+      <Layout title="Projects">
         <Dialog
           open={open}
           aria-labelledby="alert-dialog-title"
@@ -139,17 +144,20 @@ class CustomersList extends React.Component {
           <SimpleBreadcrumbs routes={breadcrumbs} />
 
           <Panel>
-            <div className={classes.header}>
-              <Link
-                component={RouterLink}
-                color="inherit"
-                to="/customers/create"
-              >
-                <Button variant="outlined" color="primary">
-                  Create Customer
-                </Button>
-              </Link>
-
+            <div
+              className={
+                canCreateProject || is_superuser
+                  ? classes.header
+                  : classes.headerRight
+              }
+            >
+              {canCreateProject || is_superuser ? (
+                <Link component={RouterLink} color="inherit" to="/projects/create">
+                  <Button variant="outlined" color="primary">
+                    Create Project
+                  </Button>
+                </Link>
+              ) : null}
               <Input
                 style={{ width: 300 }}
                 defaultValue=""
@@ -164,37 +172,46 @@ class CustomersList extends React.Component {
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Logo</TableCell>
+                  <TableCell style={{ width: "80%" }}>Name</TableCell>
                   <TableCell colSpan={1}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {this.filter(customers, search).map(customer => (
-                  <TableRow key={customer.id}>
-                    <TableCell component="td">{customer.name}</TableCell>
-                    <TableCell component="td">
-                      <Avatar src={customer.thumbnail} />
+                {this.filter(projects, search).map(project => (
+                  <TableRow key={project.id}>
+                    <TableCell component="td" style={{ width: "80%" }}>
+                      <Link component={RouterLink} to={`/detail-project/${project.id}`}>{project.name}</Link>
                     </TableCell>
                     <TableCell>
                       <div style={{ display: "flex" }}>
-                        <Link
-                          component={RouterLink}
-                          to={`/customers/${customer.id}`}
-                        >
+                        {canChangeProject || is_superuser ? (
+                          <Link component={RouterLink} to={`/projects/${project.id}`}>
+                            <IconButton
+                              aria-label="Edit"
+                              color="primary"
+                              disabled={loading}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </Link>
+                        ) : (
                           <IconButton
                             aria-label="Edit"
                             color="primary"
-                            disabled={loading}
+                            disabled={
+                              loading || !canChangeProject || !is_superuser
+                            }
                           >
                             <Edit />
                           </IconButton>
-                        </Link>
+                        )}
                         <IconButton
                           aria-label="Delete"
                           className={classes.iconDelete}
-                          disabled={loading || customer.id === customerSelectedId}
-                          onClick={() => this.showModal(customer.id)}
+                          disabled={
+                            loading || (!canDeleteProject && !is_superuser)
+                          }
+                          onClick={() => this.showModal(project.id)}
                         >
                           <Delete />
                         </IconButton>
@@ -214,23 +231,24 @@ class CustomersList extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    customers: state.customers.customers,
-    customerSelectedId: state.customers.customerSelectedId
+    projects: state.projects.projects,
+    permissions: state.auth.permissions,
+    is_superuser: state.auth.is_superuser
   };
 };
 
 const mapDispatchToProps = {
-  getCustomers,
-  deleteCustomer,
+  fetchProjects,
+  deleteProject,
   toggleItemMenu,
   selectedItemMenu
 };
 
 export default compose(
   withRouter,
-  withStyles(styles, { name: "CustomersList" }),
+  withStyles(styles, { name: "ProjectsList" }),
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
-)(CustomersList);
+)(ProjectsList);

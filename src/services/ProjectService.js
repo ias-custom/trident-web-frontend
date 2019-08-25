@@ -1,10 +1,15 @@
 import Service from './Service';
+import store from '../redux/store';
 
 class ProjectService extends Service {
 
+  getCustomerSelectedId () {
+    return store.getState().customers.customerSelectedId
+  }
+
   list = async () => {
     try {
-      return await this.http.get('/projects/');
+      return await this.http.get(`/customers/${this.getCustomerSelectedId()}/projects/`);
     } catch (error) {
       return error.response;
     }
@@ -33,7 +38,7 @@ class ProjectService extends Service {
 
   get = async id => {
     try {
-      const url = `/projects/${id}/`;
+      const url = `customers/${this.getCustomerSelectedId()}/projects/${id}/`;
 
       return await this.http.get(url);
     } catch (error) {
@@ -43,7 +48,7 @@ class ProjectService extends Service {
 
   delete = async id => {
     try {
-      const url = `/projects/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/projects/${id}/`;
       return await this.http.delete(url);
     } catch (error) {
       return error.response;

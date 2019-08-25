@@ -1,34 +1,29 @@
 import {
     GET_CUSTOMERS,
+    GET_CUSTOMER_SELECTED,
     HANDLE_FORM,
-    SET_CURRENT_FORM,
-    SET_CUSTOMERS,
-    SET_CUSTOMER_SELECTED
   } from '../actionTypes';
+
+const customersStorage = JSON.parse(localStorage.getItem('customers'));
+const customerSelectedIdStorage = parseInt(JSON.parse(localStorage.getItem('customerSelectedId')));
+const initialState = {
+  customers: customersStorage,
+  customerSelectedId: customerSelectedIdStorage
+};
   
-  const initialState = {
-    customers: []
-  };
-  
-  export default (state = initialState, action) => {
-    switch (action.type) {
-      case GET_CUSTOMERS:
-        return {...state, customers: action.payload};
-  
-      case HANDLE_FORM:
-        return { ...state, handleForm: action.handleForm};
-  
-      case SET_CURRENT_FORM:
-        return { ...state, currentForm: action.currentForm};
-  
-      case SET_CUSTOMERS:
-        return {...state, customers: action.payload, customerSelectedId: action.payload[0].id}
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case GET_CUSTOMERS:
+      return {...state, customers: action.payload};
+
+    case HANDLE_FORM:
+      return { ...state, handleForm: action.handleForm};
       
-      case SET_CUSTOMER_SELECTED:
-        return {...state, customerSelectedId: action.payload}
-        
-      default:
-        return state;
-  
-    }
+    case GET_CUSTOMER_SELECTED:
+      return {...state, customerSelectedId: action.payload}
+      
+    default:
+      return state;
+
   }
+}

@@ -22,7 +22,6 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import  MainListItems from './listItems';
-import  SecondaryListItems from './secondaryItems';
 import LinearLoading from "../LinearLoading";
 import { logout } from '../../redux/actions/authActions';
 import { setCustomerSelected } from '../../redux/actions/globalActions';
@@ -45,7 +44,7 @@ class Layout extends React.Component {
   changeSelectCustomer = (event) => {
     this.props.setCustomerSelected(parseInt(event.target.value))
     localStorage.setItem("customerSelectedId", event.target.value)
-    this.props.history.push("/home")
+    window.location.reload()
   }
   handleDrawerOpen = () => {
     this.setState({ open: true });
@@ -175,8 +174,6 @@ class Layout extends React.Component {
           </div>
           <Divider />
           <List><MainListItems/></List>
-          <Divider />
-          <List><SecondaryListItems/></List>
         </Drawer>
         <main className={classes.content}>
 
@@ -202,8 +199,8 @@ const mapStateToProps = (state) => {
   return {
     auth: state.auth,
     loading: state.global.loading,
-    customers: state.global.customers,
-    customerSelectedId: state.global.customerSelectedId
+    customers: state.customers.customers,
+    customerSelectedId: state.customers.customerSelectedId
   }
 };
 

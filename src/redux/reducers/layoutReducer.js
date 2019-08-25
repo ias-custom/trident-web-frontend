@@ -6,19 +6,24 @@ import {
 const initialState = {
   itemsMenu: {
       users: {
-          open: false,
-          list: false,
-          create: false 
+        open: false,
+        list: false,
+        create: false 
       },
       roles: {
-          open: false,
-          list: false,
-          create: false 
+        open: false,
+        list: false,
+        create: false 
       },
       customers: {
-          open: false,
-          list: false,
-          create: false 
+        open: false,
+        list: false,
+        create: false 
+      },
+      projects: {
+        open: false,
+        list: false,
+        create: false 
       }
   }
 };

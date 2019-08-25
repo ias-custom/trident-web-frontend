@@ -20,6 +20,13 @@ import CustomersList from "./containers/Customers/CustomersList";
 import CustomerCreate from "./containers/Customers/CustomerCreate";
 import CustomerEdit from "./containers/Customers/CustomerEdit";
 
+import ProjectsList from "./containers/Projects/ProjectsList";
+import ProjectDetail from "./containers/Projects/ProjectDetail";
+
+import StructureEdit from "./containers/Structures/StructureEdit";
+
+import SpamEdit from "./containers/Spams/SpamEdit";
+
 import PrivateRoute from './components/PrivateRoute';
 
 import { refreshToken} from './redux/actions/authActions';
@@ -30,7 +37,8 @@ import {
   CAN_CHANGE_USER,
   CAN_VIEW_ROLE,
   CAN_ADD_ROLE,
-  CAN_CHANGE_ROLE
+  CAN_CHANGE_ROLE,
+  CAN_VIEW_PROJECT
 } from './redux/permissions'
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
@@ -77,6 +85,13 @@ class App extends Component {
           <PrivateRoute exact path="/customers" component={CustomersList} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/create" component={CustomerCreate} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/:id" component={CustomerEdit}></PrivateRoute>
+
+          <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
+          <Route exact path="/detail-project/:id" component={ProjectDetail} ></Route>
+
+          <Route exact path="/projects/:projectId/structures/:id" component={StructureEdit}></Route>
+
+          <Route exact path="/projects/:projectId/spams/:id" component={SpamEdit}></Route>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

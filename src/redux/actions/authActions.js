@@ -4,7 +4,8 @@ import {
   LOGOUT,
   ON_LOADING,
   REFRESH_TOKEN,
-  SET_CUSTOMERS
+  GET_CUSTOMERS,
+  GET_CUSTOMER_SELECTED
 } from '../actionTypes';
 import AuthService from '../../services/AuthService';
 
@@ -44,11 +45,10 @@ export const login = (username, password) => {
 
       if (response.status === 200) {
         const { id, first_name = '', last_name = '', username, token, customers, is_superuser, permissions } = response.data;
-        const customersList = customers.map( ({id, logo, thumbnail, name}) => ({id, logo, thumbnail, name}));
-        
-        dispatch({ type: SET_CUSTOMERS, payload: customersList })
-        localStorage.setItem('customers',  JSON.stringify(customersList));
-        localStorage.setItem('customerSelectedId',  JSON.stringify(customersList[0].id));
+        dispatch({ type: GET_CUSTOMERS, payload: customers })
+        dispatch({ type: GET_CUSTOMER_SELECTED, payload: customers[0].id })
+        localStorage.setItem('customers',  JSON.stringify(customers));
+        localStorage.setItem('customerSelectedId',  JSON.stringify(customers[0].id));
 
         const fullName = first_name ? `${first_name} ${last_name}` : username;
         const avatar = fullName.replace(/\s/g, '').substr(0, 2).toUpperCase();

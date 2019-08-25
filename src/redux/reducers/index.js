@@ -4,11 +4,15 @@ import userReducer from './userReducer';
 import authReducer from './authReducer';
 import layoutReducer from './layoutReducer';
 import customerReducer from './customerReducer';
+import projectReducer from './projectReducer';
+import roleReducer from './roleReducer';
 
 export default combineReducers({
   global: globalReducer,
   auth: authReducer,
   users: userReducer,
   layout: layoutReducer,
-  customers: customerReducer
+  customers: customerReducer,
+  projects: projectReducer,
+  roles: roleReducer
 });

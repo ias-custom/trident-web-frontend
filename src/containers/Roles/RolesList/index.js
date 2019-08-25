@@ -231,7 +231,7 @@ class RolesList extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    roles: state.global.roles,
+    roles: state.roles.roles,
     permissions: state.auth.permissions,
     is_superuser: state.auth.is_superuser
   };

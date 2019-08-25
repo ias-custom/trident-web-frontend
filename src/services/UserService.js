@@ -4,7 +4,7 @@ import store from "../redux/store";
 class UserService extends Service {
 
   getCustomerSelectedId () {
-    return store.getState().global.customerSelectedId
+    return store.getState().customers.customerSelectedId
   }
 
   async list() {

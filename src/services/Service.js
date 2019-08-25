@@ -5,7 +5,7 @@ import {logout} from '../redux/actions/authActions';
 
 class Service {
   defaultOptions = {
-    baseURL: `${apiUrl}/api`,
+    baseURL: `${apiUrl}/api-ops`,
     headers: {
       'Content-Type': 'application/json'
     }
