@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { compose } from "recompose";
 import { fetchRoles } from "../../../redux/actions/globalActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
+import { withSnackbar } from "notistack";
 import {
   Table,
   TableBody,
@@ -246,6 +247,7 @@ const mapDispatchToProps = {
 
 export default compose(
   withRouter,
+  withSnackbar,
   withStyles(styles, { name: "RolesList" }),
   connect(
     mapStateToProps,

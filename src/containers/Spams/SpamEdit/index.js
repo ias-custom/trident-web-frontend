@@ -68,7 +68,7 @@ class SpamEdit extends React.Component {
   state = {
     search: "",
     open: false,
-    itemId: null,
+    itemId: null,                                                                                                                     
     value: 0
   };
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { fetchProjects } from "../../../redux/actions/projectActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
+import { withSnackbar } from "notistack";
 import {
   Table,
   TableBody,
@@ -29,7 +29,7 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { deleteRole } from "../../../redux/actions/roleActions";
+import { fetchStructures, fetchSpams, deleteSpam, deleteStructure } from "../../../redux/actions/projectActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
@@ -52,17 +52,6 @@ const fakeUsers = [
   {name: "Luigui", id: 3},
 ]
 
-const fakeStructures = [
-  {name: "Structure 1", id: 1},
-  {name: "Structure 2", id: 2},
-  {name: "Structure 3", id: 3},
-]
-
-const fakeSpams = [
-  {name: "Spam 1", id: 1},
-  {name: "Spam 2", id: 2},
-  {name: "Spam 3", id: 3},
-]
 
 class ProjectDetail extends React.Component {
   state = {
@@ -72,9 +61,9 @@ class ProjectDetail extends React.Component {
     value: 0
   };
 
-  
+  projectId = null
   componentDidMount() {
-    this.props.fetchProjects();
+    this.projectId = this.props.match.params.id
     // VALIDO SI ES UN PROYECTO AL QUE PUEDO ACCEDER - LLAMADA AL ENDPOINT SI NO ES 200 MUESTRO 404
     const nameItem = "projects";  
     const open = true;
@@ -109,19 +98,21 @@ class ProjectDetail extends React.Component {
     let itemName = ""
     if (this.state.value === 0) {
       itemName= "User"
-      response = await this.props.deleteUser(this.state.itemId);
+      response = await this.props.deleteUser(this.projectId, this.state.itemId);
     }
     if (this.state.value === 1) {
       itemName= "Structure"
-      response = await this.props.deleteStructure(this.state.itemId);
+      response = await this.props.deleteStructure(this.projectId, this.state.itemId);
     }
     if (this.state.value === 2) {
       itemName= "Spam"
-      response = await this.props.deleteSpam(this.state.itemId);
+      response = await this.props.deleteSpam(this.projectId, this.state.itemId);
     }
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar(`${itemName} successfully removed!`, {
+      console.log(this.props)
+      const text = `${itemName} successfully removed!`
+      this.props.enqueueSnackbar( text, {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
@@ -136,8 +127,19 @@ class ProjectDetail extends React.Component {
     this.setState({ open: false });
   };
 
-  handleChange = (event, newValue) =>   {
+  handleChange (event, newValue) {
     this.setState({value: newValue, search: ""});
+    if (newValue === 0) {
+      // ENDPOINT TO USERS OF PROJECT
+    }
+    if (newValue === 1) {
+      this.props.fetchStructures(this.projectId)
+      return
+    }
+    if (newValue === 2) {
+      this.props.fetchSpams(this.projectId)
+      return
+    }
   }
 
   handleChangeIndex(index) {
@@ -145,9 +147,7 @@ class ProjectDetail extends React.Component {
   }
 
   render() {
-    const { classes, loading, is_superuser, permissions, projects } = this.props;
-    const projectId = this.props.match.params.id
-    const projectName = (projects.find( ({id}) => id === parseInt(projectId))).name
+    const { classes, loading, is_superuser, permissions, structures, spams } = this.props;
     const canChangeUser = permissions.includes(CAN_CHANGE_USER);
     const canDeleteUser = permissions.includes(CAN_DELETE_USER);
     const { search, open, value } = this.state;
@@ -189,11 +189,14 @@ class ProjectDetail extends React.Component {
         </Dialog>
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
-          <Typography component="h1" variant="h5">{projectName}</Typography>
+          <Typography component="h1" variant="h5">Project Name </Typography>
           <Grid className={classes.divTabs}>
             <Tabs
               value={value}
-              onChange={this.handleChange}
+              onChange={ (e, newValue) => {
+                  this.handleChange(e, newValue)
+                }
+              }
               indicatorColor="primary"
               textColor="primary"
               variant="fullWidth"
@@ -275,6 +278,9 @@ class ProjectDetail extends React.Component {
                       ))}
                     </TableBody>
                   </Table>
+                  {fakeUsers.length === 0 ? (
+                    <Typography variant="display1" align="center" className={classes.emptyText}>NO EXISTEN USUARIOS</Typography>
+                  ): null}
                 </Grid>
                 <Grid>
                   <div
@@ -307,15 +313,15 @@ class ProjectDetail extends React.Component {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {this.filter(fakeStructures, search).map(structure => (
+                      {this.filter(structures, search).map(structure => (
                         <TableRow key={structure.id}>
                           <TableCell component="td" style={{ width: "80%" }}>
-                          <Link component={RouterLink} to={`/projects/${projectId}/structures/${structure.id}`}>{structure.name}</Link>
+                          <Link component={RouterLink} to={`/projects/${this.projectId}/structures/${structure.id}`}>{structure.name}</Link>
                           </TableCell>
                           <TableCell>
                             <div style={{ display: "flex" }}>
                               {is_superuser ? (
-                                <Link component={RouterLink} to={`/projects/${projectId}/structures/${structure.id}`}>
+                                <Link component={RouterLink} to={`/projects/${this.projectId}/structures/${structure.id}`}>
                                   <IconButton
                                     aria-label="Edit"
                                     color="primary"
@@ -351,6 +357,9 @@ class ProjectDetail extends React.Component {
                       ))}
                     </TableBody>
                   </Table>
+                  {structures.length === 0 ? (
+                    <Typography variant="display1" align="center" className={classes.emptyText}>NO EXISTEN STRUCTURES</Typography>
+                  ): null}
                 </Grid>
                 <Grid>
                   <div
@@ -378,20 +387,20 @@ class ProjectDetail extends React.Component {
                   <Table className={classes.table}>
                     <TableHead>
                       <TableRow>
-                        <TableCell style={{ width: "80%" }}>Name</TableCell>
+                        <TableCell style={{ width: "80%" }}>ID</TableCell>
                         <TableCell colSpan={1}>Actions</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {this.filter(fakeSpams, search).map(spam => (
+                      {this.filter(spams, search).map(spam => (
                         <TableRow key={spam.id}>
                           <TableCell component="td" style={{ width: "80%" }}>
-                          <Link component={RouterLink} to={`/projects/${projectId}/spams/${spam.id}`}>{spam.name}</Link>
+                          <Link component={RouterLink} to={`/projects/${this.projectId}/spams/${spam.id}`}>{spam.id}</Link>
                           </TableCell>
                           <TableCell>
                             <div style={{ display: "flex" }}>
                               {is_superuser ? (
-                                <Link component={RouterLink} to={`/projects/${projectId}/spams/${spam.id}`}>
+                                <Link component={RouterLink} to={`/projects/${this.projectId}/spams/${spam.id}`}>
                                   <IconButton
                                     aria-label="Edit"
                                     color="primary"
@@ -427,6 +436,9 @@ class ProjectDetail extends React.Component {
                       ))}
                     </TableBody>
                   </Table>
+                  {spams.length === 0 ? (
+                    <Typography variant="display1" align="center" className={classes.emptyText}>NO EXISTEN SPAMS</Typography>
+                  ): null}
                 </Grid>
               </SwipeableViews>
           </Panel>
@@ -440,20 +452,25 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     projects: state.projects.projects,
+    structures: state.projects.structures,
+    spams: state.projects.spams,
     permissions: state.auth.permissions,
     is_superuser: state.auth.is_superuser
   };
 };
 
 const mapDispatchToProps = {
-  fetchProjects,
-  deleteRole,
+  fetchSpams,
+  fetchStructures,
+  deleteSpam,
+  deleteStructure,
   toggleItemMenu,
   selectedItemMenu
 };
 
 export default compose(
   withRouter,
+  withSnackbar,
   withStyles(styles, { name: "ProjectDetail" }),
   connect(
     mapStateToProps,

@@ -54,6 +54,42 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+
+  // STRUCTURES
+  listStructures = async (projectId) => {
+    try {
+      return await this.http.get(`/projects/${projectId}/structures/`);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  deleteStructure = async (projectId, structureId) => {
+    try {
+      return await this.http.delete(`/projects/${projectId}/structures/${structureId}`);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+
+  //SPAMS
+  listSpams = async (projectId) => {
+    try {
+      return await this.http.get(`/projects/${projectId}/spans/`);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  deleteSpam = async (projectId, spamId) => {
+    try {
+      return await this.http.delete(`/projects/${projectId}/spans/${spamId}`);
+    } catch (error) {
+      return error.response;
+    }
+  };
 }
 
 export default ProjectService;

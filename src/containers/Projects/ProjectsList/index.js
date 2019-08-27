@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { compose } from "recompose";
 import { fetchProjects } from "../../../redux/actions/projectActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
+import { withSnackbar } from "notistack";
 import {
   Table,
   TableBody,
@@ -18,7 +19,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Typography
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import {
@@ -221,6 +223,9 @@ class ProjectsList extends React.Component {
                 ))}
               </TableBody>
             </Table>
+            {projects.length === 0 ? (
+              <Typography variant="display1" align="center" className={classes.emptyText}>NO EXISTEN PROJECTOS</Typography>
+            ): null}
           </Panel>
         </div>
       </Layout>
@@ -246,6 +251,7 @@ const mapDispatchToProps = {
 
 export default compose(
   withRouter,
+  withSnackbar,
   withStyles(styles, { name: "ProjectsList" }),
   connect(
     mapStateToProps,

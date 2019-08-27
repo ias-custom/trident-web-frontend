@@ -23,7 +23,8 @@ import TabContainer from "../../../components/TabContainer";
 import Errors from "../../../components/Errors";
 import FormTextError from "../../../components/FormTextError";
 import { connect } from 'react-redux';
-import { fetchRoles, fetchStates, setHandleForm, setLoading } from "../../../redux/actions/globalActions";
+import { setLoading } from "../../../redux/actions/globalActions";
+import { fetchRoles } from "../../../redux/actions/roleActions";
 import { createUser } from "../../../redux/actions/userActions";
 import { DatePicker } from 'material-ui-pickers';
 import CalendarIcon from "@material-ui/icons/Today"
@@ -40,7 +41,7 @@ const breadcrumbs = [
   { name: 'Create User', to: null },
 ];
 
-class UserCreate extends React.Component {
+class ProjectCreate extends React.Component {
 
   state = {
     tab: 0,
@@ -69,7 +70,6 @@ class UserCreate extends React.Component {
   componentDidMount = async () => {
     try {
       await this.props.fetchRoles();
-      await this.props.fetchStates();
     } catch (error) {
       console.error(error.message);
     }
@@ -106,9 +106,9 @@ class UserCreate extends React.Component {
 
   render() {
     const { tab, form } = this.state;
-    const { classes, roles, us_states,
+    const { classes, roles,
       loading, handleForm, setHandleForm } = this.props;
-
+      
     return (
       <Layout title="Create User">
 
@@ -417,24 +417,7 @@ class UserCreate extends React.Component {
                               margin="normal"
                             />
 
-                            <TextField
-                              name="state_id"
-                              value={values.state_id}
-                              select
-                              label="State"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!touched.state_id&&!!errors.state_id}
-                              helperText={!touched.state_id&&!!errors.state_id&&errors.state_id}
-                              margin="normal"
-                              fullWidth
-                            >
-                              {
-                                us_states.map(state => {
-                                  return <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>
-                                })
-                              }
-                            </TextField>                      
+                                                 
                               
                           </TabContainer>
                         }
@@ -467,17 +450,16 @@ const mapStateToProps = (state) => {
   return {
     loading: state.global.loading,
     handleForm: state.global.handleForm,
-    roles: state.global.roles,
-    us_states: state.global.us_states,
+    roles: state.roles.roles,
     errors: new Errors(state.users.errors)
   }
 };
 
-const mapDispatchToProps = { fetchRoles, fetchStates, createUser, setHandleForm, setLoading };
+const mapDispatchToProps = { fetchRoles, createUser, setLoading };
 
 export default compose(
   withRouter,
   withSnackbar,
-  withStyles(styles, { name: 'UserCreate' }),
+  withStyles(styles, { name: 'ProjectCreate' }),
   connect(mapStateToProps, mapDispatchToProps)
-)(UserCreate);
+)(ProjectCreate);
