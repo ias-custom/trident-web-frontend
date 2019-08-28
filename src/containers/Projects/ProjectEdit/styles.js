@@ -24,6 +24,13 @@ const styles = theme => ({
     alignItems: 'center',
     padding: 20
   },
+  iconAdd: {
+    color: `${theme.palette.green.main}`,
+    marginTop: 24,
+    '&:hover': {
+      backgroundColor: "rgba(103,194,58, 0.1)"
+    },
+  },
   iconDelete: {
     '& svg': {
       color: "#f50057"      

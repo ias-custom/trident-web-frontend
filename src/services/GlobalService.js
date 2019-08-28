@@ -10,13 +10,6 @@ class GlobalService extends Service {
         }
     }
 
-    async getStructureTypes() {
-        try {
-            return await this.http.get('/type-structures/');
-        } catch (error) {
-            return error.response;
-        }
-    }
 }
 
 export default GlobalService;

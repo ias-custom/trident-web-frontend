@@ -1,4 +1,4 @@
-import { GET_PROJECTS, GET_STRUCTURES, GET_SPANS, GET_TAGS, GET_USERS_PROJECT, GET_PROJECT } from "../actionTypes";
+import { GET_PROJECTS, GET_STRUCTURES, GET_SPANS, GET_TAGS, GET_USERS_PROJECT, GET_PROJECT, GET_STRUCTURE_TYPES, GET_SPAN_TYPES } from "../actionTypes";
 
 const initialState = {
   projects: [],
@@ -6,7 +6,9 @@ const initialState = {
   structures: [],
   spans: [],
   tags: [],
-  users: []
+  users: [],
+  structureTypes: [],
+  spanTypes: []
 };
 
 export default (state = initialState, action) => {
@@ -29,6 +31,11 @@ export default (state = initialState, action) => {
     case GET_USERS_PROJECT:
       return { ...state, users: action.payload };
 
+    case GET_STRUCTURE_TYPES:
+      return {...state, structureTypes: action.payload};
+
+    case GET_SPAN_TYPES:
+      return {...state, spanTypes: action.payload};
     default:
       return state;
   }

@@ -1,5 +1,4 @@
 import {
-  GET_STRUCTURE_TYPES,
   ON_LOADING,
   ENQUEUE_SNACKBAR,
   REMOVE_SNACKBAR,
@@ -13,8 +12,7 @@ const initialState = {
   handleForm: false,
   currentForm: null,
   notifications: [],
-  states: [],
-  structureTypes: []
+  states: []
 };
 
 export default (state = initialState, action) => {
@@ -50,8 +48,6 @@ export default (state = initialState, action) => {
     case GET_STATES:
       return {...state, states: action.payload};
 
-    case GET_STRUCTURE_TYPES:
-      return {...state, structureTypes: action.payload};
       
     default:
       return state;

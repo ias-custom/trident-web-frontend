@@ -78,8 +78,34 @@ class ProjectService extends Service {
     }
   };
 
+  async getStructureTypes(projectId) {
+    try {
+        return await this.http.get(`/projects/${projectId}/type-structures/`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  async addStructureType(projectId, body) {
+    try {
+        return await this.http.post(`/projects/${projectId}/type-structures/`, body);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 
   //SPAMS
+  addSpan = async (projectId, form) => {
+    try {
+      const url = `projects/${projectId}/spans/`;
+
+      return await this.http.post(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
   listSpans = async (projectId) => {
     try {
       return await this.http.get(`/projects/${projectId}/spans/`);
@@ -95,6 +121,24 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+  async getSpanTypes(projectId) {
+    try {
+        //return await this.http.get(`/projects/${projectId}/span-types/`);
+        return await this.http.get(`/span-types/`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  async addSpanType(projectId, body) {
+    try {
+        //return await this.http.post(`/projects/${projectId}/span-types/`, body);
+        return await this.http.post(`/span-types/`, body);
+    } catch (error) {
+        return error.response;
+    }
+  }
 
 
   //TAGS

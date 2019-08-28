@@ -51,12 +51,16 @@ class ProjectsList extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchProjects();
-    const nameItem = "projects";
-    const nameSubItem = "list";
-    const open = true;
-    this.props.toggleItemMenu({ nameItem, open });
-    this.props.selectedItemMenu({ nameItem, nameSubItem });
+    try {
+      this.props.fetchProjects();
+      const nameItem = "projects";
+      const nameSubItem = "list";
+      const open = true;
+      this.props.toggleItemMenu({ nameItem, open });
+      this.props.selectedItemMenu({ nameItem, nameSubItem });
+    } catch (error) {
+      
+    }
   }
 
   handleSearch = event => {
@@ -89,6 +93,10 @@ class ProjectsList extends React.Component {
       this.props.enqueueSnackbar("Project successfully removed!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
       });
     }
   };

@@ -1,7 +1,6 @@
 import {
   ENQUEUE_SNACKBAR,
   GET_STATES,
-  GET_STRUCTURE_TYPES,
   ON_LOADING,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
@@ -38,28 +37,6 @@ export const fetchStates = () => {
         dispatch({type: GET_STATES, payload: response.data});
       } else {
         dispatch({type: GET_STATES, payload: []});
-      }
-
-      return response;
-    } catch (error) {
-      return error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  }
-};
-
-export const fetchStuctureTypes = () => {
-  return async (dispatch) => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await globalService.getStructureTypes();
-
-      if (response.status === 200) {
-        dispatch({type: GET_STRUCTURE_TYPES, payload: response.data});
-      } else {
-        dispatch({type: GET_STRUCTURE_TYPES, payload: []});
       }
 
       return response;

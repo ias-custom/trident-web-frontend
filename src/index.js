@@ -22,9 +22,18 @@ const theme = createMuiTheme({
   palette: {
     secondary: {
       main:indigo[500]
+    },
+    green: {
+      main: "#67c23a"
+    }
+  },
+  overrides: {
+    MuiTooltip: {
+      tooltip: {
+        fontSize: 14
+      }
     }
   }
-  
 });
 
 ReactDOM.render(

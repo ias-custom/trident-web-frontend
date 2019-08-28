@@ -7,7 +7,6 @@ export const GET_ROLES = 'GET_ROLES';
 export const GET_STATES = 'GET_STATES';
 export const CHANGE_OPEN_MENU = 'CHANGE_OPEN_MENU';
 export const CHANGE_SELECTED_MENU = 'CHANGE_SELECTED_MENU';
-export const GET_STRUCTURE_TYPES = 'GET_STRUCTURE_TYPES';
 // Auth types
 export const LOGIN = 'LOGIN';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
@@ -49,6 +48,8 @@ export const UPDATE_PROJECT_ERROR = 'UPDATE_PROJECT_ERROR';
 export const DELETE_PROJECT = 'DELETE_PROJECT';
 export const GET_TAGS = 'GET_TAGS';
 export const GET_USERS_PROJECT = 'GET_USERS_PROJECT';
+export const GET_STRUCTURE_TYPES = 'GET_STRUCTURE_TYPES';
+export const GET_SPAN_TYPES = 'GET_SPAN_TYPES';
 
 // Structures
 export const GET_STRUCTURES = 'GET_STRUCTURES';
