@@ -1,17 +1,14 @@
-import RoleService from '../../services/RoleService';
 import {
   ENQUEUE_SNACKBAR,
-  GET_ROLES,
-  GET_US_STATES,
+  GET_STATES,
+  GET_STRUCTURE_TYPES,
   ON_LOADING,
   REMOVE_SNACKBAR,
   HANDLE_FORM,
-  SET_CURRENT_FORM,
-  SET_CUSTOMER_SELECTED
+  SET_CURRENT_FORM
 } from "../actionTypes";
 import GlobalService from "../../services/GlobalService";
 
-const roleService = new RoleService();
 const globalService = new GlobalService();
 
 export const setLoading = (loading) => ({ type: ON_LOADING, loading });
@@ -30,18 +27,19 @@ export const removeSnackbar = key => ({
 });
 
 
-export const fetchRoles = () => {
+export const fetchStates = () => {
   return async (dispatch) => {
     dispatch(setLoading(true));
 
     try {
-      const response = await roleService.list();
+      const response = await globalService.getStates();
 
       if (response.status === 200) {
-        dispatch({type: GET_ROLES, payload: response.data});
+        dispatch({type: GET_STATES, payload: response.data});
       } else {
-        dispatch({type: GET_ROLES, payload: []});
+        dispatch({type: GET_STATES, payload: []});
       }
+
       return response;
     } catch (error) {
       return error;
@@ -51,17 +49,17 @@ export const fetchRoles = () => {
   }
 };
 
-export const fetchStates = () => {
+export const fetchStuctureTypes = () => {
   return async (dispatch) => {
     dispatch(setLoading(true));
 
     try {
-      const response = await globalService.states();
+      const response = await globalService.getStructureTypes();
 
       if (response.status === 200) {
-        dispatch({type: GET_US_STATES, payload: response.data});
+        dispatch({type: GET_STRUCTURE_TYPES, payload: response.data});
       } else {
-        dispatch({type: GET_US_STATES, payload: []});
+        dispatch({type: GET_STRUCTURE_TYPES, payload: []});
       }
 
       return response;
@@ -84,8 +82,4 @@ export const setCurrentForm = (currentForm) => ({
   currentForm,
 })
 
-export const setCustomerSelected = (payload) => ({
-  type: SET_CUSTOMER_SELECTED,
-  payload,
-})
 

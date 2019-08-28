@@ -20,13 +20,13 @@ import Layout from "../../../components/Layout/index";
 import Panel from "../../../components/Panel";
 import { connect } from "react-redux";
 import {
-  fetchRoles,
   fetchStates,
   setHandleForm,
   setLoading
 } from "../../../redux/actions/globalActions";
 import { getCustomers } from "../../../redux/actions/customerActions";
 import { createUser } from "../../../redux/actions/userActions";
+import { fetchRoles } from "../../../redux/actions/roleActions";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -394,7 +394,7 @@ class UserCreate extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    roles: state.global.roles,
+    roles: state.roles.roles,
     customers: state.customers.customers
   };
 };

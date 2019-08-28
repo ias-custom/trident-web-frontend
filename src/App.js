@@ -21,7 +21,7 @@ import CustomerCreate from "./containers/Customers/CustomerCreate";
 import CustomerEdit from "./containers/Customers/CustomerEdit";
 
 import ProjectsList from "./containers/Projects/ProjectsList";
-import ProjectDetail from "./containers/Projects/ProjectDetail";
+import ProjectEdit from "./containers/Projects/ProjectEdit";
 import ProjectCreate from "./containers/Projects/ProjectCreate";
 
 import StructureEdit from "./containers/Structures/StructureEdit";
@@ -40,7 +40,8 @@ import {
   CAN_ADD_ROLE,
   CAN_CHANGE_ROLE,
   CAN_VIEW_PROJECT,
-  CAN_ADD_PROJECT
+  CAN_ADD_PROJECT,
+  CAN_CHANGE_PROJECT
 } from './redux/permissions'
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
@@ -90,7 +91,7 @@ class App extends Component {
 
           <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
-          <Route exact path="/detail-project/:id" component={ProjectDetail} ></Route>
+          <PrivateRoute exact path="/projects/:id" component={ProjectEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <Route exact path="/projects/:projectId/structures/:id" component={StructureEdit}></Route>
 

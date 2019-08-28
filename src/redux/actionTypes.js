@@ -4,11 +4,10 @@ export const SHOW_ALERT = 'SHOW_ALERT';
 export const ENQUEUE_SNACKBAR = 'ENQUEUE_SNACKBAR';
 export const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR';
 export const GET_ROLES = 'GET_ROLES';
-export const GET_US_STATES = 'GET_US_STATES';
+export const GET_STATES = 'GET_STATES';
 export const CHANGE_OPEN_MENU = 'CHANGE_OPEN_MENU';
 export const CHANGE_SELECTED_MENU = 'CHANGE_SELECTED_MENU';
-export const SET_CUSTOMERS = 'SET_CUSTOMERS';
-export const SET_CUSTOMER_SELECTED = 'SET_CUSTOMER_SELECTED';
+export const GET_STRUCTURE_TYPES = 'GET_STRUCTURE_TYPES';
 // Auth types
 export const LOGIN = 'LOGIN';
 export const LOGIN_ERROR = 'LOGIN_ERROR';
@@ -48,6 +47,8 @@ export const GET_PROJECT = 'GET_PROJECT';
 export const UPDATE_PROJECT = 'UPDATE_PROJECT';
 export const UPDATE_PROJECT_ERROR = 'UPDATE_PROJECT_ERROR';
 export const DELETE_PROJECT = 'DELETE_PROJECT';
+export const GET_TAGS = 'GET_TAGS';
+export const GET_USERS_PROJECT = 'GET_USERS_PROJECT';
 
 // Structures
 export const GET_STRUCTURES = 'GET_STRUCTURES';
@@ -56,7 +57,7 @@ export const UPDATE_STRUCTURE = 'UPDATE_STRUCTURE';
 export const DELETE_STRUCTURE = 'DELETE_STRUCTURE';
 
 // Spams
-export const GET_SPAMS = 'GET_SPAMS';
+export const GET_SPANS = 'GET_SPANS';
 export const CREATE_SPAM = 'CREATE_SPAM';
 export const UPDATE_SPAM = 'UPDATE_SPAM';
 export const DELETE_SPAM = 'DELETE_SPAM';

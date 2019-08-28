@@ -21,7 +21,8 @@ import { withStyles } from "@material-ui/core/styles";
 import styles from "./styles";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
-import { fetchRoles, setLoading } from "../../../redux/actions/globalActions";
+import { setLoading } from "../../../redux/actions/globalActions";
+import { fetchRoles } from "../../../redux/actions/roleActions";
 import { getCustomers } from "../../../redux/actions/customerActions";
 import { getUser, updateUser } from "../../../redux/actions/userActions";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -399,7 +400,7 @@ class UserEdit extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    roles: state.global.roles,
+    roles: state.roles.roles,
     customers: state.customers.customers
   };
 };

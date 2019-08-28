@@ -1,21 +1,33 @@
-import { GET_PROJECTS, GET_STRUCTURES, GET_SPAMS } from "../actionTypes";
+import { GET_PROJECTS, GET_STRUCTURES, GET_SPANS, GET_TAGS, GET_USERS_PROJECT, GET_PROJECT } from "../actionTypes";
 
 const initialState = {
   projects: [],
+  project: null,
   structures: [],
-  spams: []
+  spans: [],
+  tags: [],
+  users: []
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case GET_PROJECT:
+      return { ...state, project: action.payload };
+
     case GET_PROJECTS:
       return { ...state, projects: action.payload };
 
     case GET_STRUCTURES:
       return { ...state, structures: action.payload };
 
-    case GET_SPAMS:
-      return { ...state, spams: action.payload };
+    case GET_SPANS:
+      return { ...state, spans: action.payload };
+
+    case GET_TAGS:
+      return { ...state, tags: action.payload };
+
+    case GET_USERS_PROJECT:
+      return { ...state, users: action.payload };
 
     default:
       return state;

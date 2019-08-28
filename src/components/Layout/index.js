@@ -24,7 +24,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import  MainListItems from './listItems';
 import LinearLoading from "../LinearLoading";
 import { logout } from '../../redux/actions/authActions';
-import { setCustomerSelected } from '../../redux/actions/globalActions';
+import { setCustomerSelected } from '../../redux/actions/customerActions';
 import styles from './styles';
 import Select from '@material-ui/core/Select';
 
@@ -44,7 +44,7 @@ class Layout extends React.Component {
   changeSelectCustomer = (event) => {
     this.props.setCustomerSelected(parseInt(event.target.value))
     localStorage.setItem("customerSelectedId", event.target.value)
-    window.location.reload()
+    this.props.history.push("/home")
   }
   handleDrawerOpen = () => {
     this.setState({ open: true });

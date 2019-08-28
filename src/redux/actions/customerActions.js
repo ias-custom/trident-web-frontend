@@ -4,7 +4,8 @@ import {
   ON_LOADING,
   HANDLE_FORM,
   SET_CURRENT_FORM,
-  SHOW_ALERT
+  SHOW_ALERT,
+  GET_CUSTOMER_SELECTED
 } from "../actionTypes";
 
 const customerService = new CustomerService();
@@ -120,4 +121,9 @@ export const setHandleForm = (handleForm) => ({
 export const setCurrentForm = (currentForm) => ({
   type: SET_CURRENT_FORM,
   currentForm,
+})
+
+export const setCustomerSelected = (payload) => ({
+  type: GET_CUSTOMER_SELECTED,
+  payload,
 })

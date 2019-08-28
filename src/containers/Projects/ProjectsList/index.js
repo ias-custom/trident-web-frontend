@@ -82,6 +82,7 @@ class ProjectsList extends React.Component {
 
   handleDelete = async () => {
     this.setState({ open: false });
+    console.log(this.state.projectId)
     const response = await this.props.deleteProject(this.state.projectId);
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
@@ -182,7 +183,7 @@ class ProjectsList extends React.Component {
                 {this.filter(projects, search).map(project => (
                   <TableRow key={project.id}>
                     <TableCell component="td" style={{ width: "80%" }}>
-                      <Link component={RouterLink} to={`/detail-project/${project.id}`}>{project.name}</Link>
+                      {project.name}
                     </TableCell>
                     <TableCell>
                       <div style={{ display: "flex" }}>
@@ -224,7 +225,7 @@ class ProjectsList extends React.Component {
               </TableBody>
             </Table>
             {projects.length === 0 ? (
-              <Typography variant="display1" align="center" className={classes.emptyText}>NO EXISTEN PROJECTOS</Typography>
+              <Typography variant="display1" align="center" className={classes.emptyText}>THERE AREN'T PROJECTS</Typography>
             ): null}
           </Panel>
         </div>

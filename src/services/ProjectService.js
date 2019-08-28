@@ -15,22 +15,19 @@ class ProjectService extends Service {
     }
   };
 
-  create = async form => {
+  create = async body => {
     try {
-      const headers = { 'content-type': 'multipart/form-data' };
 
-      return await this.http.post('/projects/', form, { headers });
+      return await this.http.post(`/customers/${this.getCustomerSelectedId()}/projects/`, body );
     } catch (error) {
       return error.response;
     }
   };
 
-  update = async (id, form) => {
+  update = async (id, body) => {
     try {
-      const headers = { 'content-type': 'multipart/form-data' };
-      const url = `/projects/${id}/`;
-
-      return await this.http.patch(url, form, { headers });
+      const url = `/customers/${this.getCustomerSelectedId()}/projects/${id}/`;
+      return await this.http.patch(url, body);
     } catch (error) {
       return error.response;
     }
@@ -39,7 +36,6 @@ class ProjectService extends Service {
   get = async id => {
     try {
       const url = `customers/${this.getCustomerSelectedId()}/projects/${id}/`;
-
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -73,9 +69,18 @@ class ProjectService extends Service {
     }
   };
 
+  addStructure = async (projectId, form) => {
+    try {
+      const url = `projects/${projectId}/structures/`;
+      return await this.http.post(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
 
   //SPAMS
-  listSpams = async (projectId) => {
+  listSpans = async (projectId) => {
     try {
       return await this.http.get(`/projects/${projectId}/spans/`);
     } catch (error) {
@@ -83,9 +88,50 @@ class ProjectService extends Service {
     }
   };
 
-  deleteSpam = async (projectId, spamId) => {
+  deleteSpan = async (projectId, spanId) => {
     try {
-      return await this.http.delete(`/projects/${projectId}/spans/${spamId}`);
+      return await this.http.delete(`/projects/${projectId}/spans/${spanId}`);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+
+  //TAGS
+  listTags = async () => {
+    try {
+      return await this.http.get(`/tags/`);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  
+  // USERS OF PROJECT
+  getUsers = async projectId => {
+    try {
+      const url = `projects/${projectId}/users/`;
+
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  addUser = async (projectId, form) => {
+    try {
+      const url = `projects/${projectId}/users/`;
+
+      return await this.http.post(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  deleteUser = async (projectId, userId) => {
+    try {
+      const url = `projects/${projectId}/users/${userId}`;
+      return await this.http.delete(url);
     } catch (error) {
       return error.response;
     }

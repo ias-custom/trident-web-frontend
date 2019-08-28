@@ -65,6 +65,23 @@ const styles = theme => ({
   emptyText: {
     margin: "50px 0 20px 0",
     color: "#c5c5c5"
+  },
+  buttonSave: {
+    marginLeft: 20
+  },
+  inputName: {
+    fontSize: 24,
+    background: "transparent",
+    border: "none",
+    '&:focus': {
+      outline: "none"
+    }
+  },
+  dialog: {
+    width: 350
+  },
+  dialogStructure: {
+    width: 500
   }
 });
 

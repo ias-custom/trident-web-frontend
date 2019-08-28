@@ -2,9 +2,17 @@ import Service from "./Service";
 
 class GlobalService extends Service {
 
-    async states() {
+    async getStates() {
         try {
-            return await this.http.get('/usa_states/');
+            return await this.http.get('/states/');
+        } catch (error) {
+            return error.response;
+        }
+    }
+
+    async getStructureTypes() {
+        try {
+            return await this.http.get('/type-structures/');
         } catch (error) {
             return error.response;
         }

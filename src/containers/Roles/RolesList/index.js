@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { fetchRoles } from "../../../redux/actions/globalActions";
+import { fetchRoles } from "../../../redux/actions/roleActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
