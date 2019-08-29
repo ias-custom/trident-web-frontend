@@ -15,7 +15,7 @@ const styles = theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20
+    padding: "20px 0"
   },
   headerCenter: {
     display: 'flex',
@@ -61,6 +61,24 @@ const styles = theme => ({
       backgroundColor: '#f50057',
       color: 'white'
     }
+  },
+  icon: {
+    color: "white",
+    '&:hover': {
+      backgroundColor: "rgba(255,255,255, 0.08)"
+    }
+  },
+  cellDescription:{
+    width: "50%",
+    textAlign: "justify",
+    padding: "10px 20px"
+  },
+  emptyText: {
+    margin: "50px 0 20px 0",
+    color: "#c5c5c5"
+  },
+  dialog: {
+    width: 450
   },
 });
 

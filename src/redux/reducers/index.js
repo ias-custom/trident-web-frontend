@@ -6,6 +6,8 @@ import layoutReducer from './layoutReducer';
 import customerReducer from './customerReducer';
 import projectReducer from './projectReducer';
 import roleReducer from './roleReducer';
+import structureReducer from "./structureReducer";
+import spanReducer from "./spanReducer";
 
 export default combineReducers({
   global: globalReducer,
@@ -14,5 +16,7 @@ export default combineReducers({
   layout: layoutReducer,
   customers: customerReducer,
   projects: projectReducer,
-  roles: roleReducer
+  roles: roleReducer,
+  structures: structureReducer,
+  spans: spanReducer
 });

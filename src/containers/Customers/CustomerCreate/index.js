@@ -151,7 +151,7 @@ class CustomerCreate extends React.Component {
                             <InputFiles
                               name="logo"
                               style={{ width: "100%", height: "140px" }}
-                              accept="images/*"
+                              accept="image/*"
                               onChange={files => {
                                 setFieldValue("logo", files[0]);
                               }}

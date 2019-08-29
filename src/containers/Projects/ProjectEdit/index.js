@@ -33,22 +33,26 @@ import {
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
 import {
-  fetchStructures,
-  fetchSpans,
-  deleteSpan,
   deleteUser,
-  deleteStructure,
   getUsersProject,
   getProject,
   updateProject,
-  addUser,
-  addSpan,
+  addUser
+} from "../../../redux/actions/projectActions";
+import {
+  fetchStructures,
+  deleteStructure,
   addStructure,
-  fetchStuctureTypes,
-  addStructureType,
+  fetchStructureTypes,
+  addStructureType
+} from "../../../redux/actions/structureActions";
+import {
+  fetchSpans,
+  deleteSpan,
+  addSpan,
   addSpanType,
   fetchSpanTypes
-} from "../../../redux/actions/projectActions";
+} from "../../../redux/actions/spanActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { fetchStates, setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
@@ -185,17 +189,25 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  showModal(itemId, item) {
+  showModal = async(itemId, item) => {
     let form = { [item]: true, itemId }
     if (item === "openUser") this.props.getUsers();
     if (item === "openStructure") {
-      this.props.fetchStuctureTypes(this.projectId);
+      this.props.fetchStructureTypes(this.projectId);
       this.props.fetchStates();
     }
     if (item === "openSpan") {
-      this.props.fetchStructures(this.projectId);
-      this.props.fetchSpanTypes(this.projectId);
-      this.props.fetchStates();
+      const response = await this.props.fetchStructures(this.projectId);
+      if (response.data.length >= 2){
+        this.props.fetchSpanTypes(this.projectId);
+        this.props.fetchStates();
+      } else {
+        this.props.enqueueSnackbar("¡The project must have a minimum of 2 structures!", {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+        return
+      }
     }
     if (item === "openAddStructureType") form["openStructure"] = false
     if (item === "openAddSpanType") form["openSpan"] = false
@@ -428,7 +440,7 @@ class ProjectEdit extends React.Component {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              If you delete the role it will be permanently.
+              If you delete it will be permanently.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -509,7 +521,7 @@ class ProjectEdit extends React.Component {
             <Button
               variant="outlined"
               color="primary"
-              disabled={formStructureOrSpanType.name.length === 0}
+              disabled={formStructureOrSpanType.name.length === 0 || loading}
               className={classes.buttonAccept}
               onClick={openAddStructureType ? this.addStructureType: this.addSpanType}
             >
@@ -533,6 +545,7 @@ class ProjectEdit extends React.Component {
               label="Users"
               value={userSelected}
               margin="normal"
+              disabled={loading}
               onChange={e => this.setState({ userSelected: e.target.value })}
               fullWidth
             >
@@ -598,8 +611,8 @@ class ProjectEdit extends React.Component {
                 classes={{ paper: classes.dialogStructure }}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
-                onBackdropClick={() => this.closeModal("openStructure", resetForm)}
-                onEscapeKeyDown={() => this.closeModal("openStructure", resetForm)}
+                onBackdropClick={() => !loading ? this.closeModal("openStructure", resetForm) : null}
+                onEscapeKeyDown={() => !loading ? this.closeModal("openStructure", resetForm) : null}
               >
                 <DialogTitle id="alert-dialog-title">
                   {"Add structure"}
@@ -702,6 +715,7 @@ class ProjectEdit extends React.Component {
                                 !!errors.stateId &&
                                 errors.stateId
                               }
+                              disabled={loading}
                               fullWidth
                               required
                             >
@@ -734,6 +748,7 @@ class ProjectEdit extends React.Component {
                                   errors.structureTypeId
                                 }
                                 fullWidth
+                                disabled={loading}
                               >
                                 {structureTypes.map(type => {
                                   return (
@@ -851,6 +866,7 @@ class ProjectEdit extends React.Component {
                                 errors.structureStart
                               }
                               fullWidth
+                              disabled={loading}
                               required
                             >
                               {structures
@@ -885,6 +901,7 @@ class ProjectEdit extends React.Component {
                                 errors.structureEnd
                               }
                               fullWidth
+                              disabled={loading}
                               required
                             >
                               {structures
@@ -921,6 +938,7 @@ class ProjectEdit extends React.Component {
                                 errors.stateId
                               }
                               fullWidth
+                              disabled={loading}
                               required
                             >
                               {states.map(state => {
@@ -949,6 +967,7 @@ class ProjectEdit extends React.Component {
                                   errors.spanType
                                 }
                                 fullWidth
+                                disabled={loading}
                                 required
                               >
                                 {spansTypes.map(type => {
@@ -1347,20 +1366,20 @@ class ProjectEdit extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    structures: state.projects.structures,
-    spans: state.projects.spans,
+    states: state.global.states,
     permissions: state.auth.permissions,
     is_superuser: state.auth.is_superuser,
-    users: state.projects.users,
     users_customer: state.users.list,
-    states: state.global.states,
-    structureTypes: state.projects.structureTypes,
-    spansTypes: state.projects.spanTypes
+    users: state.projects.users,
+    structures: state.structures.structures,
+    structureTypes: state.structures.structureTypes,
+    spans: state.spans.spans,
+    spansTypes: state.spans.spanTypes
   };
 };
 
 const mapDispatchToProps = {
-  fetchStuctureTypes,
+  fetchStructureTypes,
   fetchSpanTypes,
   fetchStates,
   fetchSpans,

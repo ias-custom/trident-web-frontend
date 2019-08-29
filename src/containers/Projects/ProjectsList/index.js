@@ -86,7 +86,6 @@ class ProjectsList extends React.Component {
 
   handleDelete = async () => {
     this.setState({ open: false });
-    console.log(this.state.projectId)
     const response = await this.props.deleteProject(this.state.projectId);
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
