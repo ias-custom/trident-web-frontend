@@ -3,7 +3,10 @@ import {
   GET_PROJECTS,
   GET_TAGS,
   GET_USERS_PROJECT,
-  GET_PROJECT
+  GET_INSPECTIONS_PROJECT,
+  GET_PROJECT,
+  GET_CATEGORIES_INSPECTION,
+  SET_CATEGORIES_EMPTY
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -189,6 +192,85 @@ export const deleteUser = (projectId, userId) => {
       if (response.status === 204) {
         dispatch(getUsersProject(projectId));
       }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+
+export const getCategoriesInspection = inspectionId => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.getCategories(inspectionId);
+
+      if (response.status === 200) {
+        dispatch({ type: GET_CATEGORIES_INSPECTION, payload: response.data });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+}
+
+// INSPECTIONS
+export const getInspectionsProject = projectId => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.getInspections(projectId);
+
+      if (response.status === 200) {
+        dispatch({ type: GET_INSPECTIONS_PROJECT, payload: response.data });
+
+        dispatch({ type: SET_CATEGORIES_EMPTY, payload: [] });
+        response.data.forEach(({ id }) => {
+          dispatch(getCategoriesInspection(id));
+        });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const updateCategoryInspection = (categoryId, inspectionId, form) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.updateCategory(categoryId, inspectionId, form);
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const updateItemCategory = (categoryId, itemId, form) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.updateItemCategory(categoryId, itemId, form);
 
       return response;
     } catch (error) {

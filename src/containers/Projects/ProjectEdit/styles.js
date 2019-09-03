@@ -76,6 +76,9 @@ const styles = theme => ({
   buttonSave: {
     marginLeft: 20
   },
+  categoryName: {
+    marginBottom: 20
+  },
   inputName: {
     fontSize: 24,
     background: "transparent",
@@ -83,6 +86,26 @@ const styles = theme => ({
     '&:focus': {
       outline: "none"
     }
+  },
+  collapse: {
+    background: "transparent",
+    marginBottom: "15px !important"
+  },
+  itemsText: {
+    color: "#798ba6"
+  },
+  collapseDetails: {
+    display: "block"
+  },
+  divInput: {
+    '& > div::before': {
+      borderBottom: "none",
+    }
+  },
+  inputCategory: {
+    fontSize: 16,
+    background: "transparent",
+    border: "none"
   },
   dialog: {
     width: 350

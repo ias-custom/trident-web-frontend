@@ -66,7 +66,7 @@ class StructureService extends Service {
 
   getPhotos = async (structureId) => {
     try {
-        return await this.http.get(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/photos/`);
+        return await this.http.get(`/structures/${structureId}/photos/`);
     } catch (error) {
         return error.response;
     }
@@ -77,7 +77,7 @@ class StructureService extends Service {
       const config = {     
         headers: { 'content-type': 'multipart/form-data' }
       }
-        return await this.http.post(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/photos/`, body, config);
+        return await this.http.post(`/structures/${structureId}/photos/`, body, config);
     } catch (error) {
         return error.response;
     }
@@ -85,7 +85,7 @@ class StructureService extends Service {
 
   deletePhoto = async (structureId, photoId) => {
     try {
-        return await this.http.delete(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/photos/${photoId}`);
+        return await this.http.delete(`/structures/${structureId}/photos/${photoId}`);
     } catch (error) {
         return error.response;
     }
@@ -93,7 +93,7 @@ class StructureService extends Service {
 
   getInteractions = async (structureId) => {
     try {
-        return await this.http.get(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/interactions/`);
+        return await this.http.get(`/structures/${structureId}/interactions/`);
     } catch (error) {
         return error.response;
     }
@@ -101,7 +101,7 @@ class StructureService extends Service {
 
   deleteInteraction = async (structureId, interactionId) => {
     try {
-        return await this.http.delete(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/interactions/${interactionId}`);
+        return await this.http.delete(`/structures/${structureId}/interactions/${interactionId}`);
     } catch (error) {
         return error.response;
     }
@@ -109,7 +109,7 @@ class StructureService extends Service {
 
   addInteraction = async (structureId, body) => {
     try {
-      return await this.http.post(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/structures/${structureId}/interactions/`, body );
+      return await this.http.post(`/structures/${structureId}/interactions/`, body );
     } catch (error) {
         return error.response;
     }

@@ -91,6 +91,49 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+
+  // INSPECTIONS
+  getInspections = async projectId => {
+    try {
+      const url = `projects/${projectId}/inspections/`;
+  
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  getCategories = async inspectionId => {
+    try {
+      const url = `inspections/${inspectionId}/categories/`;
+  
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  updateCategory = async (categoryId, inspectionId, form) => {
+    try {
+      const url = `inspections/${inspectionId}/categories/${categoryId}/`;
+  
+      return await this.http.patch(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  updateItemCategory = async (categoryId, itemId, form) => {
+    try {
+      const url = `categories/${categoryId}/parent-items/${itemId}/`;
+  
+      return await this.http.patch(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
 }
+
 
 export default ProjectService;

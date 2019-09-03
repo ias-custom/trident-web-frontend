@@ -23,11 +23,16 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Tooltip
+  Tooltip,
+  List,
+  ListItem,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel, AddCircle, ArrowBack } from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel, AddCircle, ArrowBack, ExpandMore } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -37,7 +42,10 @@ import {
   getUsersProject,
   getProject,
   updateProject,
-  addUser
+  addUser,
+  getInspectionsProject,
+  updateCategoryInspection,
+  updateItemCategory
 } from "../../../redux/actions/projectActions";
 import {
   fetchStructures,
@@ -72,6 +80,7 @@ const breadcrumbs = [
 class ProjectEdit extends React.Component {
   state = {
     search: "",
+    openId: 0,
     open: false,
     openUser: false,
     openStructure: false,
@@ -117,6 +126,7 @@ class ProjectEdit extends React.Component {
           inputProjectName: response.data.name
         });
         this.props.getUsersProject(this.projectId);
+        this.props.getInspectionsProject(this.projectId);
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -393,6 +403,55 @@ class ProjectEdit extends React.Component {
     this.props.setLoading(false);
   };
 
+  openCollapse (openId, category) {
+    category.newName = ""
+    this.props.categories.map( category => {
+      category.items.map(item => {
+        item.edit = false
+        return item
+      })
+      return category
+    })
+    if (openId === category.id) this.setState({openId: 0})
+    else this.setState({openId: category.id})
+  };
+
+  changeNameItem = async(item, categoryId) => {
+    const form = { name: item.newName }
+    const response = await this.props.updateItemCategory(categoryId, item.id, form);
+    if (response.status === 200 || response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      Object.assign(item, {name: item.newName, newName: "", edit: false})
+      this.setState({})
+      this.props.enqueueSnackbar("Item updated successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  }
+
+  changeNameCategory = async(category, inspectionId) => {
+    const form = { name: category.newName }
+    const response = await this.props.updateCategoryInspection(category.id, inspectionId, form);
+    if (response.status === 200 || response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      Object.assign(category, {name: category.newName, newName: ""})
+      this.setState({})
+      this.props.enqueueSnackbar("Inspection updated successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  }
+
   render() {
     const {
       classes,
@@ -403,7 +462,9 @@ class ProjectEdit extends React.Component {
       users_customer,
       states,
       structureTypes,
-      spansTypes
+      spansTypes,
+      inspections,
+      categories
     } = this.props;
     const {
       search,
@@ -420,7 +481,8 @@ class ProjectEdit extends React.Component {
       userSelected,
       formSpan,
       formStructure,
-      formStructureOrSpanType
+      formStructureOrSpanType,
+      openId
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
@@ -1095,12 +1157,14 @@ class ProjectEdit extends React.Component {
               <Tab label="Users" />
               <Tab label="Structures" />
               <Tab label="Spans" />
+              <Tab label="Inspections" />
             </Tabs>
           </Grid>
           <Panel>
             <SwipeableViews
               index={value}
               onChangeIndex={this.handleChangeIndex}
+              slideStyle={{ overflowX: "hidden", overflowY: "hidden", padding: "0 2px" }}
             >
               <Grid>
                 <div className={classes.header}>
@@ -1355,6 +1419,112 @@ class ProjectEdit extends React.Component {
                   </Typography>
                 ) : null}
               </Grid>
+              <Grid container spacing={16}>
+                {inspections.map(({id, name}) => (
+                  <Grid item xs={6} key={id}>
+                    <Typography variant="h6" align="center" classes={{h6: classes.categoryName}}>{name}</Typography>
+                    {categories.filter( ({inspection_id}) => inspection_id === id).map( category => (
+                      <div key={category.id}>
+                        
+                        <ExpansionPanel expanded={openId === category.id} onChange={() => {
+                          this.openCollapse(openId, category)
+                        }} classes={{root: classes.collapse}} >
+                          <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                            {category.name}
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails classes={{root: classes.collapseDetails}}>
+                            <Grid>
+                              <TextField
+                                name="name"
+                                value={category.newName || ""}
+                                placeholder="Change category name"
+                                label=""
+                                required
+                                disabled={loading}
+                                inputProps={{ className: classes.inputCategory }}
+                                onChange={(e) => {
+                                  category.newName = e.target.value
+                                  this.setState({})
+                                }} 
+                              />
+                              <IconButton
+                                className={classes.buttonSave}
+                                aria-label="Save"
+                                color="primary"
+                                onClick={() => this.changeNameCategory(category, id)}
+                                disabled={loading || !(category.newName && category.newName.length > 0)}
+                              >
+                                <Save />
+                              </IconButton>
+                            </Grid>
+                            <Grid>
+                              <Typography variant="subtitle1" classes={{subtitle1: classes.itemsText}}>ITEMS</Typography>
+                            </Grid>
+                            {category.items.map(item => (
+                              <div key={item.id}>
+                                {item.edit ? (
+                                  <Grid>
+                                    <TextField
+                                      name="name"
+                                      value={item.newName}
+                                      label=""
+                                      required
+                                      disabled={loading}
+                                      autoFocus={item.edit}
+                                      inputProps={{ className: classes.inputCategory }}
+                                      onChange={e => {
+                                        item.newName = e.target.value
+                                        this.setState({})
+                                      }}
+                                    />
+                                    <IconButton
+                                      className={classes.buttonSave}
+                                      aria-label="Save"
+                                      color="primary"
+                                      onClick={() => this.changeNameItem(item, category.id)}
+                                      disabled={loading || item.newName.length === 0}
+                                    >
+                                      <Save />
+                                    </IconButton>
+                                    <IconButton
+                                      className={classes.iconDelete}
+                                      aria-label="Cancel"
+                                      onClick={() => {
+                                        item.edit = false
+                                        this.setState({})
+                                      }}
+                                      disabled={loading}
+                                    >
+                                      <Cancel />
+                                    </IconButton>
+                                  </Grid>
+                                  
+                                ): (
+                                  <Typography variant="subtitle1">
+                                    {item.name}
+                                    <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      onClick={() => {
+                                        Object.assign(item, {edit: true, newName: item.name}) 
+                                        this.setState({})}}
+                                      disabled={loading}
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Typography>
+                                )}
+                                
+                              </div>
+                            ))}
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        
+                      </div>
+                    ))}
+                  </Grid>
+                ))}
+              </Grid>
             </SwipeableViews>
           </Panel>
         </div>
@@ -1371,6 +1541,8 @@ const mapStateToProps = state => {
     is_superuser: state.auth.is_superuser,
     users_customer: state.users.list,
     users: state.projects.users,
+    inspections: state.projects.inspections,
+    categories: state.projects.categories,    
     structures: state.structures.structures,
     structureTypes: state.structures.structureTypes,
     spans: state.spans.spans,
@@ -1385,6 +1557,9 @@ const mapDispatchToProps = {
   fetchSpans,
   fetchStructures,
   getUsersProject,
+  getInspectionsProject,
+  updateCategoryInspection,
+  updateItemCategory,
   getProject,
   updateProject,
   getUsers,
