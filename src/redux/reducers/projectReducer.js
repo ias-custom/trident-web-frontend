@@ -9,7 +9,8 @@ import {
   GET_CATEGORIES_PROJECT,
   SET_CATEGORIES_EMPTY,
   GET_CATEGORIES_INSPECTION,
-  GET_DEFICIENCIES
+  GET_DEFICIENCIES,
+  GET_MARKINGS_TYPES
 } from "../actionTypes";
 
 const initialState = {
@@ -22,7 +23,8 @@ const initialState = {
   inspections: [],
   categories_project: [],
   categoriesInspection: [],
-  deficiencies: []
+  deficiencies: [],
+  marking_types: []
 };
 
 export default (state = initialState, action) => {
@@ -57,8 +59,12 @@ export default (state = initialState, action) => {
 
     case GET_CATEGORIES_INSPECTION:
       return { ...state, categoriesInspection: action.payload };
+
     case GET_DEFICIENCIES:
       return { ...state, deficiencies: action.payload };
+      
+    case GET_MARKINGS_TYPES:
+      return { ...state, marking_types: action.payload };
 
     default:
       return state;

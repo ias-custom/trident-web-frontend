@@ -81,21 +81,26 @@ class App extends Component {
           <PrivateRoute exact path="/users/create" component={UserCreate} allowedPermission={CAN_ADD_USER}/>
           <PrivateRoute exact path="/users/:id" component={UserEdit} allowedPermission={CAN_CHANGE_USER}/>
 
+
           <PrivateRoute exact path="/roles" component={RolesList} allowedPermission={CAN_VIEW_ROLE}></PrivateRoute>
           <PrivateRoute exact path="/roles/create" component={RoleCreate} allowedPermission={CAN_ADD_ROLE}></PrivateRoute>
           <PrivateRoute exact path="/roles/:id" component={RoleEdit} allowedPermission={CAN_CHANGE_ROLE}></PrivateRoute>
+
 
           <PrivateRoute exact path="/customers" component={CustomersList} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/create" component={CustomerCreate} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/:id" component={CustomerEdit}></PrivateRoute>
 
+
           <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:id" component={ProjectEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
-          <Route exact path="/projects/:projectId/structures/:id" component={StructureEdit}></Route>
 
-          <Route exact path="/projects/:projectId/spans/:id" component={SpamEdit}></Route>
+          <PrivateRoute exact path="/projects/:projectId/structures/:id" component={StructureEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+
+
+          <PrivateRoute exact path="/projects/:projectId/spans/:id" component={SpamEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

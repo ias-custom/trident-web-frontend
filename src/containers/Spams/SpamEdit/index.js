@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { withRouter } from "react-router-dom";
+import { withRouter, Prompt } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
   Table,
@@ -20,7 +20,8 @@ import {
   DialogActions,
   Grid,
   Typography,
-  TextField
+  TextField,
+  MenuItem
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -28,12 +29,15 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { getCategoriesInspection } from "../../../redux/actions/projectActions";
+import { getCategoriesInspection, getMarkingsTypes } from "../../../redux/actions/projectActions";
 import { fetchStructures } from "../../../redux/actions/structureActions";
 import {
   getSpan,
   updateSpan,
-  getPhotosSpan
+  getPhotosSpan,
+  getMarkings,
+  addMarking,
+  deleteMarking
 } from "../../../redux/actions/spanActions";
 import { setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
@@ -41,14 +45,16 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { Formik } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { FormSpanEdit, PhotosList, Equipment } from "../../../components";
+import { Delete } from "@material-ui/icons";
 
 class SpanEdit extends React.Component {
   state = {
     search: "",
     open: false,
+    openMarking: false,
     openInteraction: false,
     itemId: null,
     value: 0,
@@ -59,6 +65,13 @@ class SpanEdit extends React.Component {
       structureEnd: "",
       stateId: "",
       spanType: ""
+    },
+    formMarking: {
+      type_id: "",
+      owner: "",
+      details: "",
+      longitude: "",
+      latitude: ""
     },
     inspection_id: "",
     inspection_name: ""
@@ -105,6 +118,8 @@ class SpanEdit extends React.Component {
         if (inspection_id) this.props.getCategoriesInspection(inspection_id);
         this.props.getPhotosSpan(this.spanId);
         this.props.fetchStructures(this.projectId);
+        this.props.getMarkings(this.spanId)
+        this.props.getMarkingsTypes(this.projectId)
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -119,9 +134,10 @@ class SpanEdit extends React.Component {
     this.setState({ search: event.target.value });
   };
 
-  filter = (list, keyword) => {
+  filter = (list, keyword, tab) => {
     if (keyword === "") return list;
     let fields = ["description", "first_name", "last_name"];
+    if (tab === 'markings') fields = ["name", "owner", "details", "latitude", "longitude"]
     const regex = new RegExp(keyword, "i");
 
     return list.filter(data => {
@@ -129,9 +145,9 @@ class SpanEdit extends React.Component {
 
       return (
         fields.filter(field => {
-          return field === "description"
+          return field !== "name"
             ? String(obj[field]).match(regex)
-            : String(obj["user"][field]).match(regex);
+            : String(obj["type"][field]).match(regex);
         }).length > 0
       );
     });
@@ -141,24 +157,28 @@ class SpanEdit extends React.Component {
     this.setState({ open: false });
     let response = "";
     let itemName = "";
-
-    if (this.state.value === 3) {
-      itemName = "Interaction";
-      response = await this.props.deleteInteraction(
-        this.structureId,
-        this.state.itemId
-      );
-    }
-    if (response.status === 200 || response.status === 204) {
-      const text = `${itemName} successfully removed!`;
-      this.props.enqueueSnackbar(text, {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
+    
+    try {
+      if (this.state.value === 3) {
+        itemName = "Marking";
+        response = await this.props.deleteMarking(
+          this.spanId,
+          this.state.itemId
+        );
+      }
+      if (response.status === 200 || response.status === 204) {
+        const text = `${itemName} successfully removed!`;
+        this.props.enqueueSnackbar(text, {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
   };
 
@@ -188,17 +208,21 @@ class SpanEdit extends React.Component {
     this.closeModal("openInteraction");
     const form = { description: this.state.interactionDescription };
     this.setState({ interactionDescription: "" });
-    const response = await this.props.addInteraction(this.structureId, form);
-    if (response.status === 200 || response.status === 201) {
-      // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("¡The interaction was added successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
+    try {
+      const response = await this.props.addInteraction(this.structureId, form);
+      if (response.status === 200 || response.status === 201) {
+        // SHOW NOTIFICACION SUCCCESS
+        this.props.enqueueSnackbar("¡The interaction was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
   };
 
@@ -247,15 +271,54 @@ class SpanEdit extends React.Component {
     this.props.setLoading(false);
   };
 
+  addMarking = async (values, formikActions) => {
+    const { setSubmitting, resetForm } = formikActions;
+    this.props.setLoading(true);
+    const { type_id, owner, latitude, longitude, details } = values;
+    const form = {
+      type_id,
+      owner,
+      latitude,
+      longitude,
+      details
+    };
+
+    try {
+      const response = await this.props.addMarking(
+        this.spanId,
+        form
+      );
+
+      if (response.status === 201) {
+        this.closeModal("openMarking")
+        resetForm()
+        this.props.enqueueSnackbar("The marking was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+    setSubmitting(false);
+    this.props.setLoading(false);
+  };
+
   render() {
-    const { classes, loading, photos, structures } = this.props;
+    const { classes, loading, photos, structures, markings, marking_types } = this.props;
     const {
       open,
+      openMarking,
       openInteraction,
       interactionDescription,
       search,
       value,
       formGeneral,
+      formMarking,
       inspection_id,
       inspection_name
     } = this.state;
@@ -338,7 +401,210 @@ class SpanEdit extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-
+        <Dialog
+          open={openMarking}
+          classes={{ paper: classes.dialogMarking }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          onBackdropClick={() => !loading ? this.closeModal("openMarking") : null}
+          onEscapeKeyDown={() => !loading ? this.closeModal("openMarking") : null}
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Add marking"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Enter the required information
+            </DialogContentText>
+            <Formik
+              onSubmit={this.addMarking}
+              validateOnChange
+              initialValues={{
+                ...formMarking
+              }}
+              validationSchema={Yup.object().shape({
+                type_id: Yup.mixed().required("Marking type is required"),
+                owner: Yup.string().required("Owner is required"),
+                details: Yup.string().required("Details is required"),
+                longitude: Yup.string().required("Longitude is required"),
+                latitude: Yup.string().required("Latitude is required")
+              })}> 
+              { props => {
+                const {
+                  isSubmitting,
+                  resetForm,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container spacing={16}>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="type_id"
+                          select
+                          label="Marking types"
+                          required
+                          value={values.type_id}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            !!touched.type_id && !!errors.type_id
+                          }
+                          helperText={
+                            !!touched.type_id &&
+                            !!errors.type_id &&
+                            errors.type_id
+                          }
+                          fullWidth
+                        >
+                          {marking_types.map(marking => {
+                            return (
+                              <MenuItem key={marking.id} value={marking.id}>
+                                {marking.name}
+                              </MenuItem>
+                            );
+                          })}
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="owner"
+                          label="Owner"
+                          required
+                          value={values.owner}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            !!touched.owner && !!errors.owner
+                          }
+                          helperText={
+                            !!touched.owner &&
+                            !!errors.owner &&
+                            errors.owner
+                          }
+                          fullWidth
+                        >
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={16}>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="latitude"
+                          label="Latitude"
+                          required
+                          type="number"
+                          value={values.latitude}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            !!touched.latitude && !!errors.latitude
+                          }
+                          helperText={
+                            !!touched.latitude &&
+                            !!errors.latitude &&
+                            errors.latitude
+                          }
+                          fullWidth
+                        >
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="longitude"
+                          label="Longitude"
+                          required
+                          type="number"
+                          value={values.longitude}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            !!touched.longitude && !!errors.longitude
+                          }
+                          helperText={
+                            !!touched.longitude &&
+                            !!errors.longitude &&
+                            errors.longitude
+                          }
+                          fullWidth
+                        >
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={16}>
+                      <Grid item xs>
+                        <TextField
+                          name="details"
+                          label="Details"
+                          rows="2"
+                          rowsMax="2"
+                          multiline
+                          required
+                          value={values.details}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            !!touched.details && !!errors.details
+                          }
+                          helperText={
+                            !!touched.details &&
+                            !!errors.details &&
+                            errors.details
+                          }
+                          fullWidth
+                        >
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <br />
+                    <Grid container justify="flex-end">
+                      <Button
+                        variant="outlined"
+                        disabled={loading}
+                        className={classes.buttonCancel}
+                        onClick={() => this.setState({ openItem: false })}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        disabled={loading || isSubmitting || !isValid || !dirty}
+                        onClick={e => {
+                          handleSubmit(e);
+                        }}
+                        variant="outlined"
+                        color="primary"
+                        className={classes.buttonAccept}
+                      >
+                        Add Marking
+                      </Button>
+                    </Grid>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </DialogContent>
+        </Dialog>
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={this.breadcrumbs} />
           <Typography component="h1" variant="h5">
@@ -439,7 +705,76 @@ class SpanEdit extends React.Component {
                   itemId={parseInt(this.spanId)}
                 />
               </Grid>
-              <Grid></Grid>
+              <Grid>
+                <div className={classes.header}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => this.showModal("openMarking", null)}
+                  >
+                    Add Marking
+                  </Button>
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
+                <div className={classes.divTable}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Type</TableCell>
+                        <TableCell>Owner</TableCell>
+                        <TableCell>Details</TableCell>
+                        <TableCell>Latitude</TableCell>
+                        <TableCell>Longitude</TableCell>
+                        <TableCell fixed={"true"}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.filter(markings, search, "markings").map(
+                        marking => (
+                          <TableRow key={marking.id}>
+                            <TableCell component="td">{marking.type.name}</TableCell>
+                            <TableCell component="td">{marking.owner}</TableCell>
+                            <TableCell component="td">{marking.details}</TableCell>
+                            <TableCell component="td">{marking.coordinate[0]}</TableCell>
+                            <TableCell component="td">{marking.coordinate[1]}</TableCell>
+                            <TableCell fixed={"true"}>
+                              <div style={{ display: "flex" }}>
+                                <IconButton
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.showModal("open", marking.id )
+                                  }
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                  {markings.length === 0 ? (
+                    <Typography
+                      variant="display1"
+                      align="center"
+                      className={classes.emptyText}
+                    >
+                      THERE AREN'T MARKINGS
+                    </Typography>
+                  ) : null}
+                </div>
+              </Grid>
               <Grid></Grid>
             </SwipeableViews>
           </Panel>
@@ -454,11 +789,17 @@ const mapStateToProps = state => {
     loading: state.global.loading,
     photos: state.spans.photos,
     interactions: state.structures.interactions,
-    structures: state.structures.structures
+    structures: state.structures.structures,
+    markings: state.spans.markings,
+    marking_types: state.projects.marking_types
   };
 };
 
 const mapDispatchToProps = {
+  getMarkings,
+  addMarking,
+  deleteMarking,
+  getMarkingsTypes,
   fetchStructures,
   getCategoriesInspection,
   getSpan,

@@ -8,7 +8,8 @@ import {
   GET_CATEGORIES_PROJECT,
   SET_CATEGORIES_EMPTY,
   GET_CATEGORIES_INSPECTION,
-  GET_DEFICIENCIES
+  GET_DEFICIENCIES,
+  GET_MARKINGS_TYPES
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -358,3 +359,20 @@ export const deleteDeficiency = (projectId, deficiencyId) => {
     }
   };
 };
+
+export const getMarkingsTypes = (projectId) => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getMarkingsTypes(projectId);
+      if (response.status === 200) {
+        dispatch({type: GET_MARKINGS_TYPES, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}

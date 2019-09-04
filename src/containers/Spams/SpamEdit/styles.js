@@ -51,7 +51,8 @@ const styles = theme => ({
       borderColor: '#22c722',
       backgroundColor: '#22c722',
       color: 'white'
-    }
+    },
+    marginLeft: 10
   },
   buttonCancel: {
     borderColor: '#f50057',
@@ -62,6 +63,16 @@ const styles = theme => ({
       color: 'white'
     }
   },
+  emptyText: {
+    margin: "50px 0 20px 0",
+    color: "#c5c5c5"
+  },
+  divTable: {
+    overflowX: "auto"
+  },
+  dialogMarking: {
+    width: 600
+  }
 });
 
 export default styles;

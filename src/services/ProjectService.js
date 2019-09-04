@@ -163,6 +163,16 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+  getMarkingsTypes = async projectId => {
+    try {
+      //const url = `projects/${projectId}/marking-types/`;
+      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/marking-types`
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
 }
 
 

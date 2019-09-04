@@ -3,7 +3,8 @@ import {
   GET_SPANS,
   GET_SPAN_TYPES,
   GET_PHOTOS_SPAN,
-  GET_ITEMS_SPAN
+  GET_ITEMS_SPAN,
+  GET_MARKINGS
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
@@ -105,6 +106,8 @@ export const addSpan = (projectId, form) => {
     };
   };
   
+
+  //SPAN TYPES
   export const fetchSpanTypes = (projectId) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
@@ -204,6 +207,8 @@ export const addSpan = (projectId, form) => {
     }
   };
 
+
+  //ITEMS
   export const getItemsSpan = (spanId) => {
     return async (dispatch) => {
       dispatch(setLoading(true))
@@ -250,6 +255,60 @@ export const addSpan = (projectId, form) => {
 
         if (response.status === 204) {
           dispatch(getItemsSpan(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const getMarkings = (spanId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getMarkings(spanId)
+        if (response.status === 200) {
+          dispatch({type: GET_MARKINGS, payload: response.data })
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addMarking = (spanId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addMarking(spanId, form)
+        if (response.status === 201) {
+          dispatch(getMarkings(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deleteMarking = (spanId, markingId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deleteMarking(spanId, markingId)
+        if (response.status === 204) {
+          dispatch(getMarkings(spanId))
         }
         return response;
       } catch (error) {

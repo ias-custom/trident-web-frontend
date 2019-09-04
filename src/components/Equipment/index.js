@@ -333,7 +333,7 @@ class Equipment extends React.Component {
           <DialogTitle id="alert-dialog-title">{"Add inspection"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Complete the required information.
+              Enter the required information.
             </DialogContentText>
             <Formik
               onSubmit={this.createItemConfirm}
