@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { withRouter, Prompt } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
   Table,
@@ -20,11 +20,7 @@ import {
   DialogActions,
   Grid,
   Typography,
-  TextField,
-  MenuItem,
-  GridList,
-  GridListTile,
-  GridListTileBar
+  TextField
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -34,15 +30,12 @@ import {
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
 import {
-  fetchStates
-} from "../../../redux/actions/globalActions";
+  getCategoriesInspection
+} from "../../../redux/actions/projectActions";
 import {
   getStructure,
-  fetchStructureTypes,
   updateStructure,
   getPhotos,
-  addPhoto,
-  deletePhoto,
   getInteractions,
   deleteInteraction,
   addInteraction
@@ -53,9 +46,11 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import InputFiles from "react-input-files";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
+import FormStructureEdit from "../../../components/FormStructureEdit";
+import { PhotosList } from "../../../components";
+import Equipment from "../../../components/Equipment";
 
 class StructureEdit extends React.Component {
   state = {
@@ -65,6 +60,8 @@ class StructureEdit extends React.Component {
     itemId: null,
     value: 0,
     interactionDescription: "",
+    inspection_id: null,
+    inspection_name: "",
     formGeneral: {
       name: "",
       address: "",
@@ -85,26 +82,26 @@ class StructureEdit extends React.Component {
     { name: "Structure edit", to: null }
   ];
 
-  projectId = null;
-  structureId = null;
+  projectId = this.props.match.params.projectId;
+  structureId = this.props.match.params.id;
   formikGeneral = React.createRef();
   
   componentDidMount = async () => {
     try {
-      this.projectId = this.props.match.params.projectId;
-      this.structureId = this.props.match.params.id;
       const response = await this.props.getStructure(
         this.projectId,
         this.structureId
         );
-        if (response.status === 200) {
+      if (response.status === 200) {
         const {
           state_id,
           type_structure_id,
           name,
           latitude,
           longitude,
-          address
+          address,
+          inspection_id,
+          inspection
         } = response.data;
         this.setState({
           formGeneral: {
@@ -114,10 +111,15 @@ class StructureEdit extends React.Component {
             latitude,
             longitude,
             address
-          }
+          },
+          inspection_id,
+          inspection_name: inspection_id ? inspection.name : ""
         });
-        this.props.fetchStates();
-        this.props.fetchStructureTypes(this.projectId);
+        if(inspection_id) this.props.getCategoriesInspection(inspection_id)
+
+        this.props.getPhotos(this.structureId)
+        this.props.getInteractions(this.structureId);
+
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -152,14 +154,7 @@ class StructureEdit extends React.Component {
     this.setState({ open: false });
     let response = "";
     let itemName = "";
-    if (this.state.value === 0) {
-    }
-    if (this.state.value === 1) {
-    }
-    if (this.state.value === 2) {
-      itemName = "Photo";
-      response = await this.props.deletePhoto(this.structureId, this.state.itemId)
-    }
+    
     if (this.state.value === 3) {
       itemName = "Interaction";
       response = await this.props.deleteInteraction(this.structureId, this.state.itemId)
@@ -191,38 +186,11 @@ class StructureEdit extends React.Component {
       this.setState(prevState => { return {formGeneral: prevState.formGeneral}});
       this.formikGeneral.current.resetForm()
     }
-    if (newValue === 1) {
-    }
-    if (newValue === 2) {
-      this.props.getPhotos(this.structureId);
-      return;
-    }
-    if (newValue === 3) {
-      this.props.getInteractions(this.structureId);
-      return;
-    }
   }
 
   handleChangeIndex(index) {
     this.setState({ value: index });
   }
-
-  addPhoto = async (photo) => {
-    const form = new FormData()
-    form.append("photo", photo)
-    const response = await this.props.addPhoto(this.structureId, form)
-    if (response.status === 200 || response.status === 201) {
-      // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("¡The photo was added successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
 
   addInteraction = async () => {
     this.closeModal("openInteraction")
@@ -274,7 +242,7 @@ class StructureEdit extends React.Component {
           structureTypeId,
           address
         }});
-        this.props.enqueueSnackbar("The structure was updted successfully!", {
+        this.props.enqueueSnackbar("The structure was updated successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
@@ -294,8 +262,6 @@ class StructureEdit extends React.Component {
     const {
       classes,
       loading,
-      states,
-      structureTypes,
       photos,
       interactions
     } = this.props;
@@ -305,7 +271,9 @@ class StructureEdit extends React.Component {
       interactionDescription,
       search,
       value,
-      formGeneral
+      formGeneral,
+      inspection_id,
+      inspection_name
     } = this.state;
 
     return (
@@ -414,7 +382,7 @@ class StructureEdit extends React.Component {
             <SwipeableViews
               index={value}
               onChangeIndex={this.handleChangeIndex}
-              slideStyle={{ overflow: "none" }}
+              slideStyle={{ overflowX: "hidden", overflowY: "hidden" }}
             >
               <Grid>
                 <Formik
@@ -446,244 +414,16 @@ class StructureEdit extends React.Component {
                     } = props;
 
                     return (
-                      <Form onSubmit={this.handleSubmit}>
-                        <Prompt
-                          when={dirty}
-                          message="Are you sure you want to leave?, You will lose your changes"
-                        />
-                        <Grid item sm={12} md={12}>
-                          <Grid container spacing={16}>
-                            <Grid item xs>
-                              <TextField
-                                name="name"
-                                value={values.name}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={!!touched.name && !!errors.name}
-                                helperText={
-                                  !!touched.name && !!errors.name && errors.name
-                                }
-                                label="Name"
-                                fullWidth
-                                margin="normal"
-                                required
-                                disabled={loading}
-                              />
-                            </Grid>
-                          </Grid>
-                          <Grid container spacing={16}>
-                            <Grid item xs>
-                              <TextField
-                                name="address"
-                                value={values.address}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                label="Address"
-                                fullWidth
-                                margin="normal"
-                                disabled={loading}
-                              />
-                            </Grid>
-                          </Grid>
-                          <Grid container spacing={16}>
-                            <Grid item xs>
-                              <TextField
-                                label="Latitude"
-                                name="latitude"
-                                value={values.latitude}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={!!touched.latitude && !!errors.latitude}
-                                helperText={
-                                  !!touched.latitude &&
-                                  !!errors.latitude &&
-                                  errors.latitude
-                                }
-                                fullWidth
-                                margin="normal"
-                                required
-                                type="number"
-                                disabled={loading}
-                              />
-                            </Grid>
-                            <Grid item xs>
-                              <TextField
-                                label="Longitude"
-                                name="longitude"
-                                value={values.longitude}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                  !!touched.longitude && !!errors.longitude
-                                }
-                                helperText={
-                                  !!touched.longitude &&
-                                  !!errors.longitude &&
-                                  errors.longitude
-                                }
-                                fullWidth
-                                margin="normal"
-                                required
-                                type="number"
-                                disabled={loading}
-                              />
-                            </Grid>
-                          </Grid>
-                          <Grid container spacing={16}>
-                            <Grid item xs>
-                              <TextField
-                                name="stateId"
-                                select
-                                label="State"
-                                value={values.stateId}
-                                margin="normal"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={!!touched.stateId && !!errors.stateId}
-                                helperText={
-                                  !!touched.stateId &&
-                                  !!errors.stateId &&
-                                  errors.stateId
-                                }
-                                fullWidth
-                                required
-                                disabled={loading}
-                              >
-                                {states.map(state => {
-                                  return (
-                                    <MenuItem key={state.id} value={state.id}>
-                                      {state.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </TextField>
-                            </Grid>
-                            <Grid item xs>
-                              <TextField
-                                name="structureTypeId"
-                                select
-                                label="Stucture type"
-                                value={values.structureTypeId}
-                                margin="normal"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                  !!touched.structureTypeId &&
-                                  !!errors.structureTypeId
-                                }
-                                helperText={
-                                  !!touched.structureTypeId &&
-                                  !!errors.structureTypeId &&
-                                  errors.structureTypeId
-                                }
-                                fullWidth
-                                disabled={loading}
-                              >
-                                {structureTypes.map(type => {
-                                  return (
-                                    <MenuItem key={type.id} value={type.id}>
-                                      {type.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </TextField>
-                            </Grid>
-                          </Grid>
-                        </Grid>
-                        <br />
-                        <Grid container>
-                          <Button
-                            disabled={
-                              loading ||
-                              isSubmitting ||
-                              (isValid && !dirty) ||
-                              (!isValid && dirty)
-                            }
-                            onClick={e => handleSubmit(e)}
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                          >
-                            Update
-                          </Button>
-                        </Grid>
-                      </Form>
+                      <FormStructureEdit dirty={dirty} values={values} isValid={isValid} touched={touched} errors={errors} isSubmitting={isSubmitting} handleChange={handleChange} handleBlur={handleBlur} handleSubmit={handleSubmit} projectId={this.projectId} isModal={false}/>
                     );
                   }}
                 </Formik>
               </Grid>
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal(null, "openStructure")}
-                  >
-                    Add Structure
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
-                    }}
-                  />
-                </div>
-                
+              <Grid style={{height: "100%"}}>
+                <Equipment inspection_id={inspection_id} projectId={this.projectId} isStructure={true} itemId={this.structureId} inspectionName={inspection_name} changeName={(newName) => this.setState({inspection_name: newName})} changeId={(id) => this.setState({inspection_id: id})}></Equipment>
               </Grid>
               <Grid style={{overflow: "hidden"}}>
-                <div className={classes.header}>
-                  {!loading ? (
-                    <InputFiles
-                      name="logo"
-                      accept="image/*"
-                      onChange={files => { this.addPhoto(files[0]) }}
-                    >
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                      >
-                        Add Photo
-                      </Button>
-                    </InputFiles>
-                  ): (
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        disabled
-                      >
-                        Add Photo
-                      </Button>
-                  )}
-                </div>
-                <GridList cellHeight={180} cols={3}>
-                  {photos.map(photo => (
-                    <GridListTile key={photo.id}>
-                      <img src={photo.thumbnail} alt={photo.name} />
-                      <GridListTileBar
-                        title={photo.name}
-                        titlePosition="top"
-                        actionPosition="right"
-                        actionIcon={
-                          <IconButton className={classes.icon} disabled={loading} onClick={() => this.showModal("open", photo.id)}>
-                            <Delete />
-                          </IconButton>
-                        }
-                      />
-                    </GridListTile>
-                  ))}
-                </GridList>
-                {photos.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T PHOTOS
-                  </Typography>
-                ) : null}
+                <PhotosList photos={photos} isStructure={true} itemId={parseInt(this.structureId)}/>
               </Grid>
               <Grid>
                 <div className={classes.header}>
@@ -760,21 +500,16 @@ class StructureEdit extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    states: state.global.states,
     photos: state.structures.photos,
-    structureTypes: state.structures.structureTypes,
     interactions: state.structures.interactions,
   };
 };
 
 const mapDispatchToProps = {
+  getCategoriesInspection,
   getStructure,
   updateStructure,
-  fetchStructureTypes,
-  fetchStates,
-  addPhoto,
   getPhotos,
-  deletePhoto,
   getInteractions,
   deleteInteraction,
   addInteraction,

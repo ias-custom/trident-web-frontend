@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { Link as RouterLink, withRouter, Prompt } from "react-router-dom";
+import { Link as RouterLink, withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
   Table,
@@ -23,16 +23,20 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Tooltip,
-  List,
-  ListItem,
   ExpansionPanel,
   ExpansionPanelSummary,
   ExpansionPanelDetails
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel, AddCircle, ArrowBack, ExpandMore } from "@material-ui/icons";
+import {
+  Edit,
+  Delete,
+  Save,
+  Cancel,
+  ArrowBack,
+  ExpandMore
+} from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -51,25 +55,25 @@ import {
   fetchStructures,
   deleteStructure,
   addStructure,
-  fetchStructureTypes,
   addStructureType
 } from "../../../redux/actions/structureActions";
 import {
   fetchSpans,
   deleteSpan,
   addSpan,
-  addSpanType,
-  fetchSpanTypes
+  addSpanType
 } from "../../../redux/actions/spanActions";
 import { getUsers } from "../../../redux/actions/userActions";
-import { fetchStates, setLoading } from "../../../redux/actions/globalActions";
+import { setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
+import FormStructureEdit from "../../../components/FormStructureEdit";
+import { FormSpanEdit } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -127,6 +131,10 @@ class ProjectEdit extends React.Component {
         });
         this.props.getUsersProject(this.projectId);
         this.props.getInspectionsProject(this.projectId);
+        this.props.fetchStructures(this.projectId);
+        this.props.fetchSpans(this.projectId);
+        this.props.getUsers();
+
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -199,55 +207,38 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  showModal = async(itemId, item) => {
-    let form = { [item]: true, itemId }
-    if (item === "openUser") this.props.getUsers();
-    if (item === "openStructure") {
-      this.props.fetchStructureTypes(this.projectId);
-      this.props.fetchStates();
-    }
+  showModal = async (itemId, item) => {
+    let form = { [item]: true, itemId };
     if (item === "openSpan") {
-      const response = await this.props.fetchStructures(this.projectId);
-      if (response.data.length >= 2){
-        this.props.fetchSpanTypes(this.projectId);
-        this.props.fetchStates();
-      } else {
-        this.props.enqueueSnackbar("¡The project must have a minimum of 2 structures!", {
-          variant: "error",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
-        return
+      if (this.props.structures.length < 2) {
+        this.props.enqueueSnackbar(
+          "¡The project must have a minimum of 2 structures!",
+          {
+            variant: "error",
+            anchorOrigin: { vertical: "top", horizontal: "center" }
+          }
+        );
+        return;
       }
     }
-    if (item === "openAddStructureType") form["openStructure"] = false
-    if (item === "openAddSpanType") form["openSpan"] = false
+    if (item === "openAddStructureType") form["openStructure"] = false;
+    if (item === "openAddSpanType") form["openSpan"] = false;
     this.setState(form);
-  }
+  };
 
   closeModal(item, resetForm) {
-    let form = { [item]: !this.state[item], userSelected: "" }
-    if (item === 'openStructure' || item === 'openSpan'){
-      resetForm()
-      form['formStructureOrSpanType'] = { name: "", description: "" }
+    let form = { [item]: !this.state[item], userSelected: "" };
+    if (item === "openStructure" || item === "openSpan") {
+      resetForm();
+      form["formStructureOrSpanType"] = { name: "", description: "" };
     }
-    if (item === 'openAddStructureType') form['openStructure'] = true
-    if (item === 'openAddSpanType') form['openSpan'] = true
+    if (item === "openAddStructureType") form["openStructure"] = true;
+    if (item === "openAddSpanType") form["openSpan"] = true;
     this.setState(form);
   }
 
   handleChange(event, newValue) {
     this.setState({ value: newValue, search: "" });
-    if (newValue === 0) {
-      this.props.getUsersProject(this.projectId);
-    }
-    if (newValue === 1) {
-      this.props.fetchStructures(this.projectId);
-      return;
-    }
-    if (newValue === 2) {
-      this.props.fetchSpans(this.projectId);
-      return;
-    }
   }
 
   handleChangeIndex(index) {
@@ -279,7 +270,7 @@ class ProjectEdit extends React.Component {
   };
 
   addUser = async () => {
-    const form = {user_id: this.state.userSelected}
+    const form = { user_id: this.state.userSelected };
     const response = await this.props.addUser(this.projectId, form);
     if (response.status === 200 || response.status === 201) {
       this.closeModal("openUser", null);
@@ -296,27 +287,36 @@ class ProjectEdit extends React.Component {
   };
 
   addStructureType = async () => {
-    const response = await this.props.addStructureType(this.projectId, this.state.formStructureOrSpanType);
+    const response = await this.props.addStructureType(
+      this.projectId,
+      this.state.formStructureOrSpanType
+    );
     if (response.status === 200 || response.status === 201) {
       this.closeModal("openAddStructureType", null);
-      this.setState({formStructureOrSpanType: {name: "", description: ""}})
+      this.setState({ formStructureOrSpanType: { name: "", description: "" } });
       // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("¡The structure type was added successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
+      this.props.enqueueSnackbar(
+        "¡The structure type was added successfully!",
+        {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        }
+      );
     } else {
       this.props.enqueueSnackbar("The request could not be processed!", {
         variant: "error"
       });
     }
-  }
+  };
 
   addSpanType = async () => {
-    const response = await this.props.addSpanType(this.projectId, this.state.formStructureOrSpanType);
+    const response = await this.props.addSpanType(
+      this.projectId,
+      this.state.formStructureOrSpanType
+    );
     if (response.status === 200 || response.status === 201) {
       this.closeModal("openAddSpanType", null);
-      this.setState({formStructureOrSpanType: {name: "", description: ""}})
+      this.setState({ formStructureOrSpanType: { name: "", description: "" } });
       // SHOW NOTIFICACION SUCCCESS
       this.props.enqueueSnackbar("¡The span type was added successfully!", {
         variant: "success",
@@ -403,26 +403,30 @@ class ProjectEdit extends React.Component {
     this.props.setLoading(false);
   };
 
-  openCollapse (openId, category) {
-    category.newName = ""
-    this.props.categories.map( category => {
+  openCollapse(openId, category) {
+    category.newName = "";
+    this.props.categories_project.map(category => {
       category.items.map(item => {
-        item.edit = false
-        return item
-      })
-      return category
-    })
-    if (openId === category.id) this.setState({openId: 0})
-    else this.setState({openId: category.id})
-  };
+        item.edit = false;
+        return item;
+      });
+      return category;
+    });
+    if (openId === category.id) this.setState({ openId: 0 });
+    else this.setState({ openId: category.id });
+  }
 
-  changeNameItem = async(item, categoryId) => {
-    const form = { name: item.newName }
-    const response = await this.props.updateItemCategory(categoryId, item.id, form);
+  changeNameItem = async (item, categoryId) => {
+    const form = { name: item.newName };
+    const response = await this.props.updateItemCategory(
+      categoryId,
+      item.id,
+      form
+    );
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
-      Object.assign(item, {name: item.newName, newName: "", edit: false})
-      this.setState({})
+      Object.assign(item, { name: item.newName, newName: "", edit: false });
+      this.setState({});
       this.props.enqueueSnackbar("Item updated successfully!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -432,15 +436,19 @@ class ProjectEdit extends React.Component {
         variant: "error"
       });
     }
-  }
+  };
 
-  changeNameCategory = async(category, inspectionId) => {
-    const form = { name: category.newName }
-    const response = await this.props.updateCategoryInspection(category.id, inspectionId, form);
+  changeNameCategory = async (category, inspectionId) => {
+    const form = { name: category.newName };
+    const response = await this.props.updateCategoryInspection(
+      category.id,
+      inspectionId,
+      form
+    );
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
-      Object.assign(category, {name: category.newName, newName: ""})
-      this.setState({})
+      Object.assign(category, { name: category.newName, newName: "" });
+      this.setState({});
       this.props.enqueueSnackbar("Inspection updated successfully!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -450,7 +458,7 @@ class ProjectEdit extends React.Component {
         variant: "error"
       });
     }
-  }
+  };
 
   render() {
     const {
@@ -460,11 +468,8 @@ class ProjectEdit extends React.Component {
       spans,
       users,
       users_customer,
-      states,
-      structureTypes,
-      spansTypes,
       inspections,
-      categories
+      categories_project
     } = this.props;
     const {
       search,
@@ -487,15 +492,19 @@ class ProjectEdit extends React.Component {
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
     });
-
+    
     return (
       <Layout title="Projects">
         <Dialog
           open={open}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
-          onBackdropClick={() => !loading ? this.closeModal("open", null) : false}
-          onEscapeKeyDown={() => !loading ? this.closeModal("open", null) : false}
+          onBackdropClick={() =>
+            !loading ? this.closeModal("open", null) : false
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.closeModal("open", null) : false
+          }
         >
           <DialogTitle id="alert-dialog-title">
             {"Are you sure you want to delete?"}
@@ -541,11 +550,16 @@ class ProjectEdit extends React.Component {
                   name="name"
                   label="Name"
                   value={formStructureOrSpanType.name}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    this.setState((prevState)=> { 
-                      return { formStructureOrSpanType: {...prevState.formStructureOrSpanType, name: value} }
-                    })
+                  onChange={e => {
+                    const value = e.target.value;
+                    this.setState(prevState => {
+                      return {
+                        formStructureOrSpanType: {
+                          ...prevState.formStructureOrSpanType,
+                          name: value
+                        }
+                      };
+                    });
                   }}
                   margin="normal"
                   fullWidth
@@ -560,11 +574,16 @@ class ProjectEdit extends React.Component {
                   rows="4"
                   label="Description"
                   value={formStructureOrSpanType.description}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    this.setState((prevState)=> { 
-                      return { formStructureOrSpanType: {...prevState.formStructureOrSpanType, description: value} }
-                    })
+                  onChange={e => {
+                    const value = e.target.value;
+                    this.setState(prevState => {
+                      return {
+                        formStructureOrSpanType: {
+                          ...prevState.formStructureOrSpanType,
+                          description: value
+                        }
+                      };
+                    });
                   }}
                   margin="normal"
                   fullWidth
@@ -576,18 +595,24 @@ class ProjectEdit extends React.Component {
             <Button
               component="span"
               className={classes.buttonCancel}
-              onClick={() => openAddStructureType ? this.closeModal("openAddStructureType", null): this.closeModal("openAddSpanType", null)}
+              onClick={() =>
+                openAddStructureType
+                  ? this.closeModal("openAddStructureType", null)
+                  : this.closeModal("openAddSpanType", null)
+              }
             >
-              <ArrowBack/> Volver
+              <ArrowBack /> Volver
             </Button>
             <Button
               variant="outlined"
               color="primary"
               disabled={formStructureOrSpanType.name.length === 0 || loading}
               className={classes.buttonAccept}
-              onClick={openAddStructureType ? this.addStructureType: this.addSpanType}
+              onClick={
+                openAddStructureType ? this.addStructureType : this.addSpanType
+              }
             >
-              {openAddStructureType ? "Add structure type": "Add span type"}
+              {openAddStructureType ? "Add structure type" : "Add span type"}
             </Button>
           </DialogActions>
         </Dialog>
@@ -596,8 +621,12 @@ class ProjectEdit extends React.Component {
           classes={{ paper: classes.dialog }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
-          onBackdropClick={() => !loading ? this.closeModal("openUser", null) : false}
-          onEscapeKeyDown={() => !loading ? this.closeModal("openUser", null) : false}
+          onBackdropClick={() =>
+            !loading ? this.closeModal("openUser", null) : false
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.closeModal("openUser", null) : false
+          }
         >
           <DialogTitle id="alert-dialog-title">{"Add user"}</DialogTitle>
           <DialogContent>
@@ -673,8 +702,12 @@ class ProjectEdit extends React.Component {
                 classes={{ paper: classes.dialogStructure }}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
-                onBackdropClick={() => !loading ? this.closeModal("openStructure", resetForm) : null}
-                onEscapeKeyDown={() => !loading ? this.closeModal("openStructure", resetForm) : null}
+                onBackdropClick={() =>
+                  !loading ? this.closeModal("openStructure", resetForm) : null
+                }
+                onEscapeKeyDown={() =>
+                  !loading ? this.closeModal("openStructure", resetForm) : null
+                }
               >
                 <DialogTitle id="alert-dialog-title">
                   {"Add structure"}
@@ -683,176 +716,25 @@ class ProjectEdit extends React.Component {
                   <DialogContentText>
                     Enter the required information
                   </DialogContentText>
-                  <Form onSubmit={this.handleSubmit}>
-                    <Prompt
-                      when={dirty}
-                      message="Are you sure you want to leave?, You will lose your changes"
-                    />
-                    <Grid container>
-                      <Grid item sm={12} md={12}>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="name"
-                              value={values.name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.name && !!errors.name}
-                              helperText={
-                                !!touched.name && !!errors.name && errors.name
-                              }
-                              label="Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="address"
-                              value={values.address}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              label="Address"
-                              fullWidth
-                              margin="normal"
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              label="Latitude"
-                              name="latitude"
-                              value={values.latitude}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.latitude && !!errors.latitude}
-                              helperText={
-                                !!touched.latitude &&
-                                !!errors.latitude &&
-                                errors.latitude
-                              }
-                              fullWidth
-                              margin="normal"
-                              required
-                              type="number"
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              label="Longitude"
-                              name="longitude"
-                              value={values.longitude}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.longitude && !!errors.longitude}
-                              helperText={
-                                !!touched.longitude &&
-                                !!errors.longitude &&
-                                errors.longitude
-                              }
-                              fullWidth
-                              margin="normal"
-                              required
-                              type="number"
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="stateId"
-                              select
-                              label="State"
-                              value={values.stateId}
-                              margin="normal"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.stateId && !!errors.stateId}
-                              helperText={
-                                !!touched.stateId &&
-                                !!errors.stateId &&
-                                errors.stateId
-                              }
-                              disabled={loading}
-                              fullWidth
-                              required
-                            >
-                              {states.map(state => {
-                                return (
-                                  <MenuItem key={state.id} value={state.id}>
-                                    {state.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs>
-                            <div style={{display: "flex"}}>
-                              <TextField
-                                name="structureTypeId"
-                                select
-                                label="Stucture type"
-                                value={values.structureTypeId}
-                                margin="normal"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={
-                                  !!touched.structureTypeId &&
-                                  !!errors.structureTypeId
-                                }
-                                helperText={
-                                  !!touched.structureTypeId &&
-                                  !!errors.structureTypeId &&
-                                  errors.structureTypeId
-                                }
-                                fullWidth
-                                disabled={loading}
-                              >
-                                {structureTypes.map(type => {
-                                  return (
-                                    <MenuItem key={type.id} value={type.id}>
-                                      {type.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </TextField>
-                              <div>
-                                <Tooltip title="Add structure type" aria-label="Add" placement="top-start">
-                                  <IconButton className={classes.iconAdd} onClick={ ()=> this.showModal(null, "openAddStructureType")}>
-                                    <AddCircle/>
-                                  </IconButton> 
-                                </Tooltip>
-                              </div>
-                            </div>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <br />
-                    <Grid container justify="flex-end">
-                      <Button
-                        variant="outlined"
-                        disabled={loading}
-                        className={classes.buttonCancel}
-                        onClick={() => this.closeModal("openStructure", resetForm)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        style={{ marginLeft: 10 }}
-                        disabled={loading || isSubmitting || !isValid || !dirty}
-                        onClick={e => handleSubmit(e)}
-                        variant="outlined"
-                        className={classes.buttonAccept}
-                      >
-                        Add Structure
-                      </Button>
-                    </Grid>
-                  </Form>
+                  <FormStructureEdit
+                    dirty={dirty}
+                    values={values}
+                    isValid={isValid}
+                    touched={touched}
+                    errors={errors}
+                    isSubmitting={isSubmitting}
+                    handleChange={handleChange}
+                    handleBlur={handleBlur}
+                    handleSubmit={handleSubmit}
+                    projectId={this.projectId}
+                    isModal={true}
+                    closeModal={() =>
+                      this.closeModal("openStructure", resetForm)
+                    }
+                    showModal={() =>
+                      this.showModal(null, "openAddStructureType")
+                    }
+                  />
                 </DialogContent>
               </Dialog>
             );
@@ -893,204 +775,43 @@ class ProjectEdit extends React.Component {
                 classes={{ paper: classes.dialogStructure }}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
-                onBackdropClick={() => !loading ? this.closeModal("openSpan", resetForm) : false}
-                onEscapeKeyDown={() => !loading ? this.closeModal("openSpan", resetForm) : false}
+                onBackdropClick={() =>
+                  !loading ? this.closeModal("openSpan", resetForm) : false
+                }
+                onEscapeKeyDown={() =>
+                  !loading ? this.closeModal("openSpan", resetForm) : false
+                }
               >
                 <DialogTitle id="alert-dialog-title">{"Add span"}</DialogTitle>
                 <DialogContent>
                   <DialogContentText>
                     Enter the required information
                   </DialogContentText>
-                  <Form onSubmit={this.handleSubmit}>
-                    <Prompt
-                      when={dirty}
-                      message="Are you sure you want to leave?, You will lose your changes"
-                    />
-                    <Grid container>
-                      <Grid item sm={12} md={12}>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="structureStart"
-                              select
-                              label="Start structure"
-                              value={values.structureStart}
-                              margin="normal"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                !!touched.structureStart &&
-                                !!errors.structureStart
-                              }
-                              helperText={
-                                !!touched.structureStart &&
-                                !!errors.structureStart &&
-                                errors.structureStart
-                              }
-                              fullWidth
-                              disabled={loading}
-                              required
-                            >
-                              {structures
-                                .filter(({ id }) => id !== values.structureEnd)
-                                .map(structure => {
-                                  return (
-                                    <MenuItem
-                                      key={structure.id}
-                                      value={structure.id}
-                                    >
-                                      {structure.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              name="structureEnd"
-                              select
-                              label="End structure"
-                              value={values.structureEnd}
-                              margin="normal"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                !!touched.structureEnd && !!errors.structureEnd
-                              }
-                              helperText={
-                                !!touched.structureEnd &&
-                                !!errors.structureEnd &&
-                                errors.structureEnd
-                              }
-                              fullWidth
-                              disabled={loading}
-                              required
-                            >
-                              {structures
-                                .filter(
-                                  ({ id }) => id !== values.structureStart
-                                )
-                                .map(structure => {
-                                  return (
-                                    <MenuItem
-                                      key={structure.id}
-                                      value={structure.id}
-                                    >
-                                      {structure.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                            </TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="stateId"
-                              select
-                              label="State"
-                              value={values.stateId}
-                              margin="normal"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.stateId && !!errors.stateId}
-                              helperText={
-                                !!touched.stateId &&
-                                !!errors.stateId &&
-                                errors.stateId
-                              }
-                              fullWidth
-                              disabled={loading}
-                              required
-                            >
-                              {states.map(state => {
-                                return (
-                                  <MenuItem key={state.id} value={state.id}>
-                                    {state.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs>
-                            <div style={{display: "flex"}}>
-                              <TextField
-                                name="spanType"
-                                select
-                                label="Span type"
-                                value={values.spanType}
-                                margin="normal"
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={!!touched.spanType && !!errors.spanType}
-                                helperText={
-                                  !!touched.spanType &&
-                                  !!errors.spanType &&
-                                  errors.spanType
-                                }
-                                fullWidth
-                                disabled={loading}
-                                required
-                              >
-                                {spansTypes.map(type => {
-                                  return (
-                                    <MenuItem key={type.id} value={type.id}>
-                                      {type.name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </TextField>
-                              <div>
-                                <Tooltip title="Add span type" aria-label="Add" placement="top-start">
-                                  <IconButton className={classes.iconAdd} onClick={ ()=> this.showModal(null, "openAddSpanType")}>
-                                    <AddCircle/>
-                                  </IconButton> 
-                                </Tooltip>
-                              </div>
-                            </div>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="number"
-                              value={values.number}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              label="Number"
-                              fullWidth
-                              margin="normal"
-                            />
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <br />
-                    <Grid container justify="flex-end">
-                      <Button
-                        variant="outlined"
-                        className={classes.buttonCancel}
-                        onClick={() => this.closeModal("openSpan", resetForm)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        style={{ marginLeft: 10 }}
-                        disabled={loading || isSubmitting || !isValid || !dirty}
-                        onClick={e => handleSubmit(e)}
-                        variant="outlined"
-                        className={classes.buttonAccept}
-                      >
-                        Add Span
-                      </Button>
-                    </Grid>
-                  </Form>
+                  <FormSpanEdit
+                    dirty={dirty}
+                    values={values}
+                    isValid={isValid}
+                    touched={touched}
+                    errors={errors}
+                    isSubmitting={isSubmitting}
+                    handleChange={handleChange}
+                    handleBlur={handleBlur}
+                    handleSubmit={handleSubmit}
+                    projectId={this.projectId}
+                    structures={structures}
+                    isModal={true}
+                    closeModal={() =>
+                      this.closeModal("openSpan", resetForm)
+                    }
+                    showModal={() =>
+                      this.showModal(null, "openAddSpanType")
+                    }
+                  />
                 </DialogContent>
               </Dialog>
             );
           }}
         </Formik>
-          
 
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
@@ -1164,7 +885,11 @@ class ProjectEdit extends React.Component {
             <SwipeableViews
               index={value}
               onChangeIndex={this.handleChangeIndex}
-              slideStyle={{ overflowX: "hidden", overflowY: "hidden", padding: "0 2px" }}
+              slideStyle={{
+                overflowX: "hidden",
+                overflowY: "hidden",
+                padding: "0 2px"
+              }}
             >
               <Grid>
                 <div className={classes.header}>
@@ -1420,108 +1145,142 @@ class ProjectEdit extends React.Component {
                 ) : null}
               </Grid>
               <Grid container spacing={16}>
-                {inspections.map(({id, name}) => (
+                {inspections.map(({ id, name }) => (
                   <Grid item xs={6} key={id}>
-                    <Typography variant="h6" align="center" classes={{h6: classes.categoryName}}>{name}</Typography>
-                    {categories.filter( ({inspection_id}) => inspection_id === id).map( category => (
-                      <div key={category.id}>
-                        
-                        <ExpansionPanel expanded={openId === category.id} onChange={() => {
-                          this.openCollapse(openId, category)
-                        }} classes={{root: classes.collapse}} >
-                          <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                            {category.name}
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails classes={{root: classes.collapseDetails}}>
-                            <Grid>
-                              <TextField
-                                name="name"
-                                value={category.newName || ""}
-                                placeholder="Change category name"
-                                label=""
-                                required
-                                disabled={loading}
-                                inputProps={{ className: classes.inputCategory }}
-                                onChange={(e) => {
-                                  category.newName = e.target.value
-                                  this.setState({})
-                                }} 
-                              />
-                              <IconButton
-                                className={classes.buttonSave}
-                                aria-label="Save"
-                                color="primary"
-                                onClick={() => this.changeNameCategory(category, id)}
-                                disabled={loading || !(category.newName && category.newName.length > 0)}
-                              >
-                                <Save />
-                              </IconButton>
-                            </Grid>
-                            <Grid>
-                              <Typography variant="subtitle1" classes={{subtitle1: classes.itemsText}}>ITEMS</Typography>
-                            </Grid>
-                            {category.items.map(item => (
-                              <div key={item.id}>
-                                {item.edit ? (
-                                  <Grid>
-                                    <TextField
-                                      name="name"
-                                      value={item.newName}
-                                      label=""
-                                      required
-                                      disabled={loading}
-                                      autoFocus={item.edit}
-                                      inputProps={{ className: classes.inputCategory }}
-                                      onChange={e => {
-                                        item.newName = e.target.value
-                                        this.setState({})
-                                      }}
-                                    />
-                                    <IconButton
-                                      className={classes.buttonSave}
-                                      aria-label="Save"
-                                      color="primary"
-                                      onClick={() => this.changeNameItem(item, category.id)}
-                                      disabled={loading || item.newName.length === 0}
-                                    >
-                                      <Save />
-                                    </IconButton>
-                                    <IconButton
-                                      className={classes.iconDelete}
-                                      aria-label="Cancel"
-                                      onClick={() => {
-                                        item.edit = false
-                                        this.setState({})
-                                      }}
-                                      disabled={loading}
-                                    >
-                                      <Cancel />
-                                    </IconButton>
-                                  </Grid>
-                                  
-                                ): (
-                                  <Typography variant="subtitle1">
-                                    {item.name}
-                                    <IconButton
-                                      aria-label="Edit"
-                                      color="primary"
-                                      onClick={() => {
-                                        Object.assign(item, {edit: true, newName: item.name}) 
-                                        this.setState({})}}
-                                      disabled={loading}
-                                    >
-                                      <Edit />
-                                    </IconButton>
-                                  </Typography>
-                                )}
-                                
-                              </div>
-                            ))}
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                        
-                      </div>
-                    ))}
+                    <Typography
+                      variant="h6"
+                      align="center"
+                      classes={{ h6: classes.categoryName }}
+                    >
+                      {name}
+                    </Typography>
+                    {categories_project.filter(({ inspection_id }) => inspection_id === id)
+                      .map(category => (
+                        <div key={category.id}>
+                          <ExpansionPanel
+                            expanded={openId === category.id}
+                            onChange={() => {
+                              this.openCollapse(openId, category);
+                            }}
+                            classes={{ root: classes.collapse }}
+                          >
+                            <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                              {category.name}
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails
+                              classes={{ root: classes.collapseDetails }}
+                            >
+                              <Grid>
+                                <TextField
+                                  name="name"
+                                  value={category.newName || ""}
+                                  placeholder="Change category name"
+                                  label=""
+                                  required
+                                  disabled={loading}
+                                  inputProps={{
+                                    className: classes.inputCategory
+                                  }}
+                                  onChange={e => {
+                                    category.newName = e.target.value;
+                                    this.setState({});
+                                  }}
+                                />
+                                <IconButton
+                                  className={classes.buttonSave}
+                                  aria-label="Save"
+                                  color="primary"
+                                  onClick={() =>
+                                    this.changeNameCategory(category, id)
+                                  }
+                                  disabled={
+                                    loading ||
+                                    !(
+                                      category.newName &&
+                                      category.newName.length > 0
+                                    )
+                                  }
+                                >
+                                  <Save />
+                                </IconButton>
+                              </Grid>
+                              <Grid>
+                                <Typography
+                                  variant="subtitle1"
+                                  classes={{ subtitle1: classes.itemsText }}
+                                >
+                                  ITEMS
+                                </Typography>
+                              </Grid>
+                              {category.items.map(item => (
+                                <div key={item.id}>
+                                  {item.edit ? (
+                                    <Grid>
+                                      <TextField
+                                        name="name"
+                                        value={item.newName}
+                                        label=""
+                                        required
+                                        disabled={loading}
+                                        autoFocus={item.edit}
+                                        inputProps={{
+                                          className: classes.inputCategory
+                                        }}
+                                        onChange={e => {
+                                          item.newName = e.target.value;
+                                          this.setState({});
+                                        }}
+                                      />
+                                      <IconButton
+                                        className={classes.buttonSave}
+                                        aria-label="Save"
+                                        color="primary"
+                                        onClick={() =>
+                                          this.changeNameItem(item, category.id)
+                                        }
+                                        disabled={
+                                          loading || item.newName.length === 0
+                                        }
+                                      >
+                                        <Save />
+                                      </IconButton>
+                                      <IconButton
+                                        className={classes.iconDelete}
+                                        aria-label="Cancel"
+                                        onClick={() => {
+                                          item.edit = false;
+                                          this.setState({});
+                                        }}
+                                        disabled={loading}
+                                      >
+                                        <Cancel />
+                                      </IconButton>
+                                    </Grid>
+                                  ) : (
+                                    <Typography variant="subtitle1">
+                                      {item.name}
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        onClick={() => {
+                                          Object.assign(item, {
+                                            edit: true,
+                                            newName: item.name
+                                          });
+                                          this.setState({});
+                                        }}
+                                        disabled={loading}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Typography>
+                                  )}
+                                </div>
+                              ))}
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
+                        </div>
+                      ))}
                   </Grid>
                 ))}
               </Grid>
@@ -1542,18 +1301,13 @@ const mapStateToProps = state => {
     users_customer: state.users.list,
     users: state.projects.users,
     inspections: state.projects.inspections,
-    categories: state.projects.categories,    
+    categories_project: state.projects.categories_project,
     structures: state.structures.structures,
-    structureTypes: state.structures.structureTypes,
-    spans: state.spans.spans,
-    spansTypes: state.spans.spanTypes
+    spans: state.spans.spans
   };
 };
 
 const mapDispatchToProps = {
-  fetchStructureTypes,
-  fetchSpanTypes,
-  fetchStates,
   fetchSpans,
   fetchStructures,
   getUsersProject,

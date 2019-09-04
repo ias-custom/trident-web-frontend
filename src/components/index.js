@@ -8,6 +8,10 @@ import TabContainer from './TabContainer';
 import { PhoneMask, NpiMask } from './InputMask';
 import CheckboxGroup from './CheckboxGroup';
 import Errors from './Errors';
+import FormStructureEdit from './FormStructureEdit';
+import FormSpanEdit from './FormSpanEdit';
+import PhotosList from './PhotosList';
+import Equipment from './Equipment';
 
 export {
   InputSearch,
@@ -20,5 +24,9 @@ export {
   PhoneMask,
   NpiMask,
   CheckboxGroup,
-  Errors
+  Errors,
+  FormStructureEdit,
+  FormSpanEdit,
+  PhotosList,
+  Equipment
 }

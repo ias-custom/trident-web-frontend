@@ -5,8 +5,9 @@ import {
   GET_USERS_PROJECT,
   GET_INSPECTIONS_PROJECT,
   GET_PROJECT,
-  GET_CATEGORIES_INSPECTION,
-  SET_CATEGORIES_EMPTY
+  GET_CATEGORIES_PROJECT,
+  SET_CATEGORIES_EMPTY,
+  GET_CATEGORIES_INSPECTION
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -206,12 +207,31 @@ export const deleteUser = (projectId, userId) => {
 export const getCategoriesInspection = inspectionId => {
   return async dispatch => {
     dispatch(setLoading(true));
-
     try {
       const response = await service.getCategories(inspectionId);
 
       if (response.status === 200) {
         dispatch({ type: GET_CATEGORIES_INSPECTION, payload: response.data });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+}
+
+export const getCategoriesProject = inspectionId => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.getCategories(inspectionId);
+
+      if (response.status === 200) {
+        dispatch({ type: GET_CATEGORIES_PROJECT, payload: response.data });
       }
 
       return response;
@@ -236,7 +256,7 @@ export const getInspectionsProject = projectId => {
 
         dispatch({ type: SET_CATEGORIES_EMPTY, payload: [] });
         response.data.forEach(({ id }) => {
-          dispatch(getCategoriesInspection(id));
+          dispatch(getCategoriesProject(id));
         });
       }
 

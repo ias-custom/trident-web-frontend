@@ -95,7 +95,7 @@ class App extends Component {
 
           <Route exact path="/projects/:projectId/structures/:id" component={StructureEdit}></Route>
 
-          <Route exact path="/projects/:projectId/spams/:id" component={SpamEdit}></Route>
+          <Route exact path="/projects/:projectId/spans/:id" component={SpamEdit}></Route>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

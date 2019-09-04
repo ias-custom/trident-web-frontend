@@ -3,11 +3,6 @@ import {
   Grid,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Chip,
-  MenuItem,
-  Checkbox
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
@@ -26,9 +21,6 @@ import { createProject, fetchTags } from "../../../redux/actions/projectActions"
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
-import ListItemText from "@material-ui/core/ListItemText";
-import Select from "@material-ui/core/Select";
-import Input from "@material-ui/core/Input";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -94,7 +86,7 @@ class ProjectCreate extends React.Component {
     );
   }
   render() {
-    const { classes, loading, tags } = this.props;
+    const { classes, loading } = this.props;
 
     return (
       <Layout title="Create Role">
