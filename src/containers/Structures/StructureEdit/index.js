@@ -29,9 +29,7 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import {
-  getCategoriesInspection
-} from "../../../redux/actions/projectActions";
+import { getCategoriesInspection } from "../../../redux/actions/projectActions";
 import {
   getStructure,
   updateStructure,
@@ -85,13 +83,13 @@ class StructureEdit extends React.Component {
   projectId = this.props.match.params.projectId;
   structureId = this.props.match.params.id;
   formikGeneral = React.createRef();
-  
+
   componentDidMount = async () => {
     try {
       const response = await this.props.getStructure(
         this.projectId,
         this.structureId
-        );
+      );
       if (response.status === 200) {
         const {
           state_id,
@@ -115,9 +113,9 @@ class StructureEdit extends React.Component {
           inspection_id,
           inspection_name: inspection_id ? inspection.name : ""
         });
-        if(inspection_id) this.props.getCategoriesInspection(inspection_id)
+        if (inspection_id) this.props.getCategoriesInspection(inspection_id);
 
-        this.props.getPhotos(this.structureId)
+        this.props.getPhotos(this.structureId);
         this.props.getInteractions(this.structureId);
 
         const nameItem = "projects";
@@ -144,7 +142,9 @@ class StructureEdit extends React.Component {
 
       return (
         fields.filter(field => {
-          return field === "description" ? String(obj[field]).match(regex) : String(obj["user"][field]).match(regex)
+          return field === "description"
+            ? String(obj[field]).match(regex)
+            : String(obj["user"][field]).match(regex);
         }).length > 0
       );
     });
@@ -154,10 +154,13 @@ class StructureEdit extends React.Component {
     this.setState({ open: false });
     let response = "";
     let itemName = "";
-    
+
     if (this.state.value === 3) {
       itemName = "Interaction";
-      response = await this.props.deleteInteraction(this.structureId, this.state.itemId)
+      response = await this.props.deleteInteraction(
+        this.structureId,
+        this.state.itemId
+      );
     }
     if (response.status === 200 || response.status === 204) {
       const text = `${itemName} successfully removed!`;
@@ -183,8 +186,10 @@ class StructureEdit extends React.Component {
   handleChange(event, newValue) {
     this.setState({ value: newValue, search: "" });
     if (newValue === 0) {
-      this.setState(prevState => { return {formGeneral: prevState.formGeneral}});
-      this.formikGeneral.current.resetForm()
+      this.setState(prevState => {
+        return { formGeneral: prevState.formGeneral };
+      });
+      this.formikGeneral.current.resetForm();
     }
   }
 
@@ -193,10 +198,10 @@ class StructureEdit extends React.Component {
   }
 
   addInteraction = async () => {
-    this.closeModal("openInteraction")
-    const form = {description: this.state.interactionDescription}
-    this.setState({interactionDescription: ""})
-    const response = await this.props.addInteraction(this.structureId, form)
+    this.closeModal("openInteraction");
+    const form = { description: this.state.interactionDescription };
+    this.setState({ interactionDescription: "" });
+    const response = await this.props.addInteraction(this.structureId, form);
     if (response.status === 200 || response.status === 201) {
       // SHOW NOTIFICACION SUCCCESS
       this.props.enqueueSnackbar("¡The interaction was added successfully!", {
@@ -231,17 +236,23 @@ class StructureEdit extends React.Component {
     };
 
     try {
-      const response = await this.props.updateStructure(this.projectId,this.structureId, form);
+      const response = await this.props.updateStructure(
+        this.projectId,
+        this.structureId,
+        form
+      );
 
-      if (response.status === 200) {  
-        this.setState({formGeneral: {
-          name,
-          stateId,
-          latitude,
-          longitude,
-          structureTypeId,
-          address
-        }});
+      if (response.status === 200) {
+        this.setState({
+          formGeneral: {
+            name,
+            stateId,
+            latitude,
+            longitude,
+            structureTypeId,
+            address
+          }
+        });
         this.props.enqueueSnackbar("The structure was updated successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -259,12 +270,7 @@ class StructureEdit extends React.Component {
   };
 
   render() {
-    const {
-      classes,
-      loading,
-      photos,
-      interactions
-    } = this.props;
+    const { classes, loading, photos, interactions } = this.props;
     const {
       open,
       openInteraction,
@@ -319,9 +325,7 @@ class StructureEdit extends React.Component {
           onBackdropClick={() => this.closeModal("openInteraction")}
           onEscapeKeyDown={() => this.closeModal("openInteraction")}
         >
-          <DialogTitle id="alert-dialog-title">
-            {"Add interaction"}
-          </DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"Add interaction"}</DialogTitle>
           <DialogContent>
             <TextField
               name="description"
@@ -329,9 +333,9 @@ class StructureEdit extends React.Component {
               rows="5"
               label="Description"
               value={interactionDescription}
-              onChange={(e) => {
-                const value = e.target.value
-                this.setState({ interactionDescription: value})
+              onChange={e => {
+                const value = e.target.value;
+                this.setState({ interactionDescription: value });
               }}
               margin="normal"
               fullWidth
@@ -414,16 +418,42 @@ class StructureEdit extends React.Component {
                     } = props;
 
                     return (
-                      <FormStructureEdit dirty={dirty} values={values} isValid={isValid} touched={touched} errors={errors} isSubmitting={isSubmitting} handleChange={handleChange} handleBlur={handleBlur} handleSubmit={handleSubmit} projectId={this.projectId} isModal={false}/>
+                      <FormStructureEdit
+                        dirty={dirty}
+                        values={values}
+                        isValid={isValid}
+                        touched={touched}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                        handleChange={handleChange}
+                        handleBlur={handleBlur}
+                        handleSubmit={handleSubmit}
+                        projectId={this.projectId}
+                        isModal={false}
+                      />
                     );
                   }}
                 </Formik>
               </Grid>
-              <Grid style={{height: "100%"}}>
-                <Equipment inspection_id={inspection_id} projectId={this.projectId} isStructure={true} itemId={this.structureId} inspectionName={inspection_name} changeName={(newName) => this.setState({inspection_name: newName})} changeId={(id) => this.setState({inspection_id: id})}></Equipment>
+              <Grid style={{ height: "100%" }}>
+                <Equipment
+                  inspection_id={inspection_id}
+                  projectId={this.projectId}
+                  isStructure={true}
+                  itemId={parseInt(this.structureId)}
+                  inspectionName={inspection_name}
+                  changeName={newName =>
+                    this.setState({ inspection_name: newName })
+                  }
+                  changeId={id => this.setState({ inspection_id: id })}
+                ></Equipment>
               </Grid>
-              <Grid style={{overflow: "hidden"}}>
-                <PhotosList photos={photos} isStructure={true} itemId={parseInt(this.structureId)}/>
+              <Grid style={{ overflow: "hidden" }}>
+                <PhotosList
+                  photos={photos}
+                  isStructure={true}
+                  itemId={parseInt(this.structureId)}
+                />
               </Grid>
               <Grid>
                 <div className={classes.header}>
@@ -455,11 +485,15 @@ class StructureEdit extends React.Component {
                   <TableBody>
                     {this.filter(interactions, search).map(interaction => (
                       <TableRow key={interaction.id}>
-                        <TableCell component="td" className={classes.cellDescription}>
+                        <TableCell
+                          component="td"
+                          className={classes.cellDescription}
+                        >
                           {interaction.description}
                         </TableCell>
                         <TableCell component="td">
-                          {interaction.user.first_name} {interaction.user.last_name}
+                          {interaction.user.first_name}{" "}
+                          {interaction.user.last_name}
                         </TableCell>
                         <TableCell>
                           <div>
@@ -501,7 +535,7 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     photos: state.structures.photos,
-    interactions: state.structures.interactions,
+    interactions: state.structures.interactions
   };
 };
 

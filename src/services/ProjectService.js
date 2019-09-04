@@ -133,6 +133,36 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+  getDeficiencies = async projectId => {
+    try {
+      const url = `projects/${projectId}/deficiencies/`;
+  
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  addDeficiency = async (projectId, form) => {
+    try {
+      const url = `projects/${projectId}/deficiencies/`;
+
+      return await this.http.post(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+  
+  deleteDeficiency = async (projectId, deficiencyId) => {
+    try {
+      const url = `projects/${projectId}/deficiencies/${deficiencyId}`;
+
+      return await this.http.delete(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
 }
 
 

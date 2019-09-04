@@ -115,6 +115,30 @@ class StructureService extends Service {
     }
   }
 
+  getItems = async (structureId ) => {
+    try {
+      return await this.http.get(`/structures/${structureId}/items/`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  addItem = async (structureId, body) => {
+    try {
+      return await this.http.post(`/structures/${structureId}/items/`, body );
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  deleteItem = async (structureId, itemId) => {
+    try {
+        return await this.http.delete(`/structures/${structureId}/items/${itemId}`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 }
 
 export default StructureService;

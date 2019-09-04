@@ -2,7 +2,8 @@ import {
   ON_LOADING,
   GET_SPANS,
   GET_SPAN_TYPES,
-  GET_PHOTOS_SPAN
+  GET_PHOTOS_SPAN,
+  GET_ITEMS_SPAN
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
@@ -202,4 +203,60 @@ export const addSpan = (projectId, form) => {
       }
     }
   };
+
+  export const getItemsSpan = (spanId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getItems(spanId)
+        if (response.status === 200) {
+          dispatch({type: GET_ITEMS_SPAN, payload: response.data })
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addItemSpan = (spanId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addItem(spanId, form)
+
+        if (response.status === 201) {
+          dispatch(getItemsSpan(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deleteItemSpan = (spanId, itemId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deleteItem(spanId, itemId)
+
+        if (response.status === 204) {
+          dispatch(getItemsSpan(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
   

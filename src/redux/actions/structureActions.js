@@ -3,7 +3,8 @@ import {
     GET_STRUCTURES,
     GET_STRUCTURE_TYPES,
     GET_PHOTOS,
-    GET_INTERACTIONS
+    GET_INTERACTIONS,
+    GET_ITEMS_STRUCTURE
   } from "../actionTypes";
   import StructureService from "../../services/StructureService";
   
@@ -104,6 +105,8 @@ import {
     };
   };
 
+
+  // STRUCTURE TYPES
   export const fetchStructureTypes = (projectId) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
@@ -144,6 +147,8 @@ import {
     }
   };
 
+
+  // PHOTOS
   export const getPhotos = structureId => {
     return async dispatch => {
       dispatch(setLoading(true));
@@ -201,6 +206,8 @@ import {
     }
   };
 
+
+  // INTERACTIONS
   export const getInteractions = structureId => {
     return async dispatch => {
       dispatch(setLoading(true));
@@ -257,3 +264,59 @@ import {
       }
     }
   };
+
+  export const getItemsStructure = (structureId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getItems(structureId)
+        if (response.status === 200) {
+          dispatch({type: GET_ITEMS_STRUCTURE, payload: response.data })
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addItemStructure = (structureId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addItem(structureId, form)
+
+        if (response.status === 201) {
+          dispatch(getItemsStructure(structureId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deleteItemStructure = (structureId, itemId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deleteItem(structureId, itemId)
+
+        if (response.status === 204) {
+          dispatch(getItemsStructure(structureId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }

@@ -1,9 +1,10 @@
-import { GET_SPANS, GET_SPAN_TYPES, GET_PHOTOS_SPAN } from "../actionTypes";
+import { GET_SPANS, GET_SPAN_TYPES, GET_PHOTOS_SPAN, GET_ITEMS_SPAN } from "../actionTypes";
 
 const initialState = {
   spans: [],
   spanTypes: [],
-  photos: []
+  photos: [],
+  items: []
 };
 
 export default (state = initialState, action) => {
@@ -16,6 +17,9 @@ export default (state = initialState, action) => {
 
     case GET_PHOTOS_SPAN:
       return {...state, photos: action.payload};
+
+    case GET_ITEMS_SPAN:
+      return {...state, items: action.payload};
     
       default:
       return state;

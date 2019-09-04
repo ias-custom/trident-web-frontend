@@ -93,6 +93,30 @@ class SpanService extends Service {
     }
   }
 
+  getItems = async (structureId ) => {
+    try {
+      return await this.http.get(`/spans/${structureId}/items/`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  addItem = async (spanId, body) => {
+    try {
+      return await this.http.post(`/spans/${spanId}/items/`, body );
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  deleteItem = async (spanId, itemId) => {
+    try {
+        return await this.http.delete(`/spans/${spanId}/items/${itemId}`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 }
 
 export default SpanService;

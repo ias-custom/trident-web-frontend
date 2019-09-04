@@ -7,7 +7,8 @@ import {
   GET_PROJECT,
   GET_CATEGORIES_PROJECT,
   SET_CATEGORIES_EMPTY,
-  GET_CATEGORIES_INSPECTION
+  GET_CATEGORIES_INSPECTION,
+  GET_DEFICIENCIES
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -291,6 +292,63 @@ export const updateItemCategory = (categoryId, itemId, form) => {
 
     try {
       const response = await service.updateItemCategory(categoryId, itemId, form);
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const getDeficiencies = (projectId) => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getDeficiencies(projectId);
+      if (response.status === 200) {
+        dispatch({type: GET_DEFICIENCIES, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+
+export const addDeficiency = (projectId, form) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.addDeficiency(projectId, form);
+
+      if (response.status === 201) {
+        dispatch(getDeficiencies(projectId));
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const deleteDeficiency = (projectId, deficiencyId) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.deleteDeficiency(projectId, deficiencyId);
+
+      if (response.status === 204) {
+        dispatch(getDeficiencies(projectId));
+      }
 
       return response;
     } catch (error) {

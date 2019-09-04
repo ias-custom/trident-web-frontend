@@ -424,13 +424,13 @@ class SpanEdit extends React.Component {
                   inspection_id={inspection_id}
                   projectId={this.projectId}
                   isStructure={false}
-                  itemId={this.spanId}
+                  itemId={parseInt(this.spanId)}
                   inspectionName={inspection_name}
                   changeName={newName =>
                     this.setState({ inspection_name: newName })
                   }
                   changeId={id => this.setState({ inspection_id: id })}
-                />
+                ></Equipment>
               </Grid>
               <Grid style={{ overflow: "hidden" }}>
                 <PhotosList

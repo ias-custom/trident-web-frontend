@@ -1,4 +1,16 @@
-import { GET_PROJECTS, GET_SPANS, GET_TAGS, GET_USERS_PROJECT, GET_PROJECT, GET_SPAN_TYPES, GET_INSPECTIONS_PROJECT, GET_CATEGORIES_PROJECT, SET_CATEGORIES_EMPTY, GET_CATEGORIES_INSPECTION } from "../actionTypes";
+import {
+  GET_PROJECTS,
+  GET_SPANS,
+  GET_TAGS,
+  GET_USERS_PROJECT,
+  GET_PROJECT,
+  GET_SPAN_TYPES,
+  GET_INSPECTIONS_PROJECT,
+  GET_CATEGORIES_PROJECT,
+  SET_CATEGORIES_EMPTY,
+  GET_CATEGORIES_INSPECTION,
+  GET_DEFICIENCIES
+} from "../actionTypes";
 
 const initialState = {
   projects: [],
@@ -9,7 +21,8 @@ const initialState = {
   spanTypes: [],
   inspections: [],
   categories_project: [],
-  categoriesInspection: []
+  categoriesInspection: [],
+  deficiencies: []
 };
 
 export default (state = initialState, action) => {
@@ -30,20 +43,22 @@ export default (state = initialState, action) => {
       return { ...state, users: action.payload };
 
     case GET_SPAN_TYPES:
-      return {...state, spanTypes: action.payload};
+      return { ...state, spanTypes: action.payload };
 
     case GET_INSPECTIONS_PROJECT:
-      return {...state, inspections: action.payload};
+      return { ...state, inspections: action.payload };
 
     case GET_CATEGORIES_PROJECT:
-      const categories = state.categories_project.concat(action.payload)
-      return {...state, categories_project: categories };
+      const categories = state.categories_project.concat(action.payload);
+      return { ...state, categories_project: categories };
 
     case SET_CATEGORIES_EMPTY:
-      return {...state, categories_project: [] };
+      return { ...state, categories_project: [] };
 
     case GET_CATEGORIES_INSPECTION:
-      return {...state, categoriesInspection: action.payload };
+      return { ...state, categoriesInspection: action.payload };
+    case GET_DEFICIENCIES:
+      return { ...state, deficiencies: action.payload };
 
     default:
       return state;

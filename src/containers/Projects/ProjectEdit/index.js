@@ -49,7 +49,10 @@ import {
   addUser,
   getInspectionsProject,
   updateCategoryInspection,
-  updateItemCategory
+  updateItemCategory,
+  getDeficiencies,
+  addDeficiency,
+  deleteDeficiency
 } from "../../../redux/actions/projectActions";
 import {
   fetchStructures,
@@ -91,6 +94,7 @@ class ProjectEdit extends React.Component {
     openSpan: false,
     openAddStructureType: false,
     openAddSpanType: false,
+    openDeficiency: false,
     itemId: null,
     value: 0,
     projectName: "",
@@ -115,7 +119,8 @@ class ProjectEdit extends React.Component {
     formStructureOrSpanType: {
       name: "",
       description: ""
-    }
+    },
+    deficiencyName: ""
   };
 
   projectId = null;
@@ -134,6 +139,7 @@ class ProjectEdit extends React.Component {
         this.props.fetchStructures(this.projectId);
         this.props.fetchSpans(this.projectId);
         this.props.getUsers();
+        this.props.getDeficiencies(this.projectId)
 
         const nameItem = "projects";
         const open = true;
@@ -161,6 +167,9 @@ class ProjectEdit extends React.Component {
     if (tab === "spans") {
       fields = ["id"];
     }
+    if (tab === "deficiencies") {
+      fields = ["name"];
+    }
     const regex = new RegExp(keyword, "i");
 
     return list.filter(data => {
@@ -178,32 +187,42 @@ class ProjectEdit extends React.Component {
     this.setState({ open: false });
     let response = "";
     let itemName = "";
-    if (this.state.value === 0) {
-      itemName = "User";
-      response = await this.props.deleteUser(this.projectId, this.state.itemId);
-    }
-    if (this.state.value === 1) {
-      itemName = "Structure";
-      response = await this.props.deleteStructure(
-        this.projectId,
-        this.state.itemId
-      );
-    }
-    if (this.state.value === 2) {
-      itemName = "Span";
-      response = await this.props.deleteSpan(this.projectId, this.state.itemId);
-    }
-    if (response.status === 200 || response.status === 204) {
-      // SHOW NOTIFICACION SUCCCESS
-      const text = `${itemName} successfully removed!`;
-      this.props.enqueueSnackbar(text, {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
+    try {
+      if (this.state.value === 0) {
+        itemName = "User";
+        response = await this.props.deleteUser(this.projectId, this.state.itemId);
+      }
+      if (this.state.value === 1) {
+        itemName = "Structure";
+        response = await this.props.deleteStructure(
+          this.projectId,
+          this.state.itemId
+        );
+      }
+      if (this.state.value === 2) {
+        itemName = "Span";
+        response = await this.props.deleteSpan(this.projectId, this.state.itemId);
+      }
+  
+      if (this.state.value === 4) {
+        itemName = "Deficiency";
+        response = await this.props.deleteDeficiency(this.projectId, this.state.itemId);
+      }
+  
+      if (response.status === 200 || response.status === 204) {
+        // SHOW NOTIFICACION SUCCCESS
+        const text = `${itemName} successfully removed!`;
+        this.props.enqueueSnackbar(text, {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
   };
 
@@ -271,18 +290,22 @@ class ProjectEdit extends React.Component {
 
   addUser = async () => {
     const form = { user_id: this.state.userSelected };
-    const response = await this.props.addUser(this.projectId, form);
-    if (response.status === 200 || response.status === 201) {
-      this.closeModal("openUser", null);
-      // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("¡The user was added successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
+    try {
+      const response = await this.props.addUser(this.projectId, form);
+      if (response.status === 200 || response.status === 201) {
+        this.closeModal("openUser", null);
+        // SHOW NOTIFICACION SUCCCESS
+        this.props.enqueueSnackbar("¡The user was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
   };
 
@@ -460,6 +483,28 @@ class ProjectEdit extends React.Component {
     }
   };
 
+  addDeficiency = async () => {
+    this.setState({openDeficiency: false})
+    const form = { name: this.state.deficiencyName };
+    try {
+      const response = await this.props.addDeficiency(this.projectId, form);
+      if (response.status === 200 || response.status === 201) {
+        this.setState({deficiencyName: ""});
+        // SHOW NOTIFICACION SUCCCESS
+        this.props.enqueueSnackbar("¡The deficiency was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+  };
+
   render() {
     const {
       classes,
@@ -469,7 +514,8 @@ class ProjectEdit extends React.Component {
       users,
       users_customer,
       inspections,
-      categories_project
+      categories_project,
+      deficiencies
     } = this.props;
     const {
       search,
@@ -487,7 +533,9 @@ class ProjectEdit extends React.Component {
       formSpan,
       formStructure,
       formStructureOrSpanType,
-      openId
+      openId,
+      openDeficiency,
+      deficiencyName
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
@@ -812,7 +860,59 @@ class ProjectEdit extends React.Component {
             );
           }}
         </Formik>
-
+        <Dialog
+          open={ openDeficiency }
+          classes={{ paper: classes.dialog }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Add deficiency"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Enter the required information
+            </DialogContentText>
+            <Grid container>
+              <TextField
+                name="name"
+                label="Name"
+                value={deficiencyName}
+                onChange={e => {
+                  const value = e.target.value;
+                  this.setState({deficiencyName: value});
+                }}
+                margin="normal"
+                fullWidth
+                required
+              />
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="outlined"
+              color="primary"
+              className={classes.buttonCancel}
+              onClick={() =>
+                !loading
+                  ? this.closeModal("openDeficiency", null)
+                  : null
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={deficiencyName.length === 0 || loading}
+              className={classes.buttonAccept}
+              onClick={this.addDeficiency}
+            >
+              Add deficiency
+            </Button>
+          </DialogActions>
+        </Dialog>
+        
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={breadcrumbs} />
           {editName ? (
@@ -879,6 +979,7 @@ class ProjectEdit extends React.Component {
               <Tab label="Structures" />
               <Tab label="Spans" />
               <Tab label="Inspections" />
+              <Tab label="Deficiencies" />
             </Tabs>
           </Grid>
           <Panel>
@@ -1284,6 +1385,66 @@ class ProjectEdit extends React.Component {
                   </Grid>
                 ))}
               </Grid>
+              <Grid>
+                <div className={classes.header}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => this.showModal(null, "openDeficiency")}
+                  >
+                    Add Deficiency
+                  </Button>
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell colSpan={1}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.filter(deficiencies, search, "deficiencies").map(
+                      deficiency => (
+                        <TableRow key={deficiency.id}>
+                          <TableCell component="td">{deficiency.name}</TableCell>
+                          <TableCell>
+                            <div style={{ display: "flex" }}>
+                              <IconButton
+                                aria-label="Delete"
+                                className={classes.iconDelete}
+                                disabled={loading}
+                                onClick={() =>
+                                  this.showModal(deficiency.id, "open")
+                                }
+                              >
+                                <Delete />
+                              </IconButton>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+                {deficiencies.length === 0 ? (
+                  <Typography
+                    variant="display1"
+                    align="center"
+                    className={classes.emptyText}
+                  >
+                    THERE AREN'T DEFICIENCIES
+                  </Typography>
+                ) : null}
+              </Grid>
             </SwipeableViews>
           </Panel>
         </div>
@@ -1303,7 +1464,8 @@ const mapStateToProps = state => {
     inspections: state.projects.inspections,
     categories_project: state.projects.categories_project,
     structures: state.structures.structures,
-    spans: state.spans.spans
+    spans: state.spans.spans,
+    deficiencies: state.projects.deficiencies
   };
 };
 
@@ -1311,6 +1473,9 @@ const mapDispatchToProps = {
   fetchSpans,
   fetchStructures,
   getUsersProject,
+  getDeficiencies,
+  addDeficiency,
+  deleteDeficiency,
   getInspectionsProject,
   updateCategoryInspection,
   updateItemCategory,
