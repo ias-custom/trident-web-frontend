@@ -29,7 +29,12 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { getCategoriesInspection, getMarkingsTypes } from "../../../redux/actions/projectActions";
+import {
+  getCategoriesInspection,
+  getMarkingsTypes,
+  getAccessTypes,
+  getAccessTypeDetail
+} from "../../../redux/actions/projectActions";
 import { fetchStructures } from "../../../redux/actions/structureActions";
 import {
   getSpan,
@@ -37,7 +42,10 @@ import {
   getPhotosSpan,
   getMarkings,
   addMarking,
-  deleteMarking
+  deleteMarking,
+  getAccess,
+  addAccess,
+  deleteAccess
 } from "../../../redux/actions/spanActions";
 import { setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
@@ -55,6 +63,7 @@ class SpanEdit extends React.Component {
     search: "",
     open: false,
     openMarking: false,
+    openAccess: false,
     openInteraction: false,
     itemId: null,
     value: 0,
@@ -70,6 +79,13 @@ class SpanEdit extends React.Component {
       type_id: "",
       owner: "",
       details: "",
+      longitude: "",
+      latitude: ""
+    },
+    formAccess: {
+      type_id: "",
+      detail_id: "",
+      notes: "",
       longitude: "",
       latitude: ""
     },
@@ -118,8 +134,10 @@ class SpanEdit extends React.Component {
         if (inspection_id) this.props.getCategoriesInspection(inspection_id);
         this.props.getPhotosSpan(this.spanId);
         this.props.fetchStructures(this.projectId);
-        this.props.getMarkings(this.spanId)
-        this.props.getMarkingsTypes(this.projectId)
+        this.props.getMarkings(this.spanId); 
+        this.props.getAccess(this.spanId)
+        this.props.getAccessTypes(this.projectId);
+        this.props.getMarkingsTypes(this.projectId);
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -137,7 +155,8 @@ class SpanEdit extends React.Component {
   filter = (list, keyword, tab) => {
     if (keyword === "") return list;
     let fields = ["description", "first_name", "last_name"];
-    if (tab === 'markings') fields = ["name", "owner", "details", "latitude", "longitude"]
+    if (tab === "markings")
+      fields = ["name", "owner", "details", "latitude", "longitude"];
     const regex = new RegExp(keyword, "i");
 
     return list.filter(data => {
@@ -157,11 +176,18 @@ class SpanEdit extends React.Component {
     this.setState({ open: false });
     let response = "";
     let itemName = "";
-    
+
     try {
       if (this.state.value === 3) {
         itemName = "Marking";
         response = await this.props.deleteMarking(
+          this.spanId,
+          this.state.itemId
+        );
+      }
+      if (this.state.value === 4) {
+        itemName = "Access";
+        response = await this.props.deleteAccess(
           this.spanId,
           this.state.itemId
         );
@@ -284,14 +310,11 @@ class SpanEdit extends React.Component {
     };
 
     try {
-      const response = await this.props.addMarking(
-        this.spanId,
-        form
-      );
+      const response = await this.props.addMarking(this.spanId, form);
 
       if (response.status === 201) {
-        this.closeModal("openMarking")
-        resetForm()
+        this.closeModal("openMarking");
+        resetForm();
         this.props.enqueueSnackbar("The marking was added successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -308,10 +331,59 @@ class SpanEdit extends React.Component {
     this.props.setLoading(false);
   };
 
+  addAccess = async (values, formikActions) => {
+    const { setSubmitting, resetForm } = formikActions;
+    this.props.setLoading(true);
+    const { type_id, detail_id, latitude, longitude, notes } = values;
+    const form = {
+      type_id,
+      detail_id,
+      latitude,
+      longitude,
+      notes
+    };
+
+    try {
+      const response = await this.props.addAccess(this.spanId, form);
+
+      if (response.status === 201) {
+        this.closeModal("openAccess");
+        resetForm();
+        this.props.enqueueSnackbar("The access was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+    setSubmitting(false);
+    this.props.setLoading(false);
+  };
+
+  changeAccessType (value) {
+    this.props.getAccessTypeDetail(value)
+  }
+
   render() {
-    const { classes, loading, photos, structures, markings, marking_types } = this.props;
+    const {
+      classes,
+      loading,
+      photos,
+      structures,
+      markings,
+      marking_types,
+      access,
+      access_types,
+      details
+    } = this.props;
     const {
       open,
+      openAccess,
       openMarking,
       openInteraction,
       interactionDescription,
@@ -319,6 +391,7 @@ class SpanEdit extends React.Component {
       value,
       formGeneral,
       formMarking,
+      formAccess,
       inspection_id,
       inspection_name
     } = this.state;
@@ -406,12 +479,14 @@ class SpanEdit extends React.Component {
           classes={{ paper: classes.dialogMarking }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
-          onBackdropClick={() => !loading ? this.closeModal("openMarking") : null}
-          onEscapeKeyDown={() => !loading ? this.closeModal("openMarking") : null}
+          onBackdropClick={() =>
+            !loading ? this.closeModal("openMarking") : null
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.closeModal("openMarking") : null
+          }
         >
-          <DialogTitle id="alert-dialog-title">
-            {"Add marking"}
-          </DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"Add marking"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               Enter the required information
@@ -428,8 +503,9 @@ class SpanEdit extends React.Component {
                 details: Yup.string().required("Details is required"),
                 longitude: Yup.string().required("Longitude is required"),
                 latitude: Yup.string().required("Latitude is required")
-              })}> 
-              { props => {
+              })}
+            >
+              {props => {
                 const {
                   isSubmitting,
                   resetForm,
@@ -460,9 +536,7 @@ class SpanEdit extends React.Component {
                           disabled={loading}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            !!touched.type_id && !!errors.type_id
-                          }
+                          error={!!touched.type_id && !!errors.type_id}
                           helperText={
                             !!touched.type_id &&
                             !!errors.type_id &&
@@ -489,17 +563,12 @@ class SpanEdit extends React.Component {
                           disabled={loading}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            !!touched.owner && !!errors.owner
-                          }
+                          error={!!touched.owner && !!errors.owner}
                           helperText={
-                            !!touched.owner &&
-                            !!errors.owner &&
-                            errors.owner
+                            !!touched.owner && !!errors.owner && errors.owner
                           }
                           fullWidth
-                        >
-                        </TextField>
+                        ></TextField>
                       </Grid>
                     </Grid>
                     <Grid container spacing={16}>
@@ -514,17 +583,14 @@ class SpanEdit extends React.Component {
                           disabled={loading}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            !!touched.latitude && !!errors.latitude
-                          }
+                          error={!!touched.latitude && !!errors.latitude}
                           helperText={
                             !!touched.latitude &&
                             !!errors.latitude &&
                             errors.latitude
                           }
                           fullWidth
-                        >
-                        </TextField>
+                        ></TextField>
                       </Grid>
                       <Grid item xs={6}>
                         <TextField
@@ -537,17 +603,14 @@ class SpanEdit extends React.Component {
                           disabled={loading}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            !!touched.longitude && !!errors.longitude
-                          }
+                          error={!!touched.longitude && !!errors.longitude}
                           helperText={
                             !!touched.longitude &&
                             !!errors.longitude &&
                             errors.longitude
                           }
                           fullWidth
-                        >
-                        </TextField>
+                        ></TextField>
                       </Grid>
                     </Grid>
                     <Grid container spacing={16}>
@@ -564,17 +627,14 @@ class SpanEdit extends React.Component {
                           disabled={loading}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={
-                            !!touched.details && !!errors.details
-                          }
+                          error={!!touched.details && !!errors.details}
                           helperText={
                             !!touched.details &&
                             !!errors.details &&
                             errors.details
                           }
                           fullWidth
-                        >
-                        </TextField>
+                        ></TextField>
                       </Grid>
                     </Grid>
                     <br />
@@ -583,7 +643,7 @@ class SpanEdit extends React.Component {
                         variant="outlined"
                         disabled={loading}
                         className={classes.buttonCancel}
-                        onClick={() => this.setState({ openItem: false })}
+                        onClick={() => this.closeModal("openMarking")}
                       >
                         Cancel
                       </Button>
@@ -605,6 +665,210 @@ class SpanEdit extends React.Component {
             </Formik>
           </DialogContent>
         </Dialog>
+        <Dialog
+          open={openAccess}
+          classes={{ paper: classes.dialogMarking }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          onBackdropClick={() =>
+            !loading ? this.closeModal("openAccess") : null
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.closeModal("openAccess") : null
+          }
+        >
+          <DialogTitle id="alert-dialog-title">{"Add access"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Enter the required information
+            </DialogContentText>
+            <Formik
+              onSubmit={this.addAccess}
+              validateOnChange
+              initialValues={{
+                ...formAccess
+              }}
+              validationSchema={Yup.object().shape({
+                type_id: Yup.mixed().required("Access type is required"),
+                detail_id: Yup.mixed().required("Detail is required"),
+                notes: Yup.string().required("Notes is required"),
+                longitude: Yup.string().required("Longitude is required"),
+                latitude: Yup.string().required("Latitude is required")
+              })}
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  resetForm,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container spacing={16}>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="type_id"
+                          select
+                          label="Access type"
+                          required
+                          value={values.type_id}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={ (e) => {
+                            handleChange(e);
+                            this.changeAccessType(e.target.value)
+                          }}
+                          onBlur={handleBlur}
+                          error={!!touched.type_id && !!errors.type_id}
+                          helperText={
+                            !!touched.type_id &&
+                            !!errors.type_id &&
+                            errors.type_id
+                          }
+                          fullWidth
+                        >
+                          {access_types.map(type => {
+                            return (
+                              <MenuItem key={type.id} value={type.id}>
+                                {type.name}
+                              </MenuItem>
+                            );
+                          })}
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="detail_id"
+                          label="Detail Access type"
+                          required
+                          select
+                          value={values.detail_id}
+                          margin="normal"
+                          disabled={loading || values.type_id === ""}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={!!touched.detail_id && !!errors.detail_id}
+                          helperText={
+                            !!touched.detail_id && !!errors.detail_id && errors.detail_id
+                          }
+                          fullWidth
+                        >
+                          {details.map(detail => {
+                            return (
+                              <MenuItem key={detail.id} value={detail.id}>
+                                {detail.name}
+                              </MenuItem>
+                            );
+                          })}
+                        </TextField>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={16}>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="latitude"
+                          label="Latitude"
+                          required
+                          type="number"
+                          value={values.latitude}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={!!touched.latitude && !!errors.latitude}
+                          helperText={
+                            !!touched.latitude &&
+                            !!errors.latitude &&
+                            errors.latitude
+                          }
+                          fullWidth
+                        ></TextField>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <TextField
+                          name="longitude"
+                          label="Longitude"
+                          required
+                          type="number"
+                          value={values.longitude}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={!!touched.longitude && !!errors.longitude}
+                          helperText={
+                            !!touched.longitude &&
+                            !!errors.longitude &&
+                            errors.longitude
+                          }
+                          fullWidth
+                        ></TextField>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={16}>
+                      <Grid item xs>
+                        <TextField
+                          name="notes"
+                          label="Notes"
+                          rows="2"
+                          rowsMax="2"
+                          multiline
+                          required
+                          value={values.notes}
+                          margin="normal"
+                          disabled={loading}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={!!touched.notes && !!errors.notes}
+                          helperText={
+                            !!touched.notes &&
+                            !!errors.notes &&
+                            errors.notes
+                          }
+                          fullWidth
+                        ></TextField>
+                      </Grid>
+                    </Grid>
+                    <br />
+                    <Grid container justify="flex-end">
+                      <Button
+                        variant="outlined"
+                        disabled={loading}
+                        className={classes.buttonCancel}
+                        onClick={() => this.closeModal("openAccess")}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        disabled={loading || isSubmitting || !isValid || !dirty}
+                        onClick={e => {
+                          handleSubmit(e);
+                        }}
+                        variant="outlined"
+                        color="primary"
+                        className={classes.buttonAccept}
+                      >
+                        Add Access
+                      </Button>
+                    </Grid>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </DialogContent>
+        </Dialog>
+        
         <div className={classes.root}>
           <SimpleBreadcrumbs routes={this.breadcrumbs} />
           <Typography component="h1" variant="h5">
@@ -740,11 +1004,21 @@ class SpanEdit extends React.Component {
                       {this.filter(markings, search, "markings").map(
                         marking => (
                           <TableRow key={marking.id}>
-                            <TableCell component="td">{marking.type.name}</TableCell>
-                            <TableCell component="td">{marking.owner}</TableCell>
-                            <TableCell component="td">{marking.details}</TableCell>
-                            <TableCell component="td">{marking.coordinate[0]}</TableCell>
-                            <TableCell component="td">{marking.coordinate[1]}</TableCell>
+                            <TableCell component="td">
+                              {marking.type.name}
+                            </TableCell>
+                            <TableCell component="td">
+                              {marking.owner}
+                            </TableCell>
+                            <TableCell component="td">
+                              {marking.details}
+                            </TableCell>
+                            <TableCell component="td">
+                              {marking.coordinate[0]}
+                            </TableCell>
+                            <TableCell component="td">
+                              {marking.coordinate[1]}
+                            </TableCell>
                             <TableCell fixed={"true"}>
                               <div style={{ display: "flex" }}>
                                 <IconButton
@@ -752,7 +1026,7 @@ class SpanEdit extends React.Component {
                                   className={classes.iconDelete}
                                   disabled={loading}
                                   onClick={() =>
-                                    this.showModal("open", marking.id )
+                                    this.showModal("open", marking.id)
                                   }
                                 >
                                   <Delete />
@@ -775,7 +1049,87 @@ class SpanEdit extends React.Component {
                   ) : null}
                 </div>
               </Grid>
-              <Grid></Grid>
+              <Grid>
+              <div className={classes.header}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => this.showModal("openAccess", null)}
+                  >
+                    Add Access
+                  </Button>
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
+                <div className={classes.divTable}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Type</TableCell>
+                        <TableCell>Detail</TableCell>
+                        <TableCell style={{minWidth: "100px"}}>Notes</TableCell>
+                        <TableCell>Latitude</TableCell>
+                        <TableCell>Longitude</TableCell>
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.filter(access, search, "access").map(
+                        acc => (
+                          <TableRow key={acc.id}>
+                            <TableCell component="td">
+                              {acc.type.name}
+                            </TableCell>
+                            <TableCell component="td">
+                              {acc.detail.name}
+                            </TableCell>
+                            <TableCell component="td" style={{minWidth: "100px"}} >
+                              {acc.notes}
+                            </TableCell>
+                            <TableCell component="td">
+                              {acc.coordinate[0]}
+                            </TableCell>
+                            <TableCell component="td">
+                              {acc.coordinate[1]}
+                            </TableCell>
+                            <TableCell fixed={"true"}>
+                              <div style={{ display: "flex" }}>
+                                <IconButton
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.showModal("open", acc.id)
+                                  }
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  </Table>
+                  {markings.length === 0 ? (
+                    <Typography
+                      variant="display1"
+                      align="center"
+                      className={classes.emptyText}
+                    >
+                      THERE AREN'T MARKINGS
+                    </Typography>
+                  ) : null}
+                </div>
+              
+              </Grid>
             </SwipeableViews>
           </Panel>
         </div>
@@ -791,11 +1145,19 @@ const mapStateToProps = state => {
     interactions: state.structures.interactions,
     structures: state.structures.structures,
     markings: state.spans.markings,
-    marking_types: state.projects.marking_types
+    marking_types: state.projects.marking_types,
+    access_types: state.projects.access_types,
+    details: state.projects.details,
+    access: state.spans.access
   };
 };
 
 const mapDispatchToProps = {
+  addAccess,
+  getAccess,
+  deleteAccess,
+  getAccessTypes,
+  getAccessTypeDetail,
   getMarkings,
   addMarking,
   deleteMarking,

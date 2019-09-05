@@ -39,7 +39,7 @@ class ProjectCreate extends React.Component {
 
   componentDidMount() {
     this.props.fetchTags();
-    const nameItem = "project";
+    const nameItem = "projects";
     const nameSubItem = "create";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });

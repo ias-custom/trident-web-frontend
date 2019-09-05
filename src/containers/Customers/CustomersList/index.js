@@ -172,8 +172,8 @@ class CustomersList extends React.Component {
               <TableBody>
                 {this.filter(customers, search).map(customer => (
                   <TableRow key={customer.id}>
-                    <TableCell component="td">{customer.name}</TableCell>
-                    <TableCell component="td">
+                    <TableCell component="td" style={{ width: "50%" }}>{customer.name}</TableCell>
+                    <TableCell component="td" style={{ width: "30%" }}>
                       <Avatar src={customer.thumbnail} />
                     </TableCell>
                     <TableCell>

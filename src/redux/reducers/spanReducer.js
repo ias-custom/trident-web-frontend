@@ -1,11 +1,12 @@
-import { GET_SPANS, GET_SPAN_TYPES, GET_PHOTOS_SPAN, GET_ITEMS_SPAN, GET_MARKINGS  } from "../actionTypes";
+import { GET_SPANS, GET_SPAN_TYPES, GET_PHOTOS_SPAN, GET_ITEMS_SPAN, GET_MARKINGS, GET_ACCESS  } from "../actionTypes";
 
 const initialState = {
   spans: [],
   spanTypes: [],
   photos: [],
   items: [],
-  markings: []
+  markings: [],
+  access: []
 };
 
 export default (state = initialState, action) => {
@@ -24,6 +25,9 @@ export default (state = initialState, action) => {
 
     case GET_MARKINGS:
       return {...state, markings: action.payload};
+
+    case GET_ACCESS:
+      return {...state, access: action.payload};
     
       default:
       return state;

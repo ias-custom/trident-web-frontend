@@ -1091,8 +1091,8 @@ class ProjectEdit extends React.Component {
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>State</TableCell>
+                      <TableCell style={{width: "50%"}}>Name</TableCell>
+                      <TableCell style={{width: "30%"}}>State</TableCell>
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -1176,8 +1176,8 @@ class ProjectEdit extends React.Component {
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
-                      <TableCell>ID</TableCell>
-                      <TableCell>State</TableCell>
+                      <TableCell style={{width: "50%"}}>ID</TableCell>
+                      <TableCell style={{width: "30%"}}>State</TableCell>
                       <TableCell>Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -1407,7 +1407,7 @@ class ProjectEdit extends React.Component {
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Name</TableCell>
+                      <TableCell style={{width: "80%"}}>Name</TableCell>
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>

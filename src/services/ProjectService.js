@@ -173,6 +173,26 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+  
+  getAccessTypes = async projectId => {
+    try {
+      //const url = `projects/${projectId}/access-types/`;
+      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/access-types`
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  getAccessTypeDetail = async accessTypeId => {
+    try {
+      //const url = `projects/${projectId}/access-types/${accessTypeId}`;
+      const url = `/access-types/${accessTypeId}/details`
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
 }
 
 

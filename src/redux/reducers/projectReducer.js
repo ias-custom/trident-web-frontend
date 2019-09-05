@@ -10,7 +10,9 @@ import {
   SET_CATEGORIES_EMPTY,
   GET_CATEGORIES_INSPECTION,
   GET_DEFICIENCIES,
-  GET_MARKINGS_TYPES
+  GET_MARKINGS_TYPES,
+  GET_ACCESS_TYPES,
+  GET_ACCESS_TYPE_DETAILS
 } from "../actionTypes";
 
 const initialState = {
@@ -24,7 +26,9 @@ const initialState = {
   categories_project: [],
   categoriesInspection: [],
   deficiencies: [],
-  marking_types: []
+  marking_types: [],
+  access_types: [],
+  details: []
 };
 
 export default (state = initialState, action) => {
@@ -65,6 +69,12 @@ export default (state = initialState, action) => {
       
     case GET_MARKINGS_TYPES:
       return { ...state, marking_types: action.payload };
+
+    case GET_ACCESS_TYPES:
+      return { ...state, access_types: action.payload };
+      
+    case GET_ACCESS_TYPE_DETAILS:
+      return { ...state, details: action.payload };
 
     default:
       return state;

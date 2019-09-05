@@ -32,6 +32,11 @@ const theme = createMuiTheme({
       tooltip: {
         fontSize: 14
       }
+    },
+    MuiTableCell: {
+      root: {
+        padding: "0 20px"
+      }
     }
   }
 });

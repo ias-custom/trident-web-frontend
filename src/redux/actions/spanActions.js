@@ -4,7 +4,8 @@ import {
   GET_SPAN_TYPES,
   GET_PHOTOS_SPAN,
   GET_ITEMS_SPAN,
-  GET_MARKINGS
+  GET_MARKINGS,
+  GET_ACCESS
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
@@ -318,4 +319,59 @@ export const addSpan = (projectId, form) => {
       }
     }
   }
-  
+
+
+  //ACCESS
+  export const getAccess = (spanId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getAccess(spanId)
+        if (response.status === 200) {
+          dispatch({type:GET_ACCESS, payload: response.data})
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addAccess = (spanId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addAccess(spanId, form)
+        if (response.status === 201) {
+          dispatch(getAccess(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deleteAccess = (spanId, accessId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deleteAccess(spanId, accessId)
+        if (response.status === 204) {
+          dispatch(getAccess(spanId))
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }

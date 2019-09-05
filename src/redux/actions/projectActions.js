@@ -9,7 +9,9 @@ import {
   SET_CATEGORIES_EMPTY,
   GET_CATEGORIES_INSPECTION,
   GET_DEFICIENCIES,
-  GET_MARKINGS_TYPES
+  GET_MARKINGS_TYPES,
+  GET_ACCESS_TYPES,
+  GET_ACCESS_TYPE_DETAILS
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -303,6 +305,8 @@ export const updateItemCategory = (categoryId, itemId, form) => {
   };
 };
 
+
+// DEFICIENCIES
 export const getDeficiencies = (projectId) => {
   return async(dispatch) => {
     dispatch(setLoading(true))
@@ -367,6 +371,40 @@ export const getMarkingsTypes = (projectId) => {
       const response = await service.getMarkingsTypes(projectId);
       if (response.status === 200) {
         dispatch({type: GET_MARKINGS_TYPES, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+
+export const getAccessTypes = (projectId) => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getAccessTypes(projectId);
+      if (response.status === 200) {
+        dispatch({type: GET_ACCESS_TYPES, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+
+export const getAccessTypeDetail = (accessTypeId) => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getAccessTypeDetail(accessTypeId);
+      if (response.status === 200) {
+        dispatch({type: GET_ACCESS_TYPE_DETAILS, payload: response.data})
       }
       return response;
     } catch (error) {

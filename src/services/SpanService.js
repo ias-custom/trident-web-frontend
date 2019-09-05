@@ -126,7 +126,7 @@ class SpanService extends Service {
   // MARKINGS
   getMarkings = async (spanId ) => {
     try {
-      return await this.http.get(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/spans/${spanId}/markings/`);
+      return await this.http.get(`/spans/${spanId}/markings/`);
     } catch (error) {
         return error.response;
     }
@@ -134,7 +134,7 @@ class SpanService extends Service {
 
   addMarking = async (spanId, form ) => {
     try {
-      return await this.http.post(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/spans/${spanId}/markings/`, form);
+      return await this.http.post(`/spans/${spanId}/markings/`, form);
     } catch (error) {
         return error.response;
     }
@@ -142,7 +142,33 @@ class SpanService extends Service {
 
   deleteMarking = async (spanId, markingId ) => {
     try {
-      return await this.http.delete(`http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/spans/${spanId}/markings/${markingId}`);
+      return await this.http.delete(`/spans/${spanId}/markings/${markingId}`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+
+  // ACCESS
+  getAccess = async (spanId ) => {
+    try {
+      return await this.http.get(`/spans/${spanId}/access/`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  addAccess = async (spanId, form ) => {
+    try {
+      return await this.http.post(`/spans/${spanId}/access/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  deleteAccess = async (spanId, accessId ) => {
+    try {
+      return await this.http.delete(`/spans/${spanId}/access/${accessId}`);
     } catch (error) {
         return error.response;
     }
