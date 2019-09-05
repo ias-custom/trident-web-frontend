@@ -167,7 +167,7 @@ class ProjectService extends Service {
   getMarkingsTypes = async projectId => {
     try {
       //const url = `projects/${projectId}/marking-types/`;
-      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/marking-types`
+      const url = `/marking-types`
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -177,7 +177,7 @@ class ProjectService extends Service {
   getAccessTypes = async projectId => {
     try {
       //const url = `projects/${projectId}/access-types/`;
-      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/access-types`
+      const url = `/access-types`
       return await this.http.get(url);
     } catch (error) {
       return error.response;
