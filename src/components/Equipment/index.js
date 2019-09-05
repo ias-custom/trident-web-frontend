@@ -330,7 +330,7 @@ class Equipment extends React.Component {
             !loading ? this.setState({ openItem: false }) : null
           }
         >
-          <DialogTitle id="alert-dialog-title">{"Add inspection"}</DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"Add item"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               Enter the required information.
@@ -377,7 +377,7 @@ class Equipment extends React.Component {
                       <TextField
                         name="item_parent_id"
                         select
-                        label="Items"
+                        label="Type items"
                         value={values.item_parent_id}
                         margin="normal"
                         disabled={loading}
