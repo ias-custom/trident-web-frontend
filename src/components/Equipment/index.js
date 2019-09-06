@@ -220,7 +220,8 @@ class Equipment extends React.Component {
       openDelete
     } = this.state;
     const items = isStructure ? structure_items : span_items;
-
+    console.log(items)
+    console.log(inspections)
     return (
       <div style={{ height: "100%" }}>
         <Dialog

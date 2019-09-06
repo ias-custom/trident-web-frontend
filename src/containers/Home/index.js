@@ -15,6 +15,7 @@ import {
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
 import styles from './styles';
+import { MapBox } from '../../components';
 
 class Home extends React.Component {
 
@@ -28,15 +29,14 @@ class Home extends React.Component {
 
   render() {
     const { classes } = this.props;
-
     return (
 
       <Layout title="Dashboard">
         <div className={classes.root}>
 
 
-          <Grid container spacing={16}>
-            <Grid item xs={6} sm={3} >
+          <Grid container spacing={16} style={{height: "100%"}}>
+            {/* <Grid item xs={6} sm={3} >
               <Link component={RouterLink} to="/users" className={classes.link}>
                 <Card>
                   <CardContent className={classes.card}>
@@ -45,7 +45,8 @@ class Home extends React.Component {
                   </CardContent>
                 </Card>
               </Link>
-            </Grid>
+            </Grid> */}
+            <MapBox/>
 
           </Grid>
         </div>

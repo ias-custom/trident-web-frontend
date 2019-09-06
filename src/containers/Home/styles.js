@@ -1,6 +1,6 @@
 const styles = theme => ({
   root: {
-    flexGrow: 1,
+    height: "calc(100% - 56px)"
   },
   card: {
     display: 'flex',
