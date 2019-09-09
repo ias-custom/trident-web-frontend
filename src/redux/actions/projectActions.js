@@ -11,7 +11,11 @@ import {
   GET_DEFICIENCIES,
   GET_MARKINGS_TYPES,
   GET_ACCESS_TYPES,
-  GET_ACCESS_TYPE_DETAILS
+  GET_ACCESS_TYPE_DETAILS,
+  GET_STRUCTURES,
+  GET_SPANS,
+  GET_MARKINGS,
+  GET_ACCESS
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -33,6 +37,30 @@ export const createProject = body => {
       return response;
     } catch (error) {
       return error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const getInfoProject = id => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.getInfo(id);
+
+      if (response.status === 200) {
+        const { structures, spans, markings, access } = response.data
+        dispatch({ type: GET_STRUCTURES, payload: structures });
+        dispatch({ type: GET_SPANS, payload: response.data.spans });
+        dispatch({ type: GET_MARKINGS, payload: response.data.markings });
+        dispatch({ type: GET_ACCESS, payload: response.data.access });
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
     } finally {
       dispatch(setLoading(false));
     }

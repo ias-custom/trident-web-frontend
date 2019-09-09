@@ -44,7 +44,8 @@ class Layout extends React.Component {
   changeSelectCustomer = (event) => {
     this.props.setCustomerSelected(parseInt(event.target.value))
     localStorage.setItem("customerSelectedId", event.target.value)
-    this.props.history.push("/home")
+    //this.props.history.push("/home")
+    window.location.reload();
   }
   handleDrawerOpen = () => {
     this.setState({ open: true });

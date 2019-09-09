@@ -14,21 +14,34 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
+import {
+  fetchProjects,
+  getInfoProject
+} from "../../redux/actions/projectActions";
 import styles from './styles';
 import { MapBox } from '../../components';
+import { TextField, MenuItem } from '@material-ui/core';
 
 class Home extends React.Component {
-
+  state = {
+    projectId: ""
+  }
   componentDidMount () {
-    const open = false;
-    this.props.toggleItemMenu({ nameItem: "users", open});
-    this.props.toggleItemMenu({ nameItem: "roles", open});
-    this.props.toggleItemMenu({ nameItem: "customers", open});
-    this.props.selectedItemMenu({ nameItem: "home", nameSubItem: "home" });
+    try {
+      const open = false;
+      this.props.toggleItemMenu({ nameItem: "users", open});
+      this.props.toggleItemMenu({ nameItem: "roles", open});
+      this.props.toggleItemMenu({ nameItem: "customers", open});
+      this.props.selectedItemMenu({ nameItem: "home", nameSubItem: "home" });
+      this.props.fetchProjects()
+    } catch (error) {
+      
+    }
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, projects, loading } = this.props;
+    const { projectId } = this.state;
     return (
 
       <Layout title="Dashboard">
@@ -46,7 +59,30 @@ class Home extends React.Component {
                 </Card>
               </Link>
             </Grid> */}
-            <MapBox/>
+            <Grid item xs={8} style={{margin: "15px auto"}}>
+              <TextField
+                name="project_id"
+                select
+                required
+                value={projectId}
+                label="Project"
+                disabled={loading}
+                fullWidth
+                onChange={ e => {
+                  this.setState({projectId: e.target.value})
+                  this.props.getInfoProject(e.target.value)
+                }}
+              >
+                {projects.map(project => {
+                return (
+                  <MenuItem key={project.id} value={project.id}>
+                    {project.name}
+                  </MenuItem>
+                );
+              })}
+              </TextField>
+            </Grid>
+            <MapBox projectId={projectId}/>
 
           </Grid>
         </div>
@@ -56,12 +92,17 @@ class Home extends React.Component {
 }
 
 const mapStateToProps = state => {
-  return {};
+  return {
+    loading: state.global.loading,
+    projects: state.projects.projects
+  };
 };
 
 const mapDispatchToProps = {
   toggleItemMenu,
-  selectedItemMenu
+  selectedItemMenu,
+  fetchProjects,
+  getInfoProject
 };
 
 export default compose(
