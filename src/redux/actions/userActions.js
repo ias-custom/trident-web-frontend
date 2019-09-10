@@ -64,7 +64,6 @@ export const getUser = (id) => {
       const response = await service.get(id);
 
       if (response.status === 200) {
-        console.log(response.data)
        dispatch({ type: GET_USER, payload: response.data });
       }
 

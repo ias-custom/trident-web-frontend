@@ -53,9 +53,9 @@ export const getInfoProject = id => {
       if (response.status === 200) {
         const { structures, spans, markings, access } = response.data
         dispatch({ type: GET_STRUCTURES, payload: structures });
-        dispatch({ type: GET_SPANS, payload: response.data.spans });
-        dispatch({ type: GET_MARKINGS, payload: response.data.markings });
-        dispatch({ type: GET_ACCESS, payload: response.data.access });
+        dispatch({ type: GET_SPANS, payload: spans });
+        dispatch({ type: GET_MARKINGS, payload: markings });
+        dispatch({ type: GET_ACCESS, payload: access });
       }
 
       return response;

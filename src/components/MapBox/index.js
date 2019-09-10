@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { compose } from "recompose";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import styles from "./styles";
-import ReactMapGL, {
+import MapGL, {
   Marker,
   Popup,
   GeolocateControl,
@@ -29,57 +30,80 @@ class MapBox extends React.Component {
     addStructure: null,
     map: ""
   }
-  
+
+  mapLoaded = false
+  map = null
   reactMap = React.createRef();
-  componentDidMount () {
-  }
   
-  render() {
-    const { classes, projectId, structures, spans, markings, access } = this.props;
-    const { loading, viewport, selectedMark, addStructure } = this.state;
-    const map = this.reactMap.current ? this.reactMap.current.getMap() : null
-    if (map) {
-      map.on('load', () => {
-        spans.map( span => {
-          if (map.getLayer(String(span.id))) {
-            map.removeLayer(String(span.id))
-            map.removeSource(String(span.id))
-          } 
-          return (
-            map.addLayer({
-              id: String(span.id),
-              type: "line",
-              source: {
-                type: "geojson",
-                data: {
-                  type: "Feature",
-                  geometry: {
-                    type: "LineString",
-                    coordinates: [
-                      span.coordinates[0],
-                      span.coordinates[1]
-                    ]
-                  }
-                }
-              },
-              layout: {
-                "line-join": "round",
-                "line-cap": "round"
-              },
-              paint: {
-                "line-color": "#888",
-                "line-width": 6
-              }
-            })
-          )
+  componentDidUpdate(prevProps) {
+    const oldSpanIds = prevProps.spans.map(({id}) => id)
+    const changeSpans = oldSpanIds.find( id => {
+      return this.props.spans.map(({id}) => id).includes(id)
+    })
+    if (changeSpans === undefined || prevProps.projectId !== this.props.projectId) {
+      this.map = this.reactMap.current ? this.reactMap.current.getMap() : null
+      if (this.map){
+        const features = this.props.spans.map( span => {
+          return {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: [span.coordinates[0], span.coordinates[1]]
+            }
+          }
         })
+        if (this.mapLoaded){
+          this.changeLayers(features)
+          return
+        } 
+        this.map.on('load', () => {
+          this.mapLoaded = true
+          this.changeLayers(features)
+        })
+      }
+    }
+  }
+
+  changeLayers (features) {
+    if(this.map.getSource('spans')) {
+      this.map.removeLayer('park-boundary')
+      this.map.removeSource("spans")
+    }
+    this.map.addSource('spans', {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: features
+      }
+    })
+    this.map.addLayer({
+      "id": "park-boundary",
+      "type": "line",
+      "source": "spans",
+      "layout": {
+        "line-join": "round",
+        "line-cap": "round",
+      },
+      "paint": {
+        "line-color": "#888",
+        "line-width": 6,
+      }
+    });
+  }
+
+  render() {
+    const { classes, projectId, structures, markings, access } = this.props;
+    const { viewport, selectedMark, addStructure } = this.state;
+    if(this.mapLoaded) {
+      this.map.on('click', (e) => {
+        console.log(e)
       })
     }
     return (
       <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
         { projectId ? (
           <div style={{ height: "100%", width: "100%" }}>
-            <ReactMapGL
+            <MapGL
               ref={this.reactMap}
               {...viewport}
               mapboxApiAccessToken={process.env.REACT_APP_MAP_TOKEN}
@@ -87,11 +111,9 @@ class MapBox extends React.Component {
                 this.setState({viewport:  {...viewport, width: "100%", height: "100%" }})
               }
               mapStyle="mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs"
-              /* onClick={({ lngLat, target }) => {
-                return target.tagName === "DIV"
-                  ? setAddStructure({ longitude: lngLat[0], latitude: lngLat[1] })
-                  : null;
-              }} */
+              onClick={(e) => {
+                console.log(e)
+              }}
             >
               {structures.map(structure => {
                 return (
@@ -105,10 +127,12 @@ class MapBox extends React.Component {
                       style={{ color: "#3f51b5", fontSize: 25, cursor: "pointer" }}
                       onMouseEnter={() => this.setState({selectedMark: structure})}
                       onMouseLeave={() => this.setState({selectedMark: null})}
+                      onClick={() => this.props.history.push(`/projects/${projectId}/structures/${structure.id}`)}
                     ></i>
                   </Marker>
                 );
               })}
+
               {selectedMark ? (
                 <Popup
                   longitude={selectedMark.coordinate[0]}
@@ -117,6 +141,7 @@ class MapBox extends React.Component {
                   {selectedMark.name || selectedMark.details || selectedMark.notes}
                 </Popup>
               ) : null}
+
               {addStructure ? (
                 <Marker
                   key={addStructure.id}
@@ -142,10 +167,12 @@ class MapBox extends React.Component {
                       style={{ color: "#f56c6c", fontSize: 18, cursor: "pointer" }}
                       onMouseEnter={() => this.setState({selectedMark: marking})}
                       onMouseLeave={() => this.setState({selectedMark: null})}
+                      onClick={() => this.props.history.push(`/projects/${projectId}/spans/${marking.span_id}?marking=true`)}
                     ></i>
                   </Marker>
                 );
               })}
+
               {access.map(a => {
                 return (
                   <Marker
@@ -158,6 +185,7 @@ class MapBox extends React.Component {
                       style={{ color: "#67c23a", fontSize: 18, cursor: "pointer" }}
                       onMouseEnter={() => this.setState({selectedMark: a})}
                       onMouseLeave={() => this.setState({selectedMark: null})}
+                      onClick={() => this.props.history.push(`/projects/${projectId}/spans/${a.span_id}?access=true`)}
                     ></i>
                   </Marker>
                 );
@@ -174,7 +202,7 @@ class MapBox extends React.Component {
               <NavigationControl 
                 className={classes.navigation}
               />
-            </ReactMapGL>
+            </MapGL>
           </div>
         ) : (
           <div className={classes.divEmpty}>
@@ -205,6 +233,7 @@ const mapDispatchToProps = {
 };
 
 export default compose(
+  withRouter,
   withStyles(styles),
   connect(
     mapStateToProps,

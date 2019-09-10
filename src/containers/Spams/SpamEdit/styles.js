@@ -72,6 +72,9 @@ const styles = theme => ({
   },
   dialogMarking: {
     width: 600
+  },
+  divBreadcrumbs: {
+    margin: "20px 0" 
   }
 });
 

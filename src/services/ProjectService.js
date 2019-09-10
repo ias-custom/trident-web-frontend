@@ -44,7 +44,7 @@ class ProjectService extends Service {
 
   getInfo = async id => {
     try {
-      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/projects/${id}/`;
+      const url = `customers/${this.getCustomerSelectedId()}/projects/${id}/`;
       return await this.http.get(url);
     } catch (error) {
       return error.response;

@@ -109,6 +109,11 @@ class SpanEdit extends React.Component {
 
   componentDidMount = async () => {
     try {
+      const url = new URL(window.location.href)
+      const fromMapMarking = url.searchParams.get('marking')
+      const fromMapAccess = url.searchParams.get('access')
+      if(fromMapMarking === 'true') this.setState({value: 3})
+      if(fromMapAccess === 'true') this.setState({value: 4})
       const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
         const {
@@ -145,7 +150,9 @@ class SpanEdit extends React.Component {
       } else {
         this.props.history.push("/404");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   handleSearch = event => {
@@ -870,10 +877,7 @@ class SpanEdit extends React.Component {
         </Dialog>
         
         <div className={classes.root}>
-          <SimpleBreadcrumbs routes={this.breadcrumbs} />
-          <Typography component="h1" variant="h5">
-            {formGeneral.name}
-          </Typography>
+          <SimpleBreadcrumbs routes={this.breadcrumbs} classes={{root: classes.divBreadcrumbs}}/>
           <Grid className={classes.divTabs}>
             <Tabs
               value={value}
