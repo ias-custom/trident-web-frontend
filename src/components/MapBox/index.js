@@ -15,60 +15,93 @@ import {
 } from "../../redux/actions/layoutActions";
 import { fetchStructures } from "../../redux/actions/structureActions"
 import { fetchSpans } from "../../redux/actions/spanActions"
-import { withStyles, Grid } from "@material-ui/core";
+import { withStyles, Grid, Button } from "@material-ui/core";
+import mapboxgl from 'mapbox-gl';
 
 class MapBox extends React.Component {
   state = {
-    viewport: {
-      latitude: -11.9890777,
-      longitude: -77.0838287,
-      zoom: 11,
-      width: "100%",
-      height: "100%"
-    },
+    latitude: -11.9890777,
+    longitude: -77.0838287,
     selectedMark: null,
     addStructure: null,
-    map: ""
   }
 
   mapLoaded = false
   map = null
   reactMap = React.createRef();
   
-  componentDidUpdate(prevProps) {
-    const oldSpanIds = prevProps.spans.map(({id}) => id)
-    const changeSpans = oldSpanIds.find( id => {
-      return this.props.spans.map(({id}) => id).includes(id)
-    })
-    if (changeSpans === undefined || prevProps.projectId !== this.props.projectId) {
-      this.map = this.reactMap.current ? this.reactMap.current.getMap() : null
-      if (this.map){
-        const features = this.props.spans.map( span => {
-          return {
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: [span.coordinates[0], span.coordinates[1]]
-            }
-          }
-        })
-        if (this.mapLoaded){
-          this.changeLayers(features)
-          return
-        } 
-        this.map.on('load', () => {
-          this.mapLoaded = true
-          this.changeLayers(features)
-        })
-      }
-    }
+  componentDidMount () {
+    mapboxgl.accessToken = process.env.REACT_APP_MAP_TOKEN;
+    if("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(({coords}) => { 
+        this.setState({latitude: coords.latitude, longitude: coords.longitude})
+        this.createMap();
+      }); 
+    } else { this.createMap()}
   }
 
-  changeLayers (features) {
-    if(this.map.getSource('spans')) {
-      this.map.removeLayer('park-boundary')
-      this.map.removeSource("spans")
-    }
+  componentDidUpdate(prevProps) {
+  }
+
+  createMap () {
+    this.map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs',
+      center: [this.state.longitude, this.state.latitude],
+      zoom: 13 
+    });
+    // Add geolocate control to the map.
+    this.map.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    }));
+    // Add zoom and rotation controls to the map.
+    this.map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+    
+    this.map.on('load', () => {
+      this.getLayers()
+      this.getStructures()
+      this.getMarkings()
+      this.getAccess()
+      /* this.map.on('click', (e) => {
+        console.log(e)
+        const marker = document.getElementById("new-marker")
+        if (marker) marker.remove()
+        var el = document.createElement('i');
+        el.className = `fab fa-confluence ${this.props.classes.access}`;
+        el.id = "new-marker"
+        new mapboxgl.Marker(el)
+        .setLngLat([e.lngLat.lng, e.lngLat.lat])
+        .setPopup(new mapboxgl.Popup({ offset: 10 }) // add popups
+        .setHTML(`hola`))
+        .addTo(this.map);
+      }) */
+      var el = document.createElement('i');
+      el.className = `fas fa-map-marker-alt ${this.props.classes.structure}`;
+      // make a marker for each feature and add to the map
+      const {lng, lat} = this.map.getCenter()
+      new mapboxgl.Marker(el)
+        .setLngLat([lng, lat])
+        .addTo(this.map);
+    })
+  }
+
+  getLayers () {
+    const features = this.props.spans.map( span => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [span.coordinates[0], span.coordinates[1]]
+        },
+        properties: {
+          id: span.id,
+          link: `/projects/${this.props.projectId}/spans/${span.id}`
+        }
+      }
+    })
     this.map.addSource('spans', {
       type: "geojson",
       data: {
@@ -77,7 +110,7 @@ class MapBox extends React.Component {
       }
     })
     this.map.addLayer({
-      "id": "park-boundary",
+      "id": "span",
       "type": "line",
       "source": "spans",
       "layout": {
@@ -89,126 +122,143 @@ class MapBox extends React.Component {
         "line-width": 6,
       }
     });
+
+    this.map.on('mouseenter', 'span', (e) => {
+      this.map.getCanvas().style.cursor = 'pointer';
+    })
+    this.map.on('mouseleave', 'span', (e) => {
+      this.map.getCanvas().style.cursor = '';
+    })
+    this.map.on('click', 'span', (e) => {
+      const spanId = e.features[0].properties.id;
+      const link = e.features[0].properties.link;
+      new mapboxgl.Popup({offset: 10})
+      .setLngLat([e.lngLat.lng, e.lngLat.lat])
+      .setHTML(`<h3>${spanId}</h3><a href='${link}' target='_blank'>Ir</a>`)
+      .addTo(this.map);
+    })
   }
 
+  getStructures () {
+    const features = this.props.structures.map( structure => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [structure.longitude, structure.latitude]
+        },
+        properties: {
+          name: structure.name,
+          link: `/projects/${this.props.projectId}/structures/${structure.id}`
+        }
+      }
+    })
+
+    features.forEach((marker) => {
+      // create a HTML element for each feature
+      var el = document.createElement('i');
+      el.className = `fas fa-broadcast-tower ${this.props.classes.structure}`;
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .setPopup(new mapboxgl.Popup({ offset: 10 }) // add popups
+        .setHTML(`<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`))
+        .addTo(this.map);
+    });
+  }
+
+  getMarkings () {
+    const features = this.props.markings.map( marking => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [marking.coordinate[0], marking.coordinate[1]]
+        },
+        properties: {
+          name: marking.details,
+          link: `/projects/${this.props.projectId}/spans/${marking.span_id}?marking=true&id=${marking.id}`
+        }
+      }
+    })
+
+    features.forEach((marker) => {
+      // create a HTML element for each feature
+      var el = document.createElement('i');
+      el.className = `fab fa-bandcamp ${this.props.classes.marking}`;
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .setPopup(new mapboxgl.Popup({ offset: 10 }) // add popups
+        .setHTML(`<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`))
+        .addTo(this.map);
+    });
+  }
+
+  getAccess () {
+    const features = this.props.access.map( a => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [a.coordinate[0], a.coordinate[1]]
+        },
+        properties: {
+          name: a.notes,
+          link: `/projects/${this.props.projectId}/spans/${a.span_id}?access=true&id=${a.id}`
+        }
+      }
+    })
+
+    features.forEach((marker) => {
+      // create a HTML element for each feature
+      var el = document.createElement('i');
+      el.className = `fab fa-confluence ${this.props.classes.access}`;
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .setPopup(new mapboxgl.Popup({ offset: 10 }) // add popups
+        .setHTML(`<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`))
+        .addTo(this.map);
+    });
+  }
+
+  addItem () {
+    console.log(this.map.getCenter())
+  }
   render() {
     const { classes, projectId, structures, markings, access } = this.props;
-    const { viewport, selectedMark, addStructure } = this.state;
-    if(this.mapLoaded) {
-      this.map.on('click', (e) => {
-        console.log(e)
-      })
-    }
+    const { loading, viewport, selectedMark, addStructure } = this.state;
+    
     return (
       <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
-        { projectId ? (
-          <div style={{ height: "100%", width: "100%" }}>
-            <MapGL
-              ref={this.reactMap}
-              {...viewport}
-              mapboxApiAccessToken={process.env.REACT_APP_MAP_TOKEN}
-              onViewportChange={viewport =>
-                this.setState({viewport:  {...viewport, width: "100%", height: "100%" }})
-              }
-              mapStyle="mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs"
-              onClick={(e) => {
-                console.log(e)
-              }}
-            >
-              {structures.map(structure => {
-                return (
-                  <Marker
-                    key={structure.id}
-                    longitude={structure.coordinate[0]}
-                    latitude={structure.coordinate[1]}
+        <div id="map" style={{ height: "100%", width: "100%" }}>
+          <div className={classes.divMarker}>
+            <i className={"fas fa-map-marker-alt"}></i>
+            <div className={classes.detailsMarker}>
+              <div className={classes.triangle}></div>
+              <div className={classes.infoMarker}>
+                <p>Do you confirm the location?</p>
+                <div>
+                  <Button
+                    variant="outlined"
+                    className={classes.buttonCancel}
                   >
-                    <i
-                      className="fas fa-broadcast-tower"
-                      style={{ color: "#3f51b5", fontSize: 25, cursor: "pointer" }}
-                      onMouseEnter={() => this.setState({selectedMark: structure})}
-                      onMouseLeave={() => this.setState({selectedMark: null})}
-                      onClick={() => this.props.history.push(`/projects/${projectId}/structures/${structure.id}`)}
-                    ></i>
-                  </Marker>
-                );
-              })}
-
-              {selectedMark ? (
-                <Popup
-                  longitude={selectedMark.coordinate[0]}
-                  latitude={selectedMark.coordinate[1]}
-                >
-                  {selectedMark.name || selectedMark.details || selectedMark.notes}
-                </Popup>
-              ) : null}
-
-              {addStructure ? (
-                <Marker
-                  key={addStructure.id}
-                  latitude={addStructure.latitude}
-                  longitude={addStructure.longitude}
-                >
-                  <i
-                    className="fas fa-map-marker-alt"
-                    style={{ color: "red", fontSize: 30, cursor: "pointer" }}
-                  ></i>
-                </Marker>
-              ) : null}
-
-              {markings.map(marking => {
-                return (
-                  <Marker
-                    key={marking.id}
-                    longitude={marking.coordinate[0]}
-                    latitude={marking.coordinate[1]}
+                    Cancel
+                  </Button>
+                  <Button
+                    style={{ marginLeft: 10 }}
+                    variant="outlined"
+                    className={classes.buttonAccept}
+                    onClick={() => this.addItem()}
                   >
-                    <i
-                      className="fab fa-bandcamp"
-                      style={{ color: "#f56c6c", fontSize: 18, cursor: "pointer" }}
-                      onMouseEnter={() => this.setState({selectedMark: marking})}
-                      onMouseLeave={() => this.setState({selectedMark: null})}
-                      onClick={() => this.props.history.push(`/projects/${projectId}/spans/${marking.span_id}?marking=true`)}
-                    ></i>
-                  </Marker>
-                );
-              })}
-
-              {access.map(a => {
-                return (
-                  <Marker
-                    key={a.id}
-                    longitude={a.coordinate[0]}
-                    latitude={a.coordinate[1]}
-                  >
-                    <i
-                      className="fab fa-confluence"
-                      style={{ color: "#67c23a", fontSize: 18, cursor: "pointer" }}
-                      onMouseEnter={() => this.setState({selectedMark: a})}
-                      onMouseLeave={() => this.setState({selectedMark: null})}
-                      onClick={() => this.props.history.push(`/projects/${projectId}/spans/${a.span_id}?access=true`)}
-                    ></i>
-                  </Marker>
-                );
-              })}
-
-              <GeolocateControl
-                trackUserLocation={true}
-                showUserLocation={false}
-                style={{ width: "30px", margin: 10 }}
-                fitBoundsOptions={{ maxZoom: 5 }}
-                positionOptions={{ enableHighAccuracy: true }}
-                onViewportChange={viewport => this.setState({viewport: {...viewport, zoom: 14, width: "100%", height: "100%" }})} 
-              />
-              <NavigationControl 
-                className={classes.navigation}
-              />
-            </MapGL>
+                    Yes, I sure
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className={classes.divEmpty}>
-            SELECT A PROJECT
-          </div>
-        )}
+        </div>
       </Grid>
     );
   }

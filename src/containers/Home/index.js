@@ -82,7 +82,14 @@ class Home extends React.Component {
               })}
               </TextField>
             </Grid>
-            <MapBox projectId={projectId}/>
+            { projectId && !loading ? (
+              <MapBox projectId={projectId}/>
+            ) : null}
+            {projectId === "" ? (
+              <div className={classes.divEmpty}>
+                SELECT A PROJECT
+              </div>
+            ) : null}
 
           </Grid>
         </div>

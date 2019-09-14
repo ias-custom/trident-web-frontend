@@ -13,6 +13,16 @@ const styles = theme => ({
   },
   link: {
     textDecoration: 'none'
+  },
+  divEmpty: {
+    border: "2px dashed #b3b0b0",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: 40,
+    color: "#b3b0b0",
+    height: "calc(100% - 95px)",
+    width: "100%"
   }
 });
 

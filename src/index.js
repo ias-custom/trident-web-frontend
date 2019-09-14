@@ -37,6 +37,13 @@ const theme = createMuiTheme({
       root: {
         padding: "0 20px"
       }
+    },
+    MuiTableRow: {
+      root: {
+        '&$selected': {
+          backgroundColor: "rgba(0, 0, 0, 0.2) !important"
+        }
+      }
     }
   }
 });

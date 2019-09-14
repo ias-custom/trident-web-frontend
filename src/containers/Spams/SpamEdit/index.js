@@ -90,7 +90,9 @@ class SpanEdit extends React.Component {
       latitude: ""
     },
     inspection_id: "",
-    inspection_name: ""
+    inspection_name: "",
+    accessId: "",
+    markingId: ""
   };
 
   breadcrumbs = [
@@ -112,9 +114,12 @@ class SpanEdit extends React.Component {
       const url = new URL(window.location.href)
       const fromMapMarking = url.searchParams.get('marking')
       const fromMapAccess = url.searchParams.get('access')
-      if(fromMapMarking === 'true') this.setState({value: 3})
-      if(fromMapAccess === 'true') this.setState({value: 4})
-      const response = await this.props.getSpan(this.projectId, this.spanId);
+      if(fromMapMarking === 'true')
+        this.setState({value: 3, markingId: parseInt(url.searchParams.get('id'))})
+      if(fromMapAccess === 'true') 
+        this.setState({value: 4, accessId: parseInt(url.searchParams.get('id'))})
+      
+        const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
         const {
           state_id,
@@ -400,7 +405,9 @@ class SpanEdit extends React.Component {
       formMarking,
       formAccess,
       inspection_id,
-      inspection_name
+      inspection_name,
+      markingId,
+      accessId,
     } = this.state;
 
     return (
@@ -1007,7 +1014,7 @@ class SpanEdit extends React.Component {
                     <TableBody>
                       {this.filter(markings, search, "markings").map(
                         marking => (
-                          <TableRow key={marking.id}>
+                          <TableRow key={marking.id} selected={markingId === marking.id}>
                             <TableCell component="td">
                               {marking.type.name}
                             </TableCell>
@@ -1087,7 +1094,7 @@ class SpanEdit extends React.Component {
                     <TableBody>
                       {this.filter(access, search, "access").map(
                         acc => (
-                          <TableRow key={acc.id}>
+                          <TableRow key={acc.id} selected={accessId === acc.id}>
                             <TableCell component="td">
                               {acc.type.name}
                             </TableCell>
