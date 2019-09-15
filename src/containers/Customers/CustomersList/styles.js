@@ -48,6 +48,9 @@ const styles = theme => ({
       color: 'white'
     }
   },
+  breadcrumbs: {
+    marginTop: 20
+  }
 });
 
 export default styles;

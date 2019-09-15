@@ -26,7 +26,7 @@ const styles = theme => ({
   },
   structure: {
     color: "#3f51b5", 
-    fontSize: 30, 
+    fontSize: 20, 
     cursor: "pointer"
   },
   marking: {
@@ -39,23 +39,24 @@ const styles = theme => ({
     fontSize: 15, 
     cursor: "pointer"
   },
-  divMarker: {
+  iconMarker: {
     position: "absolute",
     zIndex: 2,
     top: "calc(50% - 15px)",
-    left: "calc(50% - 120px)",
-    '& > i': {
-      color: "#ff0000",
-      fontSize: 30
-    },
+    left: "calc(50% - 11px)",
+    color: "#ff0000",
+    fontSize: 30,
     textAlign: "center",
   },
   detailsMarker: {
     display: "flex",
+    position: "absolute",
+    bottom: 0,
+    left: "calc(50% - 138px)",
     justifyContent: "center",
     flexDirection: "column",
     alignItems: "center",
-    marginTop: 15
+    zIndex: 3,
   },
   triangle: {
     width: 0, 
@@ -67,13 +68,39 @@ const styles = theme => ({
   },
   infoMarker: {
     background: "white",
-    padding: "0 15px 10px 10px",
+    padding: "0 30px 15px 30px",
     borderRadius: 5,
     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
     "& > p": {
       fontWeight: "bold",
       fontSize: 14
     }
+  },
+  divMenu: {
+    display: "flex",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    zIndex: 2,
+    padding: 10,
+    width: "100%"
+  },
+  buttonMenu: {
+    color: "white",
+    borderColor: "#3f51b5",
+    background: "#3f51b5",
+    fontSize: 12,
+    fontWeight: "bold",
+    margin: "0 5px",
+    padding: 5,
+    '&:hover': {
+      color: '#3f51b5'
+    }
+  },
+  iconButtonMenu: {
+    margin: "-4px 0 0 10px",
+    color: "white",
+    fontSize: 17
   }
 });
   

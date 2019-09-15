@@ -102,110 +102,114 @@ class CustomersList extends React.Component {
 
     return (
       <Layout title="Roles">
-        <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={this.closeModal}
-          onEscapeKeyDown={this.closeModal}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete the role it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={this.closeModal}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-
-          <Panel>
-            <div className={classes.header}>
-              <Link
-                component={RouterLink}
-                color="inherit"
-                to="/customers/create"
+        {() => (
+          <div>
+            <Dialog
+            open={open}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onBackdropClick={this.closeModal}
+            onEscapeKeyDown={this.closeModal}
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Are you sure you want to delete?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                If you delete the role it will be permanently.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                className={classes.buttonCancel}
+                onClick={this.closeModal}
               >
-                <Button variant="outlined" color="primary">
-                  Create Customer
-                </Button>
-              </Link>
+                Cancel
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.buttonAccept}
+                onClick={this.handleDelete}
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 
-              <Input
-                style={{ width: 300 }}
-                defaultValue=""
-                className={classes.search}
-                inputProps={{
-                  placeholder: "Search...",
-                  onChange: this.handleSearch
-                }}
-              />
+              <Panel>
+                <div className={classes.header}>
+                  <Link
+                    component={RouterLink}
+                    color="inherit"
+                    to="/customers/create"
+                  >
+                    <Button variant="outlined" color="primary">
+                      Create Customer
+                    </Button>
+                  </Link>
+
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
+
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Logo</TableCell>
+                      <TableCell colSpan={1}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.filter(customers, search).map(customer => (
+                      <TableRow key={customer.id}>
+                        <TableCell component="td" style={{ width: "50%" }}>{customer.name}</TableCell>
+                        <TableCell component="td" style={{ width: "30%" }}>
+                          <Avatar src={customer.thumbnail} />
+                        </TableCell>
+                        <TableCell>
+                          <div style={{ display: "flex" }}>
+                            <Link
+                              component={RouterLink}
+                              to={`/customers/${customer.id}`}
+                            >
+                              <IconButton
+                                aria-label="Edit"
+                                color="primary"
+                                disabled={loading}
+                              >
+                                <Edit />
+                              </IconButton>
+                            </Link>
+                            <IconButton
+                              aria-label="Delete"
+                              className={classes.iconDelete}
+                              disabled={loading || customer.id === customerSelectedId}
+                              onClick={() => this.showModal(customer.id)}
+                            >
+                              <Delete />
+                            </IconButton>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Panel>
             </div>
-
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Logo</TableCell>
-                  <TableCell colSpan={1}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.filter(customers, search).map(customer => (
-                  <TableRow key={customer.id}>
-                    <TableCell component="td" style={{ width: "50%" }}>{customer.name}</TableCell>
-                    <TableCell component="td" style={{ width: "30%" }}>
-                      <Avatar src={customer.thumbnail} />
-                    </TableCell>
-                    <TableCell>
-                      <div style={{ display: "flex" }}>
-                        <Link
-                          component={RouterLink}
-                          to={`/customers/${customer.id}`}
-                        >
-                          <IconButton
-                            aria-label="Edit"
-                            color="primary"
-                            disabled={loading}
-                          >
-                            <Edit />
-                          </IconButton>
-                        </Link>
-                        <IconButton
-                          aria-label="Delete"
-                          className={classes.iconDelete}
-                          disabled={loading || customer.id === customerSelectedId}
-                          onClick={() => this.showModal(customer.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Panel>
-        </div>
+          </div>
+        )}
       </Layout>
     );
   }

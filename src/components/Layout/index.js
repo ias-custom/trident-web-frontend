@@ -179,7 +179,7 @@ class Layout extends React.Component {
         <main className={classes.content}>
 
           <div className={classes.appBarSpacer} />
-          {this.props.children}
+          {this.props.children(this.state.open)}
         </main>
       </div>
     );

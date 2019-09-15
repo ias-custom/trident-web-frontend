@@ -86,100 +86,103 @@ class RoleCreate extends React.Component {
 
     return (
       <Layout title="Create Role">
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
+        {() => (
+          <div className={classes.root}>
+            <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 
-          <Formik
-            onSubmit={this.handleSubmit}
-            validateOnChange
-            initialValues={{
-              ...this.form
-            }}
-            validationSchema={Yup.object().shape({
-              name: Yup.string().required("Name is required"),
-              permissionsId: Yup.array()
-                .min(1)
-                .required("Permissions is required")
-            })}
-            enableReinitialize
-          >
-            {props => {
-              const {
-                isSubmitting,
-                values,
-                isValid,
-                dirty,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                setFieldValue
-              } = props;
+            <Formik
+              onSubmit={this.handleSubmit}
+              validateOnChange
+              initialValues={{
+                ...this.form
+              }}
+              validationSchema={Yup.object().shape({
+                name: Yup.string().required("Name is required"),
+                permissionsId: Yup.array()
+                  .min(1)
+                  .required("Permissions is required")
+              })}
+              enableReinitialize
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue
+                } = props;
 
-              return (
-                <Form onSubmit={this.handleSubmit}>
-                  <Prompt
-                    when={dirty}
-                    message="Are you sure you want to leave?, You will lose your changes"
-                  />
-                  <Grid container>
-                    <Grid item sm={12} md={12}>
-                      <Panel>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="name"
-                              value={values.name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.name && !!errors.name}
-                              helperText={
-                                !!touched.name && !!errors.name && errors.name
-                              }
-                              label="Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container>
+                      <Grid item sm={12} md={12}>
+                        <Panel>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                name="name"
+                                value={values.name}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.name && !!errors.name}
+                                helperText={
+                                  !!touched.name && !!errors.name && errors.name
+                                }
+                                label="Name"
+                                fullWidth
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
                           </Grid>
-                        </Grid>
 
-                        <Grid container spacing={16}>
-                          <Grid item xs className={classes.divPermissions}>
-                            <Typography variant="subtitle1" gutterBottom>
-                              Permissions
-                            </Typography>
+                          <Grid container spacing={16}>
+                            <Grid item xs className={classes.divPermissions}>
+                              <Typography variant="subtitle1" gutterBottom>
+                                Permissions
+                              </Typography>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                        <CheckboxGroup
-                          permissionsId={values.permissionsId}
-                          onChange={(permissions, add) => {
-                            this.changeCheckbox(permissions, add, props);
-                          }}
-                        />
-                      </Panel>
+                          <CheckboxGroup
+                            permissionsId={values.permissionsId}
+                            onChange={(permissions, add) => {
+                              this.changeCheckbox(permissions, add, props);
+                            }}
+                          />
+                        </Panel>
+                      </Grid>
                     </Grid>
-                  </Grid>
 
-                  <br />
+                    <br />
 
-                  <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
-                    onClick={e => {
-                      handleSubmit(e);
-                    }}
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >
-                    Create Role
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </div>
+                    <Button
+                      disabled={loading || isSubmitting || !isValid || !dirty}
+                      onClick={e => {
+                        handleSubmit(e);
+                      }}
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                    >
+                      Create Role
+                    </Button>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </div>
+        )}
+        
       </Layout>
     );
   }

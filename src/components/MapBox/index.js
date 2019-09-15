@@ -17,13 +17,20 @@ import { fetchStructures } from "../../redux/actions/structureActions"
 import { fetchSpans } from "../../redux/actions/spanActions"
 import { withStyles, Grid, Button } from "@material-ui/core";
 import mapboxgl from 'mapbox-gl';
+import { CheckCircle } from "@material-ui/icons";
 
 class MapBox extends React.Component {
   state = {
     latitude: -11.9890777,
     longitude: -77.0838287,
     selectedMark: null,
-    addStructure: null,
+    addItem: null,
+    link: "",
+    isStructure: false,
+    isSpan: false,
+    isMarking: false,
+    isAccess: false,
+    itemValue: 0
   }
 
   mapLoaded = false
@@ -41,14 +48,20 @@ class MapBox extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (prevProps.open !== this.props.open) {
+      setTimeout(() => {
+        this.map.resize()
+      }, 180)
+    }
   }
+  compo
 
   createMap () {
     this.map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs',
       center: [this.state.longitude, this.state.latitude],
-      zoom: 13 
+      zoom: 13
     });
     // Add geolocate control to the map.
     this.map.addControl(new mapboxgl.GeolocateControl({
@@ -65,26 +78,9 @@ class MapBox extends React.Component {
       this.getStructures()
       this.getMarkings()
       this.getAccess()
-      /* this.map.on('click', (e) => {
-        console.log(e)
-        const marker = document.getElementById("new-marker")
-        if (marker) marker.remove()
-        var el = document.createElement('i');
-        el.className = `fab fa-confluence ${this.props.classes.access}`;
-        el.id = "new-marker"
-        new mapboxgl.Marker(el)
-        .setLngLat([e.lngLat.lng, e.lngLat.lat])
-        .setPopup(new mapboxgl.Popup({ offset: 10 }) // add popups
-        .setHTML(`hola`))
-        .addTo(this.map);
-      }) */
-      var el = document.createElement('i');
-      el.className = `fas fa-map-marker-alt ${this.props.classes.structure}`;
-      // make a marker for each feature and add to the map
-      const {lng, lat} = this.map.getCenter()
-      new mapboxgl.Marker(el)
-        .setLngLat([lng, lat])
-        .addTo(this.map);
+      this.map.on('click', function ({lngLat}) {
+        this.map.flyTo({center: [lngLat.lng, lngLat.lat]});
+      }.bind(this));
     })
   }
 
@@ -223,41 +219,80 @@ class MapBox extends React.Component {
     });
   }
 
-  addItem () {
-    console.log(this.map.getCenter())
+  setItem (value, link) {
+    this.setState({itemValue: value, link})
   }
+
+  confirmAddItem () {
+    // CALL TO DISPATCH TO SET LAT AND LNG
+    this.props.history.push(this.state.link)
+  }
+
   render() {
-    const { classes, projectId, structures, markings, access } = this.props;
-    const { loading, viewport, selectedMark, addStructure } = this.state;
-    
+    const { classes, projectId } = this.props;
+    const { addItem, isStructure, isSpan, isMarking, isAccess, itemValue } = this.state;
     return (
       <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
         <div id="map" style={{ height: "100%", width: "100%" }}>
-          <div className={classes.divMarker}>
-            <i className={"fas fa-map-marker-alt"}></i>
-            <div className={classes.detailsMarker}>
-              <div className={classes.triangle}></div>
-              <div className={classes.infoMarker}>
-                <p>Do you confirm the location?</p>
-                <div>
-                  <Button
-                    variant="outlined"
-                    className={classes.buttonCancel}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    style={{ marginLeft: 10 }}
-                    variant="outlined"
-                    className={classes.buttonAccept}
-                    onClick={() => this.addItem()}
-                  >
-                    Yes, I sure
-                  </Button>
+          <div className={classes.divMenu}>
+            <Button
+              variant="outlined"
+              className={classes.buttonMenu}
+              onClick={() => this.setItem(1, `/projects/${projectId}/`)}
+            >
+              Add structure {itemValue === 1 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.buttonMenu}
+              onClick={() => this.setItem(2, `/projects/${projectId}/`)}
+            >
+              Add span {itemValue === 2 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.buttonMenu}
+              onClick={() => this.setItem(3, `/projects/${projectId}/`)}
+            >
+              Add marking {itemValue === 3 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.buttonMenu}
+              onClick={() => this.setItem(4, `/projects/${projectId}/`)}
+            >
+              Add access {itemValue === 4 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
+            </Button>
+          </div>
+          { itemValue !== 0 ? (
+            <div>
+              <i className={`fas fa-map-marker-alt ${classes.iconMarker}`}></i>
+              <div className={classes.detailsMarker}>
+                <div className={classes.triangle}></div>
+                <div className={classes.infoMarker}>
+                  <p>Do you confirm the location?</p>
+                  <div>
+                    <Button
+                      variant="outlined"
+                      className={classes.buttonCancel}
+                      onClick={() => this.setState({itemValue: 0, link: ""})}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      style={{ marginLeft: 10 }}
+                      variant="outlined"
+                      className={classes.buttonAccept}
+                      onClick={() => this.confirmAddItem()}
+                    >
+                      Yes, I sure
+                    </Button>
+                  </div>
                 </div>
               </div>
+              
             </div>
-          </div>
+          ) : null}
         </div>
       </Grid>
     );

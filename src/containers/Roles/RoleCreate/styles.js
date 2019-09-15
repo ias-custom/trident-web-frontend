@@ -10,6 +10,9 @@ const styles = theme => ({
   },
   divPermissions: {
     marginTop: 20
+  },
+  breadcrumbs: {
+    marginTop: 20
   }
 
 });

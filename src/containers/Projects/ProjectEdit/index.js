@@ -543,911 +543,919 @@ class ProjectEdit extends React.Component {
     
     return (
       <Layout title="Projects">
-        <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() =>
-            !loading ? this.closeModal("open", null) : false
-          }
-          onEscapeKeyDown={() =>
-            !loading ? this.closeModal("open", null) : false
-          }
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.closeModal("open", null)}
+        {() => (
+          <div>
+            <Dialog
+            open={open}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onBackdropClick={() =>
+              !loading ? this.closeModal("open", null) : false
+            }
+            onEscapeKeyDown={() =>
+              !loading ? this.closeModal("open", null) : false
+            }
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Are you sure you want to delete?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                If you delete it will be permanently.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                className={classes.buttonCancel}
+                onClick={() => this.closeModal("open", null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.buttonAccept}
+                onClick={this.handleDelete}
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+            <Dialog
+              open={openAddStructureType || openAddSpanType}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={openAddStructureType || openAddSpanType}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {openAddStructureType ? "Add structure type" : "Add span type"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Enter the required information
-            </DialogContentText>
-            <Grid container spacing={16}>
-              <Grid container>
-                <TextField
-                  name="name"
-                  label="Name"
-                  value={formStructureOrSpanType.name}
-                  onChange={e => {
-                    const value = e.target.value;
-                    this.setState(prevState => {
-                      return {
-                        formStructureOrSpanType: {
-                          ...prevState.formStructureOrSpanType,
-                          name: value
-                        }
-                      };
-                    });
-                  }}
-                  margin="normal"
-                  fullWidth
-                  required
-                />
-              </Grid>
-              <Grid container>
-                <TextField
-                  name="description"
-                  multiline
-                  rowsMax="4"
-                  rows="4"
-                  label="Description"
-                  value={formStructureOrSpanType.description}
-                  onChange={e => {
-                    const value = e.target.value;
-                    this.setState(prevState => {
-                      return {
-                        formStructureOrSpanType: {
-                          ...prevState.formStructureOrSpanType,
-                          description: value
-                        }
-                      };
-                    });
-                  }}
-                  margin="normal"
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              component="span"
-              className={classes.buttonCancel}
-              onClick={() =>
-                openAddStructureType
-                  ? this.closeModal("openAddStructureType", null)
-                  : this.closeModal("openAddSpanType", null)
+              <DialogTitle id="alert-dialog-title">
+                {openAddStructureType ? "Add structure type" : "Add span type"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Enter the required information
+                </DialogContentText>
+                <Grid container spacing={16}>
+                  <Grid container>
+                    <TextField
+                      name="name"
+                      label="Name"
+                      value={formStructureOrSpanType.name}
+                      onChange={e => {
+                        const value = e.target.value;
+                        this.setState(prevState => {
+                          return {
+                            formStructureOrSpanType: {
+                              ...prevState.formStructureOrSpanType,
+                              name: value
+                            }
+                          };
+                        });
+                      }}
+                      margin="normal"
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                  <Grid container>
+                    <TextField
+                      name="description"
+                      multiline
+                      rowsMax="4"
+                      rows="4"
+                      label="Description"
+                      value={formStructureOrSpanType.description}
+                      onChange={e => {
+                        const value = e.target.value;
+                        this.setState(prevState => {
+                          return {
+                            formStructureOrSpanType: {
+                              ...prevState.formStructureOrSpanType,
+                              description: value
+                            }
+                          };
+                        });
+                      }}
+                      margin="normal"
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  component="span"
+                  className={classes.buttonCancel}
+                  onClick={() =>
+                    openAddStructureType
+                      ? this.closeModal("openAddStructureType", null)
+                      : this.closeModal("openAddSpanType", null)
+                  }
+                >
+                  <ArrowBack /> Volver
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  disabled={formStructureOrSpanType.name.length === 0 || loading}
+                  className={classes.buttonAccept}
+                  onClick={
+                    openAddStructureType ? this.addStructureType : this.addSpanType
+                  }
+                >
+                  {openAddStructureType ? "Add structure type" : "Add span type"}
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog
+              open={openUser}
+              classes={{ paper: classes.dialog }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() =>
+                !loading ? this.closeModal("openUser", null) : false
+              }
+              onEscapeKeyDown={() =>
+                !loading ? this.closeModal("openUser", null) : false
               }
             >
-              <ArrowBack /> Volver
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              disabled={formStructureOrSpanType.name.length === 0 || loading}
-              className={classes.buttonAccept}
-              onClick={
-                openAddStructureType ? this.addStructureType : this.addSpanType
-              }
-            >
-              {openAddStructureType ? "Add structure type" : "Add span type"}
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={openUser}
-          classes={{ paper: classes.dialog }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() =>
-            !loading ? this.closeModal("openUser", null) : false
-          }
-          onEscapeKeyDown={() =>
-            !loading ? this.closeModal("openUser", null) : false
-          }
-        >
-          <DialogTitle id="alert-dialog-title">{"Add user"}</DialogTitle>
-          <DialogContent>
-            <TextField
-              name="user_selected"
-              select
-              label="Users"
-              value={userSelected}
-              margin="normal"
-              disabled={loading}
-              onChange={e => this.setState({ userSelected: e.target.value })}
-              fullWidth
-            >
-              {usersAvailable.map(user => {
-                return (
-                  <MenuItem key={user.id} value={user.id}>
-                    {user.first_name} {user.last_name}
-                  </MenuItem>
-                );
+              <DialogTitle id="alert-dialog-title">{"Add user"}</DialogTitle>
+              <DialogContent>
+                <TextField
+                  name="user_selected"
+                  select
+                  label="Users"
+                  value={userSelected}
+                  margin="normal"
+                  disabled={loading}
+                  onChange={e => this.setState({ userSelected: e.target.value })}
+                  fullWidth
+                >
+                  {usersAvailable.map(user => {
+                    return (
+                      <MenuItem key={user.id} value={user.id}>
+                        {user.first_name} {user.last_name}
+                      </MenuItem>
+                    );
+                  })}
+                </TextField>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => this.closeModal("openUser", null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.addUser}
+                  disabled={loading || userSelected === "" || userSelected === null}
+                >
+                  Add User
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Formik
+              onSubmit={this.addStructure}
+              validateOnChange
+              enableReinitialize
+              initialValues={{
+                ...formStructure
+              }}
+              validationSchema={Yup.object().shape({
+                name: Yup.string().required("Name is required"),
+                stateId: Yup.mixed().required("State is required"),
+                latitude: Yup.string().required("Latitude is required"),
+                longitude: Yup.string().required("Longitude is required")
               })}
-            </TextField>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.closeModal("openUser", null)}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.addUser}
-              disabled={loading || userSelected === "" || userSelected === null}
-            >
-              Add User
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Formik
-          onSubmit={this.addStructure}
-          validateOnChange
-          enableReinitialize
-          initialValues={{
-            ...formStructure
-          }}
-          validationSchema={Yup.object().shape({
-            name: Yup.string().required("Name is required"),
-            stateId: Yup.mixed().required("State is required"),
-            latitude: Yup.string().required("Latitude is required"),
-            longitude: Yup.string().required("Longitude is required")
-          })}
-        >
-          {props => {
-            const {
-              resetForm,
-              isSubmitting,
-              values,
-              isValid,
-              dirty,
-              errors,
-              touched,
-              handleChange,
-              handleBlur,
-              handleSubmit
-            } = props;
+              {props => {
+                const {
+                  resetForm,
+                  isSubmitting,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
 
-            return (
-              <Dialog
-                open={openStructure}
-                classes={{ paper: classes.dialogStructure }}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                onBackdropClick={() =>
-                  !loading ? this.closeModal("openStructure", resetForm) : null
-                }
-                onEscapeKeyDown={() =>
-                  !loading ? this.closeModal("openStructure", resetForm) : null
-                }
-              >
-                <DialogTitle id="alert-dialog-title">
-                  {"Add structure"}
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Enter the required information
-                  </DialogContentText>
-                  <FormStructureEdit
-                    dirty={dirty}
-                    values={values}
-                    isValid={isValid}
-                    touched={touched}
-                    errors={errors}
-                    isSubmitting={isSubmitting}
-                    handleChange={handleChange}
-                    handleBlur={handleBlur}
-                    handleSubmit={handleSubmit}
-                    projectId={this.projectId}
-                    isModal={true}
-                    closeModal={() =>
-                      this.closeModal("openStructure", resetForm)
+                return (
+                  <Dialog
+                    open={openStructure}
+                    classes={{ paper: classes.dialogStructure }}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                    onBackdropClick={() =>
+                      !loading ? this.closeModal("openStructure", resetForm) : null
                     }
-                    showModal={() =>
-                      this.showModal(null, "openAddStructureType")
+                    onEscapeKeyDown={() =>
+                      !loading ? this.closeModal("openStructure", resetForm) : null
                     }
-                  />
-                </DialogContent>
-              </Dialog>
-            );
-          }}
-        </Formik>
-        <Formik
-          onSubmit={this.addSpan}
-          validateOnChange
-          initialValues={{
-            ...formSpan
-          }}
-          validationSchema={Yup.object().shape({
-            stateId: Yup.mixed().required("State is required"),
-            spanType: Yup.string().required("Span type is required"),
-            structureStart: Yup.string().required(
-              "Structure start is required"
-            ),
-            structureEnd: Yup.string().required("Structure end is required")
-          })}
-        >
-          {props => {
-            const {
-              isSubmitting,
-              resetForm,
-              values,
-              isValid,
-              dirty,
-              errors,
-              touched,
-              handleChange,
-              handleBlur,
-              handleSubmit
-            } = props;
-
-            return (
-              <Dialog
-                open={openSpan}
-                classes={{ paper: classes.dialogStructure }}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-                onBackdropClick={() =>
-                  !loading ? this.closeModal("openSpan", resetForm) : false
-                }
-                onEscapeKeyDown={() =>
-                  !loading ? this.closeModal("openSpan", resetForm) : false
-                }
-              >
-                <DialogTitle id="alert-dialog-title">{"Add span"}</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Enter the required information
-                  </DialogContentText>
-                  <FormSpanEdit
-                    dirty={dirty}
-                    values={values}
-                    isValid={isValid}
-                    touched={touched}
-                    errors={errors}
-                    isSubmitting={isSubmitting}
-                    handleChange={handleChange}
-                    handleBlur={handleBlur}
-                    handleSubmit={handleSubmit}
-                    projectId={this.projectId}
-                    structures={structures}
-                    isModal={true}
-                    closeModal={() =>
-                      this.closeModal("openSpan", resetForm)
-                    }
-                    showModal={() =>
-                      this.showModal(null, "openAddSpanType")
-                    }
-                  />
-                </DialogContent>
-              </Dialog>
-            );
-          }}
-        </Formik>
-        <Dialog
-          open={ openDeficiency }
-          classes={{ paper: classes.dialog }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Add deficiency"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Enter the required information
-            </DialogContentText>
-            <Grid container>
-              <TextField
-                name="name"
-                label="Name"
-                value={deficiencyName}
-                onChange={e => {
-                  const value = e.target.value;
-                  this.setState({deficiencyName: value});
-                }}
-                margin="normal"
-                fullWidth
-                required
-              />
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonCancel}
-              onClick={() =>
-                !loading
-                  ? this.closeModal("openDeficiency", null)
-                  : null
-              }
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              disabled={deficiencyName.length === 0 || loading}
-              className={classes.buttonAccept}
-              onClick={this.addDeficiency}
-            >
-              Add deficiency
-            </Button>
-          </DialogActions>
-        </Dialog>
-        
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-          {editName ? (
-            <Grid item xs={6}>
-              <TextField
-                name="name"
-                value={inputProjectName}
-                label=""
-                required
-                autoFocus={editName}
-                inputProps={{ className: classes.inputName }}
-                onChange={e =>
-                  this.setState({ inputProjectName: e.target.value })
-                }
-              />
-              <IconButton
-                className={classes.buttonSave}
-                aria-label="Save"
-                color="primary"
-                onClick={() => this.saveName()}
-                disabled={loading || inputProjectName.length === 0}
-              >
-                <Save />
-              </IconButton>
-              <IconButton
-                className={classes.iconDelete}
-                aria-label="Cancel"
-                onClick={() => {
-                  this.setState({
-                    inputProjectName: projectName,
-                    editName: false
-                  });
-                }}
-                disabled={loading}
-              >
-                <Cancel />
-              </IconButton>
-            </Grid>
-          ) : (
-            <Typography component="h1" variant="h5">
-              {projectName}
-              <IconButton
-                aria-label="Edit"
-                color="primary"
-                onClick={() => this.showInputEdit()}
-                disabled={loading}
-              >
-                <Edit />
-              </IconButton>
-            </Typography>
-          )}
-
-          <Grid className={classes.divTabs}>
-            <Tabs
-              value={value}
-              onChange={(e, newValue) => {
-                this.handleChange(e, newValue);
-              }}
-              indicatorColor="primary"
-              textColor="primary"
-              variant="fullWidth"
-            >
-              <Tab label="Users" />
-              <Tab label="Structures" />
-              <Tab label="Spans" />
-              <Tab label="Inspections" />
-              <Tab label="Deficiencies" />
-            </Tabs>
-          </Grid>
-          <Panel>
-            <SwipeableViews
-              index={value}
-              onChangeIndex={this.handleChangeIndex}
-              slideStyle={{
-                overflowX: "hidden",
-                overflowY: "hidden",
-                padding: "0 2px"
-              }}
-            >
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal(null, "openUser")}
                   >
-                    Add User
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
+                    <DialogTitle id="alert-dialog-title">
+                      {"Add structure"}
+                    </DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        Enter the required information
+                      </DialogContentText>
+                      <FormStructureEdit
+                        dirty={dirty}
+                        values={values}
+                        isValid={isValid}
+                        touched={touched}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                        handleChange={handleChange}
+                        handleBlur={handleBlur}
+                        handleSubmit={handleSubmit}
+                        projectId={this.projectId}
+                        isModal={true}
+                        closeModal={() =>
+                          this.closeModal("openStructure", resetForm)
+                        }
+                        showModal={() =>
+                          this.showModal(null, "openAddStructureType")
+                        }
+                      />
+                    </DialogContent>
+                  </Dialog>
+                );
+              }}
+            </Formik>
+            <Formik
+              onSubmit={this.addSpan}
+              validateOnChange
+              initialValues={{
+                ...formSpan
+              }}
+              validationSchema={Yup.object().shape({
+                stateId: Yup.mixed().required("State is required"),
+                spanType: Yup.string().required("Span type is required"),
+                structureStart: Yup.string().required(
+                  "Structure start is required"
+                ),
+                structureEnd: Yup.string().required("Structure end is required")
+              })}
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  resetForm,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
+
+                return (
+                  <Dialog
+                    open={openSpan}
+                    classes={{ paper: classes.dialogStructure }}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                    onBackdropClick={() =>
+                      !loading ? this.closeModal("openSpan", resetForm) : false
+                    }
+                    onEscapeKeyDown={() =>
+                      !loading ? this.closeModal("openSpan", resetForm) : false
+                    }
+                  >
+                    <DialogTitle id="alert-dialog-title">{"Add span"}</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        Enter the required information
+                      </DialogContentText>
+                      <FormSpanEdit
+                        dirty={dirty}
+                        values={values}
+                        isValid={isValid}
+                        touched={touched}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                        handleChange={handleChange}
+                        handleBlur={handleBlur}
+                        handleSubmit={handleSubmit}
+                        projectId={this.projectId}
+                        structures={structures}
+                        isModal={true}
+                        closeModal={() =>
+                          this.closeModal("openSpan", resetForm)
+                        }
+                        showModal={() =>
+                          this.showModal(null, "openAddSpanType")
+                        }
+                      />
+                    </DialogContent>
+                  </Dialog>
+                );
+              }}
+            </Formik>
+            <Dialog
+              open={ openDeficiency }
+              classes={{ paper: classes.dialog }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Add deficiency"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Enter the required information
+                </DialogContentText>
+                <Grid container>
+                  <TextField
+                    name="name"
+                    label="Name"
+                    value={deficiencyName}
+                    onChange={e => {
+                      const value = e.target.value;
+                      this.setState({deficiencyName: value});
                     }}
+                    margin="normal"
+                    fullWidth
+                    required
                   />
-                </div>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Username</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell colSpan={1}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.filter(users, search, "users").map(user => (
-                      <TableRow key={user.id}>
-                        <TableCell component="td">
-                          {user.first_name} {user.last_name}
-                        </TableCell>
-                        <TableCell component="td">{user.username}</TableCell>
-                        <TableCell component="td">{user.email}</TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
-                            {/* <Link
-                              component={RouterLink}
-                              to={`/users/${user.id}`}
-                            >
-                              <IconButton
-                                aria-label="Edit"
-                                color="primary"
-                                disabled={loading}
-                              >
-                                <Edit />
-                              </IconButton>
-                            </Link> */}
-
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={loading}
-                              onClick={() =>
-                                this.showModal(user.relation_id, "open")
-                              }
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {users.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonCancel}
+                  onClick={() =>
+                    !loading
+                      ? this.closeModal("openDeficiency", null)
+                      : null
+                  }
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  disabled={deficiencyName.length === 0 || loading}
+                  className={classes.buttonAccept}
+                  onClick={this.addDeficiency}
+                >
+                  Add deficiency
+                </Button>
+              </DialogActions>
+            </Dialog>
+            
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={breadcrumbs} />
+              {editName ? (
+                <Grid item xs={6}>
+                  <TextField
+                    name="name"
+                    value={inputProjectName}
+                    label=""
+                    required
+                    autoFocus={editName}
+                    inputProps={{ className: classes.inputName }}
+                    onChange={e =>
+                      this.setState({ inputProjectName: e.target.value })
+                    }
+                  />
+                  <IconButton
+                    className={classes.buttonSave}
+                    aria-label="Save"
+                    color="primary"
+                    onClick={() => this.saveName()}
+                    disabled={loading || inputProjectName.length === 0}
                   >
-                    THERE AREN'T USERS
-                  </Typography>
-                ) : null}
+                    <Save />
+                  </IconButton>
+                  <IconButton
+                    className={classes.iconDelete}
+                    aria-label="Cancel"
+                    onClick={() => {
+                      this.setState({
+                        inputProjectName: projectName,
+                        editName: false
+                      });
+                    }}
+                    disabled={loading}
+                  >
+                    <Cancel />
+                  </IconButton>
+                </Grid>
+              ) : (
+                <Typography component="h1" variant="h5">
+                  {projectName}
+                  <IconButton
+                    aria-label="Edit"
+                    color="primary"
+                    onClick={() => this.showInputEdit()}
+                    disabled={loading}
+                  >
+                    <Edit />
+                  </IconButton>
+                </Typography>
+              )}
+
+              <Grid className={classes.divTabs}>
+                <Tabs
+                  value={value}
+                  onChange={(e, newValue) => {
+                    this.handleChange(e, newValue);
+                  }}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                >
+                  <Tab label="Users" />
+                  <Tab label="Structures" />
+                  <Tab label="Spans" />
+                  <Tab label="Inspections" />
+                  <Tab label="Deficiencies" />
+                </Tabs>
               </Grid>
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal(null, "openStructure")}
-                  >
-                    Add Structure
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
-                    }}
-                  />
-                </div>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{width: "50%"}}>Name</TableCell>
-                      <TableCell style={{width: "30%"}}>State</TableCell>
-                      <TableCell colSpan={1}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.filter(structures, search, "structures").map(
-                      structure => (
-                        <TableRow key={structure.id}>
-                          <TableCell component="td">{structure.name}</TableCell>
-                          <TableCell component="td">
-                            {structure.state.name === "Collected" ? (
-                              <Typography color="primary">
-                                {structure.state.name}
-                              </Typography>
-                            ) : (
-                              <Typography style={{ color: "#e44f4f" }}>
-                                {structure.state.name}
-                              </Typography>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div style={{ display: "flex" }}>
+              <Panel>
+                <SwipeableViews
+                  index={value}
+                  onChangeIndex={this.handleChangeIndex}
+                  slideStyle={{
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                    padding: "0 2px"
+                  }}
+                >
+                  <Grid>
+                    <div className={classes.header}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        disabled={loading}
+                        onClick={() => this.showModal(null, "openUser")}
+                      >
+                        Add User
+                      </Button>
+                      <Input
+                        style={{ width: 300 }}
+                        defaultValue=""
+                        className={classes.search}
+                        inputProps={{
+                          placeholder: "Search...",
+                          onChange: this.handleSearch
+                        }}
+                      />
+                    </div>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Name</TableCell>
+                          <TableCell>Username</TableCell>
+                          <TableCell>Email</TableCell>
+                          <TableCell colSpan={1}>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {this.filter(users, search, "users").map(user => (
+                          <TableRow key={user.id}>
+                            <TableCell component="td">
+                              {user.first_name} {user.last_name}
+                            </TableCell>
+                            <TableCell component="td">{user.username}</TableCell>
+                            <TableCell component="td">{user.email}</TableCell>
+                            <TableCell>
+                              <div style={{ display: "flex" }}>
+                                {/* <Link
+                                  component={RouterLink}
+                                  to={`/users/${user.id}`}
+                                >
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link> */}
+
+                                <IconButton
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.showModal(user.relation_id, "open")
+                                  }
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {users.length === 0 ? (
+                      <Typography
+                        variant="display1"
+                        align="center"
+                        className={classes.emptyText}
+                      >
+                        THERE AREN'T USERS
+                      </Typography>
+                    ) : null}
+                  </Grid>
+                  <Grid>
+                    <div className={classes.header}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        disabled={loading}
+                        onClick={() => this.showModal(null, "openStructure")}
+                      >
+                        Add Structure
+                      </Button>
+                      <Input
+                        style={{ width: 300 }}
+                        defaultValue=""
+                        className={classes.search}
+                        inputProps={{
+                          placeholder: "Search...",
+                          onChange: this.handleSearch
+                        }}
+                      />
+                    </div>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{width: "50%"}}>Name</TableCell>
+                          <TableCell style={{width: "30%"}}>State</TableCell>
+                          <TableCell colSpan={1}>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {this.filter(structures, search, "structures").map(
+                          structure => (
+                            <TableRow key={structure.id}>
+                              <TableCell component="td">{structure.name}</TableCell>
+                              <TableCell component="td">
+                                {structure.state.name === "Collected" ? (
+                                  <Typography color="primary">
+                                    {structure.state.name}
+                                  </Typography>
+                                ) : (
+                                  <Typography style={{ color: "#e44f4f" }}>
+                                    {structure.state.name}
+                                  </Typography>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div style={{ display: "flex" }}>
+                                  <Link
+                                    component={RouterLink}
+                                    to={`/projects/${this.projectId}/structures/${structure.id}`}
+                                  >
+                                    <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      disabled={loading}
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Link>
+
+                                  <IconButton
+                                    aria-label="Delete"
+                                    className={classes.iconDelete}
+                                    disabled={loading}
+                                    onClick={() =>
+                                      this.showModal(structure.id, "open")
+                                    }
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                    {structures.length === 0 ? (
+                      <Typography
+                        variant="display1"
+                        align="center"
+                        className={classes.emptyText}
+                      >
+                        THERE AREN'T STRUCTURES
+                      </Typography>
+                    ) : null}
+                  </Grid>
+                  <Grid>
+                    <div className={classes.header}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        disabled={loading}
+                        onClick={() => this.showModal(null, "openSpan")}
+                      >
+                        Add Span
+                      </Button>
+                      <Input
+                        style={{ width: 300 }}
+                        defaultValue=""
+                        className={classes.search}
+                        inputProps={{
+                          placeholder: "Search...",
+                          onChange: this.handleSearch
+                        }}
+                      />
+                    </div>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{width: "50%"}}>ID</TableCell>
+                          <TableCell style={{width: "30%"}}>State</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {this.filter(spans, search, "spans").map(span => (
+                          <TableRow key={span.id}>
+                            <TableCell component="td">
                               <Link
                                 component={RouterLink}
-                                to={`/projects/${this.projectId}/structures/${structure.id}`}
+                                to={`/projects/${this.projectId}/spans/${span.id}`}
                               >
-                                <IconButton
-                                  aria-label="Edit"
-                                  color="primary"
-                                  disabled={loading}
-                                >
-                                  <Edit />
-                                </IconButton>
+                                {span.id}
                               </Link>
-
-                              <IconButton
-                                aria-label="Delete"
-                                className={classes.iconDelete}
-                                disabled={loading}
-                                onClick={() =>
-                                  this.showModal(structure.id, "open")
-                                }
-                              >
-                                <Delete />
-                              </IconButton>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-                {structures.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T STRUCTURES
-                  </Typography>
-                ) : null}
-              </Grid>
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal(null, "openSpan")}
-                  >
-                    Add Span
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
-                    }}
-                  />
-                </div>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{width: "50%"}}>ID</TableCell>
-                      <TableCell style={{width: "30%"}}>State</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.filter(spans, search, "spans").map(span => (
-                      <TableRow key={span.id}>
-                        <TableCell component="td">
-                          <Link
-                            component={RouterLink}
-                            to={`/projects/${this.projectId}/spans/${span.id}`}
-                          >
-                            {span.id}
-                          </Link>
-                        </TableCell>
-                        <TableCell>
-                          {span.state ? (
-                            span.state.name === "Collected" ? (
-                              <Typography color="primary">
-                                {span.state.name}
-                              </Typography>
-                            ) : (
-                              <Typography style={{ color: "#e44f4f" }}>
-                                {span.state.name}
-                              </Typography>
-                            )
-                          ) : (
-                            "-"
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
-                            <Link
-                              component={RouterLink}
-                              to={`/projects/${this.projectId}/spans/${span.id}`}
-                            >
-                              <IconButton
-                                aria-label="Edit"
-                                color="primary"
-                                disabled={loading}
-                              >
-                                <Edit />
-                              </IconButton>
-                            </Link>
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={loading}
-                              onClick={() => this.showModal(span.id, "open")}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {spans.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T SPANS
-                  </Typography>
-                ) : null}
-              </Grid>
-              <Grid container spacing={16}>
-                {inspections.map(({ id, name }) => (
-                  <Grid item xs={6} key={id}>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      classes={{ h6: classes.categoryName }}
-                    >
-                      {name}
-                    </Typography>
-                    {categories_project.filter(({ inspection_id }) => inspection_id === id)
-                      .map(category => (
-                        <div key={category.id}>
-                          <ExpansionPanel
-                            expanded={openId === category.id}
-                            onChange={() => {
-                              this.openCollapse(openId, category);
-                            }}
-                            classes={{ root: classes.collapse }}
-                          >
-                            <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                              {category.name}
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails
-                              classes={{ root: classes.collapseDetails }}
-                            >
-                              <Grid>
-                                <TextField
-                                  name="name"
-                                  value={category.newName || ""}
-                                  placeholder="Change category name"
-                                  label=""
-                                  required
-                                  disabled={loading}
-                                  inputProps={{
-                                    className: classes.inputCategory
-                                  }}
-                                  onChange={e => {
-                                    category.newName = e.target.value;
-                                    this.setState({});
-                                  }}
-                                />
+                            </TableCell>
+                            <TableCell>
+                              {span.state ? (
+                                span.state.name === "Collected" ? (
+                                  <Typography color="primary">
+                                    {span.state.name}
+                                  </Typography>
+                                ) : (
+                                  <Typography style={{ color: "#e44f4f" }}>
+                                    {span.state.name}
+                                  </Typography>
+                                )
+                              ) : (
+                                "-"
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div style={{ display: "flex" }}>
+                                <Link
+                                  component={RouterLink}
+                                  to={`/projects/${this.projectId}/spans/${span.id}`}
+                                >
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
                                 <IconButton
-                                  className={classes.buttonSave}
-                                  aria-label="Save"
-                                  color="primary"
-                                  onClick={() =>
-                                    this.changeNameCategory(category, id)
-                                  }
-                                  disabled={
-                                    loading ||
-                                    !(
-                                      category.newName &&
-                                      category.newName.length > 0
-                                    )
-                                  }
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() => this.showModal(span.id, "open")}
                                 >
-                                  <Save />
+                                  <Delete />
                                 </IconButton>
-                              </Grid>
-                              <Grid>
-                                <Typography
-                                  variant="subtitle1"
-                                  classes={{ subtitle1: classes.itemsText }}
-                                >
-                                  ITEMS
-                                </Typography>
-                              </Grid>
-                              {category.items.map(item => (
-                                <div key={item.id}>
-                                  {item.edit ? (
-                                    <Grid>
-                                      <TextField
-                                        name="name"
-                                        value={item.newName}
-                                        label=""
-                                        required
-                                        disabled={loading}
-                                        autoFocus={item.edit}
-                                        inputProps={{
-                                          className: classes.inputCategory
-                                        }}
-                                        onChange={e => {
-                                          item.newName = e.target.value;
-                                          this.setState({});
-                                        }}
-                                      />
-                                      <IconButton
-                                        className={classes.buttonSave}
-                                        aria-label="Save"
-                                        color="primary"
-                                        onClick={() =>
-                                          this.changeNameItem(item, category.id)
-                                        }
-                                        disabled={
-                                          loading || item.newName.length === 0
-                                        }
-                                      >
-                                        <Save />
-                                      </IconButton>
-                                      <IconButton
-                                        className={classes.iconDelete}
-                                        aria-label="Cancel"
-                                        onClick={() => {
-                                          item.edit = false;
-                                          this.setState({});
-                                        }}
-                                        disabled={loading}
-                                      >
-                                        <Cancel />
-                                      </IconButton>
-                                    </Grid>
-                                  ) : (
-                                    <Typography variant="subtitle1">
-                                      {item.name}
-                                      <IconButton
-                                        aria-label="Edit"
-                                        color="primary"
-                                        onClick={() => {
-                                          Object.assign(item, {
-                                            edit: true,
-                                            newName: item.name
-                                          });
-                                          this.setState({});
-                                        }}
-                                        disabled={loading}
-                                      >
-                                        <Edit />
-                                      </IconButton>
-                                    </Typography>
-                                  )}
-                                </div>
-                              ))}
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
-                        </div>
-                      ))}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {spans.length === 0 ? (
+                      <Typography
+                        variant="display1"
+                        align="center"
+                        className={classes.emptyText}
+                      >
+                        THERE AREN'T SPANS
+                      </Typography>
+                    ) : null}
                   </Grid>
-                ))}
-              </Grid>
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal(null, "openDeficiency")}
-                  >
-                    Add Deficiency
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
-                    }}
-                  />
-                </div>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{width: "80%"}}>Name</TableCell>
-                      <TableCell colSpan={1}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.filter(deficiencies, search, "deficiencies").map(
-                      deficiency => (
-                        <TableRow key={deficiency.id}>
-                          <TableCell component="td">{deficiency.name}</TableCell>
-                          <TableCell>
-                            <div style={{ display: "flex" }}>
-                              <IconButton
-                                aria-label="Delete"
-                                className={classes.iconDelete}
-                                disabled={loading}
-                                onClick={() =>
-                                  this.showModal(deficiency.id, "open")
-                                }
+                  <Grid container spacing={16}>
+                    {inspections.map(({ id, name }) => (
+                      <Grid item xs={6} key={id}>
+                        <Typography
+                          variant="h6"
+                          align="center"
+                          classes={{ h6: classes.categoryName }}
+                        >
+                          {name}
+                        </Typography>
+                        {categories_project.filter(({ inspection_id }) => inspection_id === id)
+                          .map(category => (
+                            <div key={category.id}>
+                              <ExpansionPanel
+                                expanded={openId === category.id}
+                                onChange={() => {
+                                  this.openCollapse(openId, category);
+                                }}
+                                classes={{ root: classes.collapse }}
                               >
-                                <Delete />
-                              </IconButton>
+                                <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                                  {category.name}
+                                </ExpansionPanelSummary>
+                                <ExpansionPanelDetails
+                                  classes={{ root: classes.collapseDetails }}
+                                >
+                                  <Grid>
+                                    <TextField
+                                      name="name"
+                                      value={category.newName || ""}
+                                      placeholder="Change category name"
+                                      label=""
+                                      required
+                                      disabled={loading}
+                                      inputProps={{
+                                        className: classes.inputCategory
+                                      }}
+                                      onChange={e => {
+                                        category.newName = e.target.value;
+                                        this.setState({});
+                                      }}
+                                    />
+                                    <IconButton
+                                      className={classes.buttonSave}
+                                      aria-label="Save"
+                                      color="primary"
+                                      onClick={() =>
+                                        this.changeNameCategory(category, id)
+                                      }
+                                      disabled={
+                                        loading ||
+                                        !(
+                                          category.newName &&
+                                          category.newName.length > 0
+                                        )
+                                      }
+                                    >
+                                      <Save />
+                                    </IconButton>
+                                  </Grid>
+                                  <Grid>
+                                    <Typography
+                                      variant="subtitle1"
+                                      classes={{ subtitle1: classes.itemsText }}
+                                    >
+                                      ITEMS
+                                    </Typography>
+                                  </Grid>
+                                  {category.items.map(item => (
+                                    <div key={item.id}>
+                                      {item.edit ? (
+                                        <Grid>
+                                          <TextField
+                                            name="name"
+                                            value={item.newName}
+                                            label=""
+                                            required
+                                            disabled={loading}
+                                            autoFocus={item.edit}
+                                            inputProps={{
+                                              className: classes.inputCategory
+                                            }}
+                                            onChange={e => {
+                                              item.newName = e.target.value;
+                                              this.setState({});
+                                            }}
+                                          />
+                                          <IconButton
+                                            className={classes.buttonSave}
+                                            aria-label="Save"
+                                            color="primary"
+                                            onClick={() =>
+                                              this.changeNameItem(item, category.id)
+                                            }
+                                            disabled={
+                                              loading || item.newName.length === 0
+                                            }
+                                          >
+                                            <Save />
+                                          </IconButton>
+                                          <IconButton
+                                            className={classes.iconDelete}
+                                            aria-label="Cancel"
+                                            onClick={() => {
+                                              item.edit = false;
+                                              this.setState({});
+                                            }}
+                                            disabled={loading}
+                                          >
+                                            <Cancel />
+                                          </IconButton>
+                                        </Grid>
+                                      ) : (
+                                        <Typography variant="subtitle1">
+                                          {item.name}
+                                          <IconButton
+                                            aria-label="Edit"
+                                            color="primary"
+                                            onClick={() => {
+                                              Object.assign(item, {
+                                                edit: true,
+                                                newName: item.name
+                                              });
+                                              this.setState({});
+                                            }}
+                                            disabled={loading}
+                                          >
+                                            <Edit />
+                                          </IconButton>
+                                        </Typography>
+                                      )}
+                                    </div>
+                                  ))}
+                                </ExpansionPanelDetails>
+                              </ExpansionPanel>
                             </div>
-                          </TableCell>
+                          ))}
+                      </Grid>
+                    ))}
+                  </Grid>
+                  <Grid>
+                    <div className={classes.header}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        disabled={loading}
+                        onClick={() => this.showModal(null, "openDeficiency")}
+                      >
+                        Add Deficiency
+                      </Button>
+                      <Input
+                        style={{ width: 300 }}
+                        defaultValue=""
+                        className={classes.search}
+                        inputProps={{
+                          placeholder: "Search...",
+                          onChange: this.handleSearch
+                        }}
+                      />
+                    </div>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell style={{width: "80%"}}>Name</TableCell>
+                          <TableCell colSpan={1}>Actions</TableCell>
                         </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-                {deficiencies.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T DEFICIENCIES
-                  </Typography>
-                ) : null}
-              </Grid>
-            </SwipeableViews>
-          </Panel>
-        </div>
+                      </TableHead>
+                      <TableBody>
+                        {this.filter(deficiencies, search, "deficiencies").map(
+                          deficiency => (
+                            <TableRow key={deficiency.id}>
+                              <TableCell component="td">{deficiency.name}</TableCell>
+                              <TableCell>
+                                <div style={{ display: "flex" }}>
+                                  <IconButton
+                                    aria-label="Delete"
+                                    className={classes.iconDelete}
+                                    disabled={loading}
+                                    onClick={() =>
+                                      this.showModal(deficiency.id, "open")
+                                    }
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
+                      </TableBody>
+                    </Table>
+                    {deficiencies.length === 0 ? (
+                      <Typography
+                        variant="display1"
+                        align="center"
+                        className={classes.emptyText}
+                      >
+                        THERE AREN'T DEFICIENCIES
+                      </Typography>
+                    ) : null}
+                  </Grid>
+                </SwipeableViews>
+              </Panel>
+            </div>
+          </div>
+        )}
       </Layout>
     );
   }

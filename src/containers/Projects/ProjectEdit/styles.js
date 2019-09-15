@@ -112,6 +112,9 @@ const styles = theme => ({
   },
   dialogStructure: {
     width: 500
+  },
+  breadcrumbs: {
+    marginTop: 20
   }
 });
 

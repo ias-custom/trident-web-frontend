@@ -108,7 +108,9 @@ class RolesList extends React.Component {
 
     return (
       <Layout title="Roles">
-        <Dialog
+        {() => (
+          <div>
+            <Dialog
           open={open}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -141,89 +143,91 @@ class RolesList extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 
-          <Panel>
-            <div
-              className={
-                canCreateRole || is_superuser
-                  ? classes.header
-                  : classes.headerRight
-              }
-            >
-              {canCreateRole || is_superuser ? (
-                <Link component={RouterLink} color="inherit" to="/roles/create">
-                  <Button variant="outlined" color="primary">
-                    Create Role
-                  </Button>
-                </Link>
-              ) : null}
-              <Input
-                style={{ width: 300 }}
-                defaultValue=""
-                className={classes.search}
-                inputProps={{
-                  placeholder: "Search...",
-                  onChange: this.handleSearch
-                }}
-              />
-            </div>
+              <Panel>
+                <div
+                  className={
+                    canCreateRole || is_superuser
+                      ? classes.header
+                      : classes.headerRight
+                  }
+                >
+                  {canCreateRole || is_superuser ? (
+                    <Link component={RouterLink} color="inherit" to="/roles/create">
+                      <Button variant="outlined" color="primary">
+                        Create Role
+                      </Button>
+                    </Link>
+                  ) : null}
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
 
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ width: "80%" }}>Name</TableCell>
-                  <TableCell colSpan={1}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.filter(roles, search).map(role => (
-                  <TableRow key={role.id}>
-                    <TableCell component="td" style={{ width: "80%" }}>
-                      {role.name}
-                    </TableCell>
-                    <TableCell>
-                      <div style={{ display: "flex" }}>
-                        {canChangeRole || is_superuser ? (
-                          <Link component={RouterLink} to={`/roles/${role.id}`}>
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell style={{ width: "80%" }}>Name</TableCell>
+                      <TableCell colSpan={1}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.filter(roles, search).map(role => (
+                      <TableRow key={role.id}>
+                        <TableCell component="td" style={{ width: "80%" }}>
+                          {role.name}
+                        </TableCell>
+                        <TableCell>
+                          <div style={{ display: "flex" }}>
+                            {canChangeRole || is_superuser ? (
+                              <Link component={RouterLink} to={`/roles/${role.id}`}>
+                                <IconButton
+                                  aria-label="Edit"
+                                  color="primary"
+                                  disabled={loading}
+                                >
+                                  <Edit />
+                                </IconButton>
+                              </Link>
+                            ) : (
+                              <IconButton
+                                aria-label="Edit"
+                                color="primary"
+                                disabled={
+                                  loading || !canChangeRole || !is_superuser
+                                }
+                              >
+                                <Edit />
+                              </IconButton>
+                            )}
                             <IconButton
-                              aria-label="Edit"
-                              color="primary"
-                              disabled={loading}
+                              aria-label="Delete"
+                              className={classes.iconDelete}
+                              disabled={
+                                loading || (!canDeleteRole && !is_superuser)
+                              }
+                              onClick={() => this.showModal(role.id)}
                             >
-                              <Edit />
+                              <Delete />
                             </IconButton>
-                          </Link>
-                        ) : (
-                          <IconButton
-                            aria-label="Edit"
-                            color="primary"
-                            disabled={
-                              loading || !canChangeRole || !is_superuser
-                            }
-                          >
-                            <Edit />
-                          </IconButton>
-                        )}
-                        <IconButton
-                          aria-label="Delete"
-                          className={classes.iconDelete}
-                          disabled={
-                            loading || (!canDeleteRole && !is_superuser)
-                          }
-                          onClick={() => this.showModal(role.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Panel>
-        </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Panel>
+            </div>
+          </div>
+        )}
       </Layout>
     );
   }

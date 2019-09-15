@@ -78,125 +78,128 @@ class CustomerCreate extends React.Component {
 
     return (
       <Layout title="Create Customer">
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-
-          <Formik
-            onSubmit={this.handleSubmit}
-            validateOnChange
-            initialValues={{
-              ...this.form
-            }}
-            validationSchema={Yup.object().shape({
-              name: Yup.string().required("Name is required"),
-              logo: Yup.mixed().required("Logo is required")
-            })}
-            enableReinitialize
-          >
-            {props => {
-              const {
-                isSubmitting,
-                values,
-                isValid,
-                dirty,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                setFieldValue
-              } = props;
-
-              return (
-                <Form onSubmit={this.handleSubmit}>
-                  <Prompt
-                    when={dirty}
-                    message="Are you sure you want to leave?, You will lose your changes"
-                  />
-                  <Grid container>
-                    <Grid item sm={12} md={12}>
-                      <Panel>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="name"
-                              value={values.name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.name && !!errors.name}
-                              helperText={
-                                !!touched.name && !!errors.name && errors.name
-                              }
-                              label="Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
+        {() => (
+          <div className={classes.root}>
+            <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+  
+            <Formik
+              onSubmit={this.handleSubmit}
+              validateOnChange
+              initialValues={{
+                ...this.form
+              }}
+              validationSchema={Yup.object().shape({
+                name: Yup.string().required("Name is required"),
+                logo: Yup.mixed().required("Logo is required")
+              })}
+              enableReinitialize
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  setFieldValue
+                } = props;
+  
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container>
+                      <Grid item sm={12} md={12}>
+                        <Panel>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                name="name"
+                                value={values.name}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.name && !!errors.name}
+                                helperText={
+                                  !!touched.name && !!errors.name && errors.name
+                                }
+                                label="Name"
+                                fullWidth
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
                           </Grid>
-                        </Grid>
-
-                        <Grid
-                          container
-                          spacing={16}
-                          className={classes.divLogo}
-                        >
-                          <Grid item xs className={classes.divPermissions}>
-                            <Typography variant="subtitle1" gutterBottom>
-                              Logo *
-                            </Typography>
+  
+                          <Grid
+                            container
+                            spacing={16}
+                            className={classes.divLogo}
+                          >
+                            <Grid item xs className={classes.divPermissions}>
+                              <Typography variant="subtitle1" gutterBottom>
+                                Logo *
+                              </Typography>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs={3}>
-                            <InputFiles
-                              name="logo"
-                              style={{ width: "100%", height: "140px" }}
-                              accept="image/*"
-                              onChange={files => {
-                                setFieldValue("logo", files[0]);
-                              }}
-                            >
-                              <Grid item xs className={classes.gridLogo}>
-                                {values.logo ? (
-                                  <img
-                                    src={
-                                      values.logo &&
-                                      URL.createObjectURL(values.logo)
-                                    }
-                                    alt="logo"
-                                  />
-                                ) : (
-                                  <AddIcon
-                                    color="primary"
-                                    style={{ fontSize: 30 }}
-                                  />
-                                )}
-                              </Grid>
-                            </InputFiles>
+                          <Grid container spacing={16}>
+                            <Grid item xs={3}>
+                              <InputFiles
+                                name="logo"
+                                style={{ width: "100%", height: "140px" }}
+                                accept="image/*"
+                                onChange={files => {
+                                  setFieldValue("logo", files[0]);
+                                }}
+                              >
+                                <Grid item xs className={classes.gridLogo}>
+                                  {values.logo ? (
+                                    <img
+                                      src={
+                                        values.logo &&
+                                        URL.createObjectURL(values.logo)
+                                      }
+                                      alt="logo"
+                                    />
+                                  ) : (
+                                    <AddIcon
+                                      color="primary"
+                                      style={{ fontSize: 30 }}
+                                    />
+                                  )}
+                                </Grid>
+                              </InputFiles>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      </Panel>
+                        </Panel>
+                      </Grid>
                     </Grid>
-                  </Grid>
-
-                  <br />
-
-                  <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
-                    onClick={e => {
-                      handleSubmit(e);
-                    }}
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >
-                    Create Customer
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </div>
+  
+                    <br />
+  
+                    <Button
+                      disabled={loading || isSubmitting || !isValid || !dirty}
+                      onClick={e => {
+                        handleSubmit(e);
+                      }}
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                    >
+                      Create Customer
+                    </Button>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </div>
+        
+        )}
       </Layout>
     );
   }

@@ -45,54 +45,54 @@ class Home extends React.Component {
     return (
 
       <Layout title="Dashboard">
-        <div className={classes.root}>
+        {(open) => (
+          <div className={classes.root}>
+            <Grid container spacing={16} style={{height: "100%"}}>
+              {/* <Grid item xs={6} sm={3} >
+                <Link component={RouterLink} to="/users" className={classes.link}>
+                  <Card>
+                    <CardContent className={classes.card}>
+                      <UserIcon className={classes.icon} color="primary" />
+                      <Typography component="p" variant="h6">Users</Typography>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </Grid> */}
+              <Grid item xs={8} style={{margin: "15px auto"}}>
+                <TextField
+                  name="project_id"
+                  select
+                  required
+                  value={projectId}
+                  label="Project"
+                  disabled={loading}
+                  fullWidth
+                  onChange={ e => {
+                    this.setState({projectId: e.target.value})
+                    this.props.getInfoProject(e.target.value)
+                  }}
+                >
+                  {projects.map(project => {
+                  return (
+                    <MenuItem key={project.id} value={project.id}>
+                      {project.name}
+                    </MenuItem>
+                  );
+                })}
+                </TextField>
+              </Grid>
+              { projectId && !loading ? (
+                <MapBox projectId={projectId} open={open}/>
+              ) : null}
+              {projectId === "" ? (
+                <div className={classes.divEmpty}>
+                  SELECT A PROJECT
+                </div>
+              ) : null}
 
-
-          <Grid container spacing={16} style={{height: "100%"}}>
-            {/* <Grid item xs={6} sm={3} >
-              <Link component={RouterLink} to="/users" className={classes.link}>
-                <Card>
-                  <CardContent className={classes.card}>
-                    <UserIcon className={classes.icon} color="primary" />
-                    <Typography component="p" variant="h6">Users</Typography>
-                  </CardContent>
-                </Card>
-              </Link>
-            </Grid> */}
-            <Grid item xs={8} style={{margin: "15px auto"}}>
-              <TextField
-                name="project_id"
-                select
-                required
-                value={projectId}
-                label="Project"
-                disabled={loading}
-                fullWidth
-                onChange={ e => {
-                  this.setState({projectId: e.target.value})
-                  this.props.getInfoProject(e.target.value)
-                }}
-              >
-                {projects.map(project => {
-                return (
-                  <MenuItem key={project.id} value={project.id}>
-                    {project.name}
-                  </MenuItem>
-                );
-              })}
-              </TextField>
             </Grid>
-            { projectId && !loading ? (
-              <MapBox projectId={projectId}/>
-            ) : null}
-            {projectId === "" ? (
-              <div className={classes.divEmpty}>
-                SELECT A PROJECT
-              </div>
-            ) : null}
-
-          </Grid>
-        </div>
+          </div>
+        )}
       </Layout>
     )
   }

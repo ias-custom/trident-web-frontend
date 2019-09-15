@@ -80,6 +80,9 @@ const styles = theme => ({
   dialog: {
     width: 450
   },
+  breadcrumbs: {
+    marginTop: 20
+  }
 });
 
 export default styles;

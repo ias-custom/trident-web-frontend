@@ -117,7 +117,9 @@ class UserList extends React.Component {
 
     return (
       <Layout title="Users">
-        <Dialog
+        {() => (
+          <div>
+            <Dialog
           open={open}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -150,106 +152,109 @@ class UserList extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 
-          <Panel>
-            <div
-              className={
-                canCreateUser || is_superuser
-                  ? classes.header
-                  : classes.headerRight
-              }
-            >
-              {canCreateUser || is_superuser ? (
-                <Link component={RouterLink} color="inherit" to="/users/create">
-                  <Button variant="outlined" color="primary">
-                    Create User
-                  </Button>
-                </Link>
-              ) : null}
-              <Input
-                style={{ width: 300 }}
-                defaultValue=""
-                className={classes.search}
-                inputProps={{
-                  placeholder: "Search...",
-                  onChange: this.handleSearch
-                }}
-              />
-            </div>
+              <Panel>
+                <div
+                  className={
+                    canCreateUser || is_superuser
+                      ? classes.header
+                      : classes.headerRight
+                  }
+                >
+                  {canCreateUser || is_superuser ? (
+                    <Link component={RouterLink} color="inherit" to="/users/create">
+                      <Button variant="outlined" color="primary">
+                        Create User
+                      </Button>
+                    </Link>
+                  ) : null}
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
 
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell align="left">Email</TableCell>
-                  <TableCell align="left">Username</TableCell>
-                  <TableCell align="left">Status</TableCell>
-                  <TableCell align="left">Role</TableCell>
-                  <TableCell align="left">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.filter(users, search).map(user => (
-                  <TableRow key={user.id}>
-                    <TableCell component="th" scope="row">
-                      {user.first_name || " "} {user.middle_name || " "}{" "}
-                      {user.last_name || ""}
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>
-                      {user.is_active ? (
-                        <Typography color="primary">Active</Typography>
-                      ) : (
-                        <Typography color="secondary">Inactive</Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>{user.role ? user.role.label : "-"}</TableCell>
-                    <TableCell align="center">
-                      <div style={{ display: "flex" }}>
-                        {canChangeUser || is_superuser ? (
-                          <Link component={RouterLink} to={`/users/${user.id}`}>
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell align="left">Email</TableCell>
+                      <TableCell align="left">Username</TableCell>
+                      <TableCell align="left">Status</TableCell>
+                      <TableCell align="left">Role</TableCell>
+                      <TableCell align="left">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.filter(users, search).map(user => (
+                      <TableRow key={user.id}>
+                        <TableCell component="th" scope="row">
+                          {user.first_name || " "} {user.middle_name || " "}{" "}
+                          {user.last_name || ""}
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.username}</TableCell>
+                        <TableCell>
+                          {user.is_active ? (
+                            <Typography color="primary">Active</Typography>
+                          ) : (
+                            <Typography color="secondary">Inactive</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>{user.role ? user.role.label : "-"}</TableCell>
+                        <TableCell align="center">
+                          <div style={{ display: "flex" }}>
+                            {canChangeUser || is_superuser ? (
+                              <Link component={RouterLink} to={`/users/${user.id}`}>
+                                <IconButton
+                                  aria-label="Edit"
+                                  color="primary"
+                                  disabled={loading}
+                                >
+                                  <Edit />
+                                </IconButton>
+                              </Link>
+                            ) : (
+                              <IconButton
+                                aria-label="Edit"
+                                color="primary"
+                                disabled={
+                                  loading || !canChangeUser || !is_superuser
+                                }
+                              >
+                                <Edit />
+                              </IconButton>
+                            )}
                             <IconButton
                               aria-label="Edit"
-                              color="primary"
-                              disabled={loading}
+                              className={classes.iconDelete}
+                              disabled={
+                                auth.id === user.id ||
+                                loading ||
+                                (!canDeleteUser && !is_superuser)
+                              }
+                              onClick={() => this.showModal(user.id)}
                             >
-                              <Edit />
+                              <Delete />
                             </IconButton>
-                          </Link>
-                        ) : (
-                          <IconButton
-                            aria-label="Edit"
-                            color="primary"
-                            disabled={
-                              loading || !canChangeUser || !is_superuser
-                            }
-                          >
-                            <Edit />
-                          </IconButton>
-                        )}
-                        <IconButton
-                          aria-label="Edit"
-                          className={classes.iconDelete}
-                          disabled={
-                            auth.id === user.id ||
-                            loading ||
-                            (!canDeleteUser && !is_superuser)
-                          }
-                          onClick={() => this.showModal(user.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Panel>
-        </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Panel>
+            </div>
+          </div>
+        )}
+        
       </Layout>
     );
   }

@@ -283,8 +283,10 @@ class StructureEdit extends React.Component {
     } = this.state;
 
     return (
-      <Layout title="Projects">
-        <Dialog
+      <Layout title="Projects">(
+        {() => (
+          <div>
+            <Dialog
           open={open}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -317,215 +319,217 @@ class StructureEdit extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog
-          open={openInteraction}
-          classes={{ paper: classes.dialog }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() => this.closeModal("openInteraction")}
-          onEscapeKeyDown={() => this.closeModal("openInteraction")}
-        >
-          <DialogTitle id="alert-dialog-title">{"Add interaction"}</DialogTitle>
-          <DialogContent>
-            <TextField
-              name="description"
-              multiline
-              rows="5"
-              label="Description"
-              value={interactionDescription}
-              onChange={e => {
-                const value = e.target.value;
-                this.setState({ interactionDescription: value });
-              }}
-              margin="normal"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.closeModal("openInteraction")}
+            <Dialog
+              open={openInteraction}
+              classes={{ paper: classes.dialog }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() => this.closeModal("openInteraction")}
+              onEscapeKeyDown={() => this.closeModal("openInteraction")}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.addInteraction}
-              disabled={loading || interactionDescription.length === 0}
-            >
-              Add Interaction
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={this.breadcrumbs} />
-          <Typography component="h1" variant="h5">
-            {formGeneral.name}
-          </Typography>
-          <Grid className={classes.divTabs}>
-            <Tabs
-              value={value}
-              onChange={(e, newValue) => {
-                this.handleChange(e, newValue);
-              }}
-              indicatorColor="primary"
-              textColor="primary"
-              variant="fullWidth"
-            >
-              <Tab label="General" />
-              <Tab label="Equipment" />
-              <Tab label="Photos" />
-              <Tab label="Interactions" />
-            </Tabs>
-          </Grid>
-          <Panel>
-            <SwipeableViews
-              index={value}
-              onChangeIndex={this.handleChangeIndex}
-              slideStyle={{ overflowX: "hidden", overflowY: "hidden" }}
-            >
-              <Grid>
-                <Formik
-                  onSubmit={this.update}
-                  validateOnChange
-                  enableReinitialize
-                  ref={this.formikGeneral}
-                  initialValues={{
-                    ...formGeneral
+              <DialogTitle id="alert-dialog-title">{"Add interaction"}</DialogTitle>
+              <DialogContent>
+                <TextField
+                  name="description"
+                  multiline
+                  rows="5"
+                  label="Description"
+                  value={interactionDescription}
+                  onChange={e => {
+                    const value = e.target.value;
+                    this.setState({ interactionDescription: value });
                   }}
-                  validationSchema={Yup.object().shape({
-                    name: Yup.string().required("Name is required"),
-                    stateId: Yup.mixed().required("State is required"),
-                    latitude: Yup.string().required("Latitude is required"),
-                    longitude: Yup.string().required("Longitude is required")
-                  })}
-                >
-                  {props => {
-                    const {
-                      isSubmitting,
-                      values,
-                      isValid,
-                      dirty,
-                      errors,
-                      touched,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit
-                    } = props;
-
-                    return (
-                      <FormStructureEdit
-                        dirty={dirty}
-                        values={values}
-                        isValid={isValid}
-                        touched={touched}
-                        errors={errors}
-                        isSubmitting={isSubmitting}
-                        handleChange={handleChange}
-                        handleBlur={handleBlur}
-                        handleSubmit={handleSubmit}
-                        projectId={this.projectId}
-                        isModal={false}
-                      />
-                    );
-                  }}
-                </Formik>
-              </Grid>
-              <Grid style={{ height: "100%" }}>
-                <Equipment
-                  inspection_id={inspection_id}
-                  projectId={this.projectId}
-                  isStructure={true}
-                  itemId={parseInt(this.structureId)}
-                  inspectionName={inspection_name}
-                  changeName={newName =>
-                    this.setState({ inspection_name: newName })
-                  }
-                  changeId={id => this.setState({ inspection_id: id })}
-                ></Equipment>
-              </Grid>
-              <Grid style={{ overflow: "hidden" }}>
-                <PhotosList
-                  photos={photos}
-                  isStructure={true}
-                  itemId={parseInt(this.structureId)}
+                  margin="normal"
+                  fullWidth
                 />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => this.closeModal("openInteraction")}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.addInteraction}
+                  disabled={loading || interactionDescription.length === 0}
+                >
+                  Add Interaction
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={this.breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+              <Typography component="h1" variant="h5">
+                {formGeneral.name}
+              </Typography>
+              <Grid className={classes.divTabs}>
+                <Tabs
+                  value={value}
+                  onChange={(e, newValue) => {
+                    this.handleChange(e, newValue);
+                  }}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  variant="fullWidth"
+                >
+                  <Tab label="General" />
+                  <Tab label="Equipment" />
+                  <Tab label="Photos" />
+                  <Tab label="Interactions" />
+                </Tabs>
               </Grid>
-              <Grid>
-                <div className={classes.header}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => this.showModal("openInteraction", null)}
-                  >
-                    Add Interaction
-                  </Button>
-                  <Input
-                    style={{ width: 300 }}
-                    defaultValue=""
-                    className={classes.search}
-                    inputProps={{
-                      placeholder: "Search...",
-                      onChange: this.handleSearch
-                    }}
-                  />
-                </div>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Description</TableCell>
-                      <TableCell>User</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {this.filter(interactions, search).map(interaction => (
-                      <TableRow key={interaction.id}>
-                        <TableCell
-                          component="td"
-                          className={classes.cellDescription}
-                        >
-                          {interaction.description}
-                        </TableCell>
-                        <TableCell component="td">
-                          {interaction.user.first_name}{" "}
-                          {interaction.user.last_name}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={loading}
-                              onClick={() =>
-                                this.showModal("open", interaction.id)
-                              }
+              <Panel>
+                <SwipeableViews
+                  index={value}
+                  onChangeIndex={this.handleChangeIndex}
+                  slideStyle={{ overflowX: "hidden", overflowY: "hidden" }}
+                >
+                  <Grid>
+                    <Formik
+                      onSubmit={this.update}
+                      validateOnChange
+                      enableReinitialize
+                      ref={this.formikGeneral}
+                      initialValues={{
+                        ...formGeneral
+                      }}
+                      validationSchema={Yup.object().shape({
+                        name: Yup.string().required("Name is required"),
+                        stateId: Yup.mixed().required("State is required"),
+                        latitude: Yup.string().required("Latitude is required"),
+                        longitude: Yup.string().required("Longitude is required")
+                      })}
+                    >
+                      {props => {
+                        const {
+                          isSubmitting,
+                          values,
+                          isValid,
+                          dirty,
+                          errors,
+                          touched,
+                          handleChange,
+                          handleBlur,
+                          handleSubmit
+                        } = props;
+
+                        return (
+                          <FormStructureEdit
+                            dirty={dirty}
+                            values={values}
+                            isValid={isValid}
+                            touched={touched}
+                            errors={errors}
+                            isSubmitting={isSubmitting}
+                            handleChange={handleChange}
+                            handleBlur={handleBlur}
+                            handleSubmit={handleSubmit}
+                            projectId={this.projectId}
+                            isModal={false}
+                          />
+                        );
+                      }}
+                    </Formik>
+                  </Grid>
+                  <Grid style={{ height: "100%" }}>
+                    <Equipment
+                      inspection_id={inspection_id}
+                      projectId={this.projectId}
+                      isStructure={true}
+                      itemId={parseInt(this.structureId)}
+                      inspectionName={inspection_name}
+                      changeName={newName =>
+                        this.setState({ inspection_name: newName })
+                      }
+                      changeId={id => this.setState({ inspection_id: id })}
+                    ></Equipment>
+                  </Grid>
+                  <Grid style={{ overflow: "hidden" }}>
+                    <PhotosList
+                      photos={photos}
+                      isStructure={true}
+                      itemId={parseInt(this.structureId)}
+                    />
+                  </Grid>
+                  <Grid>
+                    <div className={classes.header}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => this.showModal("openInteraction", null)}
+                      >
+                        Add Interaction
+                      </Button>
+                      <Input
+                        style={{ width: 300 }}
+                        defaultValue=""
+                        className={classes.search}
+                        inputProps={{
+                          placeholder: "Search...",
+                          onChange: this.handleSearch
+                        }}
+                      />
+                    </div>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Description</TableCell>
+                          <TableCell>User</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {this.filter(interactions, search).map(interaction => (
+                          <TableRow key={interaction.id}>
+                            <TableCell
+                              component="td"
+                              className={classes.cellDescription}
                             >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {interactions.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T INTERACTIONS
-                  </Typography>
-                ) : null}
-              </Grid>
-            </SwipeableViews>
-          </Panel>
-        </div>
+                              {interaction.description}
+                            </TableCell>
+                            <TableCell component="td">
+                              {interaction.user.first_name}{" "}
+                              {interaction.user.last_name}
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <IconButton
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.showModal("open", interaction.id)
+                                  }
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    {interactions.length === 0 ? (
+                      <Typography
+                        variant="display1"
+                        align="center"
+                        className={classes.emptyText}
+                      >
+                        THERE AREN'T INTERACTIONS
+                      </Typography>
+                    ) : null}
+                  </Grid>
+                </SwipeableViews>
+              </Panel>
+            </div>
+          </div>
+        )}
       </Layout>
     );
   }

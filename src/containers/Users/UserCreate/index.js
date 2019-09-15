@@ -118,274 +118,277 @@ class UserCreate extends React.Component {
 
     return (
       <Layout title="Create User">
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-          <Formik
-            onSubmit={this.handleSubmit}
-            validateOnChange
-            initialValues={{
-              ...this.form
-            }}
-            validationSchema={Yup.object().shape({
-              email: Yup.string()
-                .email("Must be a valid mail")
-                .required("Email is required"),
-              first_name: Yup.string().required("First name is required"),
-              last_name: Yup.string().required("Last name is required"),
-              password: Yup.string()
-                .min(8)
-                .required("Password is required"),
-              username: Yup.string().required("Username is required"),
-              role_id: Yup.mixed().required("Role is required"),
-              customersId: Yup.array()
-                .min(1, "Select at least one customer")
-                .required("Customer is required")
-            })}
-          >
-            {props => {
-              const {
-                isSubmitting,
-                values,
-                isValid,
-                dirty,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit
-              } = props;
+        {() => (
+          <div className={classes.root}>
+            <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+            <Formik
+              onSubmit={this.handleSubmit}
+              validateOnChange
+              initialValues={{
+                ...this.form
+              }}
+              validationSchema={Yup.object().shape({
+                email: Yup.string()
+                  .email("Must be a valid mail")
+                  .required("Email is required"),
+                first_name: Yup.string().required("First name is required"),
+                last_name: Yup.string().required("Last name is required"),
+                password: Yup.string()
+                  .min(8)
+                  .required("Password is required"),
+                username: Yup.string().required("Username is required"),
+                role_id: Yup.mixed().required("Role is required"),
+                customersId: Yup.array()
+                  .min(1, "Select at least one customer")
+                  .required("Customer is required")
+              })}
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
 
-              return (
-                <Form onSubmit={this.handleSubmit}>
-                  <Prompt
-                    when={dirty}
-                    message="Are you sure you want to leave?, You will lose your changes"
-                  />
-                  <Grid container>
-                    <Grid item sm={12} md={12}>
-                      <Panel>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="first_name"
-                              value={values.first_name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={
-                                !!touched.first_name && !!errors.first_name
-                              }
-                              helperText={
-                                !!touched.first_name &&
-                                !!errors.first_name &&
-                                errors.first_name
-                              }
-                              label="First Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              label="Last Name"
-                              name="last_name"
-                              value={values.last_name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.last_name && !!errors.last_name}
-                              helperText={
-                                !!touched.last_name &&
-                                !!errors.last_name &&
-                                errors.last_name
-                              }
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                        </Grid>
-
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              label="Username"
-                              name="username"
-                              value={values.username}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.username && !!errors.username}
-                              helperText={
-                                !!touched.username &&
-                                !!errors.username &&
-                                errors.username
-                              }
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              label="Email"
-                              name="email"
-                              value={values.email}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.email && !!errors.email}
-                              helperText={
-                                !!touched.email &&
-                                !!errors.email &&
-                                errors.email
-                              }
-                              fullWidth
-                              margin="normal"
-                              type="email"
-                              required
-                            />
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              label="Password"
-                              name="password"
-                              value={values.password}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.password && !!errors.password}
-                              helperText={
-                                !!touched.password &&
-                                !!errors.password &&
-                                errors.password
-                              }
-                              fullWidth
-                              margin="normal"
-                              type="password"
-                              required
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              name="role_id"
-                              select
-                              label="Roles"
-                              value={values.role_id}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.role_id && !!errors.role_id}
-                              helperText={
-                                !!touched.role_id &&
-                                !!errors.role_id &&
-                                errors.role_id
-                              }
-                              margin="normal"
-                              fullWidth
-                            >
-                              {roles.map(role => {
-                                return (
-                                  <MenuItem key={role.id} value={role.id}>
-                                    {role.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <FormControl fullWidth margin="normal">
-                              <InputLabel
-                                htmlFor="select-multiple-chip"
-                                error={
-                                  !!touched.customersId && !!errors.customersId
-                                }
-                              >
-                                Customers
-                              </InputLabel>
-                              <Select
-                                multiple
-                                name="customersId"
-                                value={values.customersId}
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container>
+                      <Grid item sm={12} md={12}>
+                        <Panel>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                name="first_name"
+                                value={values.first_name}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 error={
-                                  !!touched.customersId && !!errors.customersId
+                                  !!touched.first_name && !!errors.first_name
                                 }
-                                input={<Input id="select-multiple-chip" />}
-                                renderValue={selected => (
-                                  <div className={classes.chips}>
-                                    {selected.map(({ id, name }) => (
-                                      <Chip
-                                        key={id}
-                                        label={name}
-                                        className={classes.chip}
-                                      />
-                                    ))}
-                                  </div>
-                                )}
+                                helperText={
+                                  !!touched.first_name &&
+                                  !!errors.first_name &&
+                                  errors.first_name
+                                }
+                                label="First Name"
+                                fullWidth
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
+                            <Grid item xs>
+                              <TextField
+                                label="Last Name"
+                                name="last_name"
+                                value={values.last_name}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.last_name && !!errors.last_name}
+                                helperText={
+                                  !!touched.last_name &&
+                                  !!errors.last_name &&
+                                  errors.last_name
+                                }
+                                fullWidth
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
+                          </Grid>
+
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                label="Username"
+                                name="username"
+                                value={values.username}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.username && !!errors.username}
+                                helperText={
+                                  !!touched.username &&
+                                  !!errors.username &&
+                                  errors.username
+                                }
+                                fullWidth
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
+                            <Grid item xs>
+                              <TextField
+                                label="Email"
+                                name="email"
+                                value={values.email}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.email && !!errors.email}
+                                helperText={
+                                  !!touched.email &&
+                                  !!errors.email &&
+                                  errors.email
+                                }
+                                fullWidth
+                                margin="normal"
+                                type="email"
+                                required
+                              />
+                            </Grid>
+                          </Grid>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                label="Password"
+                                name="password"
+                                value={values.password}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.password && !!errors.password}
+                                helperText={
+                                  !!touched.password &&
+                                  !!errors.password &&
+                                  errors.password
+                                }
+                                fullWidth
+                                margin="normal"
+                                type="password"
+                                required
+                              />
+                            </Grid>
+                            <Grid item xs>
+                              <TextField
+                                name="role_id"
+                                select
+                                label="Roles"
+                                value={values.role_id}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.role_id && !!errors.role_id}
+                                helperText={
+                                  !!touched.role_id &&
+                                  !!errors.role_id &&
+                                  errors.role_id
+                                }
+                                margin="normal"
                                 fullWidth
                               >
-                                {customers.map(customer => (
-                                  <MenuItem key={customer.id} value={customer}>
-                                    <Checkbox
-                                      checked={
-                                        !!values.customersId.find(
-                                          c => c.id === customer.id
-                                        )
-                                      }
-                                    />
-                                    <ListItemText primary={customer.name} />
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                              <FormHelperText
-                                error={
-                                  !!touched.customersId && !!errors.customersId
-                                }
-                              >
-                                {!!touched.customersId &&
-                                  !!errors.customersId &&
-                                  errors.customersId}
-                              </FormHelperText>
-                            </FormControl>
+                                {roles.map(role => {
+                                  return (
+                                    <MenuItem key={role.id} value={role.id}>
+                                      {role.name}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </TextField>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <FormControlLabel
-                              control={
-                                <Checkbox
-                                  checked={values.enterApp}
-                                  name="enterApp"
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <FormControl fullWidth margin="normal">
+                                <InputLabel
+                                  htmlFor="select-multiple-chip"
+                                  error={
+                                    !!touched.customersId && !!errors.customersId
+                                  }
+                                >
+                                  Customers
+                                </InputLabel>
+                                <Select
+                                  multiple
+                                  name="customersId"
+                                  value={values.customersId}
                                   onChange={handleChange}
-                                />
-                              }
-                              label="Has access to the mobile application"
-                            />
+                                  onBlur={handleBlur}
+                                  error={
+                                    !!touched.customersId && !!errors.customersId
+                                  }
+                                  input={<Input id="select-multiple-chip" />}
+                                  renderValue={selected => (
+                                    <div className={classes.chips}>
+                                      {selected.map(({ id, name }) => (
+                                        <Chip
+                                          key={id}
+                                          label={name}
+                                          className={classes.chip}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+                                  fullWidth
+                                >
+                                  {customers.map(customer => (
+                                    <MenuItem key={customer.id} value={customer}>
+                                      <Checkbox
+                                        checked={
+                                          !!values.customersId.find(
+                                            c => c.id === customer.id
+                                          )
+                                        }
+                                      />
+                                      <ListItemText primary={customer.name} />
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                <FormHelperText
+                                  error={
+                                    !!touched.customersId && !!errors.customersId
+                                  }
+                                >
+                                  {!!touched.customersId &&
+                                    !!errors.customersId &&
+                                    errors.customersId}
+                                </FormHelperText>
+                              </FormControl>
+                            </Grid>
                           </Grid>
-                        </Grid>
-                      </Panel>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={values.enterApp}
+                                    name="enterApp"
+                                    onChange={handleChange}
+                                  />
+                                }
+                                label="Has access to the mobile application"
+                              />
+                            </Grid>
+                          </Grid>
+                        </Panel>
+                      </Grid>
                     </Grid>
-                  </Grid>
 
-                  <br />
+                    <br />
 
-                  <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
-                    onClick={e => {
-                      handleSubmit(e);
-                    }}
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >
-                    Create User
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </div>
+                    <Button
+                      disabled={loading || isSubmitting || !isValid || !dirty}
+                      onClick={e => {
+                        handleSubmit(e);
+                      }}
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                    >
+                      Create User
+                    </Button>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </div>
+        )}
+        
       </Layout>
     );
   }

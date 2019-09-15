@@ -28,6 +28,9 @@ const styles = theme => {
   },
   inputImage: {
     width: '100%'
+  },
+  breadcrumbs: {
+    marginTop: 20
   }
 
 });

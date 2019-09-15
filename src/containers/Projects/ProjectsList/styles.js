@@ -58,6 +58,9 @@ const styles = theme => ({
   emptyText: {
     margin: "50px 0 20px 0",
     color: "#c5c5c5"
+  },
+  breadcrumbs: {
+    marginTop: 20
   }
 });
 

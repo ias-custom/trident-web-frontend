@@ -90,134 +90,135 @@ class ProjectCreate extends React.Component {
 
     return (
       <Layout title="Create Role">
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-
-          <Formik
-            onSubmit={this.handleSubmit}
-            validateOnChange
-            initialValues={{
-              ...this.form
-            }}
-            validationSchema={Yup.object().shape({
-              name: Yup.string().required("Name is required")
-            })}
-            enableReinitialize
-          >
-            {props => {
-              const {
-                isSubmitting,
-                values,
-                isValid,
-                dirty,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit
-              } = props;
-
-              return (
-                <Form onSubmit={this.handleSubmit}>
-                  <Prompt
-                    when={dirty}
-                    message="Are you sure you want to leave?, You will lose your changes"
-                  />
-                  <Grid container>
-                    <Grid item sm={12} md={12}>
-                      <Panel>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="name"
-                              value={values.name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.name && !!errors.name}
-                              helperText={
-                                !!touched.name && !!errors.name && errors.name
-                              }
-                              label="Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                          {/* <Grid item xs>
-                            <TextField
-                              name="area"
-                              value={values.area}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              label="Area"
-                              fullWidth
-                              margin="normal"
-                            />
-                          </Grid> */}
-                        </Grid>
-
-                        {/* <Grid container spacing={16}>
-                          <Grid item xs>
-                            <FormControl fullWidth margin="normal">
-                              <InputLabel>Tags</InputLabel>
-                              <Select
-                                multiple
-                                name="tagsId"
-                                value={values.tagsId}
+        {() => (
+          <div className={classes.root}>
+            <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+            <Formik
+              onSubmit={this.handleSubmit}
+              validateOnChange
+              initialValues={{
+                ...this.form
+              }}
+              validationSchema={Yup.object().shape({
+                name: Yup.string().required("Name is required")
+              })}
+              enableReinitialize
+            >
+              {props => {
+                const {
+                  isSubmitting,
+                  values,
+                  isValid,
+                  dirty,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit
+                } = props;
+  
+                return (
+                  <Form onSubmit={this.handleSubmit}>
+                    <Prompt
+                      when={dirty}
+                      message="Are you sure you want to leave?, You will lose your changes"
+                    />
+                    <Grid container>
+                      <Grid item sm={12} md={12}>
+                        <Panel>
+                          <Grid container spacing={16}>
+                            <Grid item xs>
+                              <TextField
+                                name="name"
+                                value={values.name}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                input={<Input id="select-multiple-chip" />}
-                                renderValue={selected => (
-                                  <div className={classes.chips}>
-                                    {selected.map(({ id, name }) => (
-                                      <Chip
-                                        key={id}
-                                        label={name}
-                                        className={classes.chip}
-                                      />
-                                    ))}
-                                  </div>
-                                )}
+                                error={!!touched.name && !!errors.name}
+                                helperText={
+                                  !!touched.name && !!errors.name && errors.name
+                                }
+                                label="Name"
                                 fullWidth
-                              >
-                                {tags.map(tag => (
-                                  <MenuItem key={tag.id} value={tag}>
-                                    <Checkbox
-                                      checked={
-                                        !!values.tagsId.find(
-                                          c => c.id === tag.id
-                                        )
-                                      }
-                                    />
-                                    <ListItemText primary={tag.name} />
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
+                                margin="normal"
+                                required
+                              />
+                            </Grid>
+                            {/* <Grid item xs>
+                              <TextField
+                                name="area"
+                                value={values.area}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                label="Area"
+                                fullWidth
+                                margin="normal"
+                              />
+                            </Grid> */}
                           </Grid>
-                        </Grid> */}
-                      </Panel>
+  
+                          {/* <Grid container spacing={16}>
+                            <Grid item xs>
+                              <FormControl fullWidth margin="normal">
+                                <InputLabel>Tags</InputLabel>
+                                <Select
+                                  multiple
+                                  name="tagsId"
+                                  value={values.tagsId}
+                                  onChange={handleChange}
+                                  onBlur={handleBlur}
+                                  input={<Input id="select-multiple-chip" />}
+                                  renderValue={selected => (
+                                    <div className={classes.chips}>
+                                      {selected.map(({ id, name }) => (
+                                        <Chip
+                                          key={id}
+                                          label={name}
+                                          className={classes.chip}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+                                  fullWidth
+                                >
+                                  {tags.map(tag => (
+                                    <MenuItem key={tag.id} value={tag}>
+                                      <Checkbox
+                                        checked={
+                                          !!values.tagsId.find(
+                                            c => c.id === tag.id
+                                          )
+                                        }
+                                      />
+                                      <ListItemText primary={tag.name} />
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                          </Grid> */}
+                        </Panel>
+                      </Grid>
                     </Grid>
-                  </Grid>
-
-                  <br />
-
-                  <Button
-                    disabled={loading || isSubmitting || !isValid || !dirty}
-                    onClick={e => {
-                      handleSubmit(e);
-                    }}
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >
-                    Create Project
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </div>
+  
+                    <br />
+  
+                    <Button
+                      disabled={loading || isSubmitting || !isValid || !dirty}
+                      onClick={e => {
+                        handleSubmit(e);
+                      }}
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                    >
+                      Create Project
+                    </Button>
+                  </Form>
+                );
+              }}
+            </Formik>
+          </div>
+        )}
       </Layout>
     );
   }

@@ -117,125 +117,129 @@ class ProjectsList extends React.Component {
 
     return (
       <Layout title="Projects">
-        <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={this.closeModal}
-          onEscapeKeyDown={this.closeModal}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete the role it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={this.closeModal}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-
-          <Panel>
-            <div
-              className={
-                canCreateProject || is_superuser
-                  ? classes.header
-                  : classes.headerRight
-              }
-            >
-              {canCreateProject || is_superuser ? (
-                <Link component={RouterLink} color="inherit" to="/projects/create">
-                  <Button variant="outlined" color="primary">
-                    Create Project
-                  </Button>
-                </Link>
-              ) : null}
-              <Input
-                style={{ width: 300 }}
-                defaultValue=""
-                className={classes.search}
-                inputProps={{
-                  placeholder: "Search...",
-                  onChange: this.handleSearch
-                }}
-              />
-            </div>
-
-            <Table className={classes.table}>
-              <TableHead>
-                <TableRow>
-                  <TableCell style={{ width: "80%" }}>Name</TableCell>
-                  <TableCell colSpan={1}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.filter(projects, search).map(project => (
-                  <TableRow key={project.id}>
-                    <TableCell component="td" style={{ width: "80%" }}>
-                      {project.name}
-                    </TableCell>
-                    <TableCell>
-                      <div style={{ display: "flex" }}>
-                        {canChangeProject || is_superuser ? (
-                          <Link component={RouterLink} to={`/projects/${project.id}`}>
+        {() => (
+          <div>
+            <Dialog
+            open={open}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            onBackdropClick={this.closeModal}
+            onEscapeKeyDown={this.closeModal}
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Are you sure you want to delete?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                If you delete the role it will be permanently.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                className={classes.buttonCancel}
+                onClick={this.closeModal}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.buttonAccept}
+                onClick={this.handleDelete}
+              >
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
+            <div className={classes.root}>
+              <SimpleBreadcrumbs routes={breadcrumbs} />
+    
+              <Panel>
+                <div
+                  className={
+                    canCreateProject || is_superuser
+                      ? classes.header
+                      : classes.headerRight
+                  }
+                >
+                  {canCreateProject || is_superuser ? (
+                    <Link component={RouterLink} color="inherit" to="/projects/create">
+                      <Button variant="outlined" color="primary">
+                        Create Project
+                      </Button>
+                    </Link>
+                  ) : null}
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: this.handleSearch
+                    }}
+                  />
+                </div>
+    
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell style={{ width: "80%" }}>Name</TableCell>
+                      <TableCell colSpan={1}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {this.filter(projects, search).map(project => (
+                      <TableRow key={project.id}>
+                        <TableCell component="td" style={{ width: "80%" }}>
+                          {project.name}
+                        </TableCell>
+                        <TableCell>
+                          <div style={{ display: "flex" }}>
+                            {canChangeProject || is_superuser ? (
+                              <Link component={RouterLink} to={`/projects/${project.id}`}>
+                                <IconButton
+                                  aria-label="Edit"
+                                  color="primary"
+                                  disabled={loading}
+                                >
+                                  <Edit />
+                                </IconButton>
+                              </Link>
+                            ) : (
+                              <IconButton
+                                aria-label="Edit"
+                                color="primary"
+                                disabled={
+                                  loading || !canChangeProject || !is_superuser
+                                }
+                              >
+                                <Edit />
+                              </IconButton>
+                            )}
                             <IconButton
-                              aria-label="Edit"
-                              color="primary"
-                              disabled={loading}
+                              aria-label="Delete"
+                              className={classes.iconDelete}
+                              disabled={
+                                loading || (!canDeleteProject && !is_superuser)
+                              }
+                              onClick={() => this.showModal(project.id)}
                             >
-                              <Edit />
+                              <Delete />
                             </IconButton>
-                          </Link>
-                        ) : (
-                          <IconButton
-                            aria-label="Edit"
-                            color="primary"
-                            disabled={
-                              loading || !canChangeProject || !is_superuser
-                            }
-                          >
-                            <Edit />
-                          </IconButton>
-                        )}
-                        <IconButton
-                          aria-label="Delete"
-                          className={classes.iconDelete}
-                          disabled={
-                            loading || (!canDeleteProject && !is_superuser)
-                          }
-                          onClick={() => this.showModal(project.id)}
-                        >
-                          <Delete />
-                        </IconButton>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            {projects.length === 0 ? (
-              <Typography variant="display1" align="center" className={classes.emptyText}>THERE AREN'T PROJECTS</Typography>
-            ): null}
-          </Panel>
-        </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {projects.length === 0 ? (
+                  <Typography variant="display1" align="center" className={classes.emptyText}>THERE AREN'T PROJECTS</Typography>
+                ): null}
+              </Panel>
+            </div>
+          </div>
+        )}
       </Layout>
     );
   }
