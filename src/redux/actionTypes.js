@@ -53,6 +53,8 @@ export const GET_DEFICIENCIES = 'GET_DEFICIENCIES';
 export const GET_MARKINGS_TYPES = 'GET_MARKINGS_TYPES';
 export const GET_ACCESS_TYPES = 'GET_ACCESS_TYPES';
 export const GET_ACCESS_TYPE_DETAILS = 'GET_ACCESS_TYPE_DETAILS';
+export const SET_LATITUDE = 'SET_LATITUDE';
+export const SET_LONGITUDE = 'SET_LONGITUDE';
 
 // Structures
 export const GET_STRUCTURES = 'GET_STRUCTURES';
@@ -64,6 +66,7 @@ export const GET_INTERACTIONS = 'GET_INTERACTIONS';
 export const GET_ITEMS_STRUCTURE = 'GET_ITEMS_STRUCTURE';
 
 // Spams
+export const GET_SPAN = 'GET_SPAN';
 export const GET_SPANS = 'GET_SPANS';
 export const CREATE_SPAM = 'CREATE_SPAM';
 export const UPDATE_SPAM = 'UPDATE_SPAM';

@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import styles from "./styles";
-import MapGL, {
-  Marker,
-  Popup,
-  GeolocateControl,
-  NavigationControl
-} from "react-map-gl";
 import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
+import { setPoint } from "../../redux/actions/projectActions";
 import { fetchStructures } from "../../redux/actions/structureActions"
 import { fetchSpans } from "../../redux/actions/spanActions"
 import { withStyles, Grid, Button } from "@material-ui/core";
@@ -54,7 +49,6 @@ class MapBox extends React.Component {
       }, 180)
     }
   }
-  compo
 
   createMap () {
     this.map = new mapboxgl.Map({
@@ -225,12 +219,15 @@ class MapBox extends React.Component {
 
   confirmAddItem () {
     // CALL TO DISPATCH TO SET LAT AND LNG
+    const { lng, lat } = this.map.getCenter()
+    console.log(lng, lat)
+    this.props.setPoint(lat, lng)
     this.props.history.push(this.state.link)
   }
 
   render() {
     const { classes, projectId } = this.props;
-    const { addItem, isStructure, isSpan, isMarking, isAccess, itemValue } = this.state;
+    const { itemValue } = this.state;
     return (
       <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
         <div id="map" style={{ height: "100%", width: "100%" }}>
@@ -238,7 +235,7 @@ class MapBox extends React.Component {
             <Button
               variant="outlined"
               className={classes.buttonMenu}
-              onClick={() => this.setItem(1, `/projects/${projectId}/`)}
+              onClick={() => this.setItem(1, `/projects/${projectId}/structures/create`)}
             >
               Add structure {itemValue === 1 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
             </Button>
@@ -252,7 +249,7 @@ class MapBox extends React.Component {
             <Button
               variant="outlined"
               className={classes.buttonMenu}
-              onClick={() => this.setItem(3, `/projects/${projectId}/`)}
+              onClick={() => this.setItem(3, `/projects/${projectId}/markings/create`)}
             >
               Add marking {itemValue === 3 ? (<CheckCircle className={classes.iconButtonMenu}></CheckCircle>) : null}
             </Button>
@@ -314,7 +311,8 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   fetchStructures,
-  fetchSpans
+  fetchSpans,
+  setPoint
 };
 
 export default compose(

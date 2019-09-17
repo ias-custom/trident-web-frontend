@@ -5,13 +5,16 @@ import {
   GET_PHOTOS_SPAN,
   GET_ITEMS_SPAN,
   GET_MARKINGS,
-  GET_ACCESS
+  GET_ACCESS,
+  GET_SPAN
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
 const service = new SpanService();
 
 export const setLoading = loading => ({ type: ON_LOADING, loading });
+
+export const setSpan = spanId => ({ type: GET_SPAN, payload: spanId });
 
 export const getSpan = (projectId, spanId) => {
   return async dispatch => {

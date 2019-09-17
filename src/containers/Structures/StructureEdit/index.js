@@ -283,7 +283,7 @@ class StructureEdit extends React.Component {
     } = this.state;
 
     return (
-      <Layout title="Projects">(
+      <Layout title="Projects">
         {() => (
           <div>
             <Dialog
@@ -431,7 +431,7 @@ class StructureEdit extends React.Component {
                             handleBlur={handleBlur}
                             handleSubmit={handleSubmit}
                             projectId={this.projectId}
-                            isModal={false}
+                            isCreate={false}
                           />
                         );
                       }}

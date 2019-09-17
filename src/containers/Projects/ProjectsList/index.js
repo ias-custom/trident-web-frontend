@@ -153,7 +153,7 @@ class ProjectsList extends React.Component {
             </DialogActions>
           </Dialog>
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={breadcrumbs} />
+              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
     
               <Panel>
                 <div

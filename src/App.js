@@ -25,8 +25,11 @@ import ProjectEdit from "./containers/Projects/ProjectEdit";
 import ProjectCreate from "./containers/Projects/ProjectCreate";
 
 import StructureEdit from "./containers/Structures/StructureEdit";
+import StructureCreate from "./containers/Structures/StructureCreate";
 
 import SpamEdit from "./containers/Spams/SpamEdit";
+
+import MarkingCreate from "./containers/Spams/MarkingCreate";
 
 import PrivateRoute from './components/PrivateRoute';
 
@@ -96,11 +99,13 @@ class App extends Component {
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:id" component={ProjectEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
-
+          <PrivateRoute exact path="/projects/:projectId/structures/create" component={StructureCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/structures/:id" component={StructureEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
-
+          
           <PrivateRoute exact path="/projects/:projectId/spans/:id" component={SpamEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+
+          <PrivateRoute exact path="/projects/:projectId/markings/create" component={MarkingCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

@@ -52,13 +52,12 @@ import {
   updateItemCategory,
   getDeficiencies,
   addDeficiency,
-  deleteDeficiency
+  deleteDeficiency,
+  setPoint
 } from "../../../redux/actions/projectActions";
 import {
   fetchStructures,
-  deleteStructure,
-  addStructure,
-  addStructureType
+  deleteStructure
 } from "../../../redux/actions/structureActions";
 import {
   fetchSpans,
@@ -75,7 +74,6 @@ import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import FormStructureEdit from "../../../components/FormStructureEdit";
 import { FormSpanEdit } from "../../../components";
 
 const breadcrumbs = [
@@ -90,9 +88,7 @@ class ProjectEdit extends React.Component {
     openId: 0,
     open: false,
     openUser: false,
-    openStructure: false,
     openSpan: false,
-    openAddStructureType: false,
     openAddSpanType: false,
     openDeficiency: false,
     itemId: null,
@@ -101,14 +97,6 @@ class ProjectEdit extends React.Component {
     inputProjectName: "",
     editName: false,
     userSelected: "",
-    formStructure: {
-      name: "",
-      address: "",
-      stateId: "",
-      latitude: "",
-      longitude: "",
-      structureTypeId: ""
-    },
     formSpan: {
       number: "",
       structureStart: "",
@@ -240,18 +228,16 @@ class ProjectEdit extends React.Component {
         return;
       }
     }
-    if (item === "openAddStructureType") form["openStructure"] = false;
     if (item === "openAddSpanType") form["openSpan"] = false;
     this.setState(form);
   };
 
   closeModal(item, resetForm) {
     let form = { [item]: !this.state[item], userSelected: "" };
-    if (item === "openStructure" || item === "openSpan") {
+    if (item === "openSpan") {
       resetForm();
       form["formStructureOrSpanType"] = { name: "", description: "" };
     }
-    if (item === "openAddStructureType") form["openStructure"] = true;
     if (item === "openAddSpanType") form["openSpan"] = true;
     this.setState(form);
   }
@@ -309,29 +295,6 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  addStructureType = async () => {
-    const response = await this.props.addStructureType(
-      this.projectId,
-      this.state.formStructureOrSpanType
-    );
-    if (response.status === 200 || response.status === 201) {
-      this.closeModal("openAddStructureType", null);
-      this.setState({ formStructureOrSpanType: { name: "", description: "" } });
-      // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar(
-        "¡The structure type was added successfully!",
-        {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        }
-      );
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
-
   addSpanType = async () => {
     const response = await this.props.addSpanType(
       this.projectId,
@@ -350,47 +313,6 @@ class ProjectEdit extends React.Component {
         variant: "error"
       });
     }
-  };
-
-  addStructure = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const {
-      name,
-      stateId,
-      latitude,
-      longitude,
-      structureTypeId,
-      address
-    } = values;
-    const form = {
-      name,
-      state_id: stateId,
-      latitude,
-      longitude,
-      type_structure_id: structureTypeId,
-      address
-    };
-
-    try {
-      const response = await this.props.addStructure(this.projectId, form);
-
-      if (response.status === 201) {
-        this.closeModal("openStructure", resetForm);
-        this.props.enqueueSnackbar("The structure was added successfully!", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
-      } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
-          variant: "error"
-        });
-      }
-    } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setSubmitting(false);
-    this.props.setLoading(false);
   };
 
   addSpan = async (values, formikActions) => {
@@ -522,7 +444,6 @@ class ProjectEdit extends React.Component {
       open,
       openUser,
       openSpan,
-      openStructure,
       openAddStructureType,
       openAddSpanType,
       value,
@@ -531,7 +452,6 @@ class ProjectEdit extends React.Component {
       inputProjectName,
       userSelected,
       formSpan,
-      formStructure,
       formStructureOrSpanType,
       openId,
       openDeficiency,
@@ -719,78 +639,6 @@ class ProjectEdit extends React.Component {
               </DialogActions>
             </Dialog>
             <Formik
-              onSubmit={this.addStructure}
-              validateOnChange
-              enableReinitialize
-              initialValues={{
-                ...formStructure
-              }}
-              validationSchema={Yup.object().shape({
-                name: Yup.string().required("Name is required"),
-                stateId: Yup.mixed().required("State is required"),
-                latitude: Yup.string().required("Latitude is required"),
-                longitude: Yup.string().required("Longitude is required")
-              })}
-            >
-              {props => {
-                const {
-                  resetForm,
-                  isSubmitting,
-                  values,
-                  isValid,
-                  dirty,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit
-                } = props;
-
-                return (
-                  <Dialog
-                    open={openStructure}
-                    classes={{ paper: classes.dialogStructure }}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                    onBackdropClick={() =>
-                      !loading ? this.closeModal("openStructure", resetForm) : null
-                    }
-                    onEscapeKeyDown={() =>
-                      !loading ? this.closeModal("openStructure", resetForm) : null
-                    }
-                  >
-                    <DialogTitle id="alert-dialog-title">
-                      {"Add structure"}
-                    </DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                        Enter the required information
-                      </DialogContentText>
-                      <FormStructureEdit
-                        dirty={dirty}
-                        values={values}
-                        isValid={isValid}
-                        touched={touched}
-                        errors={errors}
-                        isSubmitting={isSubmitting}
-                        handleChange={handleChange}
-                        handleBlur={handleBlur}
-                        handleSubmit={handleSubmit}
-                        projectId={this.projectId}
-                        isModal={true}
-                        closeModal={() =>
-                          this.closeModal("openStructure", resetForm)
-                        }
-                        showModal={() =>
-                          this.showModal(null, "openAddStructureType")
-                        }
-                      />
-                    </DialogContent>
-                  </Dialog>
-                );
-              }}
-            </Formik>
-            <Formik
               onSubmit={this.addSpan}
               validateOnChange
               initialValues={{
@@ -916,7 +764,7 @@ class ProjectEdit extends React.Component {
             </Dialog>
             
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={breadcrumbs} />
+              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
               {editName ? (
                 <Grid item xs={6}>
                   <TextField
@@ -1078,7 +926,10 @@ class ProjectEdit extends React.Component {
                         variant="outlined"
                         color="primary"
                         disabled={loading}
-                        onClick={() => this.showModal(null, "openStructure")}
+                        onClick={() => {
+                          this.props.setPoint("", "")
+                          this.props.history.push(`/projects/${this.projectId}/structures/create`)}
+                        }
                       >
                         Add Structure
                       </Button>
@@ -1491,16 +1342,15 @@ const mapDispatchToProps = {
   updateProject,
   getUsers,
   addUser,
-  addStructure,
   addSpan,
-  addStructureType,
   addSpanType,
   deleteUser,
   deleteSpan,
   deleteStructure,
   toggleItemMenu,
   selectedItemMenu,
-  setLoading
+  setLoading,
+  setPoint
 };
 
 export default compose(

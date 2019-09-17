@@ -209,6 +209,7 @@ class FormStructureEdit extends React.Component {
                   label="Number"
                   fullWidth
                   margin="normal"
+                  required
                 />
               </Grid>
             </Grid>

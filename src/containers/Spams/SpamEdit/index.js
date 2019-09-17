@@ -33,7 +33,8 @@ import {
   getCategoriesInspection,
   getMarkingsTypes,
   getAccessTypes,
-  getAccessTypeDetail
+  getAccessTypeDetail,
+  setPoint
 } from "../../../redux/actions/projectActions";
 import { fetchStructures } from "../../../redux/actions/structureActions";
 import {
@@ -45,7 +46,8 @@ import {
   deleteMarking,
   getAccess,
   addAccess,
-  deleteAccess
+  deleteAccess,
+  setSpan
 } from "../../../redux/actions/spanActions";
 import { setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
@@ -62,7 +64,6 @@ class SpanEdit extends React.Component {
   state = {
     search: "",
     open: false,
-    openMarking: false,
     openAccess: false,
     openInteraction: false,
     itemId: null,
@@ -74,13 +75,6 @@ class SpanEdit extends React.Component {
       structureEnd: "",
       stateId: "",
       spanType: ""
-    },
-    formMarking: {
-      type_id: "",
-      owner: "",
-      details: "",
-      longitude: "",
-      latitude: ""
     },
     formAccess: {
       type_id: "",
@@ -147,7 +141,6 @@ class SpanEdit extends React.Component {
         this.props.getMarkings(this.spanId); 
         this.props.getAccess(this.spanId)
         this.props.getAccessTypes(this.projectId);
-        this.props.getMarkingsTypes(this.projectId);
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -309,40 +302,6 @@ class SpanEdit extends React.Component {
     this.props.setLoading(false);
   };
 
-  addMarking = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const { type_id, owner, latitude, longitude, details } = values;
-    const form = {
-      type_id,
-      owner,
-      latitude,
-      longitude,
-      details
-    };
-
-    try {
-      const response = await this.props.addMarking(this.spanId, form);
-
-      if (response.status === 201) {
-        this.closeModal("openMarking");
-        resetForm();
-        this.props.enqueueSnackbar("The marking was added successfully!", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
-      } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
-          variant: "error"
-        });
-      }
-    } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setSubmitting(false);
-    this.props.setLoading(false);
-  };
-
   addAccess = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
@@ -381,6 +340,13 @@ class SpanEdit extends React.Component {
     this.props.getAccessTypeDetail(value)
   }
 
+  goToAddMarking () {
+    this.props.setPoint("", "")
+    console.log(this.spanId)
+    this.props.setSpan(this.spanId)
+    this.props.history.push(`/projects/${this.projectId}/markings/create`)
+  }
+
   render() {
     const {
       classes,
@@ -388,7 +354,6 @@ class SpanEdit extends React.Component {
       photos,
       structures,
       markings,
-      marking_types,
       access,
       access_types,
       details
@@ -396,13 +361,11 @@ class SpanEdit extends React.Component {
     const {
       open,
       openAccess,
-      openMarking,
       openInteraction,
       interactionDescription,
       search,
       value,
       formGeneral,
-      formMarking,
       formAccess,
       inspection_id,
       inspection_name,
@@ -489,197 +452,6 @@ class SpanEdit extends React.Component {
                   Add Interaction
                 </Button>
               </DialogActions>
-            </Dialog>
-            <Dialog
-              open={openMarking}
-              classes={{ paper: classes.dialogMarking }}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() =>
-                !loading ? this.closeModal("openMarking") : null
-              }
-              onEscapeKeyDown={() =>
-                !loading ? this.closeModal("openMarking") : null
-              }
-            >
-              <DialogTitle id="alert-dialog-title">{"Add marking"}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Enter the required information
-                </DialogContentText>
-                <Formik
-                  onSubmit={this.addMarking}
-                  validateOnChange
-                  initialValues={{
-                    ...formMarking
-                  }}
-                  validationSchema={Yup.object().shape({
-                    type_id: Yup.mixed().required("Marking type is required"),
-                    owner: Yup.string().required("Owner is required"),
-                    details: Yup.string().required("Details is required"),
-                    longitude: Yup.string().required("Longitude is required"),
-                    latitude: Yup.string().required("Latitude is required")
-                  })}
-                >
-                  {props => {
-                    const {
-                      isSubmitting,
-                      resetForm,
-                      values,
-                      isValid,
-                      dirty,
-                      errors,
-                      touched,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit
-                    } = props;
-                    return (
-                      <Form onSubmit={this.handleSubmit}>
-                        <Prompt
-                          when={dirty}
-                          message="Are you sure you want to leave?, You will lose your changes"
-                        />
-                        <Grid container spacing={16}>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="type_id"
-                              select
-                              label="Marking types"
-                              required
-                              value={values.type_id}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.type_id && !!errors.type_id}
-                              helperText={
-                                !!touched.type_id &&
-                                !!errors.type_id &&
-                                errors.type_id
-                              }
-                              fullWidth
-                            >
-                              {marking_types.map(marking => {
-                                return (
-                                  <MenuItem key={marking.id} value={marking.id}>
-                                    {marking.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="owner"
-                              label="Owner"
-                              required
-                              value={values.owner}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.owner && !!errors.owner}
-                              helperText={
-                                !!touched.owner && !!errors.owner && errors.owner
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="latitude"
-                              label="Latitude"
-                              required
-                              type="number"
-                              value={values.latitude}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.latitude && !!errors.latitude}
-                              helperText={
-                                !!touched.latitude &&
-                                !!errors.latitude &&
-                                errors.latitude
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="longitude"
-                              label="Longitude"
-                              required
-                              type="number"
-                              value={values.longitude}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.longitude && !!errors.longitude}
-                              helperText={
-                                !!touched.longitude &&
-                                !!errors.longitude &&
-                                errors.longitude
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="details"
-                              label="Details"
-                              rows="2"
-                              rowsMax="2"
-                              multiline
-                              required
-                              value={values.details}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.details && !!errors.details}
-                              helperText={
-                                !!touched.details &&
-                                !!errors.details &&
-                                errors.details
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                        </Grid>
-                        <br />
-                        <Grid container justify="flex-end">
-                          <Button
-                            variant="outlined"
-                            disabled={loading}
-                            className={classes.buttonCancel}
-                            onClick={() => this.closeModal("openMarking")}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            disabled={loading || isSubmitting || !isValid || !dirty}
-                            onClick={e => {
-                              handleSubmit(e);
-                            }}
-                            variant="outlined"
-                            color="primary"
-                            className={classes.buttonAccept}
-                          >
-                            Add Marking
-                          </Button>
-                        </Grid>
-                      </Form>
-                    );
-                  }}
-                </Formik>
-              </DialogContent>
             </Dialog>
             <Dialog
               open={openAccess}
@@ -987,7 +759,9 @@ class SpanEdit extends React.Component {
                       <Button
                         variant="outlined"
                         color="primary"
-                        onClick={() => this.showModal("openMarking", null)}
+                        onClick={() => {
+                          this.goToAddMarking()
+                        }}
                       >
                         Add Marking
                       </Button>
@@ -1184,7 +958,9 @@ const mapDispatchToProps = {
   getPhotosSpan,
   toggleItemMenu,
   selectedItemMenu,
-  setLoading
+  setLoading,
+  setPoint,
+  setSpan
 };
 
 export default compose(

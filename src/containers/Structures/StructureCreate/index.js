@@ -1,483 +1,313 @@
-import React from 'react';
+import React from "react";
 import {
   Grid,
   TextField,
-  Tabs,
-  Tab,
   Button,
-  MenuItem,
-  FormControl,
-  Select,
-  InputLabel,
-  InputAdornment,
-  IconButton
-} from '@material-ui/core';
-import { compose } from 'recompose';
-import { withRouter, Prompt } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
+} from "@material-ui/core";
+import { compose } from "recompose";
+import { withRouter } from "react-router-dom";
+import { withStyles } from "@material-ui/core/styles";
 import { withSnackbar } from "notistack";
-import SimpleBreadcrumbs from '../../../components/SimpleBreadcrumbs';
-import Layout from '../../../components/Layout/index';
+import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
+import Layout from "../../../components/Layout/index";
 import Panel from "../../../components/Panel";
-import TabContainer from "../../../components/TabContainer";
-import Errors from "../../../components/Errors";
-import FormTextError from "../../../components/FormTextError";
-import { connect } from 'react-redux';
-import { fetchRoles, fetchStates, setHandleForm, setLoading } from "../../../redux/actions/globalActions";
-import { createUser } from "../../../redux/actions/userActions";
-import { DatePicker } from 'material-ui-pickers';
-import CalendarIcon from "@material-ui/icons/Today"
-import { datePickerFormatToParseDate } from "./../../../common/Helpers/DateHelper";
+import { connect } from "react-redux";
+import { setLoading } from "../../../redux/actions/globalActions";
+import {
+  toggleItemMenu,
+  selectedItemMenu
+} from "../../../redux/actions/layoutActions";
+import styles from "./styles";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { FormStructureEdit } from "../../../components";
+import {
+  addStructure,
+  addStructureType
+} from "../../../redux/actions/structureActions";
 
-
-import styles from './styles';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-
-const breadcrumbs = [
-  { name: 'Home', to: '/home' },
-  { name: 'Users', to: '/users' },
-  { name: 'Create User', to: null },
-];
-
-class UserCreate extends React.Component {
-
+class StructureCreate extends React.Component {
   state = {
-    tab: 0,
-    redirect: false,
     form: {
-      username: '',
-      email: '',
-      password: '',
-      first_name: '',
-      middle_name: '',
-      last_name: '',
-      address_1: '',
-      address_2: '',
-      city: '',
-      zip: '',
-      phone: '',
-      mobile: '',
-      fax: '',
-      birthdate: null,
-      role_id: 1,
-      state_id: '',
-      is_active: true,
-    }
+      name: "",
+      address: "",
+      stateId: "",
+      latitude: "",
+      longitude: "",
+      structureTypeId: ""
+    },
+    formStructureType: {
+      name: "",
+      description: ""
+    },
+    open: false
   };
 
-  componentDidMount = async () => {
-    try {
-      await this.props.fetchRoles();
-      await this.props.fetchStates();
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
+  breadcrumbs = [
+    { name: "Home", to: "/home" },
+    { name: "Projects", to: "/projects" },
+    {
+      name: "Project edit",
+      to: `/projects/${this.props.match.params.projectId}`
+    },
+    { name: "Create Structure", to: null }
+  ];
 
-  handleSubmit = async (values, formikActions) => {
+  projectId = this.props.match.params.projectId;
+  componentDidMount() {
+    const { latitude, longitude } = this.props;
+    this.setState(prevState => {
+      return { form: { ...prevState.form, latitude, longitude } };
+    });
+    const nameItem = "structures";
+    const nameSubItem = "create";
+    const open = true;
+    this.props.toggleItemMenu({ nameItem, open });
+    this.props.selectedItemMenu({ nameItem, nameSubItem });
+  }
+
+  save = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { username, email, password, role_id, is_active, ...profile } = values;
-    profile.birthdate = profile.birthdate?datePickerFormatToParseDate(profile.birthdate):null;
-    const form = { username, email, password, role_id, is_active, profile };
-    
+    const {
+      name,
+      stateId,
+      latitude,
+      longitude,
+      structureTypeId,
+      address
+    } = values;
+    const form = {
+      name,
+      state_id: stateId,
+      latitude,
+      longitude,
+      type_structure_id: structureTypeId,
+      address
+    };
+
     try {
-      const response = await this.props.createUser(form);
-      
+      const response = await this.props.addStructure(this.projectId, form);
+
       if (response.status === 201) {
-        resetForm()
-        this.props.history.push('/users');
-        this.props.enqueueSnackbar('The user has been created!', { variant: 'success' });
+        resetForm();
+        this.setState(prevState => {
+          return { form: { ...prevState.form, latitude: "", longitude: "" } };
+        });
+        this.props.enqueueSnackbar("The structure was added successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
       } else {
-        this.props.enqueueSnackbar('The request could not be processed!', { variant: 'error' });
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
       }
     } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: 'error' });
-      console.error(error);
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
     setSubmitting(false);
     this.props.setLoading(false);
   };
 
-  handleTab = (event, tab) => {
-    this.setState({ tab });
+  addStructureType = async () => {
+    this.setState({ open: false });
+    const response = await this.props.addStructureType(
+      this.projectId,
+      this.state.formStructureType
+    );
+    if (response.status === 200 || response.status === 201) {
+      this.setState({ formStructureType: { name: "", description: "" } });
+      // SHOW NOTIFICACION SUCCCESS
+      this.props.enqueueSnackbar(
+        "¡The structure type was added successfully!",
+        {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        }
+      );
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
   };
 
   render() {
-    const { tab, form } = this.state;
-    const { classes, roles, us_states,
-      loading, handleForm, setHandleForm } = this.props;
-
+    const { classes, loading } = this.props;
+    const { form, formStructureType, open } = this.state;
     return (
-      <Layout title="Create User">
-
-        <div className={classes.root}>
-          <SimpleBreadcrumbs routes={breadcrumbs} />
-          
-          <Formik
-            onSubmit={this.handleSubmit}
-            initialValues= {{
-              ...form
-            }}
-            validationSchema={
-              Yup.object().shape({
-                username: Yup.string().required("Username is required"),
-                email: Yup.string().email("Must be a valid mail").required("Email is required"),
-                password: Yup.string().required("Password is required"),
-                first_name: Yup.string().required("First name is required"),
-                middle_name: Yup.string(),
-                last_name: Yup.string().required("Last name is required"),
-                address_1: Yup.string(),
-                address_2: Yup.string(),
-                city: Yup.string(),
-                zip: Yup.string(),
-                phone: Yup.string(),
-                mobile: Yup.string(),
-                fax: Yup.string(),
-                birthdate: Yup.mixed(),
-                role_id: Yup.mixed().required("Role is required"),
-                state_id: Yup.mixed(),
-                is_active: Yup.boolean(),
-              })
-            }
-          >
-            {(props)=>{
-              const {
-                isSubmitting,
-                values,
-                isValid,
-                dirty,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,        
-                setFieldValue,
-                handleSubmit,
-              } = props;
-
-              if(handleForm!==dirty) setHandleForm(dirty);
-
-              return (
-                <Form onSubmit={this.handleSubmit}>
-                  <Prompt
-                    when={dirty}
-                    message="Are you sure you want to leave?, You will lose your changes"
-                  />
-                  <Grid container spacing={16}>
-                    <Grid item sm={12} md={6}>
-
-                      <Panel>
-
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="first_name"
-                              value={values.first_name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.first_name&&!!errors.first_name}
-                              helperText={!!touched.first_name&&!!errors.first_name&&errors.first_name}
-                              label="First Name"
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              name="middle_name"
-                              value={values.middle_name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.middle_name&&!!errors.middle_name}
-                              helperText={!!touched.middle_name&&!!errors.middle_name&&errors.middle_name}
-                              label="Middle Name"
-                              fullWidth
-                              margin="normal"
-                            />
-                          </Grid>
-                        </Grid>
-
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              label="Last Name"
-                              name="last_name"
-                              value={values.last_name}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.last_name&&!!errors.last_name}
-                              helperText={!!touched.last_name&&!!errors.last_name&&errors.last_name}
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              label="Username"
-                              name="username"
-                              value={values.username}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.username&&!!errors.username}
-                              helperText={!!touched.username&&!!errors.username&&errors.username}
-                              fullWidth
-                              margin="normal"
-                              required
-                            />
-                          </Grid>
-                        </Grid>
-
-                        <TextField
-                          label="Email"
-                          name="email"
-                          value={values.email}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!touched.email&&!!errors.email}
-                          helperText={!!touched.email&&!!errors.email&&errors.email}
-                          fullWidth
-                          margin="normal"
-                          type="email"
-                          required
-                        />
-
-                        <TextField
-                          label="Password"
-                          name="password"
-                          value={values.password}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!touched.password&&!!errors.password}
-                          helperText={!!touched.password&&!!errors.password&&errors.password}
-                          fullWidth
-                          margin="normal"
-                          required
-                        />
-
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              label="Phone"
-                              name="phone"
-                              value={values.phone}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.phone&&!!errors.phone}
-                              helperText={!!touched.phone&&!!errors.phone&&errors.phone}
-                              fullWidth
-                              margin="normal"
-                            />
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              label="Mobile"
-                              name="mobile"
-                              value={values.mobile}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.mobile&&!!errors.mobile}
-                              helperText={!!touched.mobile&&!!errors.mobile&&errors.mobile}
-                              fullWidth
-                              margin="normal"
-                            />
-
-                          </Grid>
-                        </Grid>
-                        <DatePicker
-                          name="birthdate"
-                          label="Birthdate"
-                          value={values.birthdate || null}
-                          margin="normal"
-                          format={"MM/DD/YYYY"}
-                          onChange={(date) => {
-                            setFieldValue("birthdate",date)
-                          }}
-                          error={!!touched.birthdate&&!!errors.birthdate}
-                          helperText={!!touched.birthdate&&!!errors.birthdate&&errors.birthdate}
-                          fullWidth
-                          animateYearScrolling
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  aria-label="calendar"
-                                >
-                                  <CalendarIcon />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="role_id"
-                              select
-                              label="Role"
-                              value={values.role_id}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.role_id&&!!errors.role_id}
-                              helperText={!!touched.role_id&&!!errors.role_id&&errors.role_id}
-                              margin="normal"
-                              fullWidth
-                            >
-                              {
-                                roles.map(role => {
-                                  return <MenuItem key={role.id} value={role.id}>{role.label}</MenuItem>
-                                })
-                              }
-                            </TextField>
-        
-                          </Grid>
-                          <Grid item xs>
-                            <TextField
-                              name="is_active"
-                              select
-                              label="Status"
-                              value={values.is_active}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.is_active && !!errors.is_active}
-                              helperText={!!touched.is_active && !!errors.is_active && errors.is_active}
-                              margin="normal"
-                              fullWidth
-                            >
-                              <MenuItem value={true}>Active</MenuItem>
-                              <MenuItem value={false}>Inactive</MenuItem>
-                            </TextField>
-                            
-                          </Grid>
-                        </Grid>
-
-                      </Panel>
-                    </Grid>
-
-                    <Grid item sm={12} md={6}>
-                      <Panel>
-                        <Tabs value={tab} onChange={this.handleTab}>
-                          <Tab label="Address" />
-                        </Tabs>
-
-                        {
-                          tab === 0 &&
-                          <TabContainer>
-                            <TextField
-                              name="address_1"
-                              label="Address 1"
-                              value={values.address_1}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.address_1&&!!errors.address_1}
-                              helperText={!!touched.address_1&&!!errors.address_1&&errors.address_1}
-                              fullWidth
-                              margin="normal"
-                            />
-
-                            <TextField
-                              label="Address 2"
-                              name="address_2"
-                              value={values.address_2}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.address_2&&!!errors.address_2}
-                              helperText={!!touched.address_2&&!!errors.address_2&&errors.address_2}
-                              fullWidth
-                              margin="normal"
-                            />
-
-                            <TextField
-                              label="City"
-                              name="city"
-                              value={values.city}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.city&&!!errors.city}
-                              helperText={!!touched.city&&!!errors.city&&errors.city}
-                              fullWidth
-                              margin="normal"
-                            />
-
-                            <TextField
-                              label="Zip"
-                              name="zip"
-                              value={values.zip}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.zip&&!!errors.zip}
-                              helperText={!!touched.zip&&!!errors.zip&&errors.zip}
-                              fullWidth
-                              margin="normal"
-                            />
-
-                            <TextField
-                              name="state_id"
-                              value={values.state_id}
-                              select
-                              label="State"
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!touched.state_id&&!!errors.state_id}
-                              helperText={!touched.state_id&&!!errors.state_id&&errors.state_id}
-                              margin="normal"
-                              fullWidth
-                            >
-                              {
-                                us_states.map(state => {
-                                  return <MenuItem key={state.id} value={state.id}>{state.name}</MenuItem>
-                                })
-                              }
-                            </TextField>                      
-                              
-                          </TabContainer>
-                        }
-                      </Panel>
-                    </Grid>
-
+      <Layout title="Create Structure">
+        {() => (
+          <div className={classes.root}>
+            <Dialog
+              open={open}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle id="alert-dialog-title">
+                Add structure type
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Enter the required information
+                </DialogContentText>
+                <Grid container spacing={16}>
+                  <Grid container>
+                    <TextField
+                      name="name"
+                      label="Name"
+                      value={formStructureType.name}
+                      onChange={e => {
+                        const value = e.target.value;
+                        this.setState(prevState => {
+                          return {
+                            formStructureType: {
+                              ...prevState.formStructureType,
+                              name: value
+                            }
+                          };
+                        });
+                      }}
+                      margin="normal"
+                      fullWidth
+                      required
+                    />
                   </Grid>
+                  <Grid container>
+                    <TextField
+                      name="description"
+                      multiline
+                      rowsMax="4"
+                      rows="4"
+                      label="Description"
+                      value={formStructureType.description}
+                      onChange={e => {
+                        const value = e.target.value;
+                        this.setState(prevState => {
+                          return {
+                            formStructureType: {
+                              ...prevState.formStructureType,
+                              description: value
+                            }
+                          };
+                        });
+                      }}
+                      margin="normal"
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => {
+                    const formStructureType = { name: "", description: "" };
+                    this.setState({ formStructureType, open: false });
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  disabled={formStructureType.name.length === 0 || loading}
+                  className={classes.buttonAdd}
+                  onClick={this.addStructureType}
+                >
+                  Add structure type
+                </Button>
+              </DialogActions>
+            </Dialog>
 
-                  <br />
+            <SimpleBreadcrumbs
+              routes={this.breadcrumbs}
+              classes={{ root: classes.breadcrumbs }}
+            />
+            <Panel>
+              <Formik
+                onSubmit={this.save}
+                validateOnChange
+                enableReinitialize
+                initialValues={{
+                  ...form
+                }}
+                validationSchema={Yup.object().shape({
+                  name: Yup.string().required("Name is required"),
+                  stateId: Yup.mixed().required("State is required"),
+                  latitude: Yup.string().required("Latitude is required"),
+                  longitude: Yup.string().required("Longitude is required")
+                })}
+              >
+                {props => {
+                  const {
+                    isSubmitting,
+                    values,
+                    isValid,
+                    dirty,
+                    errors,
+                    touched,
+                    handleChange,
+                    handleBlur,
+                    handleSubmit
+                  } = props;
 
-                  <Button
-                    disabled={loading||isSubmitting||!isValid||!dirty}
-                    onClick={(e)=>{handleSubmit(e)}}
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                  >Create User</Button>
-                </Form>
-              );
-            }}
-          </Formik>
-
-        </div>
+                  return (
+                    <FormStructureEdit
+                      dirty={dirty}
+                      values={values}
+                      isValid={isValid}
+                      touched={touched}
+                      errors={errors}
+                      isSubmitting={isSubmitting}
+                      handleChange={handleChange}
+                      handleBlur={handleBlur}
+                      handleSubmit={handleSubmit}
+                      projectId={this.projectId}
+                      isCreate={true}
+                      closeModal={() => this.setState({ open: false })}
+                      showModal={() => this.setState({ open: true })}
+                    />
+                  );
+                }}
+              </Formik>
+            </Panel>
+          </div>
+        )}
       </Layout>
-    )
+    );
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    handleForm: state.global.handleForm,
-    roles: state.global.roles,
-    us_states: state.global.us_states,
-    errors: new Errors(state.users.errors)
-  }
+    latitude: state.projects.latitude,
+    longitude: state.projects.longitude
+  };
 };
 
-const mapDispatchToProps = { fetchRoles, fetchStates, createUser, setHandleForm, setLoading };
+const mapDispatchToProps = {
+  setLoading,
+  toggleItemMenu,
+  selectedItemMenu,
+  addStructure,
+  addStructureType
+};
 
 export default compose(
   withRouter,
   withSnackbar,
-  withStyles(styles, { name: 'UserCreate' }),
-  connect(mapStateToProps, mapDispatchToProps)
-)(UserCreate);
+  withStyles(styles, { name: "StructureCreate" }),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
+)(StructureCreate);

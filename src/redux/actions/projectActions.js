@@ -15,13 +15,23 @@ import {
   GET_STRUCTURES,
   GET_SPANS,
   GET_MARKINGS,
-  GET_ACCESS
+  GET_ACCESS,
+  SET_LATITUDE,
+  SET_LONGITUDE
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
 const service = new ProjectService();
 
 export const setLoading = loading => ({ type: ON_LOADING, loading });
+
+export const setPoint = (latitude, longitude) => {
+  return (dispatch) => {
+    dispatch({type: SET_LATITUDE, payload: latitude})
+    dispatch({type: SET_LONGITUDE, payload: longitude})
+  }
+
+}
 
 export const createProject = body => {
   return async dispatch => {

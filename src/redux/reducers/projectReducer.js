@@ -12,7 +12,9 @@ import {
   GET_DEFICIENCIES,
   GET_MARKINGS_TYPES,
   GET_ACCESS_TYPES,
-  GET_ACCESS_TYPE_DETAILS
+  GET_ACCESS_TYPE_DETAILS,
+  SET_LATITUDE,
+  SET_LONGITUDE
 } from "../actionTypes";
 
 const initialState = {
@@ -28,7 +30,9 @@ const initialState = {
   deficiencies: [],
   marking_types: [],
   access_types: [],
-  details: []
+  details: [],
+  latitude: "",
+  longitude: ""
 };
 
 export default (state = initialState, action) => {
@@ -75,6 +79,11 @@ export default (state = initialState, action) => {
       
     case GET_ACCESS_TYPE_DETAILS:
       return { ...state, details: action.payload };
+
+    case SET_LATITUDE:
+      return { ...state, latitude: action.payload };
+    case SET_LONGITUDE:
+      return { ...state, longitude: action.payload };
 
     default:
       return state;

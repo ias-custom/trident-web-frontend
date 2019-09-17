@@ -37,7 +37,7 @@ class FormStructureEdit extends React.Component {
       isValid,
       states,
       structureTypes,
-      isModal
+      isCreate
     } = this.props;
     return (
       <Form onSubmit={this.props.handleSubmit}>
@@ -169,7 +169,7 @@ class FormStructureEdit extends React.Component {
                     );
                   })}
                 </TextField>
-                {isModal ? (
+                {isCreate ? (
                   <div>
                     <Tooltip title="Add structure type" aria-label="Add" placement="top-start">
                       <IconButton disabled={loading} className={classes.iconAdd} onClick={ this.props.showModal}>
@@ -183,28 +183,19 @@ class FormStructureEdit extends React.Component {
           </Grid>
         </Grid>
         <br />
-        {isModal ? (
-          <Grid container justify="flex-end">
-            <Button
-              variant="outlined"
-              disabled={loading}
-              className={classes.buttonCancel}
-              onClick={this.props.closeModal}
-            >
-              Cancel
-            </Button>
+        <Grid container justify="flex-end">
+          {isCreate ? (
             <Button
               style={{ marginLeft: 10 }}
               disabled={loading || isSubmitting || !isValid || !dirty}
               onClick={e => this.props.handleSubmit(e)}
-              variant="outlined"
-              className={classes.buttonAccept}
+              color="primary"
+              variant="contained"
+              fullWidth
             >
-              Add Structure
+              Save
             </Button>
-          </Grid>
-        ) : (
-          <Grid container>
+          ) : (
             <Button
               disabled={
                 loading ||
@@ -219,8 +210,8 @@ class FormStructureEdit extends React.Component {
             >
               Update
             </Button>
-          </Grid>
-        )}
+          )}
+        </Grid>
         
       </Form>
     );
@@ -244,7 +235,7 @@ FormStructureEdit.propTypes = {
   handleBlur: PropTypes.func.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  isModal: PropTypes.bool.isRequired
+  isCreate: PropTypes.bool.isRequired
 };
 
 export default compose(
