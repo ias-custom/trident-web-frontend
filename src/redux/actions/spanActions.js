@@ -6,7 +6,9 @@ import {
   GET_ITEMS_SPAN,
   GET_MARKINGS,
   GET_ACCESS,
-  GET_SPAN
+  GET_SPAN,
+  SET_STRUCTURE_START,
+  SET_STRUCTURE_END
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
@@ -15,6 +17,14 @@ const service = new SpanService();
 export const setLoading = loading => ({ type: ON_LOADING, loading });
 
 export const setSpan = spanId => ({ type: GET_SPAN, payload: spanId });
+
+export const setStructures = (start, end) => {
+  return (dispatch) => {
+    dispatch({type: SET_STRUCTURE_START, payload: start})
+    dispatch({type: SET_STRUCTURE_END, payload: end})
+  }
+
+}
 
 export const getSpan = (projectId, spanId) => {
   return async dispatch => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { withRouter, Prompt } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
   Table,
@@ -20,8 +20,7 @@ import {
   DialogActions,
   Grid,
   Typography,
-  TextField,
-  MenuItem
+  TextField
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -32,8 +31,6 @@ import {
 import {
   getCategoriesInspection,
   getMarkingsTypes,
-  getAccessTypes,
-  getAccessTypeDetail,
   setPoint
 } from "../../../redux/actions/projectActions";
 import { fetchStructures } from "../../../redux/actions/structureActions";
@@ -55,7 +52,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { Formik, Form } from "formik";
+import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormSpanEdit, PhotosList, Equipment } from "../../../components";
 import { Delete } from "@material-ui/icons";
@@ -75,13 +72,6 @@ class SpanEdit extends React.Component {
       structureEnd: "",
       stateId: "",
       spanType: ""
-    },
-    formAccess: {
-      type_id: "",
-      detail_id: "",
-      notes: "",
-      longitude: "",
-      latitude: ""
     },
     inspection_id: "",
     inspection_name: "",
@@ -140,7 +130,6 @@ class SpanEdit extends React.Component {
         this.props.fetchStructures(this.projectId);
         this.props.getMarkings(this.spanId); 
         this.props.getAccess(this.spanId)
-        this.props.getAccessTypes(this.projectId);
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -302,49 +291,17 @@ class SpanEdit extends React.Component {
     this.props.setLoading(false);
   };
 
-  addAccess = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const { type_id, detail_id, latitude, longitude, notes } = values;
-    const form = {
-      type_id,
-      detail_id,
-      latitude,
-      longitude,
-      notes
-    };
-
-    try {
-      const response = await this.props.addAccess(this.spanId, form);
-
-      if (response.status === 201) {
-        this.closeModal("openAccess");
-        resetForm();
-        this.props.enqueueSnackbar("The access was added successfully!", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
-      } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
-          variant: "error"
-        });
-      }
-    } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setSubmitting(false);
-    this.props.setLoading(false);
-  };
-
-  changeAccessType (value) {
-    this.props.getAccessTypeDetail(value)
-  }
 
   goToAddMarking () {
     this.props.setPoint("", "")
-    console.log(this.spanId)
     this.props.setSpan(this.spanId)
     this.props.history.push(`/projects/${this.projectId}/markings/create`)
+  }
+
+  goToAddAccess () {
+    this.props.setPoint("", "")
+    this.props.setSpan(this.spanId)
+    this.props.history.push(`/projects/${this.projectId}/access/create`)
   }
 
   render() {
@@ -354,9 +311,7 @@ class SpanEdit extends React.Component {
       photos,
       structures,
       markings,
-      access,
-      access_types,
-      details
+      access
     } = this.props;
     const {
       open,
@@ -366,7 +321,6 @@ class SpanEdit extends React.Component {
       search,
       value,
       formGeneral,
-      formAccess,
       inspection_id,
       inspection_name,
       markingId,
@@ -378,38 +332,38 @@ class SpanEdit extends React.Component {
         {() => (
           <div>
             <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() => this.closeModal("open")}
-          onEscapeKeyDown={() => this.closeModal("open")}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.closeModal("open")}
+              open={open}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() => this.closeModal("open")}
+              onEscapeKeyDown={() => this.closeModal("open")}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <DialogTitle id="alert-dialog-title">
+                {"Are you sure you want to delete?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  If you delete it will be permanently.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => this.closeModal("open")}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.handleDelete}
+                >
+                  Agree
+                </Button>
+              </DialogActions>
+            </Dialog>
             <Dialog
               open={openInteraction}
               classes={{ paper: classes.dialog }}
@@ -453,210 +407,6 @@ class SpanEdit extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
-            <Dialog
-              open={openAccess}
-              classes={{ paper: classes.dialogMarking }}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() =>
-                !loading ? this.closeModal("openAccess") : null
-              }
-              onEscapeKeyDown={() =>
-                !loading ? this.closeModal("openAccess") : null
-              }
-            >
-              <DialogTitle id="alert-dialog-title">{"Add access"}</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Enter the required information
-                </DialogContentText>
-                <Formik
-                  onSubmit={this.addAccess}
-                  validateOnChange
-                  initialValues={{
-                    ...formAccess
-                  }}
-                  validationSchema={Yup.object().shape({
-                    type_id: Yup.mixed().required("Access type is required"),
-                    detail_id: Yup.mixed().required("Detail is required"),
-                    notes: Yup.string().required("Notes is required"),
-                    longitude: Yup.string().required("Longitude is required"),
-                    latitude: Yup.string().required("Latitude is required")
-                  })}
-                >
-                  {props => {
-                    const {
-                      isSubmitting,
-                      resetForm,
-                      values,
-                      isValid,
-                      dirty,
-                      errors,
-                      touched,
-                      handleChange,
-                      handleBlur,
-                      handleSubmit
-                    } = props;
-                    return (
-                      <Form onSubmit={this.handleSubmit}>
-                        <Prompt
-                          when={dirty}
-                          message="Are you sure you want to leave?, You will lose your changes"
-                        />
-                        <Grid container spacing={16}>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="type_id"
-                              select
-                              label="Access type"
-                              required
-                              value={values.type_id}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={ (e) => {
-                                handleChange(e);
-                                this.changeAccessType(e.target.value)
-                              }}
-                              onBlur={handleBlur}
-                              error={!!touched.type_id && !!errors.type_id}
-                              helperText={
-                                !!touched.type_id &&
-                                !!errors.type_id &&
-                                errors.type_id
-                              }
-                              fullWidth
-                            >
-                              {access_types.map(type => {
-                                return (
-                                  <MenuItem key={type.id} value={type.id}>
-                                    {type.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="detail_id"
-                              label="Detail Access type"
-                              required
-                              select
-                              value={values.detail_id}
-                              margin="normal"
-                              disabled={loading || values.type_id === ""}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.detail_id && !!errors.detail_id}
-                              helperText={
-                                !!touched.detail_id && !!errors.detail_id && errors.detail_id
-                              }
-                              fullWidth
-                            >
-                              {details.map(detail => {
-                                return (
-                                  <MenuItem key={detail.id} value={detail.id}>
-                                    {detail.name}
-                                  </MenuItem>
-                                );
-                              })}
-                            </TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="latitude"
-                              label="Latitude"
-                              required
-                              type="number"
-                              value={values.latitude}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.latitude && !!errors.latitude}
-                              helperText={
-                                !!touched.latitude &&
-                                !!errors.latitude &&
-                                errors.latitude
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <TextField
-                              name="longitude"
-                              label="Longitude"
-                              required
-                              type="number"
-                              value={values.longitude}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.longitude && !!errors.longitude}
-                              helperText={
-                                !!touched.longitude &&
-                                !!errors.longitude &&
-                                errors.longitude
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                        </Grid>
-                        <Grid container spacing={16}>
-                          <Grid item xs>
-                            <TextField
-                              name="notes"
-                              label="Notes"
-                              rows="2"
-                              rowsMax="2"
-                              multiline
-                              required
-                              value={values.notes}
-                              margin="normal"
-                              disabled={loading}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
-                              error={!!touched.notes && !!errors.notes}
-                              helperText={
-                                !!touched.notes &&
-                                !!errors.notes &&
-                                errors.notes
-                              }
-                              fullWidth
-                            ></TextField>
-                          </Grid>
-                        </Grid>
-                        <br />
-                        <Grid container justify="flex-end">
-                          <Button
-                            variant="outlined"
-                            disabled={loading}
-                            className={classes.buttonCancel}
-                            onClick={() => this.closeModal("openAccess")}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            disabled={loading || isSubmitting || !isValid || !dirty}
-                            onClick={e => {
-                              handleSubmit(e);
-                            }}
-                            variant="outlined"
-                            color="primary"
-                            className={classes.buttonAccept}
-                          >
-                            Add Access
-                          </Button>
-                        </Grid>
-                      </Form>
-                    );
-                  }}
-                </Formik>
-              </DialogContent>
-            </Dialog>
-            
             <div className={classes.root}>
               <SimpleBreadcrumbs routes={this.breadcrumbs} classes={{root: classes.breadcrumbs}}/>
               <Grid className={classes.divTabs}>
@@ -699,7 +449,8 @@ class SpanEdit extends React.Component {
                         ),
                         structureEnd: Yup.string().required(
                           "Structure end is required"
-                        )
+                        ),
+                        number: Yup.string().max(10).required("Number is required").trim()
                       })}
                     >
                       {props => {
@@ -728,7 +479,7 @@ class SpanEdit extends React.Component {
                             handleSubmit={handleSubmit}
                             structures={structures}
                             projectId={this.projectId}
-                            isModal={false}
+                            isCreate={false}
                           />
                         );
                       }}
@@ -841,7 +592,9 @@ class SpanEdit extends React.Component {
                       <Button
                         variant="outlined"
                         color="primary"
-                        onClick={() => this.showModal("openAccess", null)}
+                        onClick={() => {
+                          this.goToAddAccess()
+                        }}
                       >
                         Add Access
                       </Button>
@@ -935,8 +688,6 @@ const mapStateToProps = state => {
     structures: state.structures.structures,
     markings: state.spans.markings,
     marking_types: state.projects.marking_types,
-    access_types: state.projects.access_types,
-    details: state.projects.details,
     access: state.spans.access
   };
 };
@@ -945,8 +696,6 @@ const mapDispatchToProps = {
   addAccess,
   getAccess,
   deleteAccess,
-  getAccessTypes,
-  getAccessTypeDetail,
   getMarkings,
   addMarking,
   deleteMarking,

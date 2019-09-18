@@ -34,7 +34,6 @@ import {
   Delete,
   Save,
   Cancel,
-  ArrowBack,
   ExpandMore
 } from "@material-ui/icons";
 import {
@@ -63,7 +62,7 @@ import {
   fetchSpans,
   deleteSpan,
   addSpan,
-  addSpanType
+  setStructures
 } from "../../../redux/actions/spanActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { setLoading } from "../../../redux/actions/globalActions";
@@ -88,8 +87,6 @@ class ProjectEdit extends React.Component {
     openId: 0,
     open: false,
     openUser: false,
-    openSpan: false,
-    openAddSpanType: false,
     openDeficiency: false,
     itemId: null,
     value: 0,
@@ -97,17 +94,6 @@ class ProjectEdit extends React.Component {
     inputProjectName: "",
     editName: false,
     userSelected: "",
-    formSpan: {
-      number: "",
-      structureStart: "",
-      structureEnd: "",
-      stateId: "",
-      spanType: ""
-    },
-    formStructureOrSpanType: {
-      name: "",
-      description: ""
-    },
     deficiencyName: ""
   };
 
@@ -228,7 +214,6 @@ class ProjectEdit extends React.Component {
         return;
       }
     }
-    if (item === "openAddSpanType") form["openSpan"] = false;
     this.setState(form);
   };
 
@@ -238,7 +223,6 @@ class ProjectEdit extends React.Component {
       resetForm();
       form["formStructureOrSpanType"] = { name: "", description: "" };
     }
-    if (item === "openAddSpanType") form["openSpan"] = true;
     this.setState(form);
   }
 
@@ -293,59 +277,6 @@ class ProjectEdit extends React.Component {
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
-  };
-
-  addSpanType = async () => {
-    const response = await this.props.addSpanType(
-      this.projectId,
-      this.state.formStructureOrSpanType
-    );
-    if (response.status === 200 || response.status === 201) {
-      this.closeModal("openAddSpanType", null);
-      this.setState({ formStructureOrSpanType: { name: "", description: "" } });
-      // SHOW NOTIFICACION SUCCCESS
-      this.props.enqueueSnackbar("¡The span type was added successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
-
-  addSpan = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const { number, stateId, structureStart, structureEnd, spanType } = values;
-    const form = {
-      number,
-      state_id: stateId,
-      start_structure: structureStart,
-      end_structure: structureEnd,
-      type_id: spanType
-    };
-
-    try {
-      const response = await this.props.addSpan(this.projectId, form);
-
-      if (response.status === 201) {
-        this.closeModal("openSpan", resetForm);
-        this.props.enqueueSnackbar("The span was added successfully!", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
-      } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
-          variant: "error"
-        });
-      }
-    } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
-    }
-    setSubmitting(false);
-    this.props.setLoading(false);
   };
 
   openCollapse(openId, category) {
@@ -443,16 +374,11 @@ class ProjectEdit extends React.Component {
       search,
       open,
       openUser,
-      openSpan,
-      openAddStructureType,
-      openAddSpanType,
       value,
       projectName,
       editName,
       inputProjectName,
       userSelected,
-      formSpan,
-      formStructureOrSpanType,
       openId,
       openDeficiency,
       deficiencyName
@@ -502,90 +428,6 @@ class ProjectEdit extends React.Component {
               </Button>
             </DialogActions>
           </Dialog>
-            <Dialog
-              open={openAddStructureType || openAddSpanType}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {openAddStructureType ? "Add structure type" : "Add span type"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Enter the required information
-                </DialogContentText>
-                <Grid container spacing={16}>
-                  <Grid container>
-                    <TextField
-                      name="name"
-                      label="Name"
-                      value={formStructureOrSpanType.name}
-                      onChange={e => {
-                        const value = e.target.value;
-                        this.setState(prevState => {
-                          return {
-                            formStructureOrSpanType: {
-                              ...prevState.formStructureOrSpanType,
-                              name: value
-                            }
-                          };
-                        });
-                      }}
-                      margin="normal"
-                      fullWidth
-                      required
-                    />
-                  </Grid>
-                  <Grid container>
-                    <TextField
-                      name="description"
-                      multiline
-                      rowsMax="4"
-                      rows="4"
-                      label="Description"
-                      value={formStructureOrSpanType.description}
-                      onChange={e => {
-                        const value = e.target.value;
-                        this.setState(prevState => {
-                          return {
-                            formStructureOrSpanType: {
-                              ...prevState.formStructureOrSpanType,
-                              description: value
-                            }
-                          };
-                        });
-                      }}
-                      margin="normal"
-                      fullWidth
-                    />
-                  </Grid>
-                </Grid>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  component="span"
-                  className={classes.buttonCancel}
-                  onClick={() =>
-                    openAddStructureType
-                      ? this.closeModal("openAddStructureType", null)
-                      : this.closeModal("openAddSpanType", null)
-                  }
-                >
-                  <ArrowBack /> Volver
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  disabled={formStructureOrSpanType.name.length === 0 || loading}
-                  className={classes.buttonAccept}
-                  onClick={
-                    openAddStructureType ? this.addStructureType : this.addSpanType
-                  }
-                >
-                  {openAddStructureType ? "Add structure type" : "Add span type"}
-                </Button>
-              </DialogActions>
-            </Dialog>
             <Dialog
               open={openUser}
               classes={{ paper: classes.dialog }}
@@ -638,78 +480,6 @@ class ProjectEdit extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
-            <Formik
-              onSubmit={this.addSpan}
-              validateOnChange
-              initialValues={{
-                ...formSpan
-              }}
-              validationSchema={Yup.object().shape({
-                stateId: Yup.mixed().required("State is required"),
-                spanType: Yup.string().required("Span type is required"),
-                structureStart: Yup.string().required(
-                  "Structure start is required"
-                ),
-                structureEnd: Yup.string().required("Structure end is required")
-              })}
-            >
-              {props => {
-                const {
-                  isSubmitting,
-                  resetForm,
-                  values,
-                  isValid,
-                  dirty,
-                  errors,
-                  touched,
-                  handleChange,
-                  handleBlur,
-                  handleSubmit
-                } = props;
-
-                return (
-                  <Dialog
-                    open={openSpan}
-                    classes={{ paper: classes.dialogStructure }}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                    onBackdropClick={() =>
-                      !loading ? this.closeModal("openSpan", resetForm) : false
-                    }
-                    onEscapeKeyDown={() =>
-                      !loading ? this.closeModal("openSpan", resetForm) : false
-                    }
-                  >
-                    <DialogTitle id="alert-dialog-title">{"Add span"}</DialogTitle>
-                    <DialogContent>
-                      <DialogContentText>
-                        Enter the required information
-                      </DialogContentText>
-                      <FormSpanEdit
-                        dirty={dirty}
-                        values={values}
-                        isValid={isValid}
-                        touched={touched}
-                        errors={errors}
-                        isSubmitting={isSubmitting}
-                        handleChange={handleChange}
-                        handleBlur={handleBlur}
-                        handleSubmit={handleSubmit}
-                        projectId={this.projectId}
-                        structures={structures}
-                        isModal={true}
-                        closeModal={() =>
-                          this.closeModal("openSpan", resetForm)
-                        }
-                        showModal={() =>
-                          this.showModal(null, "openAddSpanType")
-                        }
-                      />
-                    </DialogContent>
-                  </Dialog>
-                );
-              }}
-            </Formik>
             <Dialog
               open={ openDeficiency }
               classes={{ paper: classes.dialog }}
@@ -1015,7 +785,10 @@ class ProjectEdit extends React.Component {
                         variant="outlined"
                         color="primary"
                         disabled={loading}
-                        onClick={() => this.showModal(null, "openSpan")}
+                        onClick={() => {
+                          this.props.setStructures("", "")
+                          this.props.history.push(`/projects/${this.projectId}/spans/create`)
+                        }}
                       >
                         Add Span
                       </Button>
@@ -1343,14 +1116,14 @@ const mapDispatchToProps = {
   getUsers,
   addUser,
   addSpan,
-  addSpanType,
   deleteUser,
   deleteSpan,
   deleteStructure,
   toggleItemMenu,
   selectedItemMenu,
   setLoading,
-  setPoint
+  setPoint,
+  setStructures
 };
 
 export default compose(

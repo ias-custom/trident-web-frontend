@@ -71,10 +71,11 @@ const styles = theme => ({
     padding: "0 30px 15px 30px",
     borderRadius: 5,
     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
-    "& > p": {
-      fontWeight: "bold",
-      fontSize: 14
-    }
+  },
+  paragraph: {
+    fontWeight: "bold",
+    fontSize: 14,
+    textAlign: "center"
   },
   divMenu: {
     display: "flex",

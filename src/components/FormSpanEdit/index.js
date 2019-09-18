@@ -19,7 +19,7 @@ import { fetchSpanTypes } from "../../redux/actions/spanActions";
 import { fetchStates } from "../../redux/actions/globalActions";
 import { AddCircle } from "@material-ui/icons";
 
-class FormStructureEdit extends React.Component {
+class FormSpanEdit extends React.Component {
 
   componentDidMount(){
     this.props.fetchSpanTypes(this.props.projectId);
@@ -38,7 +38,7 @@ class FormStructureEdit extends React.Component {
       states,
       spansTypes,
       structures,
-      isModal
+      isCreate
     } = this.props;
     return (
       <Form onSubmit={this.props.handleSubmit}>
@@ -180,7 +180,7 @@ class FormStructureEdit extends React.Component {
                       );
                     })}
                   </TextField>
-                  {isModal ? (
+                  {isCreate ? (
                     <div>
                       <Tooltip
                         title="Add span type"
@@ -204,11 +204,20 @@ class FormStructureEdit extends React.Component {
                 <TextField
                   name="number"
                   value={values.number}
-                  onChange={this.props.handleChange}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/\s/g, "")
+                    this.props.handleChange(e)
+                  }}
                   onBlur={this.props.handleBlur}
                   label="Number"
                   fullWidth
                   margin="normal"
+                  error={!!touched.number && !!errors.number}
+                  helperText={
+                    !!touched.number &&
+                    !!errors.number &&
+                    errors.number
+                  }
                   required
                 />
               </Grid>
@@ -216,24 +225,17 @@ class FormStructureEdit extends React.Component {
           </Grid>
         </Grid>
         <br />
-        {isModal ? (
+        {isCreate ? (
           <Grid container justify="flex-end">
-            <Button
-              variant="outlined"
-              disabled={loading}
-              className={classes.buttonCancel}
-              onClick={this.props.closeModal}
-            >
-              Cancel
-            </Button>
             <Button
               style={{ marginLeft: 10 }}
               disabled={loading || isSubmitting || !isValid || !dirty}
               onClick={e => this.props.handleSubmit(e)}
-              variant="outlined"
-              className={classes.buttonAccept}
+              color="primary"
+              variant="contained"
+              fullWidth
             >
-              Add Span
+              Save
             </Button>
           </Grid>
         ) : (
@@ -272,11 +274,11 @@ const mapDispatchToProps = {
   fetchStates
 };
 
-FormStructureEdit.propTypes = {
+FormSpanEdit.propTypes = {
   handleBlur: PropTypes.func.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  isModal: PropTypes.bool.isRequired
+  isCreate: PropTypes.bool.isRequired
 };
 
 export default compose(
@@ -287,4 +289,4 @@ export default compose(
     mapStateToProps,
     mapDispatchToProps
   )
-)(FormStructureEdit);
+)(FormSpanEdit);

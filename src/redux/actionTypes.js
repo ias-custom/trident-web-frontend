@@ -75,6 +75,8 @@ export const GET_PHOTOS_SPAN = 'GET_PHOTOS_SPAN';
 export const GET_ITEMS_SPAN = 'GET_ITEMS_SPAN';
 export const GET_MARKINGS = 'GET_MARKINGS';
 export const GET_ACCESS = 'GET_ACCESS';
+export const SET_STRUCTURE_START = 'SET_STRUCTURE_START';
+export const SET_STRUCTURE_END = 'SET_STRUCTURE_END';
 
 // Reports
 export const GET_REPORTS = 'GET_REPORTS';
