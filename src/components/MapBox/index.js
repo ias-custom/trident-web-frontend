@@ -2,6 +2,7 @@ import React from "react";
 import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import { REACT_APP_MAP_TOKEN } from '../../config/environment';
 import styles from "./styles";
 import {
   toggleItemMenu,
@@ -51,15 +52,17 @@ class MapBox extends React.Component {
   reactMap = React.createRef();
 
   componentDidMount() {
-    mapboxgl.accessToken = process.env.REACT_APP_MAP_TOKEN;
+    mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
+      this.createMap();
+      // FOR PAGE HTTPS
+      /* navigator.geolocation.getCurrentPosition(({ coords }) => {
         this.setState({
           latitude: coords.latitude,
           longitude: coords.longitude
         });
         this.createMap();
-      });
+      }); */ 
     } else {
       this.createMap();
     }

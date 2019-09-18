@@ -108,7 +108,7 @@ class AccessCreate extends React.Component {
     const { form, span_id } = this.state;
 
     return (
-      <Layout title="Create Marking">
+      <Layout title="Create Access">
         {() => (
           <div className={classes.root}>
             <SimpleBreadcrumbs
