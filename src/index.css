@@ -12,3 +12,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.react-grid-Cell{
+  padding: 8px;
+}
+.react-grid-Cell__value > div {
+  top: 0;
+  transform: none;
+}

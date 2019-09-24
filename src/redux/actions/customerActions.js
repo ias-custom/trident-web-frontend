@@ -20,6 +20,7 @@ export const getCustomers = () => {
       const response = await customerService.list();
       if (response.status === 200) {
         dispatch({type: GET_CUSTOMERS, payload: response.data});
+        localStorage.setItem('customers',  JSON.stringify(response.data));
       } else {
         dispatch({type: GET_CUSTOMERS, payload: []});
       }

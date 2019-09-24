@@ -33,6 +33,7 @@ import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
+import { withSnackbar } from "notistack";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -231,6 +232,7 @@ const mapDispatchToProps = {
 };
 
 export default compose(
+  withSnackbar,
   withRouter,
   withStyles(styles, { name: "CustomersList" }),
   connect(

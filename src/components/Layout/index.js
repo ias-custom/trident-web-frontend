@@ -75,13 +75,13 @@ class Layout extends React.Component {
 
   render() {
     const { classes, title, loading, auth, customers, customerSelectedId } = this.props;
+    if (auth.token === null) {
+      return <Redirect to="/login" />
+    }
     const logoCustomer = (customers.find( c => c.id === customerSelectedId)).thumbnail
     const { anchorEl } = this.state;
     const open = Boolean(anchorEl);
 
-    if (auth.token === null) {
-      return <Redirect to="/login" />
-    }
 
     return (
       <div className={classes.root}>
