@@ -11,6 +11,7 @@ import CustomersIcon from '@material-ui/icons/HowToReg';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ReportingIcon from '@material-ui/icons/Assessment';
 import ProjectIcon from '@material-ui/icons/Work';
+import BusinessIcon from '@material-ui/icons/Business';
 
 import UserIcon from '@material-ui/icons/GroupOutlined';
 import { Link as RouterLink } from 'react-router-dom'
@@ -27,6 +28,8 @@ import {
   CAN_VIEW_ROLE,
   CAN_ADD_PROJECT,
   CAN_VIEW_PROJECT,
+  CAN_ADD_SUBSTATION,
+  CAN_VIEW_SUBSTATION,
 } from '../../redux/permissions'
 /*
 import Collapse from "@material-ui/core/Collapse/Collapse";
@@ -46,6 +49,8 @@ const ProjectsLink = props => <RouterLink to="/projects" {...props} />;
 const ProjectCreateLink = props => <RouterLink to="/projects/create" {...props} />;
 const DashboardLink = props => <RouterLink to="/home" {...props} />;
 const ReportingLink = props => <RouterLink to="/reports" {...props} />;
+const SubstationsLink = props => <RouterLink to="/substations" {...props} />;
+const SubstationCreateLink = props => <RouterLink to="/substations/create" {...props} />;
 
 class MainListItems extends React.Component {
   
@@ -183,6 +188,35 @@ class MainListItems extends React.Component {
                 <Link component={ProjectCreateLink} underline="none">
                   <ListItem button className={classes.subMenu} selected={itemsMenu.projects.create}>
                     <ListItemText primary="Project Create" />
+                  </ListItem>
+                </Link>
+              ):null}
+              </List>
+            </Collapse>
+          </div>
+        ): null}
+        { permissions.includes(CAN_ADD_SUBSTATION) || permissions.includes(CAN_VIEW_SUBSTATION) || is_superuser ? (
+          <div>
+            <ListItem button onClick={()=>{this.changeStateOpen('substations', !itemsMenu.substations.open)}} className={classes.listItem}>
+              <ListItemIcon>
+                <BusinessIcon/>
+              </ListItemIcon>
+              <ListItemText primary={`Substations Admin`} className={classes.textEllipsis} />
+              {itemsMenu.substations.open ? <ExpandLess /> : <ExpandMore />}
+            </ListItem>
+            <Collapse in={itemsMenu.substations.open}>
+              <List component="div">
+              { permissions.includes(CAN_VIEW_SUBSTATION) || is_superuser ? (
+                <Link component={SubstationsLink} underline="none">
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.substations.list}>
+                    <ListItemText primary="Substation List" />
+                  </ListItem>
+                </Link>
+              ):null }
+              { permissions.includes(CAN_ADD_SUBSTATION) || is_superuser ? (
+                <Link component={SubstationCreateLink} underline="none">
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.substations.create}>
+                    <ListItemText primary="Substation Create" />
                   </ListItem>
                 </Link>
               ):null}

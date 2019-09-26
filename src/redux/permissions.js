@@ -22,3 +22,8 @@ export const CAN_VIEW_SPAM = 'view_spam'
 export const CAN_ADD_SPAM = 'add_spam'
 export const CAN_CHANGE_SPAM = 'change_spam'
 export const CAN_DELETE_SPAM = 'delete_spam'
+
+export const CAN_VIEW_SUBSTATION = 'view_substation'
+export const CAN_ADD_SUBSTATION = 'add_substation'
+export const CAN_CHANGE_SUBSTATION = 'change_substation'
+export const CAN_DELETE_SUBSTATION = 'delete_substation'

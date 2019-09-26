@@ -24,6 +24,11 @@ const initialState = {
         open: false,
         list: false,
         create: false 
+      },
+      substations: {
+        open: false,
+        list: false,
+        create: false 
       }
   }
 };

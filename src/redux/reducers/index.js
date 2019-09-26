@@ -8,6 +8,7 @@ import projectReducer from './projectReducer';
 import roleReducer from './roleReducer';
 import structureReducer from "./structureReducer";
 import spanReducer from "./spanReducer";
+import substationsReducer from "./substationReducer";
 
 export default combineReducers({
   global: globalReducer,
@@ -18,5 +19,6 @@ export default combineReducers({
   projects: projectReducer,
   roles: roleReducer,
   structures: structureReducer,
-  spans: spanReducer
+  spans: spanReducer,
+  substations: substationsReducer
 });

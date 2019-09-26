@@ -47,8 +47,14 @@ import {
   CAN_CHANGE_ROLE,
   CAN_VIEW_PROJECT,
   CAN_ADD_PROJECT,
-  CAN_CHANGE_PROJECT
+  CAN_CHANGE_PROJECT,
+  CAN_VIEW_SUBSTATION,
+  CAN_ADD_SUBSTATION,
+  CAN_CHANGE_SUBSTATION
 } from './redux/permissions'
+import SubstationsList from "./containers/Substations/SubstationsList";
+import SubstationCreate from "./containers/Substations/SubstationCreate";
+import SubstationEdit from "./containers/Substations/SubstationEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -109,6 +115,12 @@ class App extends Component {
           <PrivateRoute exact path="/projects/:projectId/spans/:id" component={SpamEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/markings/create" component={MarkingCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/access/create" component={AccessCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+
+          <PrivateRoute exact path="/substations" component={SubstationsList} allowedPermission={CAN_VIEW_SUBSTATION}/>
+          <PrivateRoute exact path="/substations/create" component={SubstationCreate} allowedPermission={CAN_ADD_SUBSTATION}/>
+          <PrivateRoute exact path="/substations/:id" component={SubstationEdit} allowedPermission={CAN_CHANGE_SUBSTATION}/>
+          {/* <PrivateRoute exact path="/substations/create" component={UserCreate} allowedPermission={CAN_ADD_USER}/>
+          <PrivateRoute exact path="/substations/:id" component={UserEdit} allowedPermission={CAN_CHANGE_USER}/> */}
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
