@@ -29,13 +29,7 @@ import {
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import {
-  Edit,
-  Delete,
-  Save,
-  Cancel,
-  ExpandMore
-} from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel, ExpandMore } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -113,7 +107,7 @@ class ProjectEdit extends React.Component {
         this.props.fetchStructures(this.projectId);
         this.props.fetchSpans(this.projectId);
         this.props.getUsers();
-        this.props.getDeficiencies(this.projectId)
+        this.props.getDeficiencies(this.projectId);
 
         const nameItem = "projects";
         const open = true;
@@ -164,7 +158,10 @@ class ProjectEdit extends React.Component {
     try {
       if (this.state.value === 0) {
         itemName = "User";
-        response = await this.props.deleteUser(this.projectId, this.state.itemId);
+        response = await this.props.deleteUser(
+          this.projectId,
+          this.state.itemId
+        );
       }
       if (this.state.value === 1) {
         itemName = "Structure";
@@ -175,14 +172,20 @@ class ProjectEdit extends React.Component {
       }
       if (this.state.value === 2) {
         itemName = "Span";
-        response = await this.props.deleteSpan(this.projectId, this.state.itemId);
+        response = await this.props.deleteSpan(
+          this.projectId,
+          this.state.itemId
+        );
       }
-  
+
       if (this.state.value === 4) {
         itemName = "Deficiency";
-        response = await this.props.deleteDeficiency(this.projectId, this.state.itemId);
+        response = await this.props.deleteDeficiency(
+          this.projectId,
+          this.state.itemId
+        );
       }
-  
+
       if (response.status === 200 || response.status === 204) {
         // SHOW NOTIFICACION SUCCCESS
         const text = `${itemName} successfully removed!`;
@@ -337,12 +340,12 @@ class ProjectEdit extends React.Component {
   };
 
   addDeficiency = async () => {
-    this.setState({openDeficiency: false})
+    this.setState({ openDeficiency: false });
     const form = { name: this.state.deficiencyName };
     try {
       const response = await this.props.addDeficiency(this.projectId, form);
       if (response.status === 200 || response.status === 201) {
-        this.setState({deficiencyName: ""});
+        this.setState({ deficiencyName: "" });
         // SHOW NOTIFICACION SUCCCESS
         this.props.enqueueSnackbar("¡The deficiency was added successfully!", {
           variant: "success",
@@ -356,6 +359,19 @@ class ProjectEdit extends React.Component {
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
+  };
+
+  dataPorcentage = items => {
+    const {classes} = this.props
+    const total = items.length;
+    const collected = items.filter( ({state_id}) => state_id === 1).length;
+    const not_collected = items.filter( ({state_id}) => state_id !== 1).length;
+    return (
+      <p className={classes.dataPorcentage}>
+        Collected: {((collected / total) * 100).toFixed(2)}% / No collected:{" "}
+        {((not_collected / total) * 100).toFixed(2)}%
+      </p>
+    );
   };
 
   render() {
@@ -386,48 +402,48 @@ class ProjectEdit extends React.Component {
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
     });
-    
+
     return (
       <Layout title="Projects">
         {() => (
           <div>
             <Dialog
-            open={open}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            onBackdropClick={() =>
-              !loading ? this.closeModal("open", null) : false
-            }
-            onEscapeKeyDown={() =>
-              !loading ? this.closeModal("open", null) : false
-            }
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Are you sure you want to delete?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                If you delete it will be permanently.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="outlined"
-                className={classes.buttonCancel}
-                onClick={() => this.closeModal("open", null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                className={classes.buttonAccept}
-                onClick={this.handleDelete}
-              >
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
+              open={open}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() =>
+                !loading ? this.closeModal("open", null) : false
+              }
+              onEscapeKeyDown={() =>
+                !loading ? this.closeModal("open", null) : false
+              }
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"Are you sure you want to delete?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  If you delete it will be permanently.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => this.closeModal("open", null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.handleDelete}
+                >
+                  Agree
+                </Button>
+              </DialogActions>
+            </Dialog>
             <Dialog
               open={openUser}
               classes={{ paper: classes.dialog }}
@@ -449,7 +465,9 @@ class ProjectEdit extends React.Component {
                   value={userSelected}
                   margin="normal"
                   disabled={loading}
-                  onChange={e => this.setState({ userSelected: e.target.value })}
+                  onChange={e =>
+                    this.setState({ userSelected: e.target.value })
+                  }
                   fullWidth
                 >
                   {usersAvailable.map(user => {
@@ -474,14 +492,16 @@ class ProjectEdit extends React.Component {
                   color="primary"
                   className={classes.buttonAccept}
                   onClick={this.addUser}
-                  disabled={loading || userSelected === "" || userSelected === null}
+                  disabled={
+                    loading || userSelected === "" || userSelected === null
+                  }
                 >
                   Add User
                 </Button>
               </DialogActions>
             </Dialog>
             <Dialog
-              open={ openDeficiency }
+              open={openDeficiency}
               classes={{ paper: classes.dialog }}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
@@ -500,7 +520,7 @@ class ProjectEdit extends React.Component {
                     value={deficiencyName}
                     onChange={e => {
                       const value = e.target.value;
-                      this.setState({deficiencyName: value});
+                      this.setState({ deficiencyName: value });
                     }}
                     margin="normal"
                     fullWidth
@@ -514,9 +534,7 @@ class ProjectEdit extends React.Component {
                   color="primary"
                   className={classes.buttonCancel}
                   onClick={() =>
-                    !loading
-                      ? this.closeModal("openDeficiency", null)
-                      : null
+                    !loading ? this.closeModal("openDeficiency", null) : null
                   }
                 >
                   Cancel
@@ -532,9 +550,12 @@ class ProjectEdit extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
-            
+
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+              <SimpleBreadcrumbs
+                routes={breadcrumbs}
+                classes={{ root: classes.breadcrumbs }}
+              />
               {editName ? (
                 <Grid item xs={6}>
                   <TextField
@@ -595,11 +616,11 @@ class ProjectEdit extends React.Component {
                   textColor="primary"
                   variant="fullWidth"
                 >
-                  <Tab label="Users" />
-                  <Tab label="Structures" />
-                  <Tab label="Spans" />
-                  <Tab label="Inspections" />
-                  <Tab label="Deficiencies" />
+                  <Tab label="Users"  disabled={loading}/>
+                  <Tab label="Structures" disabled={loading}/>
+                  <Tab label="Spans" disabled={loading}/>
+                  <Tab label="Inspections" disabled={loading}/>
+                  <Tab label="Deficiencies" disabled={loading}/>
                 </Tabs>
               </Grid>
               <Panel>
@@ -647,7 +668,9 @@ class ProjectEdit extends React.Component {
                             <TableCell component="td">
                               {user.first_name} {user.last_name}
                             </TableCell>
-                            <TableCell component="td">{user.username}</TableCell>
+                            <TableCell component="td">
+                              {user.username}
+                            </TableCell>
                             <TableCell component="td">{user.email}</TableCell>
                             <TableCell>
                               <div style={{ display: "flex" }}>
@@ -697,9 +720,11 @@ class ProjectEdit extends React.Component {
                         color="primary"
                         disabled={loading}
                         onClick={() => {
-                          this.props.setPoint("", "")
-                          this.props.history.push(`/projects/${this.projectId}/structures/create`)}
-                        }
+                          this.props.setPoint("", "");
+                          this.props.history.push(
+                            `/projects/${this.projectId}/structures/create`
+                          );
+                        }}
                       >
                         Add Structure
                       </Button>
@@ -713,11 +738,12 @@ class ProjectEdit extends React.Component {
                         }}
                       />
                     </div>
+                    <Grid>{this.dataPorcentage(structures)}</Grid>
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell style={{width: "50%"}}>Name</TableCell>
-                          <TableCell style={{width: "30%"}}>State</TableCell>
+                          <TableCell style={{ width: "50%" }}>Name</TableCell>
+                          <TableCell style={{ width: "30%" }}>State</TableCell>
                           <TableCell colSpan={1}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
@@ -725,7 +751,9 @@ class ProjectEdit extends React.Component {
                         {this.filter(structures, search, "structures").map(
                           structure => (
                             <TableRow key={structure.id}>
-                              <TableCell component="td">{structure.name}</TableCell>
+                              <TableCell component="td">
+                                {structure.name}
+                              </TableCell>
                               <TableCell component="td">
                                 {structure.state.name === "Collected" ? (
                                   <Typography color="primary">
@@ -786,8 +814,10 @@ class ProjectEdit extends React.Component {
                         color="primary"
                         disabled={loading}
                         onClick={() => {
-                          this.props.setStructures("", "")
-                          this.props.history.push(`/projects/${this.projectId}/spans/create`)
+                          this.props.setStructures("", "");
+                          this.props.history.push(
+                            `/projects/${this.projectId}/spans/create`
+                          );
                         }}
                       >
                         Add Span
@@ -802,11 +832,12 @@ class ProjectEdit extends React.Component {
                         }}
                       />
                     </div>
+                    <Grid>{this.dataPorcentage(spans)}</Grid>
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell style={{width: "50%"}}>ID</TableCell>
-                          <TableCell style={{width: "30%"}}>State</TableCell>
+                          <TableCell style={{ width: "50%" }}>ID</TableCell>
+                          <TableCell style={{ width: "30%" }}>State</TableCell>
                           <TableCell>Actions</TableCell>
                         </TableRow>
                       </TableHead>
@@ -854,7 +885,9 @@ class ProjectEdit extends React.Component {
                                   aria-label="Delete"
                                   className={classes.iconDelete}
                                   disabled={loading}
-                                  onClick={() => this.showModal(span.id, "open")}
+                                  onClick={() =>
+                                    this.showModal(span.id, "open")
+                                  }
                                 >
                                   <Delete />
                                 </IconButton>
@@ -884,7 +917,8 @@ class ProjectEdit extends React.Component {
                         >
                           {name}
                         </Typography>
-                        {categories_project.filter(({ inspection_id }) => inspection_id === id)
+                        {categories_project
+                          .filter(({ inspection_id }) => inspection_id === id)
                           .map(category => (
                             <div key={category.id}>
                               <ExpansionPanel
@@ -894,7 +928,9 @@ class ProjectEdit extends React.Component {
                                 }}
                                 classes={{ root: classes.collapse }}
                               >
-                                <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                                <ExpansionPanelSummary
+                                  expandIcon={<ExpandMore />}
+                                >
                                   {category.name}
                                 </ExpansionPanelSummary>
                                 <ExpansionPanelDetails
@@ -966,10 +1002,14 @@ class ProjectEdit extends React.Component {
                                             aria-label="Save"
                                             color="primary"
                                             onClick={() =>
-                                              this.changeNameItem(item, category.id)
+                                              this.changeNameItem(
+                                                item,
+                                                category.id
+                                              )
                                             }
                                             disabled={
-                                              loading || item.newName.length === 0
+                                              loading ||
+                                              item.newName.length === 0
                                             }
                                           >
                                             <Save />
@@ -1037,7 +1077,7 @@ class ProjectEdit extends React.Component {
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell style={{width: "80%"}}>Name</TableCell>
+                          <TableCell style={{ width: "80%" }}>Name</TableCell>
                           <TableCell colSpan={1}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
@@ -1045,7 +1085,9 @@ class ProjectEdit extends React.Component {
                         {this.filter(deficiencies, search, "deficiencies").map(
                           deficiency => (
                             <TableRow key={deficiency.id}>
-                              <TableCell component="td">{deficiency.name}</TableCell>
+                              <TableCell component="td">
+                                {deficiency.name}
+                              </TableCell>
                               <TableCell>
                                 <div style={{ display: "flex" }}>
                                   <IconButton

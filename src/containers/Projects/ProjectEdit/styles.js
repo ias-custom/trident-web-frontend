@@ -115,6 +115,10 @@ const styles = theme => ({
   },
   breadcrumbs: {
     marginTop: 20
+  },
+  dataPorcentage: {
+    padding: "0 20px",
+    fontWeight: "bold"
   }
 });
 
