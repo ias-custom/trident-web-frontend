@@ -23,12 +23,18 @@ const initialState = {
       projects: {
         open: false,
         list: false,
-        create: false 
+        create: false,
+        maps: false
       },
       substations: {
         open: false,
         list: false,
         create: false 
+      },
+      sets: {
+        open: false,
+        list: false,
+        create: false
       }
   }
 };

@@ -25,7 +25,12 @@ const styles = theme => ({
     right: 10
   },
   structure: {
-    color: "#3f51b5", 
+    color: "gray", 
+    fontSize: 20, 
+    cursor: "pointer"
+  },
+  structureRed: {
+    color: "#ed5355", 
     fontSize: 20, 
     cursor: "pointer"
   },

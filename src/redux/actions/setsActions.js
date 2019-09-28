@@ -1,15 +1,16 @@
 import {
-    GET_SUBSTATIONS,
-    DELETE_SUBSTATION,
-    ON_LOADING
+    GET_SETS,
+    DELETE_SET,
+    ON_LOADING,
+    DUPLICATE_SET
   } from '../actionTypes';
-  import SubstationService from '../../services/SubstationService';
+  import SetService from '../../services/SetService';
   
-  const service = new SubstationService();
+  const service = new SetService();
   
   export const setLoading = (loading) => ({ type: ON_LOADING, loading });
   
-  export const getSubstation = (id) => {
+  export const getSet = (id) => {
     return async dispatch => {
       dispatch(setLoading(true));
   
@@ -25,7 +26,7 @@ import {
     }
   };
 
-  export const getSubstations = () => {
+  export const fetchSets = () => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
@@ -33,9 +34,9 @@ import {
         const response = await service.list();
   
         if (response.status === 200) {
-          dispatch({ type: GET_SUBSTATIONS, payload: response.data });
+          dispatch({ type: GET_SETS, payload: response.data });
         } else {
-          dispatch({ type: GET_SUBSTATIONS, payload: [] });
+          dispatch({ type: GET_SETS, payload: [] });
         }
   
         return response;
@@ -47,7 +48,7 @@ import {
     }
   };
 
-  export const deleteSubstation = (id) => {
+  export const deleteSet = (id) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
@@ -55,9 +56,9 @@ import {
         const response = await service.delete(id);
   
         if (response.status === 204) {
-          dispatch({type: DELETE_SUBSTATION, payload: id});
+          dispatch({type: DELETE_SET, payload: id});
         } 
-        dispatch({type: DELETE_SUBSTATION, payload: id});
+  
         return response;
       } catch (error) {
         console.error(error);
@@ -67,7 +68,7 @@ import {
     }
   };
 
-  export const createSubstation = (body) => {
+  export const createSet = (body) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
@@ -83,7 +84,7 @@ import {
     }
   };
   
-  export const updateSubstation = (id, body) => {
+  export const updateSet = (id, body) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
@@ -99,13 +100,18 @@ import {
     }
   };
 
-  export const getProjectsOfCustomer = (customerId) => {
+  export const duplicateSet = (form) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
       try {
-        const response = await service.getProjects(customerId);
-
+        const response = await service.duplicate(form);
+  
+        if (response.status === 200) {
+          dispatch({type: DUPLICATE_SET, payload: response.data});
+        } 
+        dispatch({type: DUPLICATE_SET, payload: {name: "new item", id: 5}});
+  
         return response;
       } catch (error) {
         console.error(error);

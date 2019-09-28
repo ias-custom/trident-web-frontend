@@ -50,11 +50,16 @@ import {
   CAN_CHANGE_PROJECT,
   CAN_VIEW_SUBSTATION,
   CAN_ADD_SUBSTATION,
-  CAN_CHANGE_SUBSTATION
+  CAN_CHANGE_SUBSTATION,
+  CAN_VIEW_SET,
+  CAN_ADD_SET
 } from './redux/permissions'
 import SubstationsList from "./containers/Substations/SubstationsList";
 import SubstationCreate from "./containers/Substations/SubstationCreate";
 import SubstationEdit from "./containers/Substations/SubstationEdit";
+import MapsView from "./containers/Projects/MapsView";
+import SetList from "./containers/Sets/SetList";
+import SetCreate from "./containers/Sets/SetCreate";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -107,6 +112,7 @@ class App extends Component {
           <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/spans/create" component={SpanCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          <Route exact path="/projects/maps-view" component={MapsView} />
           <PrivateRoute exact path="/projects/:id" component={ProjectEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <PrivateRoute exact path="/projects/:projectId/structures/create" component={StructureCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
@@ -119,8 +125,9 @@ class App extends Component {
           <PrivateRoute exact path="/substations" component={SubstationsList} allowedPermission={CAN_VIEW_SUBSTATION}/>
           <PrivateRoute exact path="/substations/create" component={SubstationCreate} allowedPermission={CAN_ADD_SUBSTATION}/>
           <PrivateRoute exact path="/substations/:id" component={SubstationEdit} allowedPermission={CAN_CHANGE_SUBSTATION}/>
-          {/* <PrivateRoute exact path="/substations/create" component={UserCreate} allowedPermission={CAN_ADD_USER}/>
-          <PrivateRoute exact path="/substations/:id" component={UserEdit} allowedPermission={CAN_CHANGE_USER}/> */}
+
+          <PrivateRoute exact path="/sets" component={SetList} allowedPermission={CAN_VIEW_SET}/>
+          <PrivateRoute exact path="/sets/create" component={SetCreate} allowedPermission={CAN_ADD_SET}/>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />

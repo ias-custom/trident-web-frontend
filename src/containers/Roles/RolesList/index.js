@@ -88,6 +88,10 @@ class RolesList extends React.Component {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
     }
   };
 

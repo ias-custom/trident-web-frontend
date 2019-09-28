@@ -2,7 +2,7 @@ import React from "react";
 import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { REACT_APP_MAP_TOKEN } from '../../config/environment';
+import { REACT_APP_MAP_TOKEN } from "../../config/environment";
 import styles from "./styles";
 import {
   toggleItemMenu,
@@ -62,7 +62,7 @@ class MapBox extends React.Component {
           longitude: coords.longitude
         });
         this.createMap();
-      }); */ 
+      }); */
     } else {
       this.createMap();
     }
@@ -137,8 +137,8 @@ class MapBox extends React.Component {
         "line-cap": "round"
       },
       paint: {
-        "line-color": "#888",
-        "line-width": 6
+        "line-color": "#444444",
+        "line-width": 5
       }
     });
 
@@ -226,7 +226,9 @@ class MapBox extends React.Component {
       </div>
     );
   }
+
   getStructures() {
+    console.log(this.props.structures);
     const features = this.props.structures.map(structure => {
       return {
         type: "Feature",
@@ -237,7 +239,8 @@ class MapBox extends React.Component {
         properties: {
           name: structure.name,
           link: `/projects/${this.props.projectId}/structures/${structure.id}`,
-          id: structure.id
+          id: structure.id,
+          collected: structure.state_id === 1
         }
       };
     });
@@ -245,7 +248,10 @@ class MapBox extends React.Component {
     features.forEach(marker => {
       // create a HTML element for each feature
       var el = document.createElement("i");
-      el.className = `fas fa-broadcast-tower ${this.props.classes.structure}`;
+      const classMarker = marker.properties.collected
+        ? this.props.classes.structure
+        : this.props.classes.structureRed;
+      el.className = `fas fa-broadcast-tower ${classMarker}`;
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
@@ -266,7 +272,7 @@ class MapBox extends React.Component {
               };
             });
           } else {
-            if (id !== structuresSelected.first.id){
+            if (id !== structuresSelected.first.id) {
               this.setState(prevState => {
                 return {
                   structuresSelected: {

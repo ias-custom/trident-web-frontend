@@ -292,7 +292,6 @@ export const getInspectionsProject = projectId => {
 
     try {
       const response = await service.getInspections(projectId);
-
       if (response.status === 200) {
         dispatch({ type: GET_INSPECTIONS_PROJECT, payload: response.data });
 

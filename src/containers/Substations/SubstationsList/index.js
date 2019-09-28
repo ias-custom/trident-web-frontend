@@ -110,16 +110,14 @@ class SubstationsList extends React.Component {
     const {
       classes,
       loading,
-      auth,
       is_superuser,
       permissions,
-      //substations
+      substations
     } = this.props;
     const canCreateSubstation = permissions.includes(CAN_ADD_SUBSTATION);
     const canChangeSubstation = permissions.includes(CAN_CHANGE_SUBSTATION);
     const canDeleteSubstation = permissions.includes(CAN_DELETE_SUBSTATION);
     const { search, open } = this.state;
-    const substations = [{id: 1, name: "Name substation", number: "CDFDHD", customer_name: "Luigui Saenz", latitude: "1.23343434", longitude: "76.4548567"}, {id: 2, name: "Name substation", customer_name: "Luigui Saenz", number: "CDFDHD", latitude: "1.23343434", longitude: "76.4548567"}, {id: 3, name: "Name substation", customer_name: "Luigui Saenz", number: "CDFDHD", latitude: "1.23343434", longitude: "76.4548567"}]
 
     return (
       <Layout title="Substations">

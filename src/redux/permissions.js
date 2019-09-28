@@ -27,3 +27,8 @@ export const CAN_VIEW_SUBSTATION = 'view_substation'
 export const CAN_ADD_SUBSTATION = 'add_substation'
 export const CAN_CHANGE_SUBSTATION = 'change_substation'
 export const CAN_DELETE_SUBSTATION = 'delete_substation'
+
+export const CAN_VIEW_SET = 'view_set'
+export const CAN_ADD_SET = 'add_set'
+export const CAN_CHANGE_SET = 'change_set'
+export const CAN_DELETE_SET = 'delete_set'

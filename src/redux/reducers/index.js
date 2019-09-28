@@ -9,6 +9,7 @@ import roleReducer from './roleReducer';
 import structureReducer from "./structureReducer";
 import spanReducer from "./spanReducer";
 import substationsReducer from "./substationReducer";
+import setReducer from "./setReducer";
 
 export default combineReducers({
   global: globalReducer,
@@ -20,5 +21,6 @@ export default combineReducers({
   roles: roleReducer,
   structures: structureReducer,
   spans: spanReducer,
-  substations: substationsReducer
+  substations: substationsReducer,
+  sets: setReducer
 });
