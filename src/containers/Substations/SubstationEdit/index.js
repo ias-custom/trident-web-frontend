@@ -68,12 +68,12 @@ class SubstationEdit extends React.Component {
     try {
       await this.props.getCustomers();    
       this.substationId = this.props.match.params.id;
-      /* const response = await this.props.getSubstation(this.substationId);
+      const response = await this.props.getSubstation(this.substationId);
       if (response.status === 200) {
         this.loadForm(response.data);
       } else {
         this.props.history.push("/404");
-      } */
+      }
     } catch (error) {
       console.error(error);
     }
@@ -91,9 +91,8 @@ class SubstationEdit extends React.Component {
 
     const response = await this.props.getProjectsOfCustomer(customer_id)
     if (response.status === 200) {
-      this.setState({ projects: response.data });
+      this.setState({projects: response.data});
     }
-
     const form = {
       name,
       number,
@@ -146,6 +145,18 @@ class SubstationEdit extends React.Component {
     }
     setSubmitting(false);
     this.props.setLoading(false);
+  };
+
+  getProjectsOfCustomer = async (customerId, oldCustomerId) => {
+    if (customerId !== oldCustomerId) {
+      const response = await this.props.getProjectsOfCustomer(customerId);
+      this.form.projectIds = []
+      this.form.customerId =customerId
+      this.setState({});
+      if (response.status === 200) {
+        this.setState({ projects: response.data });
+      }
+    }
   };
 
   render() {
@@ -291,8 +302,9 @@ class SubstationEdit extends React.Component {
                                 label="Customers"
                                 value={values.customerId}
                                 onChange={e => {
+                                  const oldCustomerId = values.customerId
                                   handleChange(e);
-                                  this.getProjectsOfCustomer(e.target.value);
+                                  this.getProjectsOfCustomer(e.target.value, oldCustomerId);
                                 }}
                                 onBlur={handleBlur}
                                 error={
@@ -343,10 +355,14 @@ class SubstationEdit extends React.Component {
                                   input={<Input id="select-multiple-chip" />}
                                   renderValue={selected => (
                                     <div className={classes.chips}>
-                                      {selected.map(({ id, name }) => (
+                                      {selected.map((selectedId) => (
                                         <Chip
-                                          key={id}
-                                          label={name}
+                                          key={selectedId}
+                                          label={
+                                            projects.find(
+                                              ({ id }) => id === selectedId
+                                            ).name
+                                          }
                                           className={classes.chip}
                                         />
                                       ))}
@@ -355,11 +371,11 @@ class SubstationEdit extends React.Component {
                                   fullWidth
                                 >
                                   {projects.map(project => (
-                                    <MenuItem key={project.id} value={project}>
+                                    <MenuItem key={project.id} value={project.id}>
                                       <Checkbox
                                         checked={
                                           !!values.projectIds.find(
-                                            c => c.id === project.id
+                                            id => id === project.id
                                           )
                                         }
                                       />
@@ -426,7 +442,7 @@ const mapDispatchToProps = {
   getProjectsOfCustomer,
   getSubstation,
   updateSubstation,
-  setLoading
+  setLoading,
 };
 
 export default compose(

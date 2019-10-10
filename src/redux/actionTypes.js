@@ -7,6 +7,7 @@ export const GET_ROLES = 'GET_ROLES';
 export const GET_STATES = 'GET_STATES';
 export const CHANGE_OPEN_MENU = 'CHANGE_OPEN_MENU';
 export const CHANGE_SELECTED_MENU = 'CHANGE_SELECTED_MENU';
+export const LOADED_CATEGORIES = 'LOADED_CATEGORIES';
 
 // Auth types
 export const LOGIN = 'LOGIN';

@@ -24,31 +24,53 @@ import { createCustomer } from "../../../redux/actions/customerActions";
 import {
   getInspectionsProject,
 } from "../../../redux/actions/projectActions";
+import {
+  getSet,
+} from "../../../redux/actions/setsActions";
 import { SetInspections } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Sets", to: "/sets" },
-  { name: "Create Set", to: null }
+  { name: "Edit Set", to: null }
 ];
 
-class SetCreate extends React.Component {
+class SetEdit extends React.Component {
   state = {
     openId: "",
-    enabledSet: false
+    enabledSet: false,
+    name: "",
+    categories: [],
+    inspections: []
   };
 
+  form = {
+    name: ""
+  };
+  setId = null
   componentDidMount = async () => {
     try {
       const nameItem = "sets";
-      const nameSubItem = "create";
+      const nameSubItem = "edit";
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
+      this.setId = this.props.match.params.id
+      /* const response = await this.props.getSet(this.setId)
+      if (response.status === 200) {
+        this.loadForm(response.data);
+      } else {
+        this.props.history.push("/404");
+      } */
       await this.props.getInspectionsProject(2);
       this.setState({enabledSet: true})
     } catch (error) {}
   }
+
+  loadForm = data => {
+    const { name, inspections, categories } = data;
+    this.setState({name, inspections, categories, enabledSet: true});
+  };
 
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
@@ -83,10 +105,10 @@ class SetCreate extends React.Component {
 
   render() {
     const { classes, inspections, categories_project } = this.props;
-    const { enabledSet } = this.state;
+    const { enabledSet, name, categories } = this.state;
 
     return (
-      <Layout title="Create Set">
+      <Layout title="Edit Set">
         {() => (
           <div className={classes.root}>
             <SimpleBreadcrumbs
@@ -120,15 +142,16 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   createCustomer,
-  getInspectionsProject
+  getInspectionsProject,
+  getSet
 };
 
 export default compose(
   withRouter,
   withSnackbar,
-  withStyles(styles, { name: "SetCreate" }),
+  withStyles(styles, { name: "SetEdit" }),
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
-)(SetCreate);
+)(SetEdit);

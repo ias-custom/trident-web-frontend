@@ -46,7 +46,8 @@ import {
   getDeficiencies,
   addDeficiency,
   deleteDeficiency,
-  setPoint
+  setPoint,
+  addSet
 } from "../../../redux/actions/projectActions";
 import {
   fetchStructures,
@@ -60,6 +61,7 @@ import {
 } from "../../../redux/actions/spanActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { setLoading } from "../../../redux/actions/globalActions";
+import { fetchSets } from "../../../redux/actions/setsActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
@@ -88,7 +90,12 @@ class ProjectEdit extends React.Component {
     inputProjectName: "",
     editName: false,
     userSelected: "",
-    deficiencyName: ""
+    deficiencyName: "",
+    openSet: false,
+    setId: "",
+    set: null,
+    setIdSelected: "",
+    setSelected: null,
   };
 
   projectId = null;
@@ -103,7 +110,7 @@ class ProjectEdit extends React.Component {
           inputProjectName: response.data.name
         });
         this.props.getUsersProject(this.projectId);
-        this.props.getInspectionsProject(this.projectId);
+        this.props.fetchSets();
         this.props.fetchStructures(this.projectId);
         this.props.fetchSpans(this.projectId);
         this.props.getUsers();
@@ -295,50 +302,6 @@ class ProjectEdit extends React.Component {
     else this.setState({ openId: category.id });
   }
 
-  changeNameItem = async (item, categoryId) => {
-    const form = { name: item.newName };
-    const response = await this.props.updateItemCategory(
-      categoryId,
-      item.id,
-      form
-    );
-    if (response.status === 200 || response.status === 204) {
-      // SHOW NOTIFICACION SUCCCESS
-      Object.assign(item, { name: item.newName, newName: "", edit: false });
-      this.setState({});
-      this.props.enqueueSnackbar("Item updated successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
-
-  changeNameCategory = async (category, inspectionId) => {
-    const form = { name: category.newName };
-    const response = await this.props.updateCategoryInspection(
-      category.id,
-      inspectionId,
-      form
-    );
-    if (response.status === 200 || response.status === 204) {
-      // SHOW NOTIFICACION SUCCCESS
-      Object.assign(category, { name: category.newName, newName: "" });
-      this.setState({});
-      this.props.enqueueSnackbar("Inspection updated successfully!", {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
-
   addDeficiency = async () => {
     this.setState({ openDeficiency: false });
     const form = { name: this.state.deficiencyName };
@@ -361,11 +324,31 @@ class ProjectEdit extends React.Component {
     }
   };
 
+  addSet = async () => {
+    const { setSelected, set, setId } = this.state;
+    this.setState({ openSet: false, set: setSelected, setId: setSelected.id});
+
+    const form = { set_id: setSelected.id };
+    const response = await this.props.addSet(this.projectId, form);
+    if (response.status === 200) {
+      this.props.enqueueSnackbar("¡The set was added successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.setState({ set, setId });
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    }
+  };
+
   dataPorcentage = items => {
-    const {classes} = this.props
+    const { classes } = this.props;
     const total = items.length;
-    const collected = items.filter( ({state_id}) => state_id === 1).length;
-    const not_collected = items.filter( ({state_id}) => state_id !== 1).length;
+    const collected = items.filter(({ state_id }) => state_id === 1).length;
+    const not_collected = items.filter(({ state_id }) => state_id !== 1).length;
     return (
       <p className={classes.dataPorcentage}>
         Collected: {((collected / total) * 100).toFixed(2)}% / No collected:{" "}
@@ -373,7 +356,11 @@ class ProjectEdit extends React.Component {
       </p>
     );
   };
-
+  openConfirmSet(setId) {
+    const { sets } = this.props;
+    const setSelected = sets.find(({ id }) => id === setId);
+    this.setState({ setSelected, openSet: true });
+  }
   render() {
     const {
       classes,
@@ -384,7 +371,8 @@ class ProjectEdit extends React.Component {
       users_customer,
       inspections,
       categories_project,
-      deficiencies
+      deficiencies,
+      sets
     } = this.props;
     const {
       search,
@@ -397,7 +385,11 @@ class ProjectEdit extends React.Component {
       userSelected,
       openId,
       openDeficiency,
-      deficiencyName
+      deficiencyName,
+      setId,
+      openSet,
+      set,
+      setSelected
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
@@ -550,6 +542,55 @@ class ProjectEdit extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
+            <Dialog
+              open={openSet}
+              classes={{ paper: classes.dialogSet }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() => {
+                this.setState({ openSet: false});
+              }}
+              onEscapeKeyDown={() => {
+                this.setState({ openSet: false });
+              }}
+            >
+              <DialogTitle id="alert-dialog-title">
+                {`Set ${setSelected && setSelected.name}`}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Below is the set information
+                </DialogContentText>
+                <Grid container spacing={16}>
+                  <Grid xs item>
+                    sadasd
+                  </Grid>
+                  <Grid xs item>
+                    asdasd
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonCancel}
+                  onClick={() => {
+                    this.setState({ openSet: false });
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.addSet}
+                >
+                  Add set
+                </Button>
+              </DialogActions>
+            </Dialog>
 
             <div className={classes.root}>
               <SimpleBreadcrumbs
@@ -616,11 +657,11 @@ class ProjectEdit extends React.Component {
                   textColor="primary"
                   variant="fullWidth"
                 >
-                  <Tab label="Users"  disabled={loading}/>
-                  <Tab label="Structures" disabled={loading}/>
-                  <Tab label="Spans" disabled={loading}/>
-                  <Tab label="Inspections" disabled={loading}/>
-                  <Tab label="Deficiencies" disabled={loading}/>
+                  <Tab label="Users" disabled={loading} />
+                  <Tab label="Structures" disabled={loading} />
+                  <Tab label="Spans" disabled={loading} />
+                  <Tab label="Sets" disabled={loading} />
+                  <Tab label="Deficiencies" disabled={loading} />
                 </Tabs>
               </Grid>
               <Panel>
@@ -908,151 +949,36 @@ class ProjectEdit extends React.Component {
                     ) : null}
                   </Grid>
                   <Grid container spacing={16}>
-                    {inspections.map(({ id, name }) => (
-                      <Grid item xs={6} key={id}>
-                        <Typography
-                          variant="h6"
-                          align="center"
-                          classes={{ h6: classes.categoryName }}
-                        >
-                          {name}
-                        </Typography>
-                        {categories_project
-                          .filter(({ inspection_id }) => inspection_id === id)
-                          .map(category => (
-                            <div key={category.id}>
-                              <ExpansionPanel
-                                expanded={openId === category.id}
-                                onChange={() => {
-                                  this.openCollapse(openId, category);
-                                }}
-                                classes={{ root: classes.collapse }}
-                              >
-                                <ExpansionPanelSummary
-                                  expandIcon={<ExpandMore />}
-                                >
-                                  {category.name}
-                                </ExpansionPanelSummary>
-                                <ExpansionPanelDetails
-                                  classes={{ root: classes.collapseDetails }}
-                                >
-                                  <Grid>
-                                    <TextField
-                                      name="name"
-                                      value={category.newName || ""}
-                                      placeholder="Change category name"
-                                      label=""
-                                      required
-                                      disabled={loading}
-                                      inputProps={{
-                                        className: classes.inputCategory
-                                      }}
-                                      onChange={e => {
-                                        category.newName = e.target.value;
-                                        this.setState({});
-                                      }}
-                                    />
-                                    <IconButton
-                                      className={classes.buttonSave}
-                                      aria-label="Save"
-                                      color="primary"
-                                      onClick={() =>
-                                        this.changeNameCategory(category, id)
-                                      }
-                                      disabled={
-                                        loading ||
-                                        !(
-                                          category.newName &&
-                                          category.newName.length > 0
-                                        )
-                                      }
-                                    >
-                                      <Save />
-                                    </IconButton>
-                                  </Grid>
-                                  <Grid>
-                                    <Typography
-                                      variant="subtitle1"
-                                      classes={{ subtitle1: classes.itemsText }}
-                                    >
-                                      ITEMS
-                                    </Typography>
-                                  </Grid>
-                                  {category.items.map(item => (
-                                    <div key={item.id}>
-                                      {item.edit ? (
-                                        <Grid>
-                                          <TextField
-                                            name="name"
-                                            value={item.newName}
-                                            label=""
-                                            required
-                                            disabled={loading}
-                                            autoFocus={item.edit}
-                                            inputProps={{
-                                              className: classes.inputCategory
-                                            }}
-                                            onChange={e => {
-                                              item.newName = e.target.value;
-                                              this.setState({});
-                                            }}
-                                          />
-                                          <IconButton
-                                            className={classes.buttonSave}
-                                            aria-label="Save"
-                                            color="primary"
-                                            onClick={() =>
-                                              this.changeNameItem(
-                                                item,
-                                                category.id
-                                              )
-                                            }
-                                            disabled={
-                                              loading ||
-                                              item.newName.length === 0
-                                            }
-                                          >
-                                            <Save />
-                                          </IconButton>
-                                          <IconButton
-                                            className={classes.iconDelete}
-                                            aria-label="Cancel"
-                                            onClick={() => {
-                                              item.edit = false;
-                                              this.setState({});
-                                            }}
-                                            disabled={loading}
-                                          >
-                                            <Cancel />
-                                          </IconButton>
-                                        </Grid>
-                                      ) : (
-                                        <Typography variant="subtitle1">
-                                          {item.name}
-                                          <IconButton
-                                            aria-label="Edit"
-                                            color="primary"
-                                            onClick={() => {
-                                              Object.assign(item, {
-                                                edit: true,
-                                                newName: item.name
-                                              });
-                                              this.setState({});
-                                            }}
-                                            disabled={loading}
-                                          >
-                                            <Edit />
-                                          </IconButton>
-                                        </Typography>
-                                      )}
-                                    </div>
-                                  ))}
-                                </ExpansionPanelDetails>
-                              </ExpansionPanel>
-                            </div>
-                          ))}
+                    <Grid item className={classes.divSelectSet} xs>
+                      <Typography
+                        variant="subtitle1"
+                        className={classes.textSelect}
+                      >
+                        SELECT THE SET:
+                      </Typography>
+                      <TextField
+                        name="set_id"
+                        select
+                        label="Sets"
+                        value={setId}
+                        onChange={e => this.openConfirmSet(e.target.value)}
+                        margin="none"
+                        fullWidth
+                      >
+                        {sets.map(set => {
+                          return (
+                            <MenuItem key={set.id} value={set.id}>
+                              {set.name}
+                            </MenuItem>
+                          );
+                        })}
+                      </TextField>
+                    </Grid>
+                    {set ? (
+                      <Grid item xs={12}>
+                        {JSON.stringify(set)}
                       </Grid>
-                    ))}
+                    ) : null}
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
@@ -1135,11 +1061,10 @@ const mapStateToProps = state => {
     is_superuser: state.auth.is_superuser,
     users_customer: state.users.list,
     users: state.projects.users,
-    inspections: state.projects.inspections,
-    categories_project: state.projects.categories_project,
     structures: state.structures.structures,
     spans: state.spans.spans,
-    deficiencies: state.projects.deficiencies
+    deficiencies: state.projects.deficiencies,
+    sets: state.sets.list
   };
 };
 
@@ -1150,9 +1075,6 @@ const mapDispatchToProps = {
   getDeficiencies,
   addDeficiency,
   deleteDeficiency,
-  getInspectionsProject,
-  updateCategoryInspection,
-  updateItemCategory,
   getProject,
   updateProject,
   getUsers,
@@ -1165,7 +1087,9 @@ const mapDispatchToProps = {
   selectedItemMenu,
   setLoading,
   setPoint,
-  setStructures
+  setStructures,
+  fetchSets,
+  addSet
 };
 
 export default compose(

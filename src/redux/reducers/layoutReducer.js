@@ -66,8 +66,11 @@ export default (state=initialState, action) => {
               else{
                 newMenu[key][keyItem] = false
               }
-            }
+            } 
           } 
+          if (key !== action.payload.nameItem) {
+            newMenu[key]['open'] = false
+          }
         }
       } catch (error) {
         console.log(error)

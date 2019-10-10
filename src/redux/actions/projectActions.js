@@ -17,7 +17,8 @@ import {
   GET_MARKINGS,
   GET_ACCESS,
   SET_LATITUDE,
-  SET_LONGITUDE
+  SET_LONGITUDE,
+  LOADED_CATEGORIES
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -268,7 +269,6 @@ export const getCategoriesInspection = inspectionId => {
 export const getCategoriesProject = inspectionId => {
   return async dispatch => {
     dispatch(setLoading(true));
-
     try {
       const response = await service.getCategories(inspectionId);
 
@@ -291,14 +291,15 @@ export const getInspectionsProject = projectId => {
     dispatch(setLoading(true));
 
     try {
+      dispatch({ type: LOADED_CATEGORIES, payload: false });
       const response = await service.getInspections(projectId);
       if (response.status === 200) {
         dispatch({ type: GET_INSPECTIONS_PROJECT, payload: response.data });
 
-        dispatch({ type: SET_CATEGORIES_EMPTY, payload: [] });
+        /* dispatch({ type: SET_CATEGORIES_EMPTY, payload: [] });
         response.data.forEach(({ id }) => {
           dispatch(getCategoriesProject(id));
-        });
+        }); */
       }
 
       return response;
@@ -451,3 +452,20 @@ export const getAccessTypeDetail = (accessTypeId) => {
     }
   }
 }
+
+// SETS
+export const addSet = (projectId, form) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.addSet(projectId, form);
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};

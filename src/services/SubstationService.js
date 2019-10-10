@@ -9,7 +9,7 @@ class SubstationService extends Service {
 
   async list() {
     try {
-      return await this.http.get(`/customers/${this.getCustomerSelectedId()}/users/`);
+      return await this.http.get(`/customers/${this.getCustomerSelectedId()}/substations/`);
     } catch (error) {
       return error.response;
     }
@@ -17,7 +17,7 @@ class SubstationService extends Service {
 
   async get(id) {
     try {
-      const url = `/customers/${this.getCustomerSelectedId()}/users/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/substations/${id}/`;
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -26,7 +26,7 @@ class SubstationService extends Service {
 
   async create(body = {}) {
     try {
-      return await this.http.post(`/customers/${this.getCustomerSelectedId()}/users/`, body);
+      return await this.http.post(`/customers/${this.getCustomerSelectedId()}/substations/`, body);
     } catch (error) {
       console.log('service', error);
       return error.response;
@@ -35,7 +35,7 @@ class SubstationService extends Service {
 
   async update(id, body = {}) {
     try {
-      const url = `/customers/${this.getCustomerSelectedId()}/users/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/substations/${id}/`;
       return await this.http.patch(url, body);
     } catch (error) {
       return error.response;
@@ -44,7 +44,7 @@ class SubstationService extends Service {
 
   async delete(id) {
     try {
-      const url = `/customers/${this.getCustomerSelectedId()}/users/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/substations/${id}/`;
       return await this.http.delete(url);
     } catch (error) {
       return error.response;

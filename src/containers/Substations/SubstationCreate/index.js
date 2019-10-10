@@ -80,6 +80,7 @@ class SubstationCreate extends React.Component {
       customerId,
       projectIds
     } = values;
+    const project_ids = projectIds.map(({ id }) => id);
 
     const form = {
       name,
@@ -87,7 +88,7 @@ class SubstationCreate extends React.Component {
       longitude,
       number,
       customer_id: customerId,
-      project_ids: projectIds
+      project_ids
     };
 
     try {

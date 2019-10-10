@@ -14,7 +14,7 @@ import ProjectIcon from '@material-ui/icons/Work';
 import BusinessIcon from '@material-ui/icons/Business';
 
 import UserIcon from '@material-ui/icons/GroupOutlined';
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
 import styles from './styles';
 import { withStyles, Divider } from '@material-ui/core';

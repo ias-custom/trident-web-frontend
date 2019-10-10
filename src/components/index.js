@@ -13,6 +13,7 @@ import FormSpanEdit from './FormSpanEdit';
 import PhotosList from './PhotosList';
 import Equipment from './Equipment';
 import MapBox from './MapBox';
+import SetInspections from './SetInspections';
 
 export {
   InputSearch,
@@ -30,5 +31,6 @@ export {
   FormSpanEdit,
   PhotosList,
   Equipment,
-  MapBox
+  MapBox,
+  SetInspections
 }

@@ -20,7 +20,8 @@ import {
   Input,
   IconButton,
   Link,
-  withStyles
+  withStyles,
+  Typography
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import Layout from "../../../components/Layout/index";
@@ -58,7 +59,7 @@ class SubstationsList extends React.Component {
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });
-    //this.props.getSubstations();
+    this.props.getSubstations();
   }
 
   handleSearch = event => {
@@ -124,38 +125,38 @@ class SubstationsList extends React.Component {
         {() => (
           <div>
             <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={this.closeModal}
-          onEscapeKeyDown={this.closeModal}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete the substation it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={this.closeModal}
+              open={open}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={this.closeModal}
+              onEscapeKeyDown={this.closeModal}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <DialogTitle id="alert-dialog-title">
+                {"Are you sure you want to delete?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  If you delete the substation it will be permanently.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={this.closeModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.handleDelete}
+                >
+                  Agree
+                </Button>
+              </DialogActions>
+            </Dialog>
             <div className={classes.root}>
               <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 
@@ -202,7 +203,7 @@ class SubstationsList extends React.Component {
                         <TableCell component="th" scope="row">
                           {station.name}
                         </TableCell>
-                        <TableCell>{station.customer_name}</TableCell>
+                        <TableCell>{station.customer.name}</TableCell>
                         <TableCell>{station.number}</TableCell>
                         <TableCell>{station.latitude}</TableCell>
                         <TableCell>{station.longitude}</TableCell>
@@ -246,6 +247,15 @@ class SubstationsList extends React.Component {
                     ))}
                   </TableBody>
                 </Table>
+                {substations.length === 0 ? (
+                  <Typography
+                    variant="display1"
+                    align="center"
+                    className={classes.emptyText}
+                  >
+                    THERE AREN'T SUBSTATIONS
+                  </Typography>
+                ) : null}
               </Panel>
             </div>
           </div>

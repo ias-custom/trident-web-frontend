@@ -60,7 +60,11 @@ const styles = theme => ({
     },
     breadcrumbs: {
       marginTop: 20
-    }
+    },
+    emptyText: {
+      margin: "50px 0 20px 0",
+      color: "#c5c5c5"
+    },
   });
   
   export default styles;

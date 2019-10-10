@@ -110,6 +110,9 @@ const styles = theme => ({
   dialog: {
     width: 350
   },
+  dialogSet: {
+    width: 600
+  },
   dialogStructure: {
     width: 500
   },
@@ -119,6 +122,18 @@ const styles = theme => ({
   dataPorcentage: {
     padding: "0 20px",
     fontWeight: "bold"
+  },
+  divSelectSet: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  textSelect: {
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#adadad",
+    width: 280,
+    marginTop: 25
   }
 });
 

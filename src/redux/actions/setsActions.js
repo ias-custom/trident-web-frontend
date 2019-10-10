@@ -33,11 +33,11 @@ import {
       try {
         const response = await service.list();
   
-        if (response.status === 200) {
+        /* if (response.status === 200) {
           dispatch({ type: GET_SETS, payload: response.data });
         } else {
           dispatch({ type: GET_SETS, payload: [] });
-        }
+        } */
   
         return response;
       } catch (error) {

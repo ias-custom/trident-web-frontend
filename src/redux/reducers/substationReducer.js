@@ -1,32 +1,7 @@
 import { GET_SUBSTATIONS, DELETE_SUBSTATION } from "../actionTypes";
 
 const initialState = {
-  list: [
-    {
-      id: 1,
-      name: "Name substation",
-      number: "CDFDHD",
-      customer_name: "Luigui Saenz",
-      latitude: "1.23343434",
-      longitude: "76.4548567"
-    },
-    {
-      id: 2,
-      name: "Name substation",
-      customer_name: "Luigui Saenz",
-      number: "CDFDHD",
-      latitude: "1.23343434",
-      longitude: "76.4548567"
-    },
-    {
-      id: 3,
-      name: "Name substation",
-      customer_name: "Luigui Saenz",
-      number: "CDFDHD",
-      latitude: "1.23343434",
-      longitude: "76.4548567"
-    }
-  ]
+  list: []
 };
 
 export default (state = initialState, action) => {

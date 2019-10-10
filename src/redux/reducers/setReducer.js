@@ -6,15 +6,15 @@ import {
     list: [
       {
         id: 1,
-        name: "Name set"
+        name: "Name set 1"
       },
       {
         id: 2,
-        name: "Name set"
+        name: "Name set 2"
       },
       {
         id: 3,
-        name: "Name set"
+        name: "Name set 3"
       }
     ]
   };

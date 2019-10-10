@@ -52,7 +52,8 @@ import {
   CAN_ADD_SUBSTATION,
   CAN_CHANGE_SUBSTATION,
   CAN_VIEW_SET,
-  CAN_ADD_SET
+  CAN_ADD_SET,
+  CAN_CHANGE_SET
 } from './redux/permissions'
 import SubstationsList from "./containers/Substations/SubstationsList";
 import SubstationCreate from "./containers/Substations/SubstationCreate";
@@ -60,6 +61,7 @@ import SubstationEdit from "./containers/Substations/SubstationEdit";
 import MapsView from "./containers/Projects/MapsView";
 import SetList from "./containers/Sets/SetList";
 import SetCreate from "./containers/Sets/SetCreate";
+import SetEdit from "./containers/Sets/SetEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -128,6 +130,7 @@ class App extends Component {
 
           <PrivateRoute exact path="/sets" component={SetList} allowedPermission={CAN_VIEW_SET}/>
           <PrivateRoute exact path="/sets/create" component={SetCreate} allowedPermission={CAN_ADD_SET}/>
+          <PrivateRoute exact path="/sets/:id" component={SetEdit} allowedPermission={CAN_CHANGE_SET}/>
           
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
