@@ -95,6 +95,7 @@ export const DELETE_SUBSTATION = 'DELETE_SUBSTATION';
 export const GET_SETS = 'GET_SETS';
 export const DELETE_SET = 'DELETE_SET';
 export const DUPLICATE_SET = 'DUPLICATE_SET';
+export const GET_DEFAULT_SET = 'GET_DEFAULT_SET';
 
 
 

@@ -1,27 +1,23 @@
 import {
-    GET_SETS, DELETE_SET, DUPLICATE_SET
+    GET_SETS, DELETE_SET, DUPLICATE_SET, GET_DEFAULT_SET
   } from '../actionTypes';
   
   const initialState = {
-    list: [
-      {
-        id: 1,
-        name: "Name set 1"
-      },
-      {
-        id: 2,
-        name: "Name set 2"
-      },
-      {
-        id: 3,
-        name: "Name set 3"
-      }
-    ]
+    list: [],
+    inspections: [],
+    deficiencies: []
   };
   
   export default (state = initialState, action) => {
   
     switch (action.type) {
+      case GET_DEFAULT_SET:
+        return {
+          ...state,
+          inspections: action.payload.inspections,
+          deficiencies: action.payload.deficiencies
+        };
+
       case GET_SETS:
         return {
           ...state,

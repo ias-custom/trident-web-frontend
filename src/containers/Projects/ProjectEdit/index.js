@@ -23,13 +23,10 @@ import {
   Typography,
   TextField,
   MenuItem,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel, ExpandMore } from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -40,9 +37,6 @@ import {
   getProject,
   updateProject,
   addUser,
-  getInspectionsProject,
-  updateCategoryInspection,
-  updateItemCategory,
   getDeficiencies,
   addDeficiency,
   deleteDeficiency,
@@ -61,15 +55,13 @@ import {
 } from "../../../redux/actions/spanActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { setLoading } from "../../../redux/actions/globalActions";
-import { fetchSets } from "../../../redux/actions/setsActions";
+import { fetchSets, getSet } from "../../../redux/actions/setsActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { Formik } from "formik";
-import * as Yup from "yup";
-import { FormSpanEdit } from "../../../components";
+import { InfoSetView } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -95,7 +87,7 @@ class ProjectEdit extends React.Component {
     setId: "",
     set: null,
     setIdSelected: "",
-    setSelected: null,
+    setSelected: null
   };
 
   projectId = null;
@@ -107,14 +99,12 @@ class ProjectEdit extends React.Component {
       if (response.status === 200) {
         this.setState({
           projectName: response.data.name,
-          inputProjectName: response.data.name
+          inputProjectName: response.data.name,
+          set: response.data.set,
+          setId: response.data.set_id
         });
-        this.props.getUsersProject(this.projectId);
         this.props.fetchSets();
-        this.props.fetchStructures(this.projectId);
-        this.props.fetchSpans(this.projectId);
         this.props.getUsers();
-        this.props.getDeficiencies(this.projectId);
 
         const nameItem = "projects";
         const open = true;
@@ -269,11 +259,11 @@ class ProjectEdit extends React.Component {
   };
 
   addUser = async () => {
+    this.closeModal("openUser", null);
     const form = { user_id: this.state.userSelected };
     try {
       const response = await this.props.addUser(this.projectId, form);
       if (response.status === 200 || response.status === 201) {
-        this.closeModal("openUser", null);
         // SHOW NOTIFICACION SUCCCESS
         this.props.enqueueSnackbar("¡The user was added successfully!", {
           variant: "success",
@@ -289,20 +279,7 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  openCollapse(openId, category) {
-    category.newName = "";
-    this.props.categories_project.map(category => {
-      category.items.map(item => {
-        item.edit = false;
-        return item;
-      });
-      return category;
-    });
-    if (openId === category.id) this.setState({ openId: 0 });
-    else this.setState({ openId: category.id });
-  }
-
-  addDeficiency = async () => {
+  /* addDeficiency = async () => {
     this.setState({ openDeficiency: false });
     const form = { name: this.state.deficiencyName };
     try {
@@ -322,16 +299,16 @@ class ProjectEdit extends React.Component {
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
-  };
+  }; */
 
   addSet = async () => {
     const { setSelected, set, setId } = this.state;
-    this.setState({ openSet: false, set: setSelected, setId: setSelected.id});
+    this.setState({ openSet: false, set: setSelected, setId: setSelected.id });
 
     const form = { set_id: setSelected.id };
-    const response = await this.props.addSet(this.projectId, form);
+    const response = await this.props.updateProject(this.projectId, form);
     if (response.status === 200) {
-      this.props.enqueueSnackbar("¡The set was added successfully!", {
+      this.props.enqueueSnackbar("¡The set was updated successfully!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
@@ -349,18 +326,20 @@ class ProjectEdit extends React.Component {
     const total = items.length;
     const collected = items.filter(({ state_id }) => state_id === 1).length;
     const not_collected = items.filter(({ state_id }) => state_id !== 1).length;
-    return (
+    return total !== 0 ? (
       <p className={classes.dataPorcentage}>
         Collected: {((collected / total) * 100).toFixed(2)}% / No collected:{" "}
         {((not_collected / total) * 100).toFixed(2)}%
       </p>
+    ) : (
+      <p className={classes.dataPorcentage}>Collected: 0% / No collected: 0%</p>
     );
   };
-  openConfirmSet(setId) {
-    const { sets } = this.props;
-    const setSelected = sets.find(({ id }) => id === setId);
-    this.setState({ setSelected, openSet: true });
-  }
+
+  openConfirmSet = async setId => {
+    const response = await this.props.getSet(setId);
+    this.setState({ setSelected: response.data, openSet: true });
+  };
   render() {
     const {
       classes,
@@ -369,9 +348,6 @@ class ProjectEdit extends React.Component {
       spans,
       users,
       users_customer,
-      inspections,
-      categories_project,
-      deficiencies,
       sets
     } = this.props;
     const {
@@ -548,7 +524,7 @@ class ProjectEdit extends React.Component {
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
               onBackdropClick={() => {
-                this.setState({ openSet: false});
+                this.setState({ openSet: false });
               }}
               onEscapeKeyDown={() => {
                 this.setState({ openSet: false });
@@ -561,14 +537,12 @@ class ProjectEdit extends React.Component {
                 <DialogContentText id="alert-dialog-description">
                   Below is the set information
                 </DialogContentText>
-                <Grid container spacing={16}>
-                  <Grid xs item>
-                    sadasd
-                  </Grid>
-                  <Grid xs item>
-                    asdasd
-                  </Grid>
-                </Grid>
+                {setSelected && (
+                  <InfoSetView
+                    inspections={setSelected.inspections}
+                    deficiencies={setSelected.deficiencies}
+                  />
+                )}
               </DialogContent>
               <DialogActions>
                 <Button
@@ -660,8 +634,8 @@ class ProjectEdit extends React.Component {
                   <Tab label="Users" disabled={loading} />
                   <Tab label="Structures" disabled={loading} />
                   <Tab label="Spans" disabled={loading} />
-                  <Tab label="Sets" disabled={loading} />
-                  <Tab label="Deficiencies" disabled={loading} />
+                  <Tab label="Set" disabled={loading} />
+                  {/* <Tab label="Deficiencies" disabled={loading} /> */}
                 </Tabs>
               </Grid>
               <Panel>
@@ -704,7 +678,7 @@ class ProjectEdit extends React.Component {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {this.filter(users, search, "users").map(user => (
+                        {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
                           <TableRow key={user.id}>
                             <TableCell component="td">
                               {user.first_name} {user.last_name}
@@ -948,7 +922,7 @@ class ProjectEdit extends React.Component {
                       </Typography>
                     ) : null}
                   </Grid>
-                  <Grid container spacing={16}>
+                  <Grid container>
                     <Grid item className={classes.divSelectSet} xs>
                       <Typography
                         variant="subtitle1"
@@ -972,15 +946,21 @@ class ProjectEdit extends React.Component {
                             </MenuItem>
                           );
                         })}
+                        {set && setId === 1 && (
+                          <MenuItem key={set.id} value={set.id}>
+                            {set.name}
+                          </MenuItem>
+                        )}
                       </TextField>
                     </Grid>
-                    {set ? (
-                      <Grid item xs={12}>
-                        {JSON.stringify(set)}
-                      </Grid>
-                    ) : null}
+                    {set && (
+                      <InfoSetView
+                        inspections={set.inspections}
+                        deficiencies={set.deficiencies}
+                      />
+                    )} 
                   </Grid>
-                  <Grid>
+                  {/* <Grid>
                     <div className={classes.header}>
                       <Button
                         variant="outlined"
@@ -1042,7 +1022,7 @@ class ProjectEdit extends React.Component {
                         THERE AREN'T DEFICIENCIES
                       </Typography>
                     ) : null}
-                  </Grid>
+                  </Grid> */}
                 </SwipeableViews>
               </Panel>
             </div>
@@ -1089,7 +1069,8 @@ const mapDispatchToProps = {
   setPoint,
   setStructures,
   fetchSets,
-  addSet
+  addSet,
+  getSet
 };
 
 export default compose(

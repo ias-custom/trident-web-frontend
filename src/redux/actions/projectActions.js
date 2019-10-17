@@ -87,6 +87,12 @@ export const getProject = id => {
 
       if (response.status === 200) {
         dispatch({ type: GET_PROJECT, payload: response.data });
+        const { structures, spans, markings, access, users } = response.data
+        dispatch({ type: GET_USERS_PROJECT, payload: users });
+        dispatch({ type: GET_STRUCTURES, payload: structures });
+        dispatch({ type: GET_SPANS, payload: spans });
+        dispatch({ type: GET_MARKINGS, payload: markings });
+        dispatch({ type: GET_ACCESS, payload: access });
       }
 
       return response;

@@ -14,7 +14,6 @@ import {
   DialogContentText,
   DialogActions,
   Grid,
-  Fab,
   TextField,
   MenuItem,
   ExpansionPanel,
@@ -28,25 +27,19 @@ import {
   CardHeader
 } from "@material-ui/core";
 import {
-  updateStructure,
-  getItemsStructure,
   addItemStructure,
   deleteItemStructure
 } from "../../redux/actions/structureActions";
 import {
-  updateSpan,
-  getItemsSpan,
   addItemSpan,
   deleteItemSpan
 } from "../../redux/actions/spanActions";
 import {
-  getCategoriesInspection,
-  getInspectionsProject,
   getDeficiencies
 } from "../../redux/actions/projectActions";
 
 import { setLoading } from "../../redux/actions/globalActions";
-import { Add, ExpandMore, AddCircle, Delete } from "@material-ui/icons";
+import { ExpandMore, AddCircle, Delete } from "@material-ui/icons";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
@@ -69,53 +62,16 @@ class Equipment extends React.Component {
   };
 
   componentDidMount() {
-    try {
+    /* try {
       this.props.getInspectionsProject(this.props.projectId);
       this.props.getDeficiencies(this.props.projectId);
       if (this.props.isStructure)
         this.props.getItemsStructure(this.props.itemId);
-      else this.props.getItemsSpan(this.props.itemId);
+      else this.props.getItemsSpan(this.props.itemId); 
     } catch (error) {
       this.props.history.push("/404");
-    }
+    } */
   }
-
-  saveInspection = async () => {
-    let response = "";
-    const form = { inspection_id: this.state.inspectionSelected };
-    if (this.props.isStructure)
-      response = await this.props.updateStructure(
-        this.props.projectId,
-        this.props.itemId,
-        form
-      );
-    else
-      response = await this.props.updateSpan(
-        this.props.projectId,
-        this.props.itemId,
-        form
-      );
-
-    if (response.status === 200 || response.status === 204) {
-      this.setState({ open: false });
-      const inspectionSelected = this.props.inspections.find(
-        ({ id }) => id === this.state.inspectionSelected
-      );
-      this.props.changeId(this.state.inspectionSelected);
-      this.props.changeName(inspectionSelected.name);
-      this.props.getCategoriesInspection(this.state.inspectionSelected);
-
-      const text = `Inspection successfully added!`;
-      this.props.enqueueSnackbar(text, {
-        variant: "success",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
-    } else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
-        variant: "error"
-      });
-    }
-  };
 
   openCollapse(openId, category) {
     if (openId === category.id) this.setState({ openId: 0 });
@@ -201,25 +157,18 @@ class Equipment extends React.Component {
     const {
       classes,
       loading,
-      inspection_id,
-      inspections,
-      categoriesInspection,
       inspectionName,
-      structure_items,
-      span_items,
-      isStructure,
-      deficiencies
+      deficiencies,
+      categories,
+      items
     } = this.props;
     const {
-      open,
       openItem,
-      inspectionSelected,
       openId,
       formItem,
       parentItems,
       openDelete
     } = this.state;
-    const items = isStructure ? structure_items : span_items;
     return (
       <div style={{ height: "100%" }}>
         <Dialog
@@ -258,62 +207,6 @@ class Equipment extends React.Component {
               onClick={this.deleteItem}
             >
               Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <Dialog
-          open={open}
-          classes={{ paper: classes.dialog }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() =>
-            !loading ? this.setState({ open: false }) : null
-          }
-          onEscapeKeyDown={() =>
-            !loading ? this.setState({ open: false }) : null
-          }
-        >
-          <DialogTitle id="alert-dialog-title">{"Add inspection"}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Select the inspection.
-            </DialogContentText>
-            <TextField
-              name="inspection_selected"
-              select
-              label="Inspections"
-              value={inspectionSelected}
-              margin="normal"
-              disabled={loading}
-              onChange={e =>
-                this.setState({ inspectionSelected: e.target.value })
-              }
-              fullWidth
-            >
-              {inspections.map(inspection => {
-                return (
-                  <MenuItem key={inspection.id} value={inspection.id}>
-                    {inspection.name}
-                  </MenuItem>
-                );
-              })}
-            </TextField>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.setState({ open: false })}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.saveInspection}
-            >
-              Add Inspection
             </Button>
           </DialogActions>
         </Dialog>
@@ -511,8 +404,7 @@ class Equipment extends React.Component {
             </Formik>
           </DialogContent>
         </Dialog>
-        {inspection_id ? (
-          <Grid>
+        <Grid>
             <Typography
               component="h1"
               variant="h5"
@@ -521,7 +413,7 @@ class Equipment extends React.Component {
             >
               {inspectionName}
             </Typography>
-            {categoriesInspection.map(category => (
+            {categories.map(category => (
               <div key={category.id} style={{ padding: "2px" }}>
                 <ExpansionPanel
                   expanded={openId === category.id}
@@ -546,7 +438,7 @@ class Equipment extends React.Component {
                           disabled={loading}
                           className={classes.iconAdd}
                           onClick={() =>
-                            this.createItem(category.items, category.id)
+                            this.createItem(category.items || [], category.id)
                           }
                         >
                           <AddCircle />
@@ -593,9 +485,10 @@ class Equipment extends React.Component {
                                   color="textSecondary"
                                   gutterBottom
                                 >
-                                  {item.description
+                                  {/* item.description
                                     ? `${item.description}`
-                                    : `${item.deficiency.name}`}
+                                    : `${item.deficiency.name}` */}
+                                  { item.description}
                                 </Typography>
                               </CardContent>
                               <CardActions>
@@ -621,18 +514,7 @@ class Equipment extends React.Component {
               </div>
             ))}
           </Grid>
-        ) : (
-          <Grid className={classes.divInspection}>
-            <Fab
-              variant="extended"
-              color="primary"
-              aria-label="Add"
-              onClick={() => this.setState({ open: true })}
-            >
-              <Add /> ADD INSPECTION
-            </Fab>
-          </Grid>
-        )}
+        
       </div>
     );
   }
@@ -641,12 +523,7 @@ class Equipment extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    inspections: state.projects.inspections,
-    categoriesInspection: state.projects.categoriesInspection,
-    deficiencies: state.projects.deficiencies,
     states: state.global.states,
-    structure_items: state.structures.items,
-    span_items: state.spans.items
   };
 };
 
@@ -655,19 +532,14 @@ const mapDispatchToProps = {
   addItemStructure,
   deleteItemStructure,
   addItemSpan,
-  deleteItemSpan,
-  getInspectionsProject,
-  getDeficiencies,
-  getCategoriesInspection,
-  updateStructure,
-  getItemsStructure,
-  updateSpan,
-  getItemsSpan
+  deleteItemSpan
 };
 
 Equipment.propTypes = {
   inspection_id: PropTypes.any,
-  isStructure: PropTypes.bool.isRequired
+  categories: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
+  deficiencies: PropTypes.array.isRequired
 };
 
 export default compose(

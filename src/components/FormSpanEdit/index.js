@@ -17,13 +17,22 @@ import {
 import { Form } from "formik";
 import { fetchSpanTypes } from "../../redux/actions/spanActions";
 import { fetchStates } from "../../redux/actions/globalActions";
+import { getProject } from "../../redux/actions/projectActions";
 import { AddCircle } from "@material-ui/icons";
 
 class FormSpanEdit extends React.Component {
+  state = {
+    inspections: []
+  }
 
-  componentDidMount(){
+  componentDidMount = async () => {
     this.props.fetchSpanTypes(this.props.projectId);
     this.props.fetchStates();
+    const response = await this.props.getProject(this.props.projectId)
+    if (response.status === 200) {
+      const { set } = response.data
+      this.setState({inspections: set.inspections})
+    }
   }
   render() {
     const {
@@ -40,6 +49,7 @@ class FormSpanEdit extends React.Component {
       structures,
       isCreate
     } = this.props;
+    const { inspections } = this.state;
     return (
       <Form onSubmit={this.props.handleSubmit}>
         <Prompt
@@ -222,6 +232,34 @@ class FormSpanEdit extends React.Component {
                 />
               </Grid>
             </Grid>
+            <Grid container spacing={16}>
+            <Grid item xs={6}>
+              <TextField
+                name="inspectionId"
+                select
+                label="Inspection"
+                value={values.inspectionId}
+                margin="normal"
+                onChange={this.props.handleChange}
+                onBlur={this.props.handleBlur}
+                error={!!touched.inspectionId && !!errors.inspectionId}
+                helperText={
+                  !!touched.inspectionId && !!errors.inspectionId && errors.inspectionId
+                }
+                fullWidth
+                required
+                disabled={loading}
+              >
+                {inspections.map(inspection => {
+                  return (
+                    <MenuItem key={inspection.id} value={inspection.id}>
+                      {inspection.name}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+          </Grid>
           </Grid>
         </Grid>
         <br />
@@ -271,7 +309,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
   fetchSpanTypes,
-  fetchStates
+  fetchStates,
+  getProject
 };
 
 FormSpanEdit.propTypes = {

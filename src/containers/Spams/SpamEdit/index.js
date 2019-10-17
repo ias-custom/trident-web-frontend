@@ -66,15 +66,19 @@ class SpanEdit extends React.Component {
     itemId: null,
     value: 0,
     interactionDescription: "",
+    enabledEquipment: false,
     formGeneral: {
       number: "",
       structureStart: "",
       structureEnd: "",
       stateId: "",
-      spanType: ""
+      spanType: "",
+      inspectionId: ""
     },
     inspection_id: "",
     inspection_name: "",
+    items: [],
+    categories: [],
     accessId: "",
     markingId: ""
   };
@@ -95,15 +99,21 @@ class SpanEdit extends React.Component {
 
   componentDidMount = async () => {
     try {
-      const url = new URL(window.location.href)
-      const fromMapMarking = url.searchParams.get('marking')
-      const fromMapAccess = url.searchParams.get('access')
-      if(fromMapMarking === 'true')
-        this.setState({value: 3, markingId: parseInt(url.searchParams.get('id'))})
-      if(fromMapAccess === 'true') 
-        this.setState({value: 4, accessId: parseInt(url.searchParams.get('id'))})
-      
-        const response = await this.props.getSpan(this.projectId, this.spanId);
+      const url = new URL(window.location.href);
+      const fromMapMarking = url.searchParams.get("marking");
+      const fromMapAccess = url.searchParams.get("access");
+      if (fromMapMarking === "true")
+        this.setState({
+          value: 3,
+          markingId: parseInt(url.searchParams.get("id"))
+        });
+      if (fromMapAccess === "true")
+        this.setState({
+          value: 4,
+          accessId: parseInt(url.searchParams.get("id"))
+        });
+
+      const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
         const {
           state_id,
@@ -112,10 +122,12 @@ class SpanEdit extends React.Component {
           end_structure,
           number,
           inspection_id,
-          inspection
+          inspection,
+          items
         } = response.data;
         this.setState({
           formGeneral: {
+            inspectionId: inspection_id || "",
             number: number || "",
             structureStart: start_structure,
             structureEnd: end_structure,
@@ -123,13 +135,16 @@ class SpanEdit extends React.Component {
             spanType: type_id || ""
           },
           inspection_id,
-          inspection_name: inspection_id ? inspection.name : ""
+          inspection_name: inspection_id ? inspection.name : "",
+          items: items || [],
+          categories: inspection_id ? inspection.categories : [],
+          enabledEquipment: true
         });
-        if (inspection_id) this.props.getCategoriesInspection(inspection_id);
+        // if (inspection_id) this.props.getCategoriesInspection(inspection_id);
         this.props.getPhotosSpan(this.spanId);
         this.props.fetchStructures(this.projectId);
-        this.props.getMarkings(this.spanId); 
-        this.props.getAccess(this.spanId)
+        this.props.getMarkings(this.spanId);
+        this.props.getAccess(this.spanId);
         const nameItem = "projects";
         const open = true;
         this.props.toggleItemMenu({ nameItem, open });
@@ -138,7 +153,7 @@ class SpanEdit extends React.Component {
         this.props.history.push("/404");
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -249,13 +264,21 @@ class SpanEdit extends React.Component {
   update = async (values, formikActions) => {
     const { setSubmitting } = formikActions;
     this.props.setLoading(true);
-    const { number, stateId, structureStart, structureEnd, spanType } = values;
+    const {
+      number,
+      stateId,
+      structureStart,
+      structureEnd,
+      spanType,
+      inspectionId
+    } = values;
     const form = {
       number,
       state_id: stateId,
       start_structure: structureStart,
       end_structure: structureEnd,
-      type_id: spanType
+      type_id: spanType,
+      inspection_id: inspectionId
     };
 
     try {
@@ -291,17 +314,16 @@ class SpanEdit extends React.Component {
     this.props.setLoading(false);
   };
 
-
-  goToAddMarking () {
-    this.props.setPoint("", "")
-    this.props.setSpan(this.spanId)
-    this.props.history.push(`/projects/${this.projectId}/markings/create`)
+  goToAddMarking() {
+    this.props.setPoint("", "");
+    this.props.setSpan(this.spanId);
+    this.props.history.push(`/projects/${this.projectId}/markings/create`);
   }
 
-  goToAddAccess () {
-    this.props.setPoint("", "")
-    this.props.setSpan(this.spanId)
-    this.props.history.push(`/projects/${this.projectId}/access/create`)
+  goToAddAccess() {
+    this.props.setPoint("", "");
+    this.props.setSpan(this.spanId);
+    this.props.history.push(`/projects/${this.projectId}/access/create`);
   }
 
   render() {
@@ -315,16 +337,17 @@ class SpanEdit extends React.Component {
     } = this.props;
     const {
       open,
-      openAccess,
       openInteraction,
       interactionDescription,
       search,
       value,
       formGeneral,
-      inspection_id,
       inspection_name,
+      enabledEquipment,
+      categories,
+      items,
       markingId,
-      accessId,
+      accessId
     } = this.state;
 
     return (
@@ -372,7 +395,9 @@ class SpanEdit extends React.Component {
               onBackdropClick={() => this.closeModal("openInteraction")}
               onEscapeKeyDown={() => this.closeModal("openInteraction")}
             >
-              <DialogTitle id="alert-dialog-title">{"Add interaction"}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {"Add interaction"}
+              </DialogTitle>
               <DialogContent>
                 <TextField
                   name="description"
@@ -408,7 +433,10 @@ class SpanEdit extends React.Component {
               </DialogActions>
             </Dialog>
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={this.breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+              <SimpleBreadcrumbs
+                routes={this.breadcrumbs}
+                classes={{ root: classes.breadcrumbs }}
+              />
               <Grid className={classes.divTabs}>
                 <Tabs
                   value={value}
@@ -443,14 +471,19 @@ class SpanEdit extends React.Component {
                       }}
                       validationSchema={Yup.object().shape({
                         stateId: Yup.mixed().required("State is required"),
-                        spanType: Yup.string().required("Span type is required"),
+                        spanType: Yup.string().required(
+                          "Span type is required"
+                        ),
                         structureStart: Yup.string().required(
                           "Structure start is required"
                         ),
                         structureEnd: Yup.string().required(
                           "Structure end is required"
                         ),
-                        number: Yup.string().max(10).required("Number is required").trim()
+                        number: Yup.string()
+                          .max(10)
+                          .required("Number is required")
+                          .trim()
                       })}
                     >
                       {props => {
@@ -486,17 +519,17 @@ class SpanEdit extends React.Component {
                     </Formik>
                   </Grid>
                   <Grid style={{ height: "100%" }}>
-                    <Equipment
-                      inspection_id={inspection_id}
-                      projectId={this.projectId}
-                      isStructure={false}
-                      itemId={parseInt(this.spanId)}
-                      inspectionName={inspection_name}
-                      changeName={newName =>
-                        this.setState({ inspection_name: newName })
-                      }
-                      changeId={id => this.setState({ inspection_id: id })}
-                    ></Equipment>
+                    {enabledEquipment && (
+                      <Equipment
+                        categories={categories}
+                        items={items}
+                        deficiencies={[]}
+                        projectId={this.projectId}
+                        itemId={parseInt(this.spanId)}
+                        inspectionName={inspection_name}
+                        isStructure={false}
+                      />
+                    )}
                   </Grid>
                   <Grid style={{ overflow: "hidden" }}>
                     <PhotosList
@@ -511,7 +544,7 @@ class SpanEdit extends React.Component {
                         variant="outlined"
                         color="primary"
                         onClick={() => {
-                          this.goToAddMarking()
+                          this.goToAddMarking();
                         }}
                       >
                         Add Marking
@@ -541,7 +574,10 @@ class SpanEdit extends React.Component {
                         <TableBody>
                           {this.filter(markings, search, "markings").map(
                             marking => (
-                              <TableRow key={marking.id} selected={markingId === marking.id}>
+                              <TableRow
+                                key={marking.id}
+                                selected={markingId === marking.id}
+                              >
                                 <TableCell component="td">
                                   {marking.type.name}
                                 </TableCell>
@@ -588,12 +624,12 @@ class SpanEdit extends React.Component {
                     </div>
                   </Grid>
                   <Grid>
-                  <div className={classes.header}>
+                    <div className={classes.header}>
                       <Button
                         variant="outlined"
                         color="primary"
                         onClick={() => {
-                          this.goToAddAccess()
+                          this.goToAddAccess();
                         }}
                       >
                         Add Access
@@ -614,48 +650,54 @@ class SpanEdit extends React.Component {
                           <TableRow>
                             <TableCell>Type</TableCell>
                             <TableCell>Detail</TableCell>
-                            <TableCell style={{minWidth: "100px"}}>Notes</TableCell>
+                            <TableCell style={{ minWidth: "100px" }}>
+                              Notes
+                            </TableCell>
                             <TableCell>Latitude</TableCell>
                             <TableCell>Longitude</TableCell>
                             <TableCell>Actions</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {this.filter(access, search, "access").map(
-                            acc => (
-                              <TableRow key={acc.id} selected={accessId === acc.id}>
-                                <TableCell component="td">
-                                  {acc.type.name}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {acc.detail.name}
-                                </TableCell>
-                                <TableCell component="td" style={{minWidth: "100px"}} >
-                                  {acc.notes}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {acc.coordinate[0]}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {acc.coordinate[1]}
-                                </TableCell>
-                                <TableCell fixed={"true"}>
-                                  <div style={{ display: "flex" }}>
-                                    <IconButton
-                                      aria-label="Delete"
-                                      className={classes.iconDelete}
-                                      disabled={loading}
-                                      onClick={() =>
-                                        this.showModal("open", acc.id)
-                                      }
-                                    >
-                                      <Delete />
-                                    </IconButton>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            )
-                          )}
+                          {this.filter(access, search, "access").map(acc => (
+                            <TableRow
+                              key={acc.id}
+                              selected={accessId === acc.id}
+                            >
+                              <TableCell component="td">
+                                {acc.type.name}
+                              </TableCell>
+                              <TableCell component="td">
+                                {acc.detail.name}
+                              </TableCell>
+                              <TableCell
+                                component="td"
+                                style={{ minWidth: "100px" }}
+                              >
+                                {acc.notes}
+                              </TableCell>
+                              <TableCell component="td">
+                                {acc.coordinate[0]}
+                              </TableCell>
+                              <TableCell component="td">
+                                {acc.coordinate[1]}
+                              </TableCell>
+                              <TableCell fixed={"true"}>
+                                <div style={{ display: "flex" }}>
+                                  <IconButton
+                                    aria-label="Delete"
+                                    className={classes.iconDelete}
+                                    disabled={loading}
+                                    onClick={() =>
+                                      this.showModal("open", acc.id)
+                                    }
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                         </TableBody>
                       </Table>
                       {markings.length === 0 ? (
@@ -668,7 +710,6 @@ class SpanEdit extends React.Component {
                         </Typography>
                       ) : null}
                     </div>
-                  
                   </Grid>
                 </SwipeableViews>
               </Panel>

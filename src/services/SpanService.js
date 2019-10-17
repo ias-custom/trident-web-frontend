@@ -98,9 +98,9 @@ class SpanService extends Service {
 
 
   // ITEMS
-  getItems = async (structureId ) => {
+  getItems = async (spanId ) => {
     try {
-      return await this.http.get(`/spans/${structureId}/items/`);
+      return await this.http.get(`/spans/${spanId}/items/`);
     } catch (error) {
         return error.response;
     }

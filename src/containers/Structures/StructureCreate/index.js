@@ -39,7 +39,8 @@ class StructureCreate extends React.Component {
       stateId: "",
       latitude: "",
       longitude: "",
-      structureTypeId: ""
+      structureTypeId: "",
+      inspectionId: ""
     },
     formStructureType: {
       name: "",
@@ -80,7 +81,8 @@ class StructureCreate extends React.Component {
       latitude,
       longitude,
       structureTypeId,
-      address
+      address,
+      inspectionId
     } = values;
     const form = {
       name,
@@ -88,7 +90,8 @@ class StructureCreate extends React.Component {
       latitude,
       longitude,
       type_structure_id: structureTypeId,
-      address
+      address,
+      inspection_id: inspectionId
     };
 
     try {
@@ -243,7 +246,8 @@ class StructureCreate extends React.Component {
                   name: Yup.string().required("Name is required"),
                   stateId: Yup.mixed().required("State is required"),
                   latitude: Yup.string().required("Latitude is required"),
-                  longitude: Yup.string().required("Longitude is required")
+                  longitude: Yup.string().required("Longitude is required"),
+                  inspectionId: Yup.mixed().required("Inspection is required")
                 })}
               >
                 {props => {

@@ -1,16 +1,11 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  Button,
-} from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { compose } from "recompose";
-import { withRouter, Prompt } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { withSnackbar } from "notistack";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Layout from "../../../components/Layout/index";
-import Panel from "../../../components/Panel";
 import { connect } from "react-redux";
 import { setLoading } from "../../../redux/actions/globalActions";
 import {
@@ -18,15 +13,7 @@ import {
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
 import styles from "./styles";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { createCustomer } from "../../../redux/actions/customerActions";
-import {
-  getInspectionsProject,
-} from "../../../redux/actions/projectActions";
-import {
-  getSet,
-} from "../../../redux/actions/setsActions";
+import { getSet, updateSet } from "../../../redux/actions/setsActions";
 import { SetInspections } from "../../../components";
 
 const breadcrumbs = [
@@ -40,14 +27,12 @@ class SetEdit extends React.Component {
     openId: "",
     enabledSet: false,
     name: "",
-    categories: [],
+    deficiencies: [],
     inspections: []
   };
+  
+  setId = null;
 
-  form = {
-    name: ""
-  };
-  setId = null
   componentDidMount = async () => {
     try {
       const nameItem = "sets";
@@ -55,39 +40,37 @@ class SetEdit extends React.Component {
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
-      this.setId = this.props.match.params.id
-      /* const response = await this.props.getSet(this.setId)
+      this.setId = this.props.match.params.id;
+      const response = await this.props.getSet(this.setId);
       if (response.status === 200) {
         this.loadForm(response.data);
       } else {
         this.props.history.push("/404");
-      } */
+      }
       await this.props.getInspectionsProject(2);
-      this.setState({enabledSet: true})
+      this.setState({ enabledSet: true });
     } catch (error) {}
-  }
-
-  loadForm = data => {
-    const { name, inspections, categories } = data;
-    this.setState({name, inspections, categories, enabledSet: true});
   };
 
-  handleSubmit = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const { name, logo } = values;
+  loadForm = data => {
+    const { name, inspections, deficiencies } = data;
+    this.setState({ name, inspections, deficiencies, enabledSet: true });
+  };
 
-    let formData = new FormData();
-    formData.append("name", name);
-    formData.append("logo", logo);
+  updateSet = async (inspections, deficiencies, name) => {
+
+    const form = {
+      inspections,
+      deficiencies,
+      name
+    }
 
     try {
-      const response = await this.props.createCustomer(formData);
+      const response = await this.props.updateSet(this.setId, form);
 
-      if (response.status === 201) {
-        resetForm();
+      if (response.status === 200) {
         this.props.history.push("/sets");
-        this.props.enqueueSnackbar("The set has been created!", {
+        this.props.enqueueSnackbar("The set has been updated!", {
           variant: "success"
         });
       } else {
@@ -98,14 +81,11 @@ class SetEdit extends React.Component {
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
-    setSubmitting(false);
-    this.props.setLoading(false);
   };
 
-
   render() {
-    const { classes, inspections, categories_project } = this.props;
-    const { enabledSet, name, categories } = this.state;
+    const { classes } = this.props;
+    const { enabledSet, inspections, deficiencies, name } = this.state;
 
     return (
       <Layout title="Edit Set">
@@ -117,9 +97,17 @@ class SetEdit extends React.Component {
             />
             <Grid container>
               <Grid item sm={12} md={12}>
-                  {enabledSet ? (
-                    <SetInspections inspections={inspections} categories={categories_project} name="" action={(categories, inspections, name) => console.log(categories, inspections, name)}/>
-                  ) : null}
+                {enabledSet ? (
+                  <SetInspections
+                    inspections={inspections}
+                    deficiencies={deficiencies}
+                    name={name}
+                    isCreate={false}
+                    action={(inspections, deficiencies, name) =>
+                      this.updateSet(inspections, deficiencies, name)
+                    }
+                  />
+                ) : null}
               </Grid>
             </Grid>
           </div>
@@ -131,9 +119,7 @@ class SetEdit extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    loading: state.global.loading,
-    inspections: state.projects.inspections,
-    categories_project: state.projects.categories_project
+    loading: state.global.loading
   };
 };
 
@@ -141,9 +127,8 @@ const mapDispatchToProps = {
   setLoading,
   toggleItemMenu,
   selectedItemMenu,
-  createCustomer,
-  getInspectionsProject,
-  getSet
+  getSet,
+  updateSet
 };
 
 export default compose(

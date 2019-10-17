@@ -1,16 +1,11 @@
 import React from "react";
-import {
-  Grid,
-  TextField,
-  Button,
-} from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { compose } from "recompose";
-import { withRouter, Prompt } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 import { withSnackbar } from "notistack";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Layout from "../../../components/Layout/index";
-import Panel from "../../../components/Panel";
 import { connect } from "react-redux";
 import { setLoading } from "../../../redux/actions/globalActions";
 import {
@@ -18,12 +13,7 @@ import {
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
 import styles from "./styles";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import { createCustomer } from "../../../redux/actions/customerActions";
-import {
-  getInspectionsProject,
-} from "../../../redux/actions/projectActions";
+import { getDefaultSet, createSet } from "../../../redux/actions/setsActions";
 import { SetInspections } from "../../../components";
 
 const breadcrumbs = [
@@ -45,44 +35,58 @@ class SetCreate extends React.Component {
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
-      await this.props.getInspectionsProject(2);
-      this.setState({enabledSet: true})
+      await this.props.getDefaultSet();
+      this.setState({ enabledSet: true });
     } catch (error) {}
-  }
+  };
 
-  handleSubmit = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
-    this.props.setLoading(true);
-    const { name, logo } = values;
 
-    let formData = new FormData();
-    formData.append("name", name);
-    formData.append("logo", logo);
-
+  saveSet = async (inspections, deficiencies, name) => {
+    const form = {
+      inspections: inspections.map(({ name, categories }) => {
+        return {
+          name: name,
+          categories: categories.map(({ name, items }) => {
+            return {
+              name,
+              items: items.map(({ name }) => {
+                return {
+                  name
+                };
+              })
+            };
+          })
+        };
+      }),
+      deficiencies: deficiencies.map(({ name }) => {
+        return {
+          name
+        };
+      }),
+      name
+    };
     try {
-      const response = await this.props.createCustomer(formData);
+      const response = await this.props.createSet(form);
 
       if (response.status === 201) {
-        resetForm();
-        this.props.history.push("/sets");
         this.props.enqueueSnackbar("The set has been created!", {
-          variant: "success"
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
         });
+        this.props.history.push("/sets");
       } else {
         this.props.enqueueSnackbar("The request could not be processed!", {
-          variant: "error"
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
         });
       }
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
-    setSubmitting(false);
-    this.props.setLoading(false);
   };
 
-
   render() {
-    const { classes, inspections, categories_project } = this.props;
+    const { classes, inspections, deficiencies } = this.props;
     const { enabledSet } = this.state;
 
     return (
@@ -95,9 +99,17 @@ class SetCreate extends React.Component {
             />
             <Grid container>
               <Grid item sm={12} md={12}>
-                  {enabledSet ? (
-                    <SetInspections inspections={inspections} categories={categories_project} name="" action={(categories, inspections, name) => console.log(categories, inspections, name)}/>
-                  ) : null}
+                {enabledSet ? (
+                  <SetInspections
+                    inspections={inspections}
+                    deficiencies={deficiencies}
+                    name=""
+                    isCreate={true}
+                    action={(inspections, deficiencies, name) =>
+                      this.saveSet(inspections, deficiencies, name)
+                    }
+                  />
+                ) : null}
               </Grid>
             </Grid>
           </div>
@@ -110,8 +122,8 @@ class SetCreate extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    inspections: state.projects.inspections,
-    categories_project: state.projects.categories_project
+    inspections: state.sets.inspections,
+    deficiencies: state.sets.deficiencies
   };
 };
 
@@ -119,8 +131,8 @@ const mapDispatchToProps = {
   setLoading,
   toggleItemMenu,
   selectedItemMenu,
-  createCustomer,
-  getInspectionsProject
+  createSet,
+  getDefaultSet
 };
 
 export default compose(

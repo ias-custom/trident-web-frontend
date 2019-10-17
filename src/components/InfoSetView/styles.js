@@ -1,7 +1,7 @@
 const styles = theme => {
     return ({
     paper: {
-      padding: 15,
+      padding: "2px 15px",
       marginBottom: 10
     },
     divCategory: {

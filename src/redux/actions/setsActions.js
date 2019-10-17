@@ -2,7 +2,8 @@ import {
     GET_SETS,
     DELETE_SET,
     ON_LOADING,
-    DUPLICATE_SET
+    DUPLICATE_SET,
+    GET_DEFAULT_SET
   } from '../actionTypes';
   import SetService from '../../services/SetService';
   
@@ -10,6 +11,24 @@ import {
   
   export const setLoading = (loading) => ({ type: ON_LOADING, loading });
   
+  export const getDefaultSet = () => {
+    return async dispatch => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.getDefault(1);
+        if (response.status === 200) {
+          dispatch({type: GET_DEFAULT_SET, payload: response.data})
+        }
+        return response;
+      } catch (error) {
+        console.error(error.log);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
   export const getSet = (id) => {
     return async dispatch => {
       dispatch(setLoading(true));
@@ -33,11 +52,11 @@ import {
       try {
         const response = await service.list();
   
-        /* if (response.status === 200) {
+        if (response.status === 200) {
           dispatch({ type: GET_SETS, payload: response.data });
         } else {
           dispatch({ type: GET_SETS, payload: [] });
-        } */
+        }
   
         return response;
       } catch (error) {
@@ -107,10 +126,9 @@ import {
       try {
         const response = await service.duplicate(form);
   
-        if (response.status === 200) {
+        if (response.status === 201) {
           dispatch({type: DUPLICATE_SET, payload: response.data});
-        } 
-        dispatch({type: DUPLICATE_SET, payload: {name: "new item", id: 5}});
+        }
   
         return response;
       } catch (error) {

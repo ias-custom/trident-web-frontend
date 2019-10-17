@@ -52,7 +52,7 @@ class SetList extends React.Component {
 
   componentDidMount() {
     try {
-      //this.props.fetchSets();
+      this.props.fetchSets();
       const nameItem = "sets";
       const nameSubItem = "list";
       const open = true;
@@ -108,13 +108,12 @@ class SetList extends React.Component {
     const { name, setId } = this.state
     const form = {
       name,
-      set_id: setId
+      id: setId
     }
     this.setState({name: "", openDuplicate: false})
 
     const response = await this.props.duplicateSet(form)
-    console.log(response)
-    if (response.status === 200) {
+    if (response.status === 201) {
       this.props.enqueueSnackbar("Set successfully duplicated!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }

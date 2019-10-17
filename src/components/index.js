@@ -14,6 +14,7 @@ import PhotosList from './PhotosList';
 import Equipment from './Equipment';
 import MapBox from './MapBox';
 import SetInspections from './SetInspections';
+import InfoSetView from './InfoSetView';
 
 export {
   InputSearch,
@@ -32,5 +33,6 @@ export {
   PhotosList,
   Equipment,
   MapBox,
-  SetInspections
+  SetInspections,
+  InfoSetView
 }

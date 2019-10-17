@@ -60,14 +60,18 @@ class StructureEdit extends React.Component {
     interactionDescription: "",
     inspection_id: null,
     inspection_name: "",
+    categories: [],
+    items: [],
     formGeneral: {
       name: "",
       address: "",
       stateId: "",
       latitude: "",
       longitude: "",
-      structureTypeId: ""
-    }
+      structureTypeId: "",
+      inspectionId: ""
+    },
+    enabledEquipment: false
   };
 
   breadcrumbs = [
@@ -91,6 +95,8 @@ class StructureEdit extends React.Component {
         this.structureId
       );
       if (response.status === 200) {
+        this.props.getPhotos(this.structureId);
+        this.props.getInteractions(this.structureId);
         const {
           state_id,
           type_structure_id,
@@ -99,24 +105,26 @@ class StructureEdit extends React.Component {
           longitude,
           address,
           inspection_id,
-          inspection
+          inspection,
+          items
         } = response.data;
         this.setState({
           formGeneral: {
+            inspectionId: inspection_id || "",
             stateId: state_id,
             structureTypeId: type_structure_id || "",
             name,
             latitude,
             longitude,
-            address
+            address: address || ""
           },
           inspection_id,
-          inspection_name: inspection_id ? inspection.name : ""
+          inspection_name: inspection_id ? inspection.name : "",
+          items: items,
+          categories: inspection_id ? inspection.categories : [],
+          enabledEquipment: true
         });
-        if (inspection_id) this.props.getCategoriesInspection(inspection_id);
-
-        this.props.getPhotos(this.structureId);
-        this.props.getInteractions(this.structureId);
+        //if (inspection_id) this.props.getCategoriesInspection(inspection_id);
 
         const nameItem = "projects";
         const open = true;
@@ -224,7 +232,8 @@ class StructureEdit extends React.Component {
       latitude,
       longitude,
       structureTypeId,
-      address
+      address,
+      inspectionId
     } = values;
     const form = {
       name,
@@ -232,7 +241,8 @@ class StructureEdit extends React.Component {
       latitude,
       longitude,
       type_structure_id: structureTypeId,
-      address
+      address,
+      inspection_id: inspectionId
     };
 
     try {
@@ -278,8 +288,10 @@ class StructureEdit extends React.Component {
       search,
       value,
       formGeneral,
-      inspection_id,
-      inspection_name
+      inspection_name,
+      enabledEquipment,
+      categories,
+      items
     } = this.state;
 
     return (
@@ -287,38 +299,38 @@ class StructureEdit extends React.Component {
         {() => (
           <div>
             <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={() => this.closeModal("open")}
-          onEscapeKeyDown={() => this.closeModal("open")}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={() => this.closeModal("open")}
+              open={open}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() => this.closeModal("open")}
+              onEscapeKeyDown={() => this.closeModal("open")}
             >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <DialogTitle id="alert-dialog-title">
+                {"Are you sure you want to delete?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  If you delete it will be permanently.
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  variant="outlined"
+                  className={classes.buttonCancel}
+                  onClick={() => this.closeModal("open")}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.handleDelete}
+                >
+                  Agree
+                </Button>
+              </DialogActions>
+            </Dialog>
             <Dialog
               open={openInteraction}
               classes={{ paper: classes.dialog }}
@@ -327,7 +339,9 @@ class StructureEdit extends React.Component {
               onBackdropClick={() => this.closeModal("openInteraction")}
               onEscapeKeyDown={() => this.closeModal("openInteraction")}
             >
-              <DialogTitle id="alert-dialog-title">{"Add interaction"}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {"Add interaction"}
+              </DialogTitle>
               <DialogContent>
                 <TextField
                   name="description"
@@ -364,7 +378,10 @@ class StructureEdit extends React.Component {
             </Dialog>
 
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={this.breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+              <SimpleBreadcrumbs
+                routes={this.breadcrumbs}
+                classes={{ root: classes.breadcrumbs }}
+              />
               <Typography component="h1" variant="h5">
                 {formGeneral.name}
               </Typography>
@@ -403,7 +420,9 @@ class StructureEdit extends React.Component {
                         name: Yup.string().required("Name is required"),
                         stateId: Yup.mixed().required("State is required"),
                         latitude: Yup.string().required("Latitude is required"),
-                        longitude: Yup.string().required("Longitude is required")
+                        longitude: Yup.string().required(
+                          "Longitude is required"
+                        )
                       })}
                     >
                       {props => {
@@ -438,17 +457,17 @@ class StructureEdit extends React.Component {
                     </Formik>
                   </Grid>
                   <Grid style={{ height: "100%" }}>
-                    <Equipment
-                      inspection_id={inspection_id}
-                      projectId={this.projectId}
-                      isStructure={true}
-                      itemId={parseInt(this.structureId)}
-                      inspectionName={inspection_name}
-                      changeName={newName =>
-                        this.setState({ inspection_name: newName })
-                      }
-                      changeId={id => this.setState({ inspection_id: id })}
-                    ></Equipment>
+                    {enabledEquipment && (
+                      <Equipment
+                        categories={categories}
+                        items={items}
+                        deficiencies={[]}
+                        projectId={this.projectId}
+                        itemId={parseInt(this.structureId)}
+                        inspectionName={inspection_name}
+                        isStructure={true}
+                      />
+                    )}
                   </Grid>
                   <Grid style={{ overflow: "hidden" }}>
                     <PhotosList

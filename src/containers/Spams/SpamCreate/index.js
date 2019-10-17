@@ -41,7 +41,8 @@ class SpanCreate extends React.Component {
       structureStart: "",
       structureEnd: "",
       stateId: "",
-      spanType: ""
+      spanType: "",
+      inspectionId: ""
     },
     formSpanType: {
       name: "",
@@ -81,13 +82,14 @@ class SpanCreate extends React.Component {
   save = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { number, stateId, structureStart, structureEnd, spanType } = values;
+    const { number, stateId, structureStart, structureEnd, spanType, inspectionId } = values;
     const form = {
       number,
       state_id: stateId,
       start_structure: structureStart,
       end_structure: structureEnd,
-      type_id: spanType
+      type_id: spanType,
+      inspection_id: inspectionId
     };
 
     try {
