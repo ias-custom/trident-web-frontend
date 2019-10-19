@@ -44,6 +44,11 @@ const styles = theme => ({
     fontSize: 15, 
     cursor: "pointer"
   },
+  interaction: {
+    color: "#3f51b5", 
+    fontSize: 20, 
+    cursor: "pointer"
+  },
   iconMarker: {
     position: "absolute",
     zIndex: 2,

@@ -28,10 +28,6 @@ import {
   Cancel,
   ExpandLess
 } from "@material-ui/icons";
-import {
-  updateCategoryInspection,
-  updateItemCategory
-} from "../../redux/actions/projectActions";
 import classNames from "classnames";
 import Panel from "../../components/Panel";
 import SwipeableViews from "react-swipeable-views";
@@ -417,11 +413,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = {
-  updateCategoryInspection,
-  updateItemCategory
-};
-
 SetInspections.propTypes = {
   isCreate: PropTypes.bool.isRequired,
   inspections: PropTypes.array.isRequired,
@@ -434,7 +425,6 @@ export default compose(
   withSnackbar,
   withStyles(styles, { name: "SetInspections" }),
   connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
   )
 )(SetInspections);

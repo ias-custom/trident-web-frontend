@@ -1,10 +1,9 @@
-import { GET_STRUCTURES, GET_STRUCTURE_TYPES, GET_PHOTOS, GET_INTERACTIONS, GET_ITEMS_STRUCTURE } from "../actionTypes";
+import { GET_STRUCTURES, GET_STRUCTURE_TYPES, GET_PHOTOS, GET_ITEMS_STRUCTURE } from "../actionTypes";
 
 const initialState = {
   structures: [],
   structureTypes: [],
   photos: [],
-  interactions: [],
   items: []
 };
 
@@ -18,9 +17,6 @@ export default (state = initialState, action) => {
 
     case GET_PHOTOS:
       return {...state, photos: action.payload};
-
-    case GET_INTERACTIONS:
-      return {...state, interactions: action.payload};
 
     case GET_ITEMS_STRUCTURE:
       return {...state, items: action.payload};

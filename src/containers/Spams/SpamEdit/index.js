@@ -47,6 +47,7 @@ import {
   setSpan
 } from "../../../redux/actions/spanActions";
 import { setLoading } from "../../../redux/actions/globalActions";
+import { setFromMap } from "../../../redux/actions/projectActions";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
@@ -54,7 +55,7 @@ import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { FormSpanEdit, PhotosList, Equipment } from "../../../components";
+import { FormSpanEdit, PhotosList, Equipment, TextEmpty } from "../../../components";
 import { Delete } from "@material-ui/icons";
 
 class SpanEdit extends React.Component {
@@ -544,6 +545,7 @@ class SpanEdit extends React.Component {
                         variant="outlined"
                         color="primary"
                         onClick={() => {
+                          this.props.setFromMap(false);
                           this.goToAddMarking();
                         }}
                       >
@@ -571,56 +573,50 @@ class SpanEdit extends React.Component {
                             <TableCell fixed={"true"}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        <TableBody>
-                          {this.filter(markings, search, "markings").map(
-                            marking => (
-                              <TableRow
-                                key={marking.id}
-                                selected={markingId === marking.id}
-                              >
-                                <TableCell component="td">
-                                  {marking.type.name}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {marking.owner}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {marking.details}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {marking.coordinate[0]}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {marking.coordinate[1]}
-                                </TableCell>
-                                <TableCell fixed={"true"}>
-                                  <div style={{ display: "flex" }}>
-                                    <IconButton
-                                      aria-label="Delete"
-                                      className={classes.iconDelete}
-                                      disabled={loading}
-                                      onClick={() =>
-                                        this.showModal("open", marking.id)
-                                      }
-                                    >
-                                      <Delete />
-                                    </IconButton>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            )
-                          )}
-                        </TableBody>
+                        { !loading &&
+                          <TableBody>
+                            {this.filter(markings, search, "markings").map(
+                              marking => (
+                                <TableRow
+                                  key={marking.id}
+                                  selected={markingId === marking.id}
+                                >
+                                  <TableCell component="td">
+                                    {marking.type.name}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {marking.owner}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {marking.details}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {marking.coordinate[0]}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {marking.coordinate[1]}
+                                  </TableCell>
+                                  <TableCell fixed={"true"}>
+                                    <div style={{ display: "flex" }}>
+                                      <IconButton
+                                        aria-label="Delete"
+                                        className={classes.iconDelete}
+                                        disabled={loading}
+                                        onClick={() =>
+                                          this.showModal("open", marking.id)
+                                        }
+                                      >
+                                        <Delete />
+                                      </IconButton>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        }
                       </Table>
-                      {markings.length === 0 ? (
-                        <Typography
-                          variant="display1"
-                          align="center"
-                          className={classes.emptyText}
-                        >
-                          THERE AREN'T MARKINGS
-                        </Typography>
-                      ) : null}
+                      <TextEmpty itemName="MARKINGS" empty={markings.length === 0}/>
                     </div>
                   </Grid>
                   <Grid>
@@ -629,6 +625,7 @@ class SpanEdit extends React.Component {
                         variant="outlined"
                         color="primary"
                         onClick={() => {
+                          this.props.setFromMap(false);
                           this.goToAddAccess();
                         }}
                       >
@@ -658,57 +655,51 @@ class SpanEdit extends React.Component {
                             <TableCell>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        <TableBody>
-                          {this.filter(access, search, "access").map(acc => (
-                            <TableRow
-                              key={acc.id}
-                              selected={accessId === acc.id}
-                            >
-                              <TableCell component="td">
-                                {acc.type.name}
-                              </TableCell>
-                              <TableCell component="td">
-                                {acc.detail.name}
-                              </TableCell>
-                              <TableCell
-                                component="td"
-                                style={{ minWidth: "100px" }}
+                        {!loading &&
+                          <TableBody>
+                            {this.filter(access, search, "access").map(acc => (
+                              <TableRow
+                                key={acc.id}
+                                selected={accessId === acc.id}
                               >
-                                {acc.notes}
-                              </TableCell>
-                              <TableCell component="td">
-                                {acc.coordinate[0]}
-                              </TableCell>
-                              <TableCell component="td">
-                                {acc.coordinate[1]}
-                              </TableCell>
-                              <TableCell fixed={"true"}>
-                                <div style={{ display: "flex" }}>
-                                  <IconButton
-                                    aria-label="Delete"
-                                    className={classes.iconDelete}
-                                    disabled={loading}
-                                    onClick={() =>
-                                      this.showModal("open", acc.id)
-                                    }
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
+                                <TableCell component="td">
+                                  {acc.type.name}
+                                </TableCell>
+                                <TableCell component="td">
+                                  {acc.detail.name}
+                                </TableCell>
+                                <TableCell
+                                  component="td"
+                                  style={{ minWidth: "100px" }}
+                                >
+                                  {acc.notes}
+                                </TableCell>
+                                <TableCell component="td">
+                                  {acc.coordinate[0]}
+                                </TableCell>
+                                <TableCell component="td">
+                                  {acc.coordinate[1]}
+                                </TableCell>
+                                <TableCell fixed={"true"}>
+                                  <div style={{ display: "flex" }}>
+                                    <IconButton
+                                      aria-label="Delete"
+                                      className={classes.iconDelete}
+                                      disabled={loading}
+                                      onClick={() =>
+                                        this.showModal("open", acc.id)
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        }
                       </Table>
-                      {markings.length === 0 ? (
-                        <Typography
-                          variant="display1"
-                          align="center"
-                          className={classes.emptyText}
-                        >
-                          THERE AREN'T MARKINGS
-                        </Typography>
-                      ) : null}
+                      <TextEmpty itemName="ACCESS" empty={access.length === 0}/>
                     </div>
                   </Grid>
                 </SwipeableViews>
@@ -750,7 +741,8 @@ const mapDispatchToProps = {
   selectedItemMenu,
   setLoading,
   setPoint,
-  setSpan
+  setSpan,
+  setFromMap
 };
 
 export default compose(

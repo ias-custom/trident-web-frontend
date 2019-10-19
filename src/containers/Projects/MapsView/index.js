@@ -16,7 +16,7 @@ import {
 } from "../../../redux/actions/layoutActions";
 import {
   fetchProjects,
-  getInfoProject
+  getProject
 } from "../../../redux/actions/projectActions";
 import styles from './styles';
 import { MapBox } from '../../../components';
@@ -26,15 +26,19 @@ class MapsView extends React.Component {
   state = {
     projectId: ""
   }
-  componentDidMount () {
+  componentDidMount = async () => {
     try {
+      await this.props.fetchProjects()
+      if (this.props.id) {
+        this.setState({projectId: this.props.id})
+        this.props.getProject(this.props.id)
+      }
       const open = false;
       this.props.toggleItemMenu({ nameItem: "users", open});
       this.props.toggleItemMenu({ nameItem: "roles", open});
       this.props.toggleItemMenu({ nameItem: "customers", open});
       this.props.toggleItemMenu({ nameItem: "projects", open: true});
       this.props.selectedItemMenu({ nameItem: "projects", nameSubItem: "maps" });
-      this.props.fetchProjects()
     } catch (error) {
       
     }
@@ -70,7 +74,7 @@ class MapsView extends React.Component {
                   fullWidth
                   onChange={ e => {
                     this.setState({projectId: e.target.value})
-                    this.props.getInfoProject(e.target.value)
+                    this.props.getProject(e.target.value)
                   }}
                 >
                   {projects.map(project => {
@@ -102,7 +106,8 @@ class MapsView extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    projects: state.projects.projects
+    projects: state.projects.projects,
+    id: state.projects.id
   };
 };
 
@@ -110,7 +115,7 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   fetchProjects,
-  getInfoProject
+  getProject
 };
 
 export default compose(

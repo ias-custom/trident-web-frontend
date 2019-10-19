@@ -3,12 +3,9 @@ import {
   GET_PROJECTS,
   GET_TAGS,
   GET_USERS_PROJECT,
-  GET_INSPECTIONS_PROJECT,
   GET_PROJECT,
   GET_CATEGORIES_PROJECT,
-  SET_CATEGORIES_EMPTY,
   GET_CATEGORIES_INSPECTION,
-  GET_DEFICIENCIES,
   GET_MARKINGS_TYPES,
   GET_ACCESS_TYPES,
   GET_ACCESS_TYPE_DETAILS,
@@ -18,7 +15,9 @@ import {
   GET_ACCESS,
   SET_LATITUDE,
   SET_LONGITUDE,
-  LOADED_CATEGORIES
+  GET_INTERACTIONS,
+  SET_FROM_MAP,
+  SET_PROJECT_FOR_MAP
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -31,7 +30,18 @@ export const setPoint = (latitude, longitude) => {
     dispatch({type: SET_LATITUDE, payload: latitude})
     dispatch({type: SET_LONGITUDE, payload: longitude})
   }
+}
 
+export const setFromMap = (value) => {
+  return (dispatch) => {
+    dispatch({type: SET_FROM_MAP, payload: value})
+  }
+}
+
+export const setProjectForMap = (value) => {
+  return (dispatch) => {
+    dispatch({type: SET_PROJECT_FOR_MAP, payload: value})
+  }
 }
 
 export const createProject = body => {
@@ -86,13 +96,14 @@ export const getProject = id => {
       const response = await service.get(id);
 
       if (response.status === 200) {
+        const { structures, spans, markings, access, users, interactions } = response.data
         dispatch({ type: GET_PROJECT, payload: response.data });
-        const { structures, spans, markings, access, users } = response.data
         dispatch({ type: GET_USERS_PROJECT, payload: users });
         dispatch({ type: GET_STRUCTURES, payload: structures });
         dispatch({ type: GET_SPANS, payload: spans });
         dispatch({ type: GET_MARKINGS, payload: markings });
         dispatch({ type: GET_ACCESS, payload: access });
+        dispatch({ type: GET_INTERACTIONS, payload: interactions });
       }
 
       return response;
@@ -291,122 +302,6 @@ export const getCategoriesProject = inspectionId => {
   };
 }
 
-// INSPECTIONS
-export const getInspectionsProject = projectId => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      dispatch({ type: LOADED_CATEGORIES, payload: false });
-      const response = await service.getInspections(projectId);
-      if (response.status === 200) {
-        dispatch({ type: GET_INSPECTIONS_PROJECT, payload: response.data });
-
-        /* dispatch({ type: SET_CATEGORIES_EMPTY, payload: [] });
-        response.data.forEach(({ id }) => {
-          dispatch(getCategoriesProject(id));
-        }); */
-      }
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
-
-export const updateCategoryInspection = (categoryId, inspectionId, form) => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await service.updateCategory(categoryId, inspectionId, form);
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
-
-export const updateItemCategory = (categoryId, itemId, form) => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await service.updateItemCategory(categoryId, itemId, form);
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
-
-
-// DEFICIENCIES
-export const getDeficiencies = (projectId) => {
-  return async(dispatch) => {
-    dispatch(setLoading(true))
-    try {
-      const response = await service.getDeficiencies(projectId);
-      if (response.status === 200) {
-        dispatch({type: GET_DEFICIENCIES, payload: response.data})
-      }
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  }
-}
-
-export const addDeficiency = (projectId, form) => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await service.addDeficiency(projectId, form);
-
-      if (response.status === 201) {
-        dispatch(getDeficiencies(projectId));
-      }
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
-
-export const deleteDeficiency = (projectId, deficiencyId) => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await service.deleteDeficiency(projectId, deficiencyId);
-
-      if (response.status === 204) {
-        dispatch(getDeficiencies(projectId));
-      }
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
 
 export const getMarkingsTypes = (projectId) => {
   return async(dispatch) => {

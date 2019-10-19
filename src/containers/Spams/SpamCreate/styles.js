@@ -28,6 +28,10 @@ const styles = theme => ({
   },
   breadcrumbs: {
     marginTop: 20
+  },
+  buttonBack: {
+    height: 35,
+    marginBottom: 20
   }
 
 });

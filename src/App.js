@@ -62,6 +62,8 @@ import MapsView from "./containers/Projects/MapsView";
 import SetList from "./containers/Sets/SetList";
 import SetCreate from "./containers/Sets/SetCreate";
 import SetEdit from "./containers/Sets/SetEdit";
+import InteractionCreate from "./containers/Interactions/InteractionCreate";
+import InteractionEdit from "./containers/Interactions/InteractionEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -123,6 +125,9 @@ class App extends Component {
           <PrivateRoute exact path="/projects/:projectId/spans/:id" component={SpamEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/markings/create" component={MarkingCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/access/create" component={AccessCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          <PrivateRoute exact path="/projects/:projectId/interactions/create" component={InteractionCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+
+          <PrivateRoute exact path="/projects/:projectId/interactions/:interactionId" component={InteractionEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <PrivateRoute exact path="/substations" component={SubstationsList} allowedPermission={CAN_VIEW_SUBSTATION}/>
           <PrivateRoute exact path="/substations/create" component={SubstationCreate} allowedPermission={CAN_ADD_SUBSTATION}/>

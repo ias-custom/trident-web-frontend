@@ -7,7 +7,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Fab
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
@@ -33,6 +34,10 @@ import {
 import {
   fetchStructures
 } from "../../../redux/actions/structureActions";
+import {
+  setProjectForMap
+} from "../../../redux/actions/projectActions";
+import { ArrowBack } from "@material-ui/icons";
 
 class SpanCreate extends React.Component {
   state = {
@@ -133,7 +138,7 @@ class SpanCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading, structures } = this.props;
+    const { classes, loading, structures, fromMap } = this.props;
     const { form, formSpanType, open } = this.state;
     return (
       <Layout title="Create Structure">
@@ -225,6 +230,23 @@ class SpanCreate extends React.Component {
               routes={this.breadcrumbs}
               classes={{ root: classes.breadcrumbs }}
             />
+            {fromMap ? (
+              <Grid container justify="flex-end">
+                <Fab
+                  variant="extended"
+                  aria-label="Back"
+                  color="primary"
+                  className={classes.buttonBack}
+                  onClick={() => {
+                    this.props.setProjectForMap(this.projectId)
+                    this.props.history.push(`/projects/maps-view`)
+                  }}
+                >
+                  <ArrowBack />
+                  Back to map
+                </Fab>
+              </Grid>
+            ) : null}
             <Panel>
               <Formik
                 onSubmit={this.save}
@@ -289,7 +311,8 @@ const mapStateToProps = state => {
     loading: state.global.loading,
     structureStart: state.spans.structureStart,
     structureEnd: state.spans.structureEnd,
-    structures: state.structures.structures
+    structures: state.structures.structures,
+    fromMap: state.projects.fromMap
   };
 };
 
@@ -299,7 +322,8 @@ const mapDispatchToProps = {
   selectedItemMenu,
   addSpan,
   addSpanType,
-  fetchStructures
+  fetchStructures,
+  setProjectForMap
 };
 
 export default compose(

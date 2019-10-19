@@ -19,8 +19,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions,
-  Typography
+  DialogActions
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import {
@@ -37,6 +36,7 @@ import {
   CAN_CHANGE_PROJECT,
   CAN_DELETE_PROJECT
 } from "../../../redux/permissions";
+import TextEmpty from "../../../components/TextEmpty";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -188,54 +188,55 @@ class ProjectsList extends React.Component {
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
-                    {this.filter(projects, search).map(project => (
-                      <TableRow key={project.id}>
-                        <TableCell component="td" style={{ width: "80%" }}>
-                          {project.name}
-                        </TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
-                            {canChangeProject || is_superuser ? (
-                              <Link component={RouterLink} to={`/projects/${project.id}`}>
+                  { !loading &&
+                    <TableBody>
+                      {this.filter(projects, search).map(project => (
+                        <TableRow key={project.id}>
+                          <TableCell component="td" style={{ width: "80%" }}>
+                            {project.name}
+                          </TableCell>
+                          <TableCell>
+                            <div style={{ display: "flex" }}>
+                              {canChangeProject || is_superuser ? (
+                                <Link component={RouterLink} to={`/projects/${project.id}`}>
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                              ) : (
                                 <IconButton
                                   aria-label="Edit"
                                   color="primary"
-                                  disabled={loading}
+                                  disabled={
+                                    loading || !canChangeProject || !is_superuser
+                                  }
                                 >
                                   <Edit />
                                 </IconButton>
-                              </Link>
-                            ) : (
+                              )}
                               <IconButton
-                                aria-label="Edit"
-                                color="primary"
+                                aria-label="Delete"
+                                className={classes.iconDelete}
                                 disabled={
-                                  loading || !canChangeProject || !is_superuser
+                                  loading || (!canDeleteProject && !is_superuser)
                                 }
+                                onClick={() => this.showModal(project.id)}
                               >
-                                <Edit />
+                                <Delete />
                               </IconButton>
-                            )}
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={
-                                loading || (!canDeleteProject && !is_superuser)
-                              }
-                              onClick={() => this.showModal(project.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  }
+                  
                 </Table>
-                {projects.length === 0 ? (
-                  <Typography variant="display1" align="center" className={classes.emptyText}>THERE AREN'T PROJECTS</Typography>
-                ): null}
+                <TextEmpty itemName="PROJECTS" empty={projects.length === 0}/>
               </Panel>
             </div>
           </div>

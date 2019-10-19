@@ -37,6 +37,7 @@ import {
   CAN_CHANGE_USER,
   CAN_DELETE_USER
 } from "../../../redux/permissions";
+import { TextEmpty } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -192,64 +193,67 @@ class UserList extends React.Component {
                       <TableCell align="left">Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
-                    {this.filter(users, search).map(user => (
-                      <TableRow key={user.id}>
-                        <TableCell component="th" scope="row">
-                          {user.first_name || " "} {user.middle_name || " "}{" "}
-                          {user.last_name || ""}
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{user.username}</TableCell>
-                        <TableCell>
-                          {user.is_active ? (
-                            <Typography color="primary">Active</Typography>
-                          ) : (
-                            <Typography color="secondary">Inactive</Typography>
-                          )}
-                        </TableCell>
-                        <TableCell>{user.role ? user.role.label : "-"}</TableCell>
-                        <TableCell align="center">
-                          <div style={{ display: "flex" }}>
-                            {canChangeUser || is_superuser ? (
-                              <Link component={RouterLink} to={`/users/${user.id}`}>
+                  {!loading &&
+                    <TableBody>
+                      {this.filter(users, search).map(user => (
+                        <TableRow key={user.id}>
+                          <TableCell component="th" scope="row">
+                            {user.first_name || " "} {user.middle_name || " "}{" "}
+                            {user.last_name || ""}
+                          </TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.username}</TableCell>
+                          <TableCell>
+                            {user.is_active ? (
+                              <Typography color="primary">Active</Typography>
+                            ) : (
+                              <Typography color="secondary">Inactive</Typography>
+                            )}
+                          </TableCell>
+                          <TableCell>{user.role ? user.role.label : "-"}</TableCell>
+                          <TableCell align="center">
+                            <div style={{ display: "flex" }}>
+                              {canChangeUser || is_superuser ? (
+                                <Link component={RouterLink} to={`/users/${user.id}`}>
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                              ) : (
                                 <IconButton
                                   aria-label="Edit"
                                   color="primary"
-                                  disabled={loading}
+                                  disabled={
+                                    loading || !canChangeUser || !is_superuser
+                                  }
                                 >
                                   <Edit />
                                 </IconButton>
-                              </Link>
-                            ) : (
+                              )}
                               <IconButton
                                 aria-label="Edit"
-                                color="primary"
+                                className={classes.iconDelete}
                                 disabled={
-                                  loading || !canChangeUser || !is_superuser
+                                  auth.id === user.id ||
+                                  loading ||
+                                  (!canDeleteUser && !is_superuser)
                                 }
+                                onClick={() => this.showModal(user.id)}
                               >
-                                <Edit />
+                                <Delete />
                               </IconButton>
-                            )}
-                            <IconButton
-                              aria-label="Edit"
-                              className={classes.iconDelete}
-                              disabled={
-                                auth.id === user.id ||
-                                loading ||
-                                (!canDeleteUser && !is_superuser)
-                              }
-                              onClick={() => this.showModal(user.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  }
                 </Table>
+                <TextEmpty itemName="USERS" empty={users.length === 0}/>
               </Panel>
             </div>
           </div>

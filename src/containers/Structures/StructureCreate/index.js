@@ -7,7 +7,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Fab
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
@@ -30,6 +31,10 @@ import {
   addStructure,
   addStructureType
 } from "../../../redux/actions/structureActions";
+import {
+  setProjectForMap
+} from "../../../redux/actions/projectActions";
+import { ArrowBack } from "@material-ui/icons";
 
 class StructureCreate extends React.Component {
   state = {
@@ -142,7 +147,7 @@ class StructureCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading } = this.props;
+    const { classes, loading, fromMap } = this.props;
     const { form, formStructureType, open } = this.state;
     return (
       <Layout title="Create Structure">
@@ -234,6 +239,23 @@ class StructureCreate extends React.Component {
               routes={this.breadcrumbs}
               classes={{ root: classes.breadcrumbs }}
             />
+            {fromMap ? (
+              <Grid container justify="flex-end">
+                <Fab
+                  variant="extended"
+                  aria-label="Back"
+                  color="primary"
+                  className={classes.buttonBack}
+                  onClick={() => {
+                    this.props.setProjectForMap(this.projectId)
+                    this.props.history.push(`/projects/maps-view`)
+                  }}
+                >
+                  <ArrowBack />
+                  Back to map
+                </Fab>
+              </Grid>
+            ) : null}
             <Panel>
               <Formik
                 onSubmit={this.save}
@@ -293,7 +315,8 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     latitude: state.projects.latitude,
-    longitude: state.projects.longitude
+    longitude: state.projects.longitude,
+    fromMap: state.projects.fromMap
   };
 };
 
@@ -302,7 +325,8 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   addStructure,
-  addStructureType
+  addStructureType,
+  setProjectForMap
 };
 
 export default compose(

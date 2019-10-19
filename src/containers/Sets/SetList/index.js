@@ -38,6 +38,7 @@ import {
   CAN_CHANGE_SET,
   CAN_DELETE_SET
 } from "../../../redux/permissions";
+import TextEmpty from "../../../components/TextEmpty";
 
 const breadcrumbs = [{ name: "Home", to: "/home" }, { name: "Sets", to: null }];
 
@@ -258,64 +259,67 @@ class SetList extends React.Component {
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
-                    {this.filter(sets, search).map(set => (
-                      <TableRow key={set.id}>
-                        <TableCell component="td" style={{ width: "80%" }}>
-                          {set.name}
-                        </TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
-                            {canChangeSet || is_superuser ? (
-                              <Link
-                                component={RouterLink}
-                                to={`/sets/${set.id}`}
-                              >
+                  { !loading &&
+                    <TableBody>
+                      {this.filter(sets, search).map(set => (
+                        <TableRow key={set.id}>
+                          <TableCell component="td" style={{ width: "80%" }}>
+                            {set.name}
+                          </TableCell>
+                          <TableCell>
+                            <div style={{ display: "flex" }}>
+                              {canChangeSet || is_superuser ? (
+                                <Link
+                                  component={RouterLink}
+                                  to={`/sets/${set.id}`}
+                                >
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                              ) : (
                                 <IconButton
                                   aria-label="Edit"
                                   color="primary"
-                                  disabled={loading}
+                                  disabled={
+                                    loading || !canChangeSet || !is_superuser
+                                  }
                                 >
                                   <Edit />
                                 </IconButton>
-                              </Link>
-                            ) : (
+                              )}
                               <IconButton
-                                aria-label="Edit"
-                                color="primary"
+                                aria-label="Delete"
+                                className={classes.iconDelete}
                                 disabled={
-                                  loading || !canChangeSet || !is_superuser
+                                  loading || (!canDeleteSet && !is_superuser)
                                 }
+                                onClick={() => this.showModal(set.id)}
                               >
-                                <Edit />
+                                <Delete />
                               </IconButton>
-                            )}
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={
-                                loading || (!canDeleteSet && !is_superuser)
-                              }
-                              onClick={() => this.showModal(set.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                            <IconButton
-                              aria-label="Duplicate"
-                              className={classes.iconCopy}
-                              disabled={
-                                loading
-                              }
-                              onClick={() => this.setState({openDuplicate: true, setId: set.id})}
-                            >
-                              <FileCopy />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                              <IconButton
+                                aria-label="Duplicate"
+                                className={classes.iconCopy}
+                                disabled={
+                                  loading
+                                }
+                                onClick={() => this.setState({openDuplicate: true, setId: set.id})}
+                              >
+                                <FileCopy />
+                              </IconButton>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  }
                 </Table>
+                <TextEmpty itemName="SETS" empty={sets.length === 0}/>
               </Panel>
             </div>
           </div>

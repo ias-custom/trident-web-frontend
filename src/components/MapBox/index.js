@@ -8,7 +8,7 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
-import { setPoint } from "../../redux/actions/projectActions";
+import { setPoint, setFromMap } from "../../redux/actions/projectActions";
 import { fetchStructures } from "../../redux/actions/structureActions";
 import {
   fetchSpans,
@@ -100,6 +100,7 @@ class MapBox extends React.Component {
       this.getStructures();
       this.getMarkings();
       this.getAccess();
+      this.getInteractions();
       this.map.on("click", ({ lngLat }) => {
         this.map.flyTo({ center: [lngLat.lng, lngLat.lat] });
       });
@@ -228,7 +229,6 @@ class MapBox extends React.Component {
   }
 
   getStructures() {
-    console.log(this.props.structures);
     const features = this.props.structures.map(structure => {
       return {
         type: "Feature",
@@ -364,6 +364,37 @@ class MapBox extends React.Component {
     });
   }
 
+  getInteractions() {
+    const features = this.props.interactions.map(item => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [item.coordinate[0], item.coordinate[1]]
+        },
+        properties: {
+          name: item.name,
+          link: `/projects/${this.props.projectId}/interactions/${item.id}`
+        }
+      };
+    });
+    features.forEach(marker => {
+      // create a HTML element for each feature
+      var el = document.createElement("i");
+      el.className = `fas fa-bacon ${this.props.classes.interaction}`;
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .setPopup(
+          new mapboxgl.Popup({ offset: 10 }) // add popups
+            .setHTML(
+              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
+            )
+        )
+        .addTo(this.map);
+    });
+  }
+
   setItem(value, link) {
     this.setState({
       itemValue: value,
@@ -388,6 +419,7 @@ class MapBox extends React.Component {
 
   confirmAddItem() {
     // CALL TO DISPATCH TO SET LAT AND LNG
+    this.props.setFromMap(true)
     const { itemValue, structuresSelected, spanSelected, link } = this.state;
     if (itemValue === 2) {
       this.props.setStructures(
@@ -482,6 +514,18 @@ class MapBox extends React.Component {
             >
               Add access
               {itemValue === 4 ? (
+                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+              ) : null}
+            </Button>
+            <Button
+              variant="outlined"
+              className={classes.buttonMenu}
+              onClick={() =>
+                this.setItem(5, `/projects/${projectId}/interactions/create`)
+              }
+            >
+              Add interaction
+              {itemValue === 5 ? (
                 <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
               ) : null}
             </Button>
@@ -583,7 +627,7 @@ class MapBox extends React.Component {
               )}
             </div>
           ) : null}
-          {itemValue === 1 ? this.getDialogConfirm() : null}
+          {itemValue === 1 || itemValue === 5 ? this.getDialogConfirm() : null}
         </div>
       </Grid>
     );
@@ -596,7 +640,8 @@ const mapStateToProps = state => {
     structures: state.structures.structures,
     spans: state.spans.spans,
     markings: state.spans.markings,
-    access: state.spans.access
+    access: state.spans.access,
+    interactions: state.interactions.list
   };
 };
 
@@ -607,7 +652,8 @@ const mapDispatchToProps = {
   fetchSpans,
   setPoint,
   setSpan,
-  setStructures
+  setStructures,
+  setFromMap
 };
 
 export default compose(

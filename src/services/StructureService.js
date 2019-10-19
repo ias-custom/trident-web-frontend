@@ -91,30 +91,6 @@ class StructureService extends Service {
     }
   }
 
-  getInteractions = async (structureId) => {
-    try {
-        return await this.http.get(`/structures/${structureId}/interactions/`);
-    } catch (error) {
-        return error.response;
-    }
-  }
-
-  deleteInteraction = async (structureId, interactionId) => {
-    try {
-        return await this.http.delete(`/structures/${structureId}/interactions/${interactionId}`);
-    } catch (error) {
-        return error.response;
-    }
-  }
-
-  addInteraction = async (structureId, body) => {
-    try {
-      return await this.http.post(`/structures/${structureId}/interactions/`, body );
-    } catch (error) {
-        return error.response;
-    }
-  }
-
   getItems = async (structureId ) => {
     try {
       return await this.http.get(`/structures/${structureId}/items/`);

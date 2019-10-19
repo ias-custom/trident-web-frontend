@@ -10,6 +10,7 @@ import structureReducer from "./structureReducer";
 import spanReducer from "./spanReducer";
 import substationsReducer from "./substationReducer";
 import setReducer from "./setReducer";
+import interactionReducer from "./interactionReducer";
 
 export default combineReducers({
   global: globalReducer,
@@ -22,5 +23,6 @@ export default combineReducers({
   structures: structureReducer,
   spans: spanReducer,
   substations: substationsReducer,
-  sets: setReducer
+  sets: setReducer,
+  interactions: interactionReducer
 });

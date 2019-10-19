@@ -1,4 +1,6 @@
 import React from 'react';
+import { compose } from 'recompose';
+import { connect } from 'react-redux';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Collapse from '@material-ui/core/Collapse';
@@ -18,9 +20,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import Link from '@material-ui/core/Link';
 import styles from './styles';
 import { withStyles, Divider } from '@material-ui/core';
-import {  toggleItemMenu } from '../../redux/actions/layoutActions';
-import { connect } from 'react-redux';
-import { compose } from 'recompose';
+import {  toggleItemMenu, setProjectForMap } from '../../redux/actions/layoutActions';
 import {
   CAN_ADD_USER,
   CAN_VIEW_USER,
@@ -197,7 +197,7 @@ class MainListItems extends React.Component {
                   </ListItem>
                 </Link>
               ):null}
-              <Link component={MapLink} underline="none">
+              <Link component={MapLink} underline="none" onClick={() => this.props.setProjectForMap("")}>
                 <ListItem button className={classes.subMenu} selected={itemsMenu.projects.maps}>
                   <ListItemText primary="Map View" />
                 </ListItem>
@@ -279,11 +279,14 @@ const mapStateToProps = (state) => {
   }
 };
 
-const mapDispatchToProps = { toggleItemMenu };
+const mapDispatchToProps = { toggleItemMenu, setProjectForMap };
 
 export default compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withStyles(styles)
+  withStyles(styles),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(MainListItems);
 
 

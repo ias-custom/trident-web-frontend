@@ -15,7 +15,9 @@ import {
   GET_ACCESS_TYPE_DETAILS,
   SET_LATITUDE,
   SET_LONGITUDE,
-  LOADED_CATEGORIES
+  LOADED_CATEGORIES,
+  SET_FROM_MAP,
+  SET_PROJECT_FOR_MAP
 } from "../actionTypes";
 
 const initialState = {
@@ -34,7 +36,9 @@ const initialState = {
   details: [],
   latitude: "",
   longitude: "",
-  loadedCategories: false
+  loadedCategories: false,
+  fromMap: false,
+  id: ""
 };
 
 export default (state = initialState, action) => {
@@ -84,9 +88,16 @@ export default (state = initialState, action) => {
 
     case SET_LATITUDE:
       return { ...state, latitude: action.payload };
+
     case SET_LONGITUDE:
       return { ...state, longitude: action.payload };
 
+    case SET_FROM_MAP:
+      return { ...state, fromMap: action.payload };
+
+    case SET_PROJECT_FOR_MAP:
+      return { ...state, id: action.payload };
+      
     case LOADED_CATEGORIES:
       return { ...state, loadedCategories: action.payload };
 

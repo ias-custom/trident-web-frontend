@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, TextField, Button, MenuItem } from "@material-ui/core";
+import { Grid, TextField, Button, MenuItem, Fab } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
@@ -18,6 +18,10 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { getMarkingsTypes } from "../../../redux/actions/projectActions";
 import { addMarking, fetchSpans } from "../../../redux/actions/spanActions";
+import {
+  setProjectForMap
+} from "../../../redux/actions/projectActions";
+import { ArrowBack } from "@material-ui/icons";
 
 class MarkingCreate extends React.Component {
   state = {
@@ -100,7 +104,7 @@ class MarkingCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading, marking_types, spans } = this.props;
+    const { classes, loading, marking_types, spans, fromMap } = this.props;
     const { form, span_id } = this.state;
 
     return (
@@ -123,6 +127,23 @@ class MarkingCreate extends React.Component {
               ]}
               classes={{ root: classes.breadcrumbs }}
             />
+            {fromMap ? (
+              <Grid container justify="flex-end">
+                <Fab
+                  variant="extended"
+                  aria-label="Back"
+                  color="primary"
+                  className={classes.buttonBack}
+                  onClick={() => {
+                    this.props.setProjectForMap(this.projectId)
+                    this.props.history.push(`/projects/maps-view`)
+                  }}
+                >
+                  <ArrowBack />
+                  Back to map
+                </Fab>
+              </Grid>
+            ) : null}
             <Panel>
               <Grid>
                 <TextField
@@ -326,7 +347,8 @@ const mapStateToProps = state => {
     longitude: state.projects.longitude,
     marking_types: state.projects.marking_types,
     spans: state.spans.spans,
-    spanId: state.spans.spanId
+    spanId: state.spans.spanId,
+    fromMap: state.projects.fromMap
   };
 };
 
@@ -336,7 +358,8 @@ const mapDispatchToProps = {
   selectedItemMenu,
   getMarkingsTypes,
   addMarking,
-  fetchSpans
+  fetchSpans,
+  setProjectForMap
 };
 
 export default compose(

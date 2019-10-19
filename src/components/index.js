@@ -15,6 +15,8 @@ import Equipment from './Equipment';
 import MapBox from './MapBox';
 import SetInspections from './SetInspections';
 import InfoSetView from './InfoSetView';
+import TextEmpty from './TextEmpty';
+import FormInteraction from './FormInteraction';
 
 export {
   InputSearch,
@@ -34,5 +36,7 @@ export {
   Equipment,
   MapBox,
   SetInspections,
-  InfoSetView
+  InfoSetView,
+  TextEmpty,
+  FormInteraction
 }

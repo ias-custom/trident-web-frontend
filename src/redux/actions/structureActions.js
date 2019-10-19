@@ -3,7 +3,6 @@ import {
     GET_STRUCTURES,
     GET_STRUCTURE_TYPES,
     GET_PHOTOS,
-    GET_INTERACTIONS,
     GET_ITEMS_STRUCTURE
   } from "../actionTypes";
   import StructureService from "../../services/StructureService";
@@ -206,64 +205,6 @@ import {
     }
   };
 
-
-  // INTERACTIONS
-  export const getInteractions = structureId => {
-    return async dispatch => {
-      dispatch(setLoading(true));
-  
-      try {
-        const response = await service.getInteractions(structureId);
-  
-        if (response.status === 200) {
-          dispatch({ type: GET_INTERACTIONS, payload: response.data });
-        } else {
-          dispatch({ type: GET_INTERACTIONS, payload: [] });
-        }
-        return response;
-      } catch (error) {
-        return error;
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-  };
-
-  export const deleteInteraction = (structureId, interactionId) => {
-    return async (dispatch) => {
-      dispatch(setLoading(true));
-  
-      try {
-        const response = await service.deleteInteraction(structureId, interactionId);
-        if (response.status === 204) {
-          dispatch(getInteractions(structureId));
-        }
-        return response;
-      } catch (error) {
-        return error;
-      } finally {
-        dispatch(setLoading(false));
-      }
-    }
-  };
-
-  export const addInteraction = (structureId, body) => {
-    return async (dispatch) => {
-      dispatch(setLoading(true));
-  
-      try {
-        const response = await service.addInteraction(structureId, body);
-        if (response.status === 201) {
-          dispatch(getInteractions(structureId));
-        }
-        return response;
-      } catch (error) {
-        return error;
-      } finally {
-        dispatch(setLoading(false));
-      }
-    }
-  };
 
   export const getItemsStructure = (structureId) => {
     return async (dispatch) => {

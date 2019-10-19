@@ -40,6 +40,7 @@ import {
   CAN_CHANGE_SUBSTATION,
   CAN_DELETE_SUBSTATION
 } from "../../../redux/permissions";
+import { TextEmpty } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -197,65 +198,59 @@ class SubstationsList extends React.Component {
                       <TableCell align="left">Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
-                    {this.filter(substations, search).map(station => (
-                      <TableRow key={station.id}>
-                        <TableCell component="th" scope="row">
-                          {station.name}
-                        </TableCell>
-                        <TableCell>{station.customer.name}</TableCell>
-                        <TableCell>{station.number}</TableCell>
-                        <TableCell>{station.latitude}</TableCell>
-                        <TableCell>{station.longitude}</TableCell>
-                        <TableCell align="center">
-                          <div style={{ display: "flex" }}>
-                            {canChangeSubstation || is_superuser ? (
-                              <Link component={RouterLink} to={`/substations/${station.id}`}>
+                  { !loading &&
+                    <TableBody>
+                      {this.filter(substations, search).map(station => (
+                        <TableRow key={station.id}>
+                          <TableCell component="th" scope="row">
+                            {station.name}
+                          </TableCell>
+                          <TableCell>{station.customer.name}</TableCell>
+                          <TableCell>{station.number}</TableCell>
+                          <TableCell>{station.latitude}</TableCell>
+                          <TableCell>{station.longitude}</TableCell>
+                          <TableCell align="center">
+                            <div style={{ display: "flex" }}>
+                              {canChangeSubstation || is_superuser ? (
+                                <Link component={RouterLink} to={`/substations/${station.id}`}>
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                              ) : (
                                 <IconButton
                                   aria-label="Edit"
                                   color="primary"
-                                  disabled={loading}
+                                  disabled={
+                                    loading || !canChangeSubstation || !is_superuser
+                                  }
                                 >
                                   <Edit />
                                 </IconButton>
-                              </Link>
-                            ) : (
+                              )}
                               <IconButton
                                 aria-label="Edit"
-                                color="primary"
+                                className={classes.iconDelete}
                                 disabled={
-                                  loading || !canChangeSubstation || !is_superuser
+                                  loading ||
+                                  (!canDeleteSubstation && !is_superuser)
                                 }
+                                onClick={() => this.showModal(station.id)}
                               >
-                                <Edit />
+                                <Delete />
                               </IconButton>
-                            )}
-                            <IconButton
-                              aria-label="Edit"
-                              className={classes.iconDelete}
-                              disabled={
-                                loading ||
-                                (!canDeleteSubstation && !is_superuser)
-                              }
-                              onClick={() => this.showModal(station.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  }
                 </Table>
-                {substations.length === 0 ? (
-                  <Typography
-                    variant="display1"
-                    align="center"
-                    className={classes.emptyText}
-                  >
-                    THERE AREN'T SUBSTATIONS
-                  </Typography>
-                ) : null}
+                <TextEmpty itemName="SUBSTATIONS" empty={substations.length === 0}/>
               </Panel>
             </div>
           </div>

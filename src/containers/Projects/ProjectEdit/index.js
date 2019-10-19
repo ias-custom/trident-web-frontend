@@ -37,22 +37,18 @@ import {
   getProject,
   updateProject,
   addUser,
-  getDeficiencies,
-  addDeficiency,
-  deleteDeficiency,
   setPoint,
-  addSet
+  addSet,
+  setFromMap
 } from "../../../redux/actions/projectActions";
 import {
-  fetchStructures,
   deleteStructure
 } from "../../../redux/actions/structureActions";
 import {
-  fetchSpans,
   deleteSpan,
-  addSpan,
   setStructures
 } from "../../../redux/actions/spanActions";
+import { deleteInteraction } from "../../../redux/actions/interactionActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { setLoading } from "../../../redux/actions/globalActions";
 import { fetchSets, getSet } from "../../../redux/actions/setsActions";
@@ -61,7 +57,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { InfoSetView } from "../../../components";
+import { InfoSetView, TextEmpty } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -75,14 +71,12 @@ class ProjectEdit extends React.Component {
     openId: 0,
     open: false,
     openUser: false,
-    openDeficiency: false,
     itemId: null,
     value: 0,
     projectName: "",
     inputProjectName: "",
     editName: false,
     userSelected: "",
-    deficiencyName: "",
     openSet: false,
     setId: "",
     set: null,
@@ -132,9 +126,6 @@ class ProjectEdit extends React.Component {
     if (tab === "spans") {
       fields = ["id"];
     }
-    if (tab === "deficiencies") {
-      fields = ["name"];
-    }
     const regex = new RegExp(keyword, "i");
 
     return list.filter(data => {
@@ -150,24 +141,25 @@ class ProjectEdit extends React.Component {
 
   handleDelete = async () => {
     this.setState({ open: false });
+    const { value } = this.state;
     let response = "";
     let itemName = "";
     try {
-      if (this.state.value === 0) {
+      if (value === 0) {
         itemName = "User";
         response = await this.props.deleteUser(
           this.projectId,
           this.state.itemId
         );
       }
-      if (this.state.value === 1) {
+      if (value === 1) {
         itemName = "Structure";
         response = await this.props.deleteStructure(
           this.projectId,
           this.state.itemId
         );
       }
-      if (this.state.value === 2) {
+      if (value === 2) {
         itemName = "Span";
         response = await this.props.deleteSpan(
           this.projectId,
@@ -175,9 +167,9 @@ class ProjectEdit extends React.Component {
         );
       }
 
-      if (this.state.value === 4) {
-        itemName = "Deficiency";
-        response = await this.props.deleteDeficiency(
+      if (value === 4) {
+        itemName = "Interaction";
+        response = await this.props.deleteInteraction(
           this.projectId,
           this.state.itemId
         );
@@ -348,7 +340,8 @@ class ProjectEdit extends React.Component {
       spans,
       users,
       users_customer,
-      sets
+      sets,
+      interactions
     } = this.props;
     const {
       search,
@@ -360,8 +353,6 @@ class ProjectEdit extends React.Component {
       inputProjectName,
       userSelected,
       openId,
-      openDeficiency,
-      deficiencyName,
       setId,
       openSet,
       set,
@@ -465,56 +456,6 @@ class ProjectEdit extends React.Component {
                   }
                 >
                   Add User
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
-              open={openDeficiency}
-              classes={{ paper: classes.dialog }}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Add deficiency"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  Enter the required information
-                </DialogContentText>
-                <Grid container>
-                  <TextField
-                    name="name"
-                    label="Name"
-                    value={deficiencyName}
-                    onChange={e => {
-                      const value = e.target.value;
-                      this.setState({ deficiencyName: value });
-                    }}
-                    margin="normal"
-                    fullWidth
-                    required
-                  />
-                </Grid>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonCancel}
-                  onClick={() =>
-                    !loading ? this.closeModal("openDeficiency", null) : null
-                  }
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  disabled={deficiencyName.length === 0 || loading}
-                  className={classes.buttonAccept}
-                  onClick={this.addDeficiency}
-                >
-                  Add deficiency
                 </Button>
               </DialogActions>
             </Dialog>
@@ -635,7 +576,7 @@ class ProjectEdit extends React.Component {
                   <Tab label="Structures" disabled={loading} />
                   <Tab label="Spans" disabled={loading} />
                   <Tab label="Set" disabled={loading} />
-                  {/* <Tab label="Deficiencies" disabled={loading} /> */}
+                  <Tab label="Interactions" disabled={loading} />
                 </Tabs>
               </Grid>
               <Panel>
@@ -677,56 +618,50 @@ class ProjectEdit extends React.Component {
                           <TableCell colSpan={1}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
-                      <TableBody>
-                        {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
-                          <TableRow key={user.id}>
-                            <TableCell component="td">
-                              {user.first_name} {user.last_name}
-                            </TableCell>
-                            <TableCell component="td">
-                              {user.username}
-                            </TableCell>
-                            <TableCell component="td">{user.email}</TableCell>
-                            <TableCell>
-                              <div style={{ display: "flex" }}>
-                                {/* <Link
-                                  component={RouterLink}
-                                  to={`/users/${user.id}`}
-                                >
-                                  <IconButton
-                                    aria-label="Edit"
-                                    color="primary"
-                                    disabled={loading}
+                      {!loading &&
+                        <TableBody>
+                          {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
+                            <TableRow key={user.id}>
+                              <TableCell component="td">
+                                {user.first_name} {user.last_name}
+                              </TableCell>
+                              <TableCell component="td">
+                                {user.username}
+                              </TableCell>
+                              <TableCell component="td">{user.email}</TableCell>
+                              <TableCell>
+                                <div style={{ display: "flex" }}>
+                                  {/* <Link
+                                    component={RouterLink}
+                                    to={`/users/${user.id}`}
                                   >
-                                    <Edit />
-                                  </IconButton>
-                                </Link> */}
+                                    <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      disabled={loading}
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Link> */}
 
-                                <IconButton
-                                  aria-label="Delete"
-                                  className={classes.iconDelete}
-                                  disabled={loading}
-                                  onClick={() =>
-                                    this.showModal(user.relation_id, "open")
-                                  }
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
+                                  <IconButton
+                                    aria-label="Delete"
+                                    className={classes.iconDelete}
+                                    disabled={loading}
+                                    onClick={() =>
+                                      this.showModal(user.relation_id, "open")
+                                    }
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      }
                     </Table>
-                    {users.length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T USERS
-                      </Typography>
-                    ) : null}
+                    <TextEmpty itemName="USERS" empty={users.length === 0}/>
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
@@ -736,6 +671,7 @@ class ProjectEdit extends React.Component {
                         disabled={loading}
                         onClick={() => {
                           this.props.setPoint("", "");
+                          this.props.setFromMap(false);
                           this.props.history.push(
                             `/projects/${this.projectId}/structures/create`
                           );
@@ -762,65 +698,59 @@ class ProjectEdit extends React.Component {
                           <TableCell colSpan={1}>Actions</TableCell>
                         </TableRow>
                       </TableHead>
-                      <TableBody>
-                        {this.filter(structures, search, "structures").map(
-                          structure => (
-                            <TableRow key={structure.id}>
-                              <TableCell component="td">
-                                {structure.name}
-                              </TableCell>
-                              <TableCell component="td">
-                                {structure.state.name === "Collected" ? (
-                                  <Typography color="primary">
-                                    {structure.state.name}
-                                  </Typography>
-                                ) : (
-                                  <Typography style={{ color: "#e44f4f" }}>
-                                    {structure.state.name}
-                                  </Typography>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div style={{ display: "flex" }}>
-                                  <Link
-                                    component={RouterLink}
-                                    to={`/projects/${this.projectId}/structures/${structure.id}`}
-                                  >
-                                    <IconButton
-                                      aria-label="Edit"
-                                      color="primary"
-                                      disabled={loading}
+                      {!loading &&
+                        <TableBody>
+                          {this.filter(structures, search, "structures").map(
+                            structure => (
+                              <TableRow key={structure.id}>
+                                <TableCell component="td">
+                                  {structure.name}
+                                </TableCell>
+                                <TableCell component="td">
+                                  {structure.state.name === "Collected" ? (
+                                    <Typography color="primary">
+                                      {structure.state.name}
+                                    </Typography>
+                                  ) : (
+                                    <Typography style={{ color: "#e44f4f" }}>
+                                      {structure.state.name}
+                                    </Typography>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <div style={{ display: "flex" }}>
+                                    <Link
+                                      component={RouterLink}
+                                      to={`/projects/${this.projectId}/structures/${structure.id}`}
                                     >
-                                      <Edit />
-                                    </IconButton>
-                                  </Link>
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        disabled={loading}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Link>
 
-                                  <IconButton
-                                    aria-label="Delete"
-                                    className={classes.iconDelete}
-                                    disabled={loading}
-                                    onClick={() =>
-                                      this.showModal(structure.id, "open")
-                                    }
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        )}
-                      </TableBody>
+                                    <IconButton
+                                      aria-label="Delete"
+                                      className={classes.iconDelete}
+                                      disabled={loading}
+                                      onClick={() =>
+                                        this.showModal(structure.id, "open")
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )
+                          )}
+                        </TableBody>
+                      }
                     </Table>
-                    {structures.length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T STRUCTURES
-                      </Typography>
-                    ) : null}
+                    <TextEmpty itemName="STRUCTURES" empty={structures.length === 0}/>
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
@@ -830,6 +760,7 @@ class ProjectEdit extends React.Component {
                         disabled={loading}
                         onClick={() => {
                           this.props.setStructures("", "");
+                          this.props.setFromMap(false);
                           this.props.history.push(
                             `/projects/${this.projectId}/spans/create`
                           );
@@ -912,15 +843,7 @@ class ProjectEdit extends React.Component {
                         ))}
                       </TableBody>
                     </Table>
-                    {spans.length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T SPANS
-                      </Typography>
-                    ) : null}
+                    <TextEmpty itemName="SPANS" empty={spans.length === 0}/>
                   </Grid>
                   <Grid container>
                     <Grid item className={classes.divSelectSet} xs>
@@ -960,16 +883,13 @@ class ProjectEdit extends React.Component {
                       />
                     )} 
                   </Grid>
-                  {/* <Grid>
+                  <Grid>
                     <div className={classes.header}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        disabled={loading}
-                        onClick={() => this.showModal(null, "openDeficiency")}
-                      >
-                        Add Deficiency
-                      </Button>
+                      <Link component={RouterLink} color="inherit" to={`/projects/${this.projectId}/interactions/create`}>
+                        <Button variant="outlined" color="primary">
+                          Create Interaction
+                        </Button>
+                      </Link>
                       <Input
                         style={{ width: 300 }}
                         defaultValue=""
@@ -980,28 +900,60 @@ class ProjectEdit extends React.Component {
                         }}
                       />
                     </div>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell style={{ width: "80%" }}>Name</TableCell>
-                          <TableCell colSpan={1}>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {this.filter(deficiencies, search, "deficiencies").map(
-                          deficiency => (
-                            <TableRow key={deficiency.id}>
-                              <TableCell component="td">
-                                {deficiency.name}
+                    <div style={{overflowX: "auto"}}>
+                      <Table className={classes.table}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell style={{minWidth: 180}}>Name</TableCell>
+                            <TableCell style={{minWidth: 120}}>Title</TableCell>
+                            <TableCell style={{minWidth: 120}}>Type</TableCell>
+                            <TableCell>Latitude</TableCell>
+                            <TableCell>Longitude</TableCell>
+                            <TableCell>Contact Info</TableCell>
+                            <TableCell>Notes</TableCell>
+                            <TableCell style={{minWidth: 160}}>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {this.filter(interactions, search).map(interaction => (
+                            <TableRow key={interaction.id}>
+                              <TableCell
+                                component="td"
+                                className={classes.cellDescription}
+                              >
+                                {interaction.name}
                               </TableCell>
                               <TableCell>
-                                <div style={{ display: "flex" }}>
+                                {interaction.title}
+                              </TableCell>
+                              <TableCell>
+                                {interaction.type}
+                              </TableCell>
+                              <TableCell>
+                                {interaction.latitude}
+                              </TableCell>
+                              <TableCell>
+                                {interaction.longitude}
+                              </TableCell>
+                              <TableCell>
+                                {interaction.contact_info || "-"}
+                              </TableCell>
+                              <TableCell>
+                                {interaction.notes || "-"}
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                <Link component={RouterLink} color="inherit" to={`/projects/${this.projectId}/interactions/${interaction.id}`}>
+                                  <IconButton color="primary">
+                                    <Edit/>
+                                  </IconButton>
+                                </Link>
                                   <IconButton
                                     aria-label="Delete"
                                     className={classes.iconDelete}
                                     disabled={loading}
                                     onClick={() =>
-                                      this.showModal(deficiency.id, "open")
+                                      this.showModal(interaction.id, "open")
                                     }
                                   >
                                     <Delete />
@@ -1009,20 +961,12 @@ class ProjectEdit extends React.Component {
                                 </div>
                               </TableCell>
                             </TableRow>
-                          )
-                        )}
-                      </TableBody>
-                    </Table>
-                    {deficiencies.length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T DEFICIENCIES
-                      </Typography>
-                    ) : null}
-                  </Grid> */}
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    <TextEmpty itemName="INTERACTIONS" empty={interactions.length === 0}/>
+                  </Grid>
                 </SwipeableViews>
               </Panel>
             </div>
@@ -1043,23 +987,18 @@ const mapStateToProps = state => {
     users: state.projects.users,
     structures: state.structures.structures,
     spans: state.spans.spans,
+    interactions: state.interactions.list,
     deficiencies: state.projects.deficiencies,
     sets: state.sets.list
   };
 };
 
 const mapDispatchToProps = {
-  fetchSpans,
-  fetchStructures,
   getUsersProject,
-  getDeficiencies,
-  addDeficiency,
-  deleteDeficiency,
   getProject,
   updateProject,
   getUsers,
   addUser,
-  addSpan,
   deleteUser,
   deleteSpan,
   deleteStructure,
@@ -1070,7 +1009,9 @@ const mapDispatchToProps = {
   setStructures,
   fetchSets,
   addSet,
-  getSet
+  getSet,
+  deleteInteraction,
+  setFromMap
 };
 
 export default compose(

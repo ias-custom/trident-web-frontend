@@ -50,7 +50,7 @@ class FormStructureEdit extends React.Component {
     const {
       inspections 
     } = this.state;
-
+    
     return (
       <Form onSubmit={this.props.handleSubmit}>
         <Prompt

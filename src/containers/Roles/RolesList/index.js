@@ -36,6 +36,7 @@ import {
   CAN_CHANGE_ROLE,
   CAN_DELETE_ROLE
 } from "../../../redux/permissions";
+import TextEmpty from "../../../components/TextEmpty";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -183,51 +184,54 @@ class RolesList extends React.Component {
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  <TableBody>
-                    {this.filter(roles, search).map(role => (
-                      <TableRow key={role.id}>
-                        <TableCell component="td" style={{ width: "80%" }}>
-                          {role.name}
-                        </TableCell>
-                        <TableCell>
-                          <div style={{ display: "flex" }}>
-                            {canChangeRole || is_superuser ? (
-                              <Link component={RouterLink} to={`/roles/${role.id}`}>
+                  { !loading &&
+                    <TableBody>
+                      {this.filter(roles, search).map(role => (
+                        <TableRow key={role.id}>
+                          <TableCell component="td" style={{ width: "80%" }}>
+                            {role.name}
+                          </TableCell>
+                          <TableCell>
+                            <div style={{ display: "flex" }}>
+                              {canChangeRole || is_superuser ? (
+                                <Link component={RouterLink} to={`/roles/${role.id}`}>
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                              ) : (
                                 <IconButton
                                   aria-label="Edit"
                                   color="primary"
-                                  disabled={loading}
+                                  disabled={
+                                    loading || !canChangeRole || !is_superuser
+                                  }
                                 >
                                   <Edit />
                                 </IconButton>
-                              </Link>
-                            ) : (
+                              )}
                               <IconButton
-                                aria-label="Edit"
-                                color="primary"
+                                aria-label="Delete"
+                                className={classes.iconDelete}
                                 disabled={
-                                  loading || !canChangeRole || !is_superuser
+                                  loading || (!canDeleteRole && !is_superuser)
                                 }
+                                onClick={() => this.showModal(role.id)}
                               >
-                                <Edit />
+                                <Delete />
                               </IconButton>
-                            )}
-                            <IconButton
-                              aria-label="Delete"
-                              className={classes.iconDelete}
-                              disabled={
-                                loading || (!canDeleteRole && !is_superuser)
-                              }
-                              onClick={() => this.showModal(role.id)}
-                            >
-                              <Delete />
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  }
                 </Table>
+                <TextEmpty itemName="ROLES" empty={roles.length === 0}/>
               </Panel>
             </div>
           </div>

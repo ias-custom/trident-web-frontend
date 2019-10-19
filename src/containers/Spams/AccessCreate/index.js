@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, TextField, Button, MenuItem } from "@material-ui/core";
+import { Grid, TextField, Button, MenuItem, Fab } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
@@ -18,6 +18,8 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { getAccessTypes, getAccessTypeDetail } from "../../../redux/actions/projectActions";
 import { addAccess, fetchSpans } from "../../../redux/actions/spanActions";
+import { setProjectForMap } from "../../../redux/actions/projectActions";
+import { ArrowBack } from "@material-ui/icons";
 
 class AccessCreate extends React.Component {
   state = {
@@ -104,7 +106,7 @@ class AccessCreate extends React.Component {
   }
 
   render() {
-    const { classes, loading, access_types, spans, details } = this.props;
+    const { classes, loading, access_types, spans, details, fromMap } = this.props;
     const { form, span_id } = this.state;
 
     return (
@@ -127,6 +129,23 @@ class AccessCreate extends React.Component {
               ]}
               classes={{ root: classes.breadcrumbs }}
             />
+            {fromMap ? (
+              <Grid container justify="flex-end">
+                <Fab
+                  variant="extended"
+                  aria-label="Back"
+                  color="primary"
+                  className={classes.buttonBack}
+                  onClick={() => {
+                    this.props.setProjectForMap(this.projectId)
+                    this.props.history.push(`/projects/maps-view`)
+                  }}
+                >
+                  <ArrowBack />
+                  Back to map
+                </Fab>
+              </Grid>
+            ) : null}
             <Panel>
               <Grid>
                 <TextField
@@ -344,7 +363,8 @@ const mapStateToProps = state => {
     access_types: state.projects.access_types,
     details: state.projects.details,
     spans: state.spans.spans,
-    spanId: state.spans.spanId
+    spanId: state.spans.spanId,
+    fromMap: state.projects.fromMap
   };
 };
 
@@ -355,7 +375,8 @@ const mapDispatchToProps = {
   getAccessTypes,
   getAccessTypeDetail,
   addAccess,
-  fetchSpans
+  fetchSpans,
+  setProjectForMap
 };
 
 export default compose(

@@ -4,14 +4,7 @@ import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Button,
-  Input,
-  IconButton,
   withStyles,
   Dialog,
   DialogTitle,
@@ -24,7 +17,6 @@ import {
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Delete } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -33,10 +25,7 @@ import { getCategoriesInspection } from "../../../redux/actions/projectActions";
 import {
   getStructure,
   updateStructure,
-  getPhotos,
-  getInteractions,
-  deleteInteraction,
-  addInteraction
+  getPhotos
 } from "../../../redux/actions/structureActions";
 import { setLoading } from "../../../redux/actions/globalActions";
 import Layout from "../../../components/Layout/index";
@@ -95,8 +84,8 @@ class StructureEdit extends React.Component {
         this.structureId
       );
       if (response.status === 200) {
+        console.log(response.data)
         this.props.getPhotos(this.structureId);
-        this.props.getInteractions(this.structureId);
         const {
           state_id,
           type_structure_id,
@@ -260,7 +249,8 @@ class StructureEdit extends React.Component {
             latitude,
             longitude,
             structureTypeId,
-            address
+            address,
+            inspectionId
           }
         });
         this.props.enqueueSnackbar("The structure was updated successfully!", {
@@ -398,7 +388,6 @@ class StructureEdit extends React.Component {
                   <Tab label="General" />
                   <Tab label="Equipment" />
                   <Tab label="Photos" />
-                  <Tab label="Interactions" />
                 </Tabs>
               </Grid>
               <Panel>
@@ -422,7 +411,8 @@ class StructureEdit extends React.Component {
                         latitude: Yup.string().required("Latitude is required"),
                         longitude: Yup.string().required(
                           "Longitude is required"
-                        )
+                        ),
+                        inspectionId: Yup.mixed().required("Inspection is required")
                       })}
                     >
                       {props => {
@@ -476,74 +466,6 @@ class StructureEdit extends React.Component {
                       itemId={parseInt(this.structureId)}
                     />
                   </Grid>
-                  <Grid>
-                    <div className={classes.header}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => this.showModal("openInteraction", null)}
-                      >
-                        Add Interaction
-                      </Button>
-                      <Input
-                        style={{ width: 300 }}
-                        defaultValue=""
-                        className={classes.search}
-                        inputProps={{
-                          placeholder: "Search...",
-                          onChange: this.handleSearch
-                        }}
-                      />
-                    </div>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Description</TableCell>
-                          <TableCell>User</TableCell>
-                          <TableCell>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {this.filter(interactions, search).map(interaction => (
-                          <TableRow key={interaction.id}>
-                            <TableCell
-                              component="td"
-                              className={classes.cellDescription}
-                            >
-                              {interaction.description}
-                            </TableCell>
-                            <TableCell component="td">
-                              {interaction.user.first_name}{" "}
-                              {interaction.user.last_name}
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <IconButton
-                                  aria-label="Delete"
-                                  className={classes.iconDelete}
-                                  disabled={loading}
-                                  onClick={() =>
-                                    this.showModal("open", interaction.id)
-                                  }
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    {interactions.length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T INTERACTIONS
-                      </Typography>
-                    ) : null}
-                  </Grid>
                 </SwipeableViews>
               </Panel>
             </div>
@@ -567,9 +489,6 @@ const mapDispatchToProps = {
   getStructure,
   updateStructure,
   getPhotos,
-  getInteractions,
-  deleteInteraction,
-  addInteraction,
   toggleItemMenu,
   selectedItemMenu,
   setLoading
