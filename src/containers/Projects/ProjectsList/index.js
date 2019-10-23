@@ -14,12 +14,7 @@ import {
   Input,
   IconButton,
   Link,
-  withStyles,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions
+  withStyles
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import {
@@ -37,6 +32,7 @@ import {
   CAN_DELETE_PROJECT
 } from "../../../redux/permissions";
 import TextEmpty from "../../../components/TextEmpty";
+import { DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -58,9 +54,7 @@ class ProjectsList extends React.Component {
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
-    } catch (error) {
-      
-    }
+    } catch (error) {}
   }
 
   handleSearch = event => {
@@ -109,7 +103,13 @@ class ProjectsList extends React.Component {
   };
 
   render() {
-    const { classes, loading, is_superuser, permissions, projects } = this.props;
+    const {
+      classes,
+      loading,
+      is_superuser,
+      permissions,
+      projects
+    } = this.props;
     const canCreateProject = permissions.includes(CAN_ADD_PROJECT);
     const canChangeProject = permissions.includes(CAN_CHANGE_PROJECT);
     const canDeleteProject = permissions.includes(CAN_DELETE_PROJECT);
@@ -119,42 +119,18 @@ class ProjectsList extends React.Component {
       <Layout title="Projects">
         {() => (
           <div>
-            <Dialog
-            open={open}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            onBackdropClick={this.closeModal}
-            onEscapeKeyDown={this.closeModal}
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Are you sure you want to delete?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                If you delete the role it will be permanently.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="outlined"
-                className={classes.buttonCancel}
-                onClick={this.closeModal}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                className={classes.buttonAccept}
-                onClick={this.handleDelete}
-              >
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
+            <DialogDelete
+              item="project"
+              open={open}
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
-    
+              <SimpleBreadcrumbs
+                routes={breadcrumbs}
+                classes={{ root: classes.breadcrumbs }}
+              />
+
               <Panel>
                 <div
                   className={
@@ -164,7 +140,11 @@ class ProjectsList extends React.Component {
                   }
                 >
                   {canCreateProject || is_superuser ? (
-                    <Link component={RouterLink} color="inherit" to="/projects/create">
+                    <Link
+                      component={RouterLink}
+                      color="inherit"
+                      to="/projects/create"
+                    >
                       <Button variant="outlined" color="primary">
                         Create Project
                       </Button>
@@ -180,7 +160,7 @@ class ProjectsList extends React.Component {
                     }}
                   />
                 </div>
-    
+
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
@@ -188,7 +168,7 @@ class ProjectsList extends React.Component {
                       <TableCell colSpan={1}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
-                  { !loading &&
+                  {!loading && (
                     <TableBody>
                       {this.filter(projects, search).map(project => (
                         <TableRow key={project.id}>
@@ -198,7 +178,10 @@ class ProjectsList extends React.Component {
                           <TableCell>
                             <div style={{ display: "flex" }}>
                               {canChangeProject || is_superuser ? (
-                                <Link component={RouterLink} to={`/projects/${project.id}`}>
+                                <Link
+                                  component={RouterLink}
+                                  to={`/projects/${project.id}`}
+                                >
                                   <IconButton
                                     aria-label="Edit"
                                     color="primary"
@@ -212,7 +195,9 @@ class ProjectsList extends React.Component {
                                   aria-label="Edit"
                                   color="primary"
                                   disabled={
-                                    loading || !canChangeProject || !is_superuser
+                                    loading ||
+                                    !canChangeProject ||
+                                    !is_superuser
                                   }
                                 >
                                   <Edit />
@@ -222,7 +207,8 @@ class ProjectsList extends React.Component {
                                 aria-label="Delete"
                                 className={classes.iconDelete}
                                 disabled={
-                                  loading || (!canDeleteProject && !is_superuser)
+                                  loading ||
+                                  (!canDeleteProject && !is_superuser)
                                 }
                                 onClick={() => this.showModal(project.id)}
                               >
@@ -233,10 +219,9 @@ class ProjectsList extends React.Component {
                         </TableRow>
                       ))}
                     </TableBody>
-                  }
-                  
+                  )}
                 </Table>
-                <TextEmpty itemName="PROJECTS" empty={projects.length === 0}/>
+                <TextEmpty itemName="PROJECTS" empty={projects.length === 0} />
               </Panel>
             </div>
           </div>

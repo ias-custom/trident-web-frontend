@@ -24,53 +24,61 @@ import {
   CardContent,
   Card,
   CardActions,
-  CardHeader
+  CardHeader,
+  FormControlLabel,
+  Switch
 } from "@material-ui/core";
+
 import {
-  addItemStructure,
-  deleteItemStructure
+  setLoading,
+  fetchItemStates,
+  addDeficiencyItem,
+  deleteDeficiencyItem,
+  updateDeficiencyItem
+} from "../../redux/actions/globalActions";
+import {
+  updateItemStructure,
+  addItemStructure
 } from "../../redux/actions/structureActions";
 import {
-  addItemSpan,
-  deleteItemSpan
+  updateItemSpan,
+  addItemSpan
 } from "../../redux/actions/spanActions";
 import {
-  getDeficiencies
-} from "../../redux/actions/projectActions";
-
-import { setLoading } from "../../redux/actions/globalActions";
-import { ExpandMore, AddCircle, Delete } from "@material-ui/icons";
+  ExpandMore,
+  Delete,
+  Edit,
+  FileCopy,
+  AddCircle,
+  Warning
+} from "@material-ui/icons";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 
 class Equipment extends React.Component {
   state = {
     open: false,
-    openItem: false,
+    openDeficiency: false,
     openDelete: false,
+    openItem: false,
     openId: "",
+    itemId: "",
+    stateId: "",
+    deficiencyId: "",
     inspectionSelected: "",
     parentItems: [],
     categoryId: "",
-    formItem: {
-      name: "",
-      description: "",
-      category_id: "",
-      item_parent_id: "",
+    deficienciesItem: [],
+    formDeficiency: {
+      emergency: false,
       deficiency_id: ""
     }
   };
 
   componentDidMount() {
-    /* try {
-      this.props.getInspectionsProject(this.props.projectId);
-      this.props.getDeficiencies(this.props.projectId);
-      if (this.props.isStructure)
-        this.props.getItemsStructure(this.props.itemId);
-      else this.props.getItemsSpan(this.props.itemId); 
-    } catch (error) {
-      this.props.history.push("/404");
-    } */
+    try {
+      this.props.fetchItemStates();
+    } catch (error) {}
   }
 
   openCollapse(openId, category) {
@@ -78,32 +86,33 @@ class Equipment extends React.Component {
     else this.setState({ openId: category.id });
   }
 
-  createItem(parentItems, categoryId) {
-    this.setState({ parentItems, categoryId, openItem: true });
-  }
-
-  createItemConfirm = async (values, formikActions) => {
+  addDeficiency = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name, description, item_parent_id, deficiency_id } = values;
+    const { deficiency_id, emergency } = values;
 
-    const form = { category_id: this.state.categoryId };
-    if (name) Object.assign(form, { name });
-    else Object.assign(form, { item_parent_id });
-
-    if (description) Object.assign(form, { description });
-    else Object.assign(form, { deficiency_id });
-
+    const form = { deficiency_id, emergency };
     try {
-      let response = "";
-      if (this.props.isStructure)
-        response = await this.props.addItemStructure(this.props.itemId, form);
-      else response = await this.props.addItemSpan(this.props.itemId, form);
-
+      const response = await this.props.addDeficiencyItem(
+        this.state.itemId,
+        form
+      );
       if (response.status === 201) {
         resetForm();
-        this.setState({ openItem: false });
-        this.props.enqueueSnackbar("The item was added successfully!", {
+        const newItems = this.props.items.map(item => {
+          if (item.id === this.state.itemId) {
+            const newDeficiencies = [...item.deficiencies, response.data]
+            item.deficiencies = newDeficiencies
+          }
+          return item
+        })
+        this.props.changeItems(newItems);
+        const item = this.props.items.find(({id}) => id === this.state.itemId)
+        if (item.deficiencies.length === 1) {
+          this.updateItem(4) // 4 IS ID OF STATE ITEM DEFICIENT
+        }
+        this.setState({ openDeficiency: false });
+        this.props.enqueueSnackbar("The deficiency was added successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
@@ -119,7 +128,65 @@ class Equipment extends React.Component {
     this.props.setLoading(false);
   };
 
-  deleteItem = async () => {
+  updateItem = async (stateId) => {
+    const form = { state_id: stateId };
+    try {
+      let response = "";
+      if (this.props.isStructure)
+        response = await this.props.updateItemStructure(this.props.itemId, this.state.itemId, form);
+      else response = await this.props.updateItemSpan(this.props.itemId, this.state.itemId, form);
+
+      if (response.status === 200) {
+        const newItems = this.props.items.map(item => {
+          if (item.id === this.state.itemId) {
+            return response.data
+          }
+          return item
+        })
+        this.setState({ openItem: false, stateId: "" });
+        this.props.changeItems(newItems);
+        this.props.enqueueSnackbar("The item was updated successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+    this.props.setLoading(false);
+  };
+
+  duplicateItem = async (item) => {
+    const { state_id, item_parent_id } = item
+    const form = { state_id, item_parent_id };
+    try {
+      let response = "";
+      if (this.props.isStructure)
+        response = await this.props.addItemStructure(this.props.itemId, form);
+      else response = await this.props.addItemSpan(this.props.itemId, form);
+
+      if (response.status === 201) {
+        this.props.changeItems([...this.props.items, response.data]);
+        this.props.enqueueSnackbar("The item was dupdlicate successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+    this.props.setLoading(false);
+  };
+
+  /* deleteItem = async () => {
     this.setState({ openDelete: false });
     this.props.setLoading(true);
 
@@ -137,7 +204,47 @@ class Equipment extends React.Component {
         );
 
       if (response.status === 204) {
+        this.props.reduceItems(this.state.itemId);
         this.props.enqueueSnackbar("The item was deleted successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+
+    this.props.setLoading(false);
+  }; */
+
+  deleteDeficiency = async () => {
+    this.props.setLoading(true);
+    
+    try {
+      const response = await this.props.deleteDeficiencyItem(
+        this.state.itemId,
+        this.state.deficiencyId
+        );
+        
+        if (response.status === 204) {
+          const newItems = this.props.items.map(item => {
+            if (item.id === this.state.itemId) {
+              const newDeficiencies = item.deficiencies.filter(({id}) => id !== this.state.deficiencyId)
+              item.deficiencies = newDeficiencies
+            }
+            return item
+          })
+          this.props.changeItems(newItems);
+          const item = this.props.items.find(({id}) => id === this.state.itemId)
+          if (item.deficiencies.length === 0) {
+            this.updateItem(3) // 3 IS ID OF STATE ITEM NOT INSPECTED
+          }
+          this.setState({ openDelete: false });
+          this.props.enqueueSnackbar("The deficiency was deleted successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
@@ -153,6 +260,42 @@ class Equipment extends React.Component {
     this.props.setLoading(false);
   };
 
+  updateDeficiency = async (value, itemId, deficiencyId) => {
+    try {
+      const response = await this.props.updateDeficiencyItem(
+          itemId,
+          deficiencyId, 
+          {emergency: value}
+        );
+
+      if (response.status === 200) {
+        const newItems = this.props.items.map(item => {
+          if (item.id === itemId) {
+            const newDeficiencies = item.deficiencies.map(deficiency => {
+              if (deficiency.id === deficiencyId) {
+                return response.data
+              }
+              return deficiency
+            })
+            item.deficiencies = newDeficiencies
+          }
+          return item
+        })
+        this.props.changeItems(newItems);
+        this.props.enqueueSnackbar("The deficiency was updated successfully!", {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        });
+      } else {
+        this.props.enqueueSnackbar("The request could not be processed!", {
+          variant: "error"
+        });
+      }
+    } catch (error) {
+      this.props.enqueueSnackbar(error.message, { variant: "error" });
+    }
+  }
+
   render() {
     const {
       classes,
@@ -160,14 +303,17 @@ class Equipment extends React.Component {
       inspectionName,
       deficiencies,
       categories,
-      items
+      items,
+      item_states
     } = this.props;
     const {
-      openItem,
+      openDeficiency,
       openId,
-      formItem,
-      parentItems,
-      openDelete
+      formDeficiency,
+      openDelete,
+      deficienciesItem,
+      stateId,
+      openItem
     } = this.state;
     return (
       <div style={{ height: "100%" }}>
@@ -204,7 +350,7 @@ class Equipment extends React.Component {
               variant="outlined"
               color="primary"
               className={classes.buttonAccept}
-              onClick={this.deleteItem}
+              onClick={this.deleteDeficiency}
             >
               Agree
             </Button>
@@ -222,29 +368,80 @@ class Equipment extends React.Component {
             !loading ? this.setState({ openItem: false }) : null
           }
         >
+          <DialogTitle id="alert-dialog-title">
+            {"UPDATE ITEM"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Enter the required information.
+            </DialogContentText>
+            <TextField
+              name="state_id"
+              select
+              label="State"
+              value={stateId}
+              margin="normal"
+              disabled={loading}
+              onChange={(e) => this.setState({stateId: e.target.value})}
+              required
+              fullWidth
+            >
+              {item_states.map(state => {
+                return (
+                  <MenuItem key={state.id} value={state.id}>
+                    {state.name}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="outlined"
+              className={classes.buttonCancel}
+              onClick={() =>
+                !loading ? this.setState({ openItem: false, stateId: "" }) : null
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              disabled={loading || stateId === ""}
+              className={classes.buttonAccept}
+              onClick={() => this.updateItem(this.state.stateId)}
+            >
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDeficiency}
+          classes={{ paper: classes.dialog }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          onBackdropClick={() =>
+            !loading ? this.setState({ openItem: false }) : null
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.setState({ openItem: false }) : null
+          }
+        >
           <DialogTitle id="alert-dialog-title">{"Add item"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               Enter the required information.
             </DialogContentText>
             <Formik
-              onSubmit={this.createItemConfirm}
+              onSubmit={this.addDeficiency}
               enableReinitialize
               validateOnChange
               initialValues={{
-                ...formItem
+                ...formDeficiency
               }}
               validationSchema={Yup.object().shape({
-                item_parent_id: Yup.mixed().required("Item is required"),
-                deficiency_id: Yup.mixed().required("Deficiency is required"),
-                name: Yup.string().when("item_parent_id", {
-                  is: 0,
-                  then: Yup.string().required("Item name is required")
-                }),
-                description: Yup.string().when("deficiency_id", {
-                  is: 0,
-                  then: Yup.string().required("Deficiency name is required")
-                })
+                deficiency_id: Yup.mixed().required("Deficiency is required")
               })}
             >
               {props => {
@@ -267,65 +464,9 @@ class Equipment extends React.Component {
                     />
                     <Grid>
                       <TextField
-                        name="item_parent_id"
-                        select
-                        label="Type items"
-                        value={values.item_parent_id}
-                        margin="normal"
-                        disabled={loading}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                          !!touched.item_parent_id && !!errors.item_parent_id
-                        }
-                        helperText={
-                          !!touched.item_parent_id &&
-                          !!errors.item_parent_id &&
-                          errors.item_parent_id
-                        }
-                        required
-                        fullWidth
-                      >
-                        {parentItems.map(parent => {
-                          return (
-                            <MenuItem key={parent.id} value={parent.id}>
-                              {parent.name}
-                            </MenuItem>
-                          );
-                        })}
-                        <MenuItem key={0} value={0}>
-                          Other
-                        </MenuItem>
-                      </TextField>
-                    </Grid>
-                    {values.item_parent_id === 0 ? (
-                      <Grid>
-                        <TextField
-                          name="name"
-                          multiline
-                          rowsMax="2"
-                          rows="2"
-                          label="Enter the item"
-                          value={values.name}
-                          margin="normal"
-                          disabled={loading}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!touched.name && !!errors.name}
-                          helperText={
-                            !!touched.name && !!errors.name && errors.name
-                          }
-                          required
-                          fullWidth
-                        ></TextField>
-                      </Grid>
-                    ) : null}
-                    <Grid>
-                      <TextField
                         name="deficiency_id"
                         select
-                        label="Deficiencies"
-                        required
+                        label="Deficiency"
                         value={values.deficiency_id}
                         margin="normal"
                         disabled={loading}
@@ -339,50 +480,37 @@ class Equipment extends React.Component {
                           !!errors.deficiency_id &&
                           errors.deficiency_id
                         }
+                        required
                         fullWidth
                       >
-                        {deficiencies.map(deficiency => {
+                        {deficiencies.filter(({id}) => !deficienciesItem.includes(id)).map(deficiency => {
                           return (
                             <MenuItem key={deficiency.id} value={deficiency.id}>
                               {deficiency.name}
                             </MenuItem>
                           );
                         })}
-                        <MenuItem key={0} value={0}>
-                          Other
-                        </MenuItem>
                       </TextField>
                     </Grid>
-                    {values.deficiency_id === 0 ? (
-                      <Grid>
-                        <TextField
-                          name="description"
-                          multiline
-                          rowsMax="2"
-                          rows="2"
-                          label="Enter the deficiency"
-                          value={values.description}
-                          margin="normal"
-                          disabled={loading}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={!!touched.description && !!errors.description}
-                          helperText={
-                            !!touched.description &&
-                            !!errors.description &&
-                            errors.description
-                          }
-                          required
-                          fullWidth
-                        ></TextField>
-                      </Grid>
-                    ) : null}
+                    <Grid>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={values.emergency}
+                            onChange={handleChange}
+                            value="emergency"
+                            name="emergency"
+                          />
+                        }
+                        label="Emergency"
+                      />
+                    </Grid>
                     <br />
                     <Grid container justify="flex-end">
                       <Button
                         variant="outlined"
                         className={classes.buttonCancel}
-                        onClick={() => this.setState({ openItem: false })}
+                        onClick={() => this.setState({ openDeficiency: false })}
                       >
                         Cancel
                       </Button>
@@ -395,7 +523,7 @@ class Equipment extends React.Component {
                         color="primary"
                         className={classes.buttonAccept}
                       >
-                        Add Item
+                        Add Deficiency
                       </Button>
                     </Grid>
                   </Form>
@@ -405,63 +533,63 @@ class Equipment extends React.Component {
           </DialogContent>
         </Dialog>
         <Grid>
-            <Typography
-              component="h1"
-              variant="h5"
-              className={classes.name}
-              align="center"
-            >
-              {inspectionName}
-            </Typography>
-            {categories.map(category => (
-              <div key={category.id} style={{ padding: "2px" }}>
-                <ExpansionPanel
-                  expanded={openId === category.id}
-                  onChange={() => {
-                    this.openCollapse(openId, category);
-                  }}
-                  classes={{ root: classes.collapse }}
+          <Typography 
+            component="h1"
+            variant="h5"
+            className={classes.name}
+            align="center"
+          >
+            {inspectionName}
+          </Typography>
+          {categories.map(category => (
+            <div key={category.id} style={{ padding: "2px" }}>
+              <ExpansionPanel
+                expanded={openId === category.id}
+                onChange={() => {
+                  this.openCollapse(openId, category);
+                }}
+                classes={{ root: classes.collapse }}
+              >
+                <ExpansionPanelSummary expandIcon={<ExpandMore />}>
+                  {category.name}
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails
+                  classes={{ root: classes.collapseDetails }}
                 >
-                  <ExpansionPanelSummary expandIcon={<ExpandMore />}>
-                    {category.name}
-                  </ExpansionPanelSummary>
-                  <ExpansionPanelDetails
-                    classes={{ root: classes.collapseDetails }}
-                  >
-                    <Grid>
-                      <Typography
-                        variant="subtitle1"
-                        classes={{ subtitle1: classes.itemsText }}
-                      >
-                        ITEMS
-                        <IconButton
-                          disabled={loading}
-                          className={classes.iconAdd}
-                          onClick={() =>
-                            this.createItem(category.items || [], category.id)
-                          }
-                        >
-                          <AddCircle />
-                        </IconButton>
-                      </Typography>
-                    </Grid>
-                    <Grid container spacing={16}>
-                      {items
-                        .filter(
-                          ({ category_id }) => category_id === category.id
-                        )
-                        .map(item => (
-                          <Grid item xs={3} key={item.id}>
-                            <Card
-                              style={{
-                                height: item.id === 49 ? "300px" : "auto"
-                              }}
-                              classes={{ root: classes.card }}
-                            >
-                              <CardHeader
-                                classes={{ root: classes.cardHeader }}
-                                action={
+                  <Grid>
+                    <Typography
+                      variant="subtitle1"
+                      classes={{ subtitle1: classes.itemsText }}
+                    >
+                      ITEMS
+                    </Typography>
+                  </Grid>
+                  <Grid container spacing={16}>
+                    {items
+                      .filter(({ category_id }) => category_id === category.id)
+                      .map(item => (
+                        <Grid item xs={12} key={item.id}>
+                          <Card classes={{ root: classes.card }}>
+                            <CardHeader
+                              action={
+                                <div>
                                   <IconButton
+                                    onClick={() =>
+                                      this.duplicateItem(item)
+                                    }
+                                  >
+                                    <FileCopy />
+                                  </IconButton>
+                                  <IconButton
+                                    color="primary"
+                                    disabled={item.deficiencies.length > 0}
+                                    onClick={() =>
+                                      this.setState({openItem: true, itemId: item.id, stateId: item.state_id})
+                                    }
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                  {/* <IconButton
                                     className={classes.iconDelete}
                                     onClick={() =>
                                       this.setState({
@@ -471,50 +599,105 @@ class Equipment extends React.Component {
                                     }
                                   >
                                     <Delete />
-                                  </IconButton>
-                                }
-                              />
-                              <CardContent>
-                                {item.name ? (
-                                  <p>{item.name}</p>
-                                ) : (
-                                  <p>{item.item_parent.name}</p>
-                                )}
-                                <Typography
-                                  className={classes.title}
-                                  color="textSecondary"
-                                  gutterBottom
+                                  </IconButton> */}
+                                </div>
+                              }
+                              title={
+                                <div className={classes.divHeader}>
+                                  <span>{item.item_parent.name}</span>{" "}
+                                  {item.state.name === "Deficient" ? 
+                                    <span>({item.deficiencies.length})</span> :
+                                    <div>
+                                      {}
+                                      <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        className={item.state.name === "Not inspected" ? classes.buttonGray : classes.buttonGreen}
+                                      >
+                                        {item.state.name}
+                                      </Button>
+                                    </div>
+                                  }
+                                </div>
+                              }
+                            />
+                            <CardContent
+                              classes={{ root: classes.cardContent }}
+                            >
+                              <p>
+                                - Deficiencies:
+                                <IconButton
+                                  className={classes.iconAdd}
+                                  disabled={!["Not inspected", "Deficient"].includes(item.state.name)}
+                                  onClick={() =>
+                                    this.setState({
+                                      itemId: item.id,
+                                      openDeficiency: true,
+                                      deficienciesItem: item.deficiencies.map(({deficiency_id}) => deficiency_id)
+                                    })
+                                  }
                                 >
-                                  {/* item.description
-                                    ? `${item.description}`
-                                    : `${item.deficiency.name}` */}
-                                  { item.description}
-                                </Typography>
-                              </CardContent>
-                              <CardActions>
-                                <Button size="small">See photos</Button>
-                              </CardActions>
-                            </Card>
-                          </Grid>
-                        ))}
-                    </Grid>
-                    {items.filter(
-                      ({ category_id }) => category_id === category.id
-                    ).length === 0 ? (
-                      <Typography
-                        variant="display1"
-                        align="center"
-                        className={classes.emptyText}
-                      >
-                        THERE AREN'T ITEMS
-                      </Typography>
-                    ) : null}
-                  </ExpansionPanelDetails>
-                </ExpansionPanel>
-              </div>
-            ))}
-          </Grid>
-        
+                                  <AddCircle />
+                                </IconButton>
+                              </p>
+                              {item.deficiencies.map(deficiency => (
+                                <div className={classes.divDeficiency} key={deficiency.id}>
+                                  <span className={classes.label}>{deficiency.deficiency.name} {deficiency.emergency && <Warning classes={{root: classes.warningIcon}}/>}</span>
+                                  <div>
+                                    <FormControlLabel
+                                      control={
+                                        <Switch
+                                          checked={deficiency.emergency}
+                                          onChange={e => this.updateDeficiency(e.target.checked, item.id, deficiency.id)}
+                                          disabled={loading}
+                                        />
+                                      }
+                                      label="Emergency"
+                                    />
+                                    <IconButton
+                                      className={classes.iconDelete}
+                                      onClick={() =>
+                                        this.setState({
+                                          itemId: item.id,
+                                          deficiencyId: deficiency.id,
+                                          openDelete: true
+                                        })
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </div>
+                                </div>
+                              ))}
+                              {item.deficiencies.length === 0 && (
+                                <p className={classes.empty}>
+                                  WITHOUT DEFICIENCIES
+                                </p>
+                              )}
+                            </CardContent>
+                            <CardActions>
+                              <Button size="small">See photos</Button>
+                            </CardActions>
+                          </Card>
+                        </Grid>
+                      ))}
+                  </Grid>
+                  {items.filter(
+                    ({ category_id }) => category_id === category.id
+                  ).length === 0 ? (
+                    <Typography
+                      variant="display1"
+                      align="center"
+                      className={classes.emptyText}
+                    >
+                      THERE AREN'T ITEMS
+                    </Typography>
+                  ) : null}
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
+            </div>
+          ))}
+        </Grid>
       </div>
     );
   }
@@ -524,15 +707,20 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     states: state.global.states,
+    item_states: state.global.item_states
   };
 };
 
 const mapDispatchToProps = {
   setLoading,
+  fetchItemStates,
+  addDeficiencyItem,
+  deleteDeficiencyItem,
+  updateDeficiencyItem,
+  updateItemStructure,
+  updateItemSpan,
   addItemStructure,
-  deleteItemStructure,
-  addItemSpan,
-  deleteItemSpan
+  addItemSpan
 };
 
 Equipment.propTypes = {

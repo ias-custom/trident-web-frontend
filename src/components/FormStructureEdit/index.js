@@ -220,6 +220,27 @@ class FormStructureEdit extends React.Component {
                 })}
               </TextField>
             </Grid>
+            <Grid item xs={6}>
+              <TextField
+                name="number"
+                value={values.number}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/\s/g, "")
+                  this.props.handleChange(e)
+                }}
+                onBlur={this.props.handleBlur}
+                label="Number"
+                fullWidth
+                margin="normal"
+                error={!!touched.number && !!errors.number}
+                helperText={
+                  !!touched.number &&
+                  !!errors.number &&
+                  errors.number
+                }
+                required
+              />
+            </Grid>
           </Grid>
         </Grid>
         <br />

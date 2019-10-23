@@ -20,27 +20,20 @@ import {
   Input,
   IconButton,
   Link,
-  withStyles,
-  Typography
+  withStyles
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
 import Layout from "../../../components/Layout/index";
 import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
-
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import { withSnackbar } from "notistack";
 import {
   CAN_ADD_SUBSTATION,
   CAN_CHANGE_SUBSTATION,
   CAN_DELETE_SUBSTATION
 } from "../../../redux/permissions";
-import { TextEmpty } from "../../../components";
+import { TextEmpty, DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -125,39 +118,12 @@ class SubstationsList extends React.Component {
       <Layout title="Substations">
         {() => (
           <div>
-            <Dialog
+            <DialogDelete
+              item="substation"
               open={open}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={this.closeModal}
-              onEscapeKeyDown={this.closeModal}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Are you sure you want to delete?"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  If you delete the substation it will be permanently.
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  className={classes.buttonCancel}
-                  onClick={this.closeModal}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonAccept}
-                  onClick={this.handleDelete}
-                >
-                  Agree
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <div className={classes.root}>
               <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 

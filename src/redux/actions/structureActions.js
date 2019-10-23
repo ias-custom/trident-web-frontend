@@ -231,9 +231,22 @@ import {
       try {
         const response = await service.addItem(structureId, form)
 
-        if (response.status === 201) {
-          dispatch(getItemsStructure(structureId))
-        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateItemStructure = (structureId, itemId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateItem(structureId, itemId, form)
+
         return response;
       } catch (error) {
         

@@ -248,9 +248,22 @@ export const addSpan = (projectId, form) => {
       try {
         const response = await service.addItem(spanId, form)
 
-        if (response.status === 201) {
-          dispatch(getItemsSpan(spanId))
-        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateItemSpan = (spanId, itemId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateItem(spanId, itemId, form)
+
         return response;
       } catch (error) {
         

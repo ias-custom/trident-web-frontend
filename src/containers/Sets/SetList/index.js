@@ -39,6 +39,7 @@ import {
   CAN_DELETE_SET
 } from "../../../redux/permissions";
 import TextEmpty from "../../../components/TextEmpty";
+import { DialogDelete } from "../../../components";
 
 const breadcrumbs = [{ name: "Home", to: "/home" }, { name: "Sets", to: null }];
 
@@ -137,39 +138,12 @@ class SetList extends React.Component {
       <Layout title="Sets">
         {() => (
           <div>
-            <Dialog
+            <DialogDelete
+              item="set"
               open={open}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() => !loading ? this.setState({open: false}) : null}
-              onEscapeKeyDown={() => !loading ? this.setState({open: false}) : null}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Are you sure you want to delete?"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  If you delete the set it will be permanently.
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  className={classes.buttonCancel}
-                  onClick={this.closeModal}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonAccept}
-                  onClick={this.handleDelete}
-                >
-                  Agree
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <Dialog
               open={openDuplicate}
               classes={{paper: classes.dialog}}

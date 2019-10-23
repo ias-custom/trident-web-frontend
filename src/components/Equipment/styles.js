@@ -6,6 +6,28 @@ const styles = theme => ({
     justifyContent: "center",
     height: "100%"
   },
+  buttonGray: {
+    borderColor: '#bdbdbd',
+    backgroundColor: '#bdbdbd',
+    color: "white",
+    marginLeft: 5,
+    '&:hover, &:focus': {
+      borderColor: '#bdbdbd',
+      backgroundColor: '#bdbdbd',
+      color: 'white'
+    }
+  },
+  buttonGreen: {
+    borderColor: '#67c23a',
+    backgroundColor: '#67c23a',
+    color: 'white',
+    marginLeft: 5,
+    '&:hover, &:focus': {
+      borderColor: '#67c23a',
+      backgroundColor: '#67c23a',
+      color: 'white'
+    }
+  },
   buttonAccept: {
     borderColor: '#22c722',
     marginLeft: 5,
@@ -24,6 +46,12 @@ const styles = theme => ({
       backgroundColor: '#f50057',
       color: 'white'
     }
+  },
+  empty: {
+    margin: "20px 0",
+    color: "#c5c5c5",
+    fontSize: 14,
+    textAlign: "center"
   },
   emptyText: {
     margin: "20px 0 20px 0",
@@ -54,7 +82,6 @@ const styles = theme => ({
     },
   },
   iconDelete: {
-    padding: 0,
     '& svg': {
       color: "#f50057"      
     },
@@ -67,14 +94,30 @@ const styles = theme => ({
       },
     },
   },
-  card: {
-    position: "relative"
+  cardContent: {
+    padding: "0 16px"
   },
-  cardHeader: {
-    position: "absolute",
-    right: 14,
-    top: 12,
-    padding: 0
+  switch: {
+    color: "red !important"
+  },
+  divDeficiency: {
+    display: "flex",
+    justifyContent: "space-between",
+    paddingBottom: 10,
+    alignItems: "center"
+  },
+  warningIcon: {
+    color: "red",
+    marginLeft: 13,
+    marginTop: -5
+  },
+  label: {
+    display: "flex",
+    alignItems: "center"    
+  },
+  divHeader: {
+    display: "flex",
+    alignItems: "center" 
   }
 });
 

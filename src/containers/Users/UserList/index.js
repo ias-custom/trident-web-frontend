@@ -37,7 +37,7 @@ import {
   CAN_CHANGE_USER,
   CAN_DELETE_USER
 } from "../../../redux/permissions";
-import { TextEmpty } from "../../../components";
+import { TextEmpty, DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -120,39 +120,12 @@ class UserList extends React.Component {
       <Layout title="Users">
         {() => (
           <div>
-            <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          onBackdropClick={this.closeModal}
-          onEscapeKeyDown={this.closeModal}
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Are you sure you want to delete?"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              If you delete the user it will be permanently.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              variant="outlined"
-              className={classes.buttonCancel}
-              onClick={this.closeModal}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              className={classes.buttonAccept}
-              onClick={this.handleDelete}
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
+            <DialogDelete
+              item="user"
+              open={open}
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <div className={classes.root}>
               <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
 

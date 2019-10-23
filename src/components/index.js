@@ -17,6 +17,7 @@ import SetInspections from './SetInspections';
 import InfoSetView from './InfoSetView';
 import TextEmpty from './TextEmpty';
 import FormInteraction from './FormInteraction';
+import DialogDelete from './DialogDelete';
 
 export {
   InputSearch,
@@ -38,5 +39,6 @@ export {
   SetInspections,
   InfoSetView,
   TextEmpty,
-  FormInteraction
+  FormInteraction,
+  DialogDelete
 }

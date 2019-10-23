@@ -114,6 +114,14 @@ class SpanService extends Service {
     }
   }
 
+  updateItem = async (spanId, itemId, body) => {
+    try {
+      return await this.http.patch(`/spans/${spanId}/items/${itemId}/`, body );
+    } catch (error) {
+        return error.response;
+    }
+  }
+
   deleteItem = async (spanId, itemId) => {
     try {
         return await this.http.delete(`/spans/${spanId}/items/${itemId}`);

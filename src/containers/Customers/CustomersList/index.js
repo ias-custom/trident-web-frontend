@@ -13,11 +13,6 @@ import {
   IconButton,
   Link,
   withStyles,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Avatar
 } from "@material-ui/core";
 import { Edit, Delete } from "@material-ui/icons";
@@ -34,6 +29,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import { withSnackbar } from "notistack";
+import { DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -102,44 +98,20 @@ class CustomersList extends React.Component {
     const { search, open } = this.state;
 
     return (
-      <Layout title="Roles">
+      <Layout title="Customers">
         {() => (
           <div>
-            <Dialog
-            open={open}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-            onBackdropClick={this.closeModal}
-            onEscapeKeyDown={this.closeModal}
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Are you sure you want to delete?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                If you delete the role it will be permanently.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                variant="outlined"
-                className={classes.buttonCancel}
-                onClick={this.closeModal}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                className={classes.buttonAccept}
-                onClick={this.handleDelete}
-              >
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
+            <DialogDelete
+              item="customer"
+              open={open}
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <div className={classes.root}>
-              <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+              <SimpleBreadcrumbs
+                routes={breadcrumbs}
+                classes={{ root: classes.breadcrumbs }}
+              />
 
               <Panel>
                 <div className={classes.header}>
@@ -175,7 +147,9 @@ class CustomersList extends React.Component {
                   <TableBody>
                     {this.filter(customers, search).map(customer => (
                       <TableRow key={customer.id}>
-                        <TableCell component="td" style={{ width: "50%" }}>{customer.name}</TableCell>
+                        <TableCell component="td" style={{ width: "50%" }}>
+                          {customer.name}
+                        </TableCell>
                         <TableCell component="td" style={{ width: "30%" }}>
                           <Avatar src={customer.thumbnail} />
                         </TableCell>
@@ -196,7 +170,9 @@ class CustomersList extends React.Component {
                             <IconButton
                               aria-label="Delete"
                               className={classes.iconDelete}
-                              disabled={loading || customer.id === customerSelectedId}
+                              disabled={
+                                loading || customer.id === customerSelectedId
+                              }
                               onClick={() => this.showModal(customer.id)}
                             >
                               <Delete />

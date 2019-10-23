@@ -58,7 +58,8 @@ class StructureEdit extends React.Component {
       latitude: "",
       longitude: "",
       structureTypeId: "",
-      inspectionId: ""
+      inspectionId: "",
+      number: ""
     },
     enabledEquipment: false
   };
@@ -84,7 +85,6 @@ class StructureEdit extends React.Component {
         this.structureId
       );
       if (response.status === 200) {
-        console.log(response.data)
         this.props.getPhotos(this.structureId);
         const {
           state_id,
@@ -95,7 +95,9 @@ class StructureEdit extends React.Component {
           address,
           inspection_id,
           inspection,
-          items
+          number,
+          items,
+          deficiencies
         } = response.data;
         this.setState({
           formGeneral: {
@@ -105,12 +107,14 @@ class StructureEdit extends React.Component {
             name,
             latitude,
             longitude,
-            address: address || ""
+            address: address || "",
+            number: number || ""
           },
           inspection_id,
           inspection_name: inspection_id ? inspection.name : "",
           items: items,
           categories: inspection_id ? inspection.categories : [],
+          deficiencies,
           enabledEquipment: true
         });
         //if (inspection_id) this.props.getCategoriesInspection(inspection_id);
@@ -222,7 +226,8 @@ class StructureEdit extends React.Component {
       longitude,
       structureTypeId,
       address,
-      inspectionId
+      inspectionId,
+      number
     } = values;
     const form = {
       name,
@@ -231,7 +236,8 @@ class StructureEdit extends React.Component {
       longitude,
       type_structure_id: structureTypeId,
       address,
-      inspection_id: inspectionId
+      inspection_id: inspectionId,
+      number
     };
 
     try {
@@ -250,7 +256,8 @@ class StructureEdit extends React.Component {
             longitude,
             structureTypeId,
             address,
-            inspectionId
+            inspectionId,
+            number
           }
         });
         this.props.enqueueSnackbar("The structure was updated successfully!", {
@@ -270,7 +277,7 @@ class StructureEdit extends React.Component {
   };
 
   render() {
-    const { classes, loading, photos, interactions } = this.props;
+    const { classes, loading, photos } = this.props;
     const {
       open,
       openInteraction,
@@ -281,6 +288,7 @@ class StructureEdit extends React.Component {
       inspection_name,
       enabledEquipment,
       categories,
+      deficiencies,
       items
     } = this.state;
 
@@ -412,7 +420,9 @@ class StructureEdit extends React.Component {
                         longitude: Yup.string().required(
                           "Longitude is required"
                         ),
-                        inspectionId: Yup.mixed().required("Inspection is required")
+                        inspectionId: Yup.mixed().required(
+                          "Inspection is required"
+                        )
                       })}
                     >
                       {props => {
@@ -451,11 +461,14 @@ class StructureEdit extends React.Component {
                       <Equipment
                         categories={categories}
                         items={items}
-                        deficiencies={[]}
+                        deficiencies={deficiencies}
                         projectId={this.projectId}
                         itemId={parseInt(this.structureId)}
                         inspectionName={inspection_name}
                         isStructure={true}
+                        changeItems={newItems =>
+                          this.setState({ items: newItems })
+                        }
                       />
                     )}
                   </Grid>

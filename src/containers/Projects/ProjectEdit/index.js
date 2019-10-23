@@ -57,7 +57,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { InfoSetView, TextEmpty } from "../../../components";
+import { InfoSetView, TextEmpty, DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -81,7 +81,8 @@ class ProjectEdit extends React.Component {
     setId: "",
     set: null,
     setIdSelected: "",
-    setSelected: null
+    setSelected: null,
+    itemName: ""
   };
 
   projectId = null;
@@ -192,8 +193,8 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  showModal = async (itemId, item) => {
-    let form = { [item]: true, itemId };
+  showModal = async (itemId, item, itemName="") => {
+    let form = { [item]: true, itemId, itemName };
     if (item === "openSpan") {
       if (this.props.structures.length < 2) {
         this.props.enqueueSnackbar(
@@ -356,7 +357,8 @@ class ProjectEdit extends React.Component {
       setId,
       openSet,
       set,
-      setSelected
+      setSelected,
+      itemName
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
@@ -366,43 +368,12 @@ class ProjectEdit extends React.Component {
       <Layout title="Projects">
         {() => (
           <div>
-            <Dialog
+            <DialogDelete
+              item={itemName}
               open={open}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() =>
-                !loading ? this.closeModal("open", null) : false
-              }
-              onEscapeKeyDown={() =>
-                !loading ? this.closeModal("open", null) : false
-              }
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Are you sure you want to delete?"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  If you delete it will be permanently.
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  className={classes.buttonCancel}
-                  onClick={() => this.closeModal("open", null)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonAccept}
-                  onClick={this.handleDelete}
-                >
-                  Agree
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeModal={() => this.closeModal("open", null)}
+              remove={this.handleDelete}
+            />
             <Dialog
               open={openUser}
               classes={{ paper: classes.dialog }}
@@ -649,7 +620,7 @@ class ProjectEdit extends React.Component {
                                     className={classes.iconDelete}
                                     disabled={loading}
                                     onClick={() =>
-                                      this.showModal(user.relation_id, "open")
+                                      this.showModal(user.relation_id, "open", "user")
                                     }
                                   >
                                     <Delete />
@@ -737,7 +708,7 @@ class ProjectEdit extends React.Component {
                                       className={classes.iconDelete}
                                       disabled={loading}
                                       onClick={() =>
-                                        this.showModal(structure.id, "open")
+                                        this.showModal(structure.id, "open", "structure")
                                       }
                                     >
                                       <Delete />
@@ -832,7 +803,7 @@ class ProjectEdit extends React.Component {
                                   className={classes.iconDelete}
                                   disabled={loading}
                                   onClick={() =>
-                                    this.showModal(span.id, "open")
+                                    this.showModal(span.id, "open", "span")
                                   }
                                 >
                                   <Delete />
@@ -953,7 +924,7 @@ class ProjectEdit extends React.Component {
                                     className={classes.iconDelete}
                                     disabled={loading}
                                     onClick={() =>
-                                      this.showModal(interaction.id, "open")
+                                      this.showModal(interaction.id, "open", "interaction")
                                     }
                                   >
                                     <Delete />

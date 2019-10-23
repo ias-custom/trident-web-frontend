@@ -52,8 +52,8 @@ class InteractionEdit extends React.Component {
         this.setState({
           form: {
             name,
-            titleId: 1, // titleId: title,
-            typeId: 1, //typeId:type
+            titleId: title,
+            typeId:type,
             latitude,
             longitude,
             contactInfo: contact_info || "",

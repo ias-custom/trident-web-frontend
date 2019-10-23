@@ -107,6 +107,14 @@ class StructureService extends Service {
     }
   }
 
+  updateItem = async (structureId, itemId, body) => {
+    try {
+      return await this.http.patch(`/structures/${structureId}/items/${itemId}/`, body );
+    } catch (error) {
+        return error.response;
+    }
+  }
+
   deleteItem = async (structureId, itemId) => {
     try {
         return await this.http.delete(`/structures/${structureId}/items/${itemId}`);

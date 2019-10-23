@@ -45,7 +45,8 @@ class StructureCreate extends React.Component {
       latitude: "",
       longitude: "",
       structureTypeId: "",
-      inspectionId: ""
+      inspectionId: "",
+      number: ""
     },
     formStructureType: {
       name: "",
@@ -87,7 +88,8 @@ class StructureCreate extends React.Component {
       longitude,
       structureTypeId,
       address,
-      inspectionId
+      inspectionId,
+      number
     } = values;
     const form = {
       name,
@@ -96,7 +98,8 @@ class StructureCreate extends React.Component {
       longitude,
       type_structure_id: structureTypeId,
       address,
-      inspection_id: inspectionId
+      inspection_id: inspectionId,
+      number
     };
 
     try {

@@ -13,14 +13,7 @@ import {
   Input,
   IconButton,
   withStyles,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Grid,
-  Typography,
-  TextField
+  Grid
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -55,18 +48,16 @@ import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { FormSpanEdit, PhotosList, Equipment, TextEmpty } from "../../../components";
+import { FormSpanEdit, PhotosList, Equipment, TextEmpty, DialogDelete } from "../../../components";
 import { Delete } from "@material-ui/icons";
 
 class SpanEdit extends React.Component {
   state = {
     search: "",
     open: false,
-    openAccess: false,
-    openInteraction: false,
     itemId: null,
+    itemName: "",
     value: 0,
-    interactionDescription: "",
     enabledEquipment: false,
     formGeneral: {
       number: "",
@@ -80,6 +71,7 @@ class SpanEdit extends React.Component {
     inspection_name: "",
     items: [],
     categories: [],
+    deficiencies: [],
     accessId: "",
     markingId: ""
   };
@@ -124,7 +116,8 @@ class SpanEdit extends React.Component {
           number,
           inspection_id,
           inspection,
-          items
+          items,
+          deficiencies
         } = response.data;
         this.setState({
           formGeneral: {
@@ -139,6 +132,7 @@ class SpanEdit extends React.Component {
           inspection_name: inspection_id ? inspection.name : "",
           items: items || [],
           categories: inspection_id ? inspection.categories : [],
+          deficiencies: deficiencies,
           enabledEquipment: true
         });
         // if (inspection_id) this.props.getCategoriesInspection(inspection_id);
@@ -218,8 +212,8 @@ class SpanEdit extends React.Component {
     }
   };
 
-  showModal(item, itemId) {
-    this.setState({ [item]: true, itemId });
+  showModal(item, itemId, itemName="") {
+    this.setState({ [item]: true, itemId, itemName });
   }
 
   closeModal(item) {
@@ -338,8 +332,6 @@ class SpanEdit extends React.Component {
     } = this.props;
     const {
       open,
-      openInteraction,
-      interactionDescription,
       search,
       value,
       formGeneral,
@@ -348,91 +340,21 @@ class SpanEdit extends React.Component {
       categories,
       items,
       markingId,
-      accessId
+      accessId,
+      deficiencies,
+      itemName
     } = this.state;
 
     return (
       <Layout title="Projects">
         {() => (
           <div>
-            <Dialog
+            <DialogDelete
+              item={itemName}
               open={open}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() => this.closeModal("open")}
-              onEscapeKeyDown={() => this.closeModal("open")}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Are you sure you want to delete?"}
-              </DialogTitle>
-              <DialogContent>
-                <DialogContentText id="alert-dialog-description">
-                  If you delete it will be permanently.
-                </DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  className={classes.buttonCancel}
-                  onClick={() => this.closeModal("open")}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonAccept}
-                  onClick={this.handleDelete}
-                >
-                  Agree
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog
-              open={openInteraction}
-              classes={{ paper: classes.dialog }}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-              onBackdropClick={() => this.closeModal("openInteraction")}
-              onEscapeKeyDown={() => this.closeModal("openInteraction")}
-            >
-              <DialogTitle id="alert-dialog-title">
-                {"Add interaction"}
-              </DialogTitle>
-              <DialogContent>
-                <TextField
-                  name="description"
-                  multiline
-                  rows="5"
-                  label="Description"
-                  value={interactionDescription}
-                  onChange={e => {
-                    const value = e.target.value;
-                    this.setState({ interactionDescription: value });
-                  }}
-                  margin="normal"
-                  fullWidth
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  variant="outlined"
-                  className={classes.buttonCancel}
-                  onClick={() => this.closeModal("openInteraction")}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.buttonAccept}
-                  onClick={this.addInteraction}
-                  disabled={loading || interactionDescription.length === 0}
-                >
-                  Add Interaction
-                </Button>
-              </DialogActions>
-            </Dialog>
+              closeModal={() => this.setState({ open: false })}
+              remove={this.handleDelete}
+            />
             <div className={classes.root}>
               <SimpleBreadcrumbs
                 routes={this.breadcrumbs}
@@ -524,11 +446,14 @@ class SpanEdit extends React.Component {
                       <Equipment
                         categories={categories}
                         items={items}
-                        deficiencies={[]}
+                        deficiencies={deficiencies}
                         projectId={this.projectId}
                         itemId={parseInt(this.spanId)}
                         inspectionName={inspection_name}
                         isStructure={false}
+                        changeItems={newItems =>
+                          this.setState({ items: newItems })
+                        }
                       />
                     )}
                   </Grid>
@@ -603,7 +528,7 @@ class SpanEdit extends React.Component {
                                         className={classes.iconDelete}
                                         disabled={loading}
                                         onClick={() =>
-                                          this.showModal("open", marking.id)
+                                          this.showModal("open", marking.id, "marking")
                                         }
                                       >
                                         <Delete />
@@ -687,7 +612,7 @@ class SpanEdit extends React.Component {
                                       className={classes.iconDelete}
                                       disabled={loading}
                                       onClick={() =>
-                                        this.showModal("open", acc.id)
+                                        this.showModal("open", acc.id, "access")
                                       }
                                     >
                                       <Delete />

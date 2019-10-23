@@ -4,7 +4,8 @@ import {
   REMOVE_SNACKBAR,
   HANDLE_FORM,
   SET_CURRENT_FORM,
-  GET_STATES
+  GET_STATES,
+  GET_ITEM_STATES
 } from '../actionTypes';
 
 const initialState = {
@@ -12,7 +13,8 @@ const initialState = {
   handleForm: false,
   currentForm: null,
   notifications: [],
-  states: []
+  states: [],
+  item_states: []
 };
 
 export default (state = initialState, action) => {
@@ -47,6 +49,9 @@ export default (state = initialState, action) => {
 
     case GET_STATES:
       return {...state, states: action.payload};
+
+    case GET_ITEM_STATES:
+      return {...state, item_states: action.payload};
 
       
     default:
