@@ -48,8 +48,15 @@ import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { FormSpanEdit, PhotosList, Equipment, TextEmpty, DialogDelete } from "../../../components";
+import {
+  FormSpanEdit,
+  PhotosList,
+  Equipment,
+  TextEmpty,
+  DialogDelete
+} from "../../../components";
 import { Delete } from "@material-ui/icons";
+import { getSubstations } from "../../../redux/actions/substationActions";
 
 class SpanEdit extends React.Component {
   state = {
@@ -105,14 +112,16 @@ class SpanEdit extends React.Component {
           value: 4,
           accessId: parseInt(url.searchParams.get("id"))
         });
-
+      this.props.getSubstations()
       const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
         const {
           state_id,
           type_id,
-          start_structure,
-          end_structure,
+          start_structure_id,
+          start_substation_id,
+          end_structure_id,
+          end_substation_id,
           number,
           inspection_id,
           inspection,
@@ -123,8 +132,12 @@ class SpanEdit extends React.Component {
           formGeneral: {
             inspectionId: inspection_id || "",
             number: number || "",
-            structureStart: start_structure,
-            structureEnd: end_structure,
+            structureStart: start_structure_id
+              ? `${start_structure_id}-st`
+              : `${start_substation_id}-sub`,
+            structureEnd: end_structure_id
+              ? `${end_structure_id}-st`
+              : `${end_substation_id}-sub`,
             stateId: state_id || "",
             spanType: type_id || ""
           },
@@ -212,7 +225,7 @@ class SpanEdit extends React.Component {
     }
   };
 
-  showModal(item, itemId, itemName="") {
+  showModal(item, itemId, itemName = "") {
     this.setState({ [item]: true, itemId, itemName });
   }
 
@@ -270,11 +283,18 @@ class SpanEdit extends React.Component {
     const form = {
       number,
       state_id: stateId,
-      start_structure: structureStart,
-      end_structure: structureEnd,
       type_id: spanType,
       inspection_id: inspectionId
     };
+    let id = structureStart.split("-")[0]
+    let type = structureStart.split("-")[1]
+    if (type === "st") Object.assign(form, {start_structure_id: id})
+    else Object.assign(form, {start_substation_id: id})
+
+    id = structureEnd.split("-")[0]
+    type = structureEnd.split("-")[1]
+    if (type === "st") Object.assign(form, {end_structure_id: id})
+    else Object.assign(form, {end_substation_id: id})
 
     try {
       const response = await this.props.updateSpan(
@@ -290,7 +310,8 @@ class SpanEdit extends React.Component {
             stateId,
             structureStart,
             structureEnd,
-            spanType
+            spanType,
+            inspectionId
           }
         });
         this.props.enqueueSnackbar("The span was updated successfully!", {
@@ -328,7 +349,8 @@ class SpanEdit extends React.Component {
       photos,
       structures,
       markings,
-      access
+      access,
+      substations
     } = this.props;
     const {
       open,
@@ -406,7 +428,10 @@ class SpanEdit extends React.Component {
                         number: Yup.string()
                           .max(10)
                           .required("Number is required")
-                          .trim()
+                          .trim(),
+                        inspectionId: Yup.mixed().required(
+                          "Inspection is required"
+                        )
                       })}
                     >
                       {props => {
@@ -433,7 +458,12 @@ class SpanEdit extends React.Component {
                             handleChange={handleChange}
                             handleBlur={handleBlur}
                             handleSubmit={handleSubmit}
-                            structures={structures}
+                            structures={[
+                              ...structures,
+                              ...substations.filter(({ project_ids }) =>
+                                project_ids.includes(parseInt(this.projectId))
+                              )
+                            ]}
                             projectId={this.projectId}
                             isCreate={false}
                           />
@@ -498,7 +528,7 @@ class SpanEdit extends React.Component {
                             <TableCell fixed={"true"}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        { !loading &&
+                        {!loading && (
                           <TableBody>
                             {this.filter(markings, search, "markings").map(
                               marking => (
@@ -528,7 +558,11 @@ class SpanEdit extends React.Component {
                                         className={classes.iconDelete}
                                         disabled={loading}
                                         onClick={() =>
-                                          this.showModal("open", marking.id, "marking")
+                                          this.showModal(
+                                            "open",
+                                            marking.id,
+                                            "marking"
+                                          )
                                         }
                                       >
                                         <Delete />
@@ -539,9 +573,12 @@ class SpanEdit extends React.Component {
                               )
                             )}
                           </TableBody>
-                        }
+                        )}
                       </Table>
-                      <TextEmpty itemName="MARKINGS" empty={markings.length === 0}/>
+                      <TextEmpty
+                        itemName="MARKINGS"
+                        empty={markings.length === 0}
+                      />
                     </div>
                   </Grid>
                   <Grid>
@@ -580,7 +617,7 @@ class SpanEdit extends React.Component {
                             <TableCell>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        {!loading &&
+                        {!loading && (
                           <TableBody>
                             {this.filter(access, search, "access").map(acc => (
                               <TableRow
@@ -622,9 +659,12 @@ class SpanEdit extends React.Component {
                               </TableRow>
                             ))}
                           </TableBody>
-                        }
+                        )}
                       </Table>
-                      <TextEmpty itemName="ACCESS" empty={access.length === 0}/>
+                      <TextEmpty
+                        itemName="ACCESS"
+                        empty={access.length === 0}
+                      />
                     </div>
                   </Grid>
                 </SwipeableViews>
@@ -645,7 +685,8 @@ const mapStateToProps = state => {
     structures: state.structures.structures,
     markings: state.spans.markings,
     marking_types: state.projects.marking_types,
-    access: state.spans.access
+    access: state.spans.access,
+    substations: state.substations.list
   };
 };
 
@@ -667,7 +708,8 @@ const mapDispatchToProps = {
   setLoading,
   setPoint,
   setSpan,
-  setFromMap
+  setFromMap,
+  getSubstations
 };
 
 export default compose(

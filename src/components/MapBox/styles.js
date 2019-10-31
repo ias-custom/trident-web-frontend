@@ -29,8 +29,8 @@ const styles = theme => ({
     fontSize: 20, 
     cursor: "pointer"
   },
-  structureRed: {
-    color: "#ed5355", 
+  structureBlue: {
+    color: "blue", 
     fontSize: 20, 
     cursor: "pointer"
   },
@@ -112,6 +112,32 @@ const styles = theme => ({
     margin: "-4px 0 0 10px",
     color: "white",
     fontSize: 17
+  },
+  divInfo: {
+    width: 250,
+    "&>h3": {
+      color: "#bdbdbd",
+      textAlign: "center"
+    },
+  },
+  label: {
+    fontWeight: "bold",
+  },
+  divItems: {
+    marginLeft: 12
+  },
+  link: {
+    color: "black",
+    textAlign: "center",
+    textTransform: "uppercase"
+  },
+  substation: {
+    backgroundImage: "url('../../images/substation.png')",
+    backgroundSize: "cover",
+    width: 50,
+    height: 50,
+    borderRadius: "50%",
+    cursor: "pointer"
   }
 });
   

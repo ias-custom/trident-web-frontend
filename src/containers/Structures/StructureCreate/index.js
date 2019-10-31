@@ -272,7 +272,8 @@ class StructureCreate extends React.Component {
                   stateId: Yup.mixed().required("State is required"),
                   latitude: Yup.string().required("Latitude is required"),
                   longitude: Yup.string().required("Longitude is required"),
-                  inspectionId: Yup.mixed().required("Inspection is required")
+                  inspectionId: Yup.mixed().required("Inspection is required"),
+                  number: Yup.string().required("Number is required")
                 })}
               >
                 {props => {

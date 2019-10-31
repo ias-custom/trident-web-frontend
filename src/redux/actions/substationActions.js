@@ -25,9 +25,9 @@ import {
     }
   };
 
-  export const getSubstations = () => {
+  export const getSubstations = (showLoading=true) => {
     return async (dispatch) => {
-      dispatch(setLoading(true));
+      if (showLoading) dispatch(setLoading(true));
   
       try {
         const response = await service.list();

@@ -26,13 +26,12 @@ export const setStructures = (start, end) => {
 
 }
 
-export const getSpan = (projectId, spanId) => {
+export const getSpan = (projectId, spanId, showLoading=true) => {
   return async dispatch => {
-    dispatch(setLoading(true));
+    if(showLoading) dispatch(setLoading(true));
 
     try {
       const response = await service.get(projectId, spanId);
-
       return response;
     } catch (error) {
       return error;

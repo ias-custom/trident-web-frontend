@@ -19,3 +19,9 @@ code {
   top: 0;
   transform: none;
 }
+
+
+.mapboxgl-popup.mapboxgl-popup-anchor-bottom {
+  max-width: 270px !important;
+  width: 270px !important;
+}

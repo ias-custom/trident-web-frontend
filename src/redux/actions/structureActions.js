@@ -11,9 +11,9 @@ import {
   
   export const setLoading = loading => ({ type: ON_LOADING, loading });
 
-  export const getStructure = (projectId, structureId) => {
+  export const getStructure = (projectId, structureId, showLoading=true) => {
     return async dispatch => {
-      dispatch(setLoading(true));
+      if(showLoading) dispatch(setLoading(true));
   
       try {
         const response = await service.get(projectId, structureId);

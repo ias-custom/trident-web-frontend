@@ -9,16 +9,30 @@ import {
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
 import { setPoint, setFromMap } from "../../redux/actions/projectActions";
-import { fetchStructures } from "../../redux/actions/structureActions";
+import {
+  fetchStructures,
+  getStructure
+} from "../../redux/actions/structureActions";
 import {
   fetchSpans,
   setSpan,
-  setStructures
+  setStructures,
+  getSpan
 } from "../../redux/actions/spanActions";
 import { withStyles, Grid, Button } from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
 import { CheckCircle } from "@material-ui/icons";
 import { withSnackbar } from "notistack";
+import { getSubstations } from "../../redux/actions/substationActions";
+import substationImage from "../../img/substation.png";
+import woodStructureGray from "../../img/wood_structure_gray.png";
+import steelStructureGray from "../../img/steel_structure_gray.png";
+import woodStructureOrange from "../../img/wood_structure_orange.png";
+import steelStructureOrange from "../../img/steel_structure_orange.png";
+import woodStructureRed from "../../img/wood_structure_red.png";
+import steelStructureRed from "../../img/steel_structure_red.png";
+import woodStructureGreen from "../../img/wood_structure_green.png";
+import steelStructureGreen from "../../img/steel_structure_green.png";
 
 class MapBox extends React.Component {
   state = {
@@ -32,6 +46,7 @@ class MapBox extends React.Component {
       id: "",
       name: ""
     },
+    deficiencies: "",
     spanSelected: "",
     structuresSelected: {
       first: {
@@ -44,14 +59,18 @@ class MapBox extends React.Component {
       }
     },
     addFirstStructure: true,
-    confirmStructures: false
+    confirmStructures: false,
+    categories: [],
+    items: [],
+    popup: null
   };
 
   mapLoaded = false;
   map = null;
   reactMap = React.createRef();
 
-  componentDidMount() {
+  componentDidMount = async () => {
+    await this.props.getSubstations(false);
     mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
     if ("geolocation" in navigator) {
       this.createMap();
@@ -66,7 +85,7 @@ class MapBox extends React.Component {
     } else {
       this.createMap();
     }
-  }
+  };
 
   componentDidUpdate(prevProps) {
     if (prevProps.open !== this.props.open) {
@@ -96,49 +115,138 @@ class MapBox extends React.Component {
     this.map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
     this.map.on("load", () => {
-      this.getLayers();
       this.getStructures();
+      this.getLayers();
       this.getMarkings();
       this.getAccess();
       this.getInteractions();
+      this.getSubstations();
       this.map.on("click", ({ lngLat }) => {
         this.map.flyTo({ center: [lngLat.lng, lngLat.lat] });
       });
     });
   }
 
-  getLayers() {
-    const features = this.props.spans.map(span => {
-      return {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: [span.coordinates[0], span.coordinates[1]]
-        },
-        properties: {
-          id: span.id,
-          link: `/projects/${this.props.projectId}/spans/${span.id}`,
-          number: span.number
-        }
-      };
+  getInfo(marker) {
+    const { categories, items } = this.state;
+    const { classes } = this.props;
+    return `
+        <div class=${classes.divInfo}>
+          <a
+            href=${marker.properties.link}
+            class=${classes.link}
+            target="_blank"
+          >
+            <h3>${marker.properties.name}</h3>
+          </a>
+          ${
+            items.length > 0
+              ? `
+            ${categories.map(
+              (category, index) => `
+              <div key=${category.id}>
+                <p class=${classes.label}>${index + 1}. ${category.name}</p>
+                <div class=${classes.divItems}>
+                  ${items
+                    .filter(({ category_id }) => category_id === category.id)
+                    .map(
+                      item =>
+                        `<span key=${item.id} class=${classes.label}>- Item "${
+                          item.item_parent.name
+                        }":</span>
+                       <div class=${classes.divItems}>
+                        ${item.deficiencies.map(
+                          d =>
+                            `<p>${d.deficiency.name} ${d.emergency &&
+                              '<i class="fas fa-exclamation-triangle" style="color:red"></i>'}</p>`
+                        )}
+                       </div>
+                      `
+                    )}
+                </div>
+              </div>`
+            )}`
+              : "<h3>WITHOUT DEFICIENCIES</h3>"
+          }
+        </div>
+        `;
+  }
+
+  formatterInfo(items, categories) {
+    const itemsFilter = items.filter(
+      ({ deficiencies }) => deficiencies.length > 0
+    );
+    const categoriesFilter = categories.filter(({ id }) => {
+      return itemsFilter.map(({ category_id }) => category_id).includes(id);
     });
-    this.map.addSource("spans", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: features
-      }
+    this.setState({
+      categories: categoriesFilter,
+      items: itemsFilter
     });
+  }
+
+  getInfoSpan = async span => {
+    const response = await this.props.getSpan(
+      this.props.projectId,
+      span.id,
+      false
+    );
+    let color = "";
+    if (span.state_id !== 1) color = "gray";
+    else {
+      const items = response.data.items.filter(
+        ({ deficiencies }) => deficiencies.length > 0
+      );
+      if (items.length > 0) {
+        const deficienciesEmergency = items.filter(({ deficiencies }) => {
+          return deficiencies.find(({ emergency }) => emergency) !== undefined;
+        });
+        color = deficienciesEmergency.length === 0 ? "orange" : "red";
+      } else color = "green";
+    }
+    return {
+      id: span.id,
+      link: `/projects/${this.props.projectId}/spans/${span.id}`,
+      name: span.number,
+      items: response.data.items,
+      categories: response.data.inspection.categories,
+      color
+    };
+  };
+
+  getLayers = async () => {
+    let features = await Promise.all(
+      this.props.spans.map(async span => {
+        const info = await this.getInfoSpan(span);
+        return {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: [span.coordinates[0], span.coordinates[1]]
+          },
+          properties: info
+        };
+      })
+    );
     this.map.addLayer({
       id: "span",
       type: "line",
-      source: "spans",
+      source: {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: features
+        }
+      },
       layout: {
         "line-join": "round",
         "line-cap": "round"
       },
       paint: {
-        "line-color": "#444444",
+        "line-color": {
+          type: "identity",
+          property: "color"
+        },
         "line-width": 5
       }
     });
@@ -149,20 +257,29 @@ class MapBox extends React.Component {
     this.map.on("mouseleave", "span", e => {
       this.map.getCanvas().style.cursor = "";
     });
-    this.map.on("click", "span", e => {
-      const spanId = e.features[0].properties.id;
-      const link = e.features[0].properties.link;
-      const number = e.features[0].properties.number;
+    this.map.on("click", "span", async e => {
+      if (this.state.popup) {
+        this.state.popup.remove();
+        this.setState({ popup: "" });
+      }
+      const span = e.features[0];
+      const spanId = span.properties.id;
+      const number = span.properties.name;
       if ([3, 4].includes(this.state.itemValue)) {
         this.setState({ span: { id: spanId, number } });
       } else {
-        new mapboxgl.Popup({ offset: 10 })
+        this.formatterInfo(
+          JSON.parse(span.properties.items),
+          JSON.parse(span.properties.categories)
+        );
+        const popup = new mapboxgl.Popup({ offset: 10, closeOnClick: true })
           .setLngLat([e.lngLat.lng, e.lngLat.lat])
-          .setHTML(`<h3>${number}</h3><a href='${link}' target='_blank'>Ir</a>`)
+          .setHTML(this.getInfo(span))
           .addTo(this.map);
+        this.setState({ popup });
       }
     });
-  }
+  };
 
   getDialogConfirm() {
     const { classes } = this.props;
@@ -228,38 +345,90 @@ class MapBox extends React.Component {
     );
   }
 
-  getStructures() {
-    const features = this.props.structures.map(structure => {
-      return {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [structure.longitude, structure.latitude]
-        },
-        properties: {
-          name: structure.name,
-          link: `/projects/${this.props.projectId}/structures/${structure.id}`,
-          id: structure.id,
-          collected: structure.state_id === 1
-        }
-      };
-    });
+  getInfoStructure = async structure => {
+    const response = await this.props.getStructure(
+      this.props.projectId,
+      structure.id,
+      false
+    );
+    let color = "";
+    if (structure.state_id !== 1) {color = "gray"}
+    else {
+      const items = response.data.items.filter(
+        ({ deficiencies }) => deficiencies.length > 0
+      );
+      if (items.length > 0) {
+        const deficienciesEmergency = items.filter(({ deficiencies }) => {
+          return deficiencies.find(({ emergency }) => emergency) !== undefined;
+        });
+        color = deficienciesEmergency.length === 0 ? "orange" : "red";
+      } else {color = "green"}
+    }
+    return {
+      id: structure.id,
+      link: `/projects/${this.props.projectId}/structures/${structure.id}`,
+      name: structure.name,
+      items: response.data.items,
+      categories: response.data.inspection.categories,
+      color,
+      iconSize: [86, 41],
+      type: structure.inspection.name === "Wood Inspection" ? 1 : 2
+    };
+  };
 
+  getStructures = async () => {
+    const features = await Promise.all(
+      this.props.structures.map(async structure => {
+        const info = await this.getInfoStructure(structure);
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [structure.longitude, structure.latitude]
+          },
+          properties: info
+        };
+      })
+    );
+    
     features.forEach(marker => {
       // create a HTML element for each feature
-      var el = document.createElement("i");
-      const classMarker = marker.properties.collected
-        ? this.props.classes.structure
-        : this.props.classes.structureRed;
-      el.className = `fas fa-broadcast-tower ${classMarker}`;
+      var el = document.createElement("img");
+      if (marker.properties.color === "gray") {
+        el.src =
+          marker.properties.type === 1 ? woodStructureGray : steelStructureGray;
+      }
+      if (marker.properties.color === "green") {
+        el.src =
+          marker.properties.type === 1
+            ? woodStructureGreen
+            : steelStructureGreen;
+      }
+      if (marker.properties.color === "orange") {
+        el.src =
+          marker.properties.type === 1
+            ? woodStructureOrange
+            : steelStructureOrange;
+      }
+      if (marker.properties.color === "red") {
+        el.src =
+          marker.properties.type === 1 ? woodStructureRed : steelStructureRed;
+      }
+      el.className = "marker";
+      el.style.cursor = "pointer";
+      el.style.width = marker.properties.iconSize[0] + "px";
+      el.style.height = marker.properties.iconSize[1] + "px";
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
         .addTo(this.map);
-
-      el.addEventListener("click", e => {
+      el.addEventListener("click", async e => {
+        if (this.state.popup) {
+          this.state.popup.remove();
+          this.setState({ popup: "" });
+        }
         e.stopPropagation();
-        const { id, name } = marker.properties;
+        const { id, name, items, categories } = marker.properties;
         const { itemValue, structuresSelected, addFirstStructure } = this.state;
         if (itemValue === 2) {
           if (addFirstStructure) {
@@ -289,16 +458,16 @@ class MapBox extends React.Component {
             }
           }
         } else {
-          new mapboxgl.Popup({ offset: 10 })
+          this.formatterInfo(items, categories)
+          const popup = new mapboxgl.Popup({ offset: 10, closeOnClick: true })
             .setLngLat(marker.geometry.coordinates)
-            .setHTML(
-              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
-            )
+            .setHTML(this.getInfo(marker))
             .addTo(this.map);
+          this.setState({ popup });
         }
       });
     });
-  }
+  };
 
   getMarkings() {
     const features = this.props.markings.map(marking => {
@@ -351,6 +520,48 @@ class MapBox extends React.Component {
       // create a HTML element for each feature
       var el = document.createElement("i");
       el.className = `fab fa-confluence ${this.props.classes.access}`;
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(marker.geometry.coordinates)
+        .setPopup(
+          new mapboxgl.Popup({ offset: 10 }) // add popups
+            .setHTML(
+              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
+            )
+        )
+        .addTo(this.map);
+    });
+  }
+
+  getSubstations() {
+    const features = this.props.substations
+      .filter(({ project_ids }) =>
+        project_ids.includes(parseInt(this.props.projectId))
+      )
+      .map(sub => {
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [parseFloat(sub.longitude), parseFloat(sub.latitude)]
+          },
+          properties: {
+            name: sub.name,
+            link: `/substations/${sub.id}`,
+            iconSize: [30, 30]
+          }
+        };
+      });
+
+    features.forEach(marker => {
+      // create a HTML element for each feature
+      var el = document.createElement("img");
+      el.src = substationImage;
+      el.className = "marker";
+      el.style.cursor = "pointer";
+      el.style.width = marker.properties.iconSize[0] + "px";
+      el.style.height = marker.properties.iconSize[1] + "px";
+
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
@@ -419,7 +630,7 @@ class MapBox extends React.Component {
 
   confirmAddItem() {
     // CALL TO DISPATCH TO SET LAT AND LNG
-    this.props.setFromMap(true)
+    this.props.setFromMap(true);
     const { itemValue, structuresSelected, spanSelected, link } = this.state;
     if (itemValue === 2) {
       this.props.setStructures(
@@ -641,7 +852,8 @@ const mapStateToProps = state => {
     spans: state.spans.spans,
     markings: state.spans.markings,
     access: state.spans.access,
-    interactions: state.interactions.list
+    interactions: state.interactions.list,
+    substations: state.substations.list
   };
 };
 
@@ -653,7 +865,10 @@ const mapDispatchToProps = {
   setPoint,
   setSpan,
   setStructures,
-  setFromMap
+  setFromMap,
+  getStructure,
+  getSpan,
+  getSubstations
 };
 
 export default compose(

@@ -422,7 +422,8 @@ class StructureEdit extends React.Component {
                         ),
                         inspectionId: Yup.mixed().required(
                           "Inspection is required"
-                        )
+                        ),
+                        number: Yup.mixed().required("Number is required")
                       })}
                     >
                       {props => {

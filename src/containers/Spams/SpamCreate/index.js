@@ -27,17 +27,11 @@ import styles from "./styles";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { FormSpanEdit } from "../../../components";
-import {
-  addSpan,
-  addSpanType
-} from "../../../redux/actions/spanActions";
-import {
-  fetchStructures
-} from "../../../redux/actions/structureActions";
-import {
-  setProjectForMap
-} from "../../../redux/actions/projectActions";
+import { addSpan, addSpanType } from "../../../redux/actions/spanActions";
+import { fetchStructures } from "../../../redux/actions/structureActions";
+import { setProjectForMap } from "../../../redux/actions/projectActions";
 import { ArrowBack } from "@material-ui/icons";
+import { getSubstations } from "../../../redux/actions/substationActions";
 
 class SpanCreate extends React.Component {
   state = {
@@ -67,41 +61,56 @@ class SpanCreate extends React.Component {
   ];
 
   projectId = this.props.match.params.projectId;
-  componentDidMount() {
+  componentDidMount = async () => {
     try {
       const { structureStart, structureEnd } = this.props;
       this.setState(prevState => {
         return { form: { ...prevState.form, structureStart, structureEnd } };
       });
       this.props.fetchStructures(this.projectId);
+      await this.props.getSubstations();
       const nameItem = "spans";
       const nameSubItem = "create";
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
-    }catch (error) {
-
-    }
-  }
+    } catch (error) {}
+  };
 
   save = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { number, stateId, structureStart, structureEnd, spanType, inspectionId } = values;
+    const {
+      number,
+      stateId,
+      structureStart,
+      structureEnd,
+      spanType,
+      inspectionId
+    } = values;
+    
     const form = {
       number,
       state_id: stateId,
-      start_structure: structureStart,
-      end_structure: structureEnd,
       type_id: spanType,
       inspection_id: inspectionId
     };
+
+    let id = structureStart.split("-")[0]
+    let type = structureStart.split("-")[1]
+    if (type === "st") Object.assign(form, {start_structure_id: id})
+    else Object.assign(form, {start_substation_id: id})
+
+    id = structureEnd.split("-")[0]
+    type = structureEnd.split("-")[1]
+    if (type === "st") Object.assign(form, {end_structure_id: id})
+    else Object.assign(form, {end_substation_id: id})
 
     try {
       const response = await this.props.addSpan(this.projectId, form);
 
       if (response.status === 201) {
-        resetForm()
+        resetForm();
         this.props.enqueueSnackbar("The span was added successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -124,7 +133,10 @@ class SpanCreate extends React.Component {
       this.state.formSpanType
     );
     if (response.status === 200 || response.status === 201) {
-      this.setState({ formSpanType: { name: "", description: "" }, open: false });
+      this.setState({
+        formSpanType: { name: "", description: "" },
+        open: false
+      });
       // SHOW NOTIFICACION SUCCCESS
       this.props.enqueueSnackbar("¡The span type was added successfully!", {
         variant: "success",
@@ -138,8 +150,9 @@ class SpanCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading, structures, fromMap } = this.props;
+    const { classes, loading, structures, fromMap, substations } = this.props;
     const { form, formSpanType, open } = this.state;
+    
     return (
       <Layout title="Create Structure">
         {() => (
@@ -238,8 +251,8 @@ class SpanCreate extends React.Component {
                   color="primary"
                   className={classes.buttonBack}
                   onClick={() => {
-                    this.props.setProjectForMap(this.projectId)
-                    this.props.history.push(`/projects/maps-view`)
+                    this.props.setProjectForMap(this.projectId);
+                    this.props.history.push(`/projects/maps-view`);
                   }}
                 >
                   <ArrowBack />
@@ -261,8 +274,14 @@ class SpanCreate extends React.Component {
                   structureStart: Yup.string().required(
                     "Structure start is required"
                   ),
-                  structureEnd: Yup.string().required("Structure end is required"),
-                  number: Yup.string().max(10).required("Number is required").trim()
+                  structureEnd: Yup.string().required(
+                    "Structure end is required"
+                  ),
+                  number: Yup.string()
+                    .max(10)
+                    .required("Number is required")
+                    .trim(),
+                  inspectionId: Yup.mixed().required("Inspection is required")
                 })}
               >
                 {props => {
@@ -291,7 +310,12 @@ class SpanCreate extends React.Component {
                       handleBlur={handleBlur}
                       handleSubmit={handleSubmit}
                       projectId={this.projectId}
-                      structures={structures}
+                      structures={[
+                        ...structures,
+                        ...substations.filter(({ project_ids }) =>
+                          project_ids.includes(parseInt(this.projectId))
+                        )
+                      ]}
                       isCreate={true}
                       showModal={() => this.setState({ open: true })}
                     />
@@ -312,6 +336,7 @@ const mapStateToProps = state => {
     structureStart: state.spans.structureStart,
     structureEnd: state.spans.structureEnd,
     structures: state.structures.structures,
+    substations: state.substations.list,
     fromMap: state.projects.fromMap
   };
 };
@@ -323,6 +348,7 @@ const mapDispatchToProps = {
   addSpan,
   addSpanType,
   fetchStructures,
+  getSubstations,
   setProjectForMap
 };
 
