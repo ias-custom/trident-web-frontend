@@ -17,7 +17,9 @@ import {
   SET_LONGITUDE,
   LOADED_CATEGORIES,
   SET_FROM_MAP,
-  SET_PROJECT_FOR_MAP
+  SET_PROJECT_FOR_MAP,
+  GET_CATEGORIES_MARKING,
+  GET_CATEGORIES_ACCESS
 } from "../actionTypes";
 
 const initialState = {
@@ -38,7 +40,65 @@ const initialState = {
   longitude: "",
   loadedCategories: false,
   fromMap: false,
-  id: ""
+  categories_marking: [
+    {
+      id: 1,
+      name: "Utility",
+      types: [{
+        id: 1,
+        name: "Electric"
+      }]
+    },
+    {
+      id: 2,
+      name: "Transportation",
+      types: [{
+        id: 2,
+        name: "Highway",
+      },
+      {
+        id: 3,
+        name: "Rail Road",
+      }]
+    },
+    {
+      id: 3,
+      name: "Nature",
+      types: [
+        {
+          id:4,
+          name: "River"
+        }
+      ]
+    }
+  ],
+  id: "",
+  categories_access: [
+    {
+      id: 1,
+      name: "Obstacles",
+      types: [{
+        id: 1,
+        name: "Cliff"
+      }]
+    },
+    {
+      id: 2,
+      name: "Restrictions",
+      types: [{
+        id: 2,
+        name: "Bridge"
+      }]
+    },
+    {
+      id: 3,
+      name: "Environment",
+      types: [{
+        id: 3,
+        name: "Wildlife habit"
+      }]
+    }
+  ]
 };
 
 export default (state = initialState, action) => {
@@ -76,13 +136,13 @@ export default (state = initialState, action) => {
 
     case GET_DEFICIENCIES:
       return { ...state, deficiencies: action.payload };
-      
+
     case GET_MARKINGS_TYPES:
       return { ...state, marking_types: action.payload };
 
     case GET_ACCESS_TYPES:
       return { ...state, access_types: action.payload };
-      
+
     case GET_ACCESS_TYPE_DETAILS:
       return { ...state, details: action.payload };
 
@@ -97,9 +157,15 @@ export default (state = initialState, action) => {
 
     case SET_PROJECT_FOR_MAP:
       return { ...state, id: action.payload };
-      
+
     case LOADED_CATEGORIES:
       return { ...state, loadedCategories: action.payload };
+
+    case GET_CATEGORIES_MARKING:
+      return { ...state, categories_marking: action.payload };
+
+    case GET_CATEGORIES_ACCESS:
+      return { ...state, categories_access: action.payload };
 
     default:
       return state;

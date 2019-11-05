@@ -309,15 +309,45 @@ export const addSpan = (projectId, form) => {
     }
   }
 
+  export const getMarking = (spanId, markingId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getMarking(spanId, markingId)
+        if (response.status === 200) {
+          dispatch({type: GET_MARKINGS, payload: response.data })
+        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
   export const addMarking = (spanId, form) => {
     return async (dispatch) => {
       dispatch(setLoading(true))
 
       try {
         const response = await service.addMarking(spanId, form)
-        if (response.status === 201) {
-          dispatch(getMarkings(spanId))
-        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateMarking = (spanId, markingId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateMarking(spanId, markingId, form)
         return response;
       } catch (error) {
         
@@ -365,15 +395,42 @@ export const addSpan = (projectId, form) => {
     }
   }
 
+  export const getAccessDetail = (spanId, accessId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.getAccessDetail(spanId, accessId)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
   export const addAccess = (spanId, form) => {
     return async (dispatch) => {
       dispatch(setLoading(true))
 
       try {
         const response = await service.addAccess(spanId, form)
-        if (response.status === 201) {
-          dispatch(getAccess(spanId))
-        }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateAccess = (spanId, accessId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateAccess(spanId, accessId, form)
         return response;
       } catch (error) {
         

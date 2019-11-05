@@ -18,6 +18,8 @@ import InfoSetView from './InfoSetView';
 import TextEmpty from './TextEmpty';
 import FormInteraction from './FormInteraction';
 import DialogDelete from './DialogDelete';
+import FormMarking from './FormMarking';
+import FormAccess from './FormAccess';
 
 export {
   InputSearch,
@@ -40,5 +42,7 @@ export {
   InfoSetView,
   TextEmpty,
   FormInteraction,
-  DialogDelete
+  DialogDelete,
+  FormMarking,
+  FormAccess
 }

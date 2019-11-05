@@ -173,6 +173,25 @@ class ProjectService extends Service {
     }
   };
 
+  getCategoriesMarking = async () => {
+    try {
+      //const url = `projects/${projectId}/marking-types/`;
+      const url = `/marking-categories`
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  getCategoriesAccess = async () => {
+    try {
+      const url = `/access-categories`
+      return await this.http.get(url);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
   getMarkingsTypes = async projectId => {
     try {
       //const url = `projects/${projectId}/marking-types/`;

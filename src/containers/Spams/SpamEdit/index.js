@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { withRouter } from "react-router-dom";
+import { Link as RouterLink, withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
   Table,
@@ -13,7 +13,8 @@ import {
   Input,
   IconButton,
   withStyles,
-  Grid
+  Grid,
+  Link
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -55,7 +56,7 @@ import {
   TextEmpty,
   DialogDelete
 } from "../../../components";
-import { Delete } from "@material-ui/icons";
+import { Delete, Edit } from "@material-ui/icons";
 import { getSubstations } from "../../../redux/actions/substationActions";
 
 class SpanEdit extends React.Component {
@@ -395,7 +396,7 @@ class SpanEdit extends React.Component {
                   <Tab label="General" />
                   <Tab label="Equipment" />
                   <Tab label="Photos" />
-                  <Tab label="Markings" />
+                  <Tab label="Crossings" />
                   <Tab label="Access" />
                 </Tabs>
               </Grid>
@@ -553,6 +554,18 @@ class SpanEdit extends React.Component {
                                   </TableCell>
                                   <TableCell fixed={"true"}>
                                     <div style={{ display: "flex" }}>
+                                      <Link
+                                        component={RouterLink}
+                                        to={`/spans/${this.spanId}/markings/${marking.id}`}
+                                      >
+                                        <IconButton
+                                          aria-label="Edit"
+                                          color="primary"
+                                          disabled={loading}
+                                        >
+                                          <Edit />
+                                        </IconButton>
+                                      </Link>
                                       <IconButton
                                         aria-label="Delete"
                                         className={classes.iconDelete}
@@ -644,6 +657,18 @@ class SpanEdit extends React.Component {
                                 </TableCell>
                                 <TableCell fixed={"true"}>
                                   <div style={{ display: "flex" }}>
+                                    <Link
+                                      component={RouterLink}
+                                      to={`/spans/${this.spanId}/access/${acc.id}`}
+                                    >
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        disabled={loading}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Link>
                                     <IconButton
                                       aria-label="Delete"
                                       className={classes.iconDelete}

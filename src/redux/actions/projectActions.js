@@ -17,7 +17,9 @@ import {
   SET_LONGITUDE,
   GET_INTERACTIONS,
   SET_FROM_MAP,
-  SET_PROJECT_FOR_MAP
+  SET_PROJECT_FOR_MAP,
+  GET_CATEGORIES_MARKING,
+  GET_CATEGORIES_ACCESS
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -302,6 +304,39 @@ export const getCategoriesProject = inspectionId => {
   };
 }
 
+export const getCategoriesAccess = () => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getCategoriesAccess();
+      if (response.status === 200) {
+        dispatch({type: GET_CATEGORIES_ACCESS, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
+
+export const getCategoriesMarking = () => {
+  return async(dispatch) => {
+    dispatch(setLoading(true))
+    try {
+      const response = await service.getCategoriesMarking();
+      if (response.status === 200) {
+        dispatch({type: GET_CATEGORIES_MARKING, payload: response.data})
+      }
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
+}
 
 export const getMarkingsTypes = (projectId) => {
   return async(dispatch) => {

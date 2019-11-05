@@ -140,9 +140,25 @@ class SpanService extends Service {
     }
   }
 
+  getMarking = async (spanId, markingId ) => {
+    try {
+      return await this.http.get(`/spans/${spanId}/markings/${markingId}`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
   addMarking = async (spanId, form ) => {
     try {
       return await this.http.post(`/spans/${spanId}/markings/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  updateMarking = async (spanId, markingId, form ) => {
+    try {
+      return await this.http.patch(`/spans/${spanId}/markings/${markingId}`, form);
     } catch (error) {
         return error.response;
     }
@@ -158,6 +174,14 @@ class SpanService extends Service {
 
 
   // ACCESS
+  getAccessDetail = async (spanId, accessId) => {
+    try {
+      return await this.http.get(`/spans/${spanId}/access/${accessId}`);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
   getAccess = async (spanId ) => {
     try {
       return await this.http.get(`/spans/${spanId}/access/`);
@@ -169,6 +193,14 @@ class SpanService extends Service {
   addAccess = async (spanId, form ) => {
     try {
       return await this.http.post(`/spans/${spanId}/access/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  updateAccess = async (spanId, accessId, form ) => {
+    try {
+      return await this.http.patch(`/spans/${spanId}/access/${accessId}`, form);
     } catch (error) {
         return error.response;
     }
