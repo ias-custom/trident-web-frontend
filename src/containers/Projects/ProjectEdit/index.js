@@ -26,7 +26,7 @@ import {
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel } from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel, CloudUpload } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -42,7 +42,8 @@ import {
   setFromMap
 } from "../../../redux/actions/projectActions";
 import {
-  deleteStructure
+  deleteStructure,
+  uploadStructures
 } from "../../../redux/actions/structureActions";
 import {
   deleteSpan,
@@ -58,6 +59,8 @@ import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
 import { InfoSetView, TextEmpty, DialogDelete } from "../../../components";
+import InputFiles from "react-input-files";
+import ReactLoading from 'react-loading';
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -68,7 +71,6 @@ const breadcrumbs = [
 class ProjectEdit extends React.Component {
   state = {
     search: "",
-    openId: 0,
     open: false,
     openUser: false,
     itemId: null,
@@ -82,7 +84,9 @@ class ProjectEdit extends React.Component {
     set: null,
     setIdSelected: "",
     setSelected: null,
-    itemName: ""
+    itemName: "",
+    openFile: false,
+    fileName: ""
   };
 
   projectId = null;
@@ -333,6 +337,26 @@ class ProjectEdit extends React.Component {
     const response = await this.props.getSet(setId);
     this.setState({ setSelected: response.data, openSet: true });
   };
+
+  uploadFile = async (file) => {
+    this.setState({fileName: file.name, openFile: true})
+    const formData = new FormData();
+    formData.append("file", file)
+    const response = await this.props.uploadStructures(formData)
+    this.setState({openFile: false, fileName: ""})
+    if (response.status === 200) {
+      this.props.enqueueSnackbar("The structures were succesfully loaded!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    }
+    else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    }
+  }
   render() {
     const {
       classes,
@@ -353,12 +377,13 @@ class ProjectEdit extends React.Component {
       editName,
       inputProjectName,
       userSelected,
-      openId,
+      openFile,
       setId,
       openSet,
       set,
       setSelected,
-      itemName
+      itemName,
+      fileName
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !!!users.find(user => id === user.id);
@@ -477,7 +502,25 @@ class ProjectEdit extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
-
+            <Dialog
+              open={openFile}
+              classes={{ paper: classes.dialogSet }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              disableBackdropClick={true}
+              disableEscapeKeyDown={true}
+            >
+              <DialogTitle id="alert-dialog-title">
+                UPLOAD FILE
+              </DialogTitle>
+              <DialogContent>
+                <p style={{wordBreak: "break-all"}}><span style={{fontWeight: "bold", marginRight: 10}}>File:</span>{fileName}</p>
+                <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
+                  <ReactLoading type={"spin"} color={"#3f51b5"} height={'40px'} width={'40px'} />
+                  <span style={{color: "#3f51b5", marginTop: 5}}>LOADING...</span>
+                </div>
+              </DialogContent>
+            </Dialog>
             <div className={classes.root}>
               <SimpleBreadcrumbs
                 routes={breadcrumbs}
@@ -636,20 +679,38 @@ class ProjectEdit extends React.Component {
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        disabled={loading}
-                        onClick={() => {
-                          this.props.setPoint("", "");
-                          this.props.setFromMap(false);
-                          this.props.history.push(
-                            `/projects/${this.projectId}/structures/create`
-                          );
-                        }}
-                      >
-                        Add Structure
-                      </Button>
+                      <div>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          disabled={loading}
+                          onClick={() => {
+                            this.props.setPoint("", "");
+                            this.props.setFromMap(false);
+                            this.props.history.push(
+                              `/projects/${this.projectId}/structures/create`
+                            );
+                          }}
+                        >
+                          Add Structure
+                        </Button>
+                        <InputFiles
+                          name="file"
+                          accept=".xlsx, .xls"
+                          onChange={(files, e) => {
+                            this.uploadFile(files[0])
+                            e.target.value = ""
+                          }}
+                        >
+                          <Button
+                          variant="outlined"
+                          disabled={loading}
+                          className={classes.upload}
+                        >
+                          <CloudUpload/>Multiple structures
+                        </Button>
+                        </InputFiles>
+                      </div>
                       <Input
                         style={{ width: 300 }}
                         defaultValue=""
@@ -982,7 +1043,8 @@ const mapDispatchToProps = {
   addSet,
   getSet,
   deleteInteraction,
-  setFromMap
+  setFromMap,
+  uploadStructures
 };
 
 export default compose(

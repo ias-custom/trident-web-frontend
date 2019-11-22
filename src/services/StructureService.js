@@ -39,6 +39,17 @@ class StructureService extends Service {
     }
   };
 
+  upload = async (body) => {
+    try {
+      const config = {     
+        headers: { 'content-type': 'multipart/form-data' }
+      }
+      return await this.http.post(`/upload-structures`, body, config);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
   create = async (projectId, form) => {
     try {
       const url = `projects/${projectId}/structures/`;

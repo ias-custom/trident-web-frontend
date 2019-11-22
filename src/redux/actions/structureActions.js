@@ -3,7 +3,8 @@ import {
     GET_STRUCTURES,
     GET_STRUCTURE_TYPES,
     GET_PHOTOS,
-    GET_ITEMS_STRUCTURE
+    GET_ITEMS_STRUCTURE,
+    ADD_STRUCTURES
   } from "../actionTypes";
   import StructureService from "../../services/StructureService";
   
@@ -94,12 +95,26 @@ import {
   
       try {
         const response = await service.update(projectId, structureId, body);
-  
+        dispatch({ type: ADD_STRUCTURES, payload: response.data });
         return response;
       } catch (error) {
         return error;
       } finally {
         dispatch(setLoading(false));
+      }
+    };
+  }
+  export const uploadStructures = (body) => {
+    return async dispatch => {
+      try {
+        const response = await service.upload(body);
+        if (response.status === 200) {
+
+        }
+        return response;
+      } catch (error) {
+        return error;
+      } finally {
       }
     };
   };

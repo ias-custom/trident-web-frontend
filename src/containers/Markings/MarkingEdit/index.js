@@ -12,7 +12,7 @@ import {
 } from "../../../redux/actions/layoutActions";
 import styles from "./styles";
 import { getMarking, fetchSpans, updateMarking } from "../../../redux/actions/spanActions";
-import { FormMarking } from "../../../components";
+import { FormMarking, Panel, PhotosList } from "../../../components";
 
 class MarkingEdit extends React.Component {
   state = {
@@ -24,27 +24,17 @@ class MarkingEdit extends React.Component {
       latitude: "",
       category_id: "",
       span_id: ""
-    }
+    },
+    photos: []
   };
 
-  spanId = this.props.match.params.spanId;
+  projectId = this.props.match.params.projectId;
   markingId = this.props.match.params.markingId;
 
   componentDidMount = async () => {
     try {
-      const response = await this.props.getMarking(this.spanId, this.markingId);
-      if (response.status === 200) {
-        this.props.fetchSpans(this.projectId);
-        this.setState(prevState => {
-          return {
-            form: {
-              ...response.data
-            }
-          }
-        })
-      } else {
-        this.props.history.push("/404");
-      }
+      this.props.fetchSpans(this.projectId);
+      this.loadData();
       const nameItem = "markings";
       const nameSubItem = "edit";
       const open = true;
@@ -53,9 +43,26 @@ class MarkingEdit extends React.Component {
     } catch (error) {}
   };
 
+  loadData = async () => {
+    const response = await this.props.getMarking(this.props.spanId, this.markingId);
+    console.log(response.data)
+    if (response.status === 200) {
+      this.setState(prevState => {
+        return {
+          form: {
+            ...response.data
+          },
+          photos: response.data.photos
+        }
+      })
+    } else {
+      this.props.history.push("/404");
+    }
+  }
+
   render() {
     const { classes } = this.props;
-    const { form } = this.state;
+    const { form, photos } = this.state;
 
     return (
       <Layout title="Edit Crossing">
@@ -82,6 +89,14 @@ class MarkingEdit extends React.Component {
               isCreate={false}
               markingId={this.markingId}
             />
+            <hr/>
+            <Panel>
+              <PhotosList
+              photos={photos}  
+              action={"crossing"}
+              itemId={parseInt(this.markingId)}
+              reload={() => this.loadData()}/>
+            </Panel>
           </div>
         )}
       </Layout>

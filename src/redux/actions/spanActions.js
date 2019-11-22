@@ -16,7 +16,12 @@ const service = new SpanService();
 
 export const setLoading = loading => ({ type: ON_LOADING, loading });
 
-export const setSpan = spanId => ({ type: GET_SPAN, payload: spanId });
+export const setSpan = spanId => {
+  return dispatch => {
+    dispatch({ type: GET_SPAN, payload: spanId })
+    localStorage.setItem("span_id", spanId)
+  }
+};
 
 export const setStructures = (start, end) => {
   return (dispatch) => {
@@ -315,9 +320,6 @@ export const addSpan = (projectId, form) => {
 
       try {
         const response = await service.getMarking(spanId, markingId)
-        if (response.status === 200) {
-          dispatch({type: GET_MARKINGS, payload: response.data })
-        }
         return response;
       } catch (error) {
         
@@ -366,6 +368,36 @@ export const addSpan = (projectId, form) => {
         if (response.status === 204) {
           dispatch(getMarkings(spanId))
         }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addPhotoMarking = (markingId, body) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addPhotoMarking(markingId, body)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deletePhotoMarking = (markingId, photoId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deletePhotoMarking(markingId, photoId)
         return response;
       } catch (error) {
         
@@ -449,6 +481,36 @@ export const addSpan = (projectId, form) => {
         if (response.status === 204) {
           dispatch(getAccess(spanId))
         }
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const addPhotoAccess = (accesId, body) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addPhotoAccess(accesId, body)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const deletePhotoAccess = (accesId, photoId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.deletePhotoAccess(accesId, photoId)
         return response;
       } catch (error) {
         

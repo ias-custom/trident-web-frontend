@@ -41,21 +41,18 @@ const FormMarking = ({ ...propsMain }) => {
         if(propsMain.isCreate) {
           message = "The marking was added successfully!"
           resetForm();
-          this.setState(prevState => {
-            return { form: { ...prevState.form, latitude: "", longitude: "" } };
-          });
         }
-        this.props.enqueueSnackbar(message, {
+        propsMain.enqueueSnackbar(message, {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
       } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
+        propsMain.enqueueSnackbar("The request could not be processed!", {
           variant: "error"
         });
       }
     } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
+      propsMain.enqueueSnackbar(error.message, { variant: "error" });
     }
     setSubmitting(false);
   }

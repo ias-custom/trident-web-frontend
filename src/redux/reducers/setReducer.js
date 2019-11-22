@@ -14,8 +14,7 @@ import {
       case GET_DEFAULT_SET:
         return {
           ...state,
-          inspections: action.payload.inspections,
-          deficiencies: action.payload.deficiencies
+          inspections: action.payload,
         };
 
       case GET_SETS:

@@ -367,7 +367,7 @@ class SpanEdit extends React.Component {
       deficiencies,
       itemName
     } = this.state;
-
+    console.log(markings)
     return (
       <Layout title="Projects">
         {() => (
@@ -491,7 +491,7 @@ class SpanEdit extends React.Component {
                   <Grid style={{ overflow: "hidden" }}>
                     <PhotosList
                       photos={photos}
-                      isStructure={false}
+                      action={"span"}
                       itemId={parseInt(this.spanId)}
                     />
                   </Grid>
@@ -505,7 +505,7 @@ class SpanEdit extends React.Component {
                           this.goToAddMarking();
                         }}
                       >
-                        Add Marking
+                        Add Crossing
                       </Button>
                       <Input
                         style={{ width: 300 }}
@@ -523,7 +523,7 @@ class SpanEdit extends React.Component {
                           <TableRow>
                             <TableCell>Type</TableCell>
                             <TableCell>Owner</TableCell>
-                            <TableCell>Details</TableCell>
+                            <TableCell>Notes</TableCell>
                             <TableCell>Latitude</TableCell>
                             <TableCell>Longitude</TableCell>
                             <TableCell fixed={"true"}>Actions</TableCell>
@@ -544,7 +544,7 @@ class SpanEdit extends React.Component {
                                     {marking.owner}
                                   </TableCell>
                                   <TableCell component="td">
-                                    {marking.details}
+                                    {marking.notes}
                                   </TableCell>
                                   <TableCell component="td">
                                     {marking.coordinate[0]}
@@ -556,12 +556,13 @@ class SpanEdit extends React.Component {
                                     <div style={{ display: "flex" }}>
                                       <Link
                                         component={RouterLink}
-                                        to={`/spans/${this.spanId}/markings/${marking.id}`}
+                                        to={`/projects/${this.projectId}/markings/${marking.id}`}
                                       >
                                         <IconButton
                                           aria-label="Edit"
                                           color="primary"
                                           disabled={loading}
+                                          onClick={() => this.props.setSpan(this.spanId)}
                                         >
                                           <Edit />
                                         </IconButton>
@@ -621,7 +622,6 @@ class SpanEdit extends React.Component {
                         <TableHead>
                           <TableRow>
                             <TableCell>Type</TableCell>
-                            <TableCell>Detail</TableCell>
                             <TableCell style={{ minWidth: "100px" }}>
                               Notes
                             </TableCell>
@@ -640,9 +640,6 @@ class SpanEdit extends React.Component {
                                 <TableCell component="td">
                                   {acc.type.name}
                                 </TableCell>
-                                <TableCell component="td">
-                                  {acc.detail.name}
-                                </TableCell>
                                 <TableCell
                                   component="td"
                                   style={{ minWidth: "100px" }}
@@ -659,12 +656,13 @@ class SpanEdit extends React.Component {
                                   <div style={{ display: "flex" }}>
                                     <Link
                                       component={RouterLink}
-                                      to={`/spans/${this.spanId}/access/${acc.id}`}
+                                      to={`/projects/${this.projectId}/access/${acc.id}`}
                                     >
                                       <IconButton
                                         aria-label="Edit"
                                         color="primary"
                                         disabled={loading}
+                                        onClick={() => this.props.setSpan(this.spanId)}
                                       >
                                         <Edit />
                                       </IconButton>

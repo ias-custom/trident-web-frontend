@@ -1,4 +1,4 @@
-import { GET_STRUCTURES, GET_STRUCTURE_TYPES, GET_PHOTOS, GET_ITEMS_STRUCTURE } from "../actionTypes";
+import { GET_STRUCTURES, GET_STRUCTURE_TYPES, GET_PHOTOS, GET_ITEMS_STRUCTURE, ADD_STRUCTURES } from "../actionTypes";
 
 const initialState = {
   structures: [],
@@ -9,6 +9,9 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case ADD_STRUCTURES:
+      return { ...state, structures: state.structures.concat(action.payload) };
+      
     case GET_STRUCTURES:
       return { ...state, structures: action.payload };
 

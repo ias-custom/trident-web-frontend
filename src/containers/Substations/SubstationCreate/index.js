@@ -172,15 +172,23 @@ class SubstationCreate extends React.Component {
                           <Grid container spacing={16}>
                             <Grid item xs>
                               <TextField
-                                name="name"
-                                value={values.name}
-                                onChange={handleChange}
+                                label="Number"
+                                name="number"
+                                value={values.number}
+                                onChange={e => {
+                                  e.target.value = e.target.value.replace(
+                                    /\s/g,
+                                    ""
+                                  );
+                                  handleChange(e);
+                                }}
                                 onBlur={handleBlur}
-                                error={!!touched.name && !!errors.name}
+                                error={!!touched.number && !!errors.number}
                                 helperText={
-                                  !!touched.name && !!errors.name && errors.name
+                                  !!touched.number &&
+                                  !!errors.number &&
+                                  errors.number
                                 }
-                                label="Name"
                                 fullWidth
                                 margin="normal"
                                 required
@@ -235,23 +243,15 @@ class SubstationCreate extends React.Component {
                           <Grid container spacing={16}>
                             <Grid item xs>
                               <TextField
-                                label="Number"
-                                name="number"
-                                value={values.number}
-                                onChange={e => {
-                                  e.target.value = e.target.value.replace(
-                                    /\s/g,
-                                    ""
-                                  );
-                                  handleChange(e);
-                                }}
+                                name="name"
+                                value={values.name}
+                                onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={!!touched.number && !!errors.number}
+                                error={!!touched.name && !!errors.name}
                                 helperText={
-                                  !!touched.number &&
-                                  !!errors.number &&
-                                  errors.number
+                                  !!touched.name && !!errors.name && errors.name
                                 }
+                                label="Name"
                                 fullWidth
                                 margin="normal"
                                 required

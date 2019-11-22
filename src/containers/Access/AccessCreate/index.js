@@ -26,7 +26,7 @@ class AccessCreate extends React.Component {
       notes: "",
       longitude: "",
       latitude: "",
-      span_id: ""
+      span_id: "",
     },
   };
 

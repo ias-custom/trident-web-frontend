@@ -134,6 +134,17 @@ const styles = theme => ({
     color: "#adadad",
     width: 280,
     marginTop: 25
+  },
+  upload: {
+    borderColor: "#ed5355",
+    color: "#ed5355",
+    '&:hover': {
+      backgroundColor: "rgba(237,83,85, 0.08)"
+    },
+    '& svg': {
+      margin: "-4px 5px 0 0"
+    },
+    marginLeft: 15
   }
 });
 

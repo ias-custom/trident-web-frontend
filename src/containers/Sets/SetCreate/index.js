@@ -25,7 +25,7 @@ const breadcrumbs = [
 class SetCreate extends React.Component {
   state = {
     openId: "",
-    enabledSet: false
+    enabledSet: false,
   };
 
   componentDidMount = async () => {
@@ -41,7 +41,7 @@ class SetCreate extends React.Component {
   };
 
 
-  saveSet = async (inspections, deficiencies, name) => {
+  saveSet = async (inspections, name) => {
     const form = {
       inspections: inspections.map(({ name, categories }) => {
         return {
@@ -49,18 +49,16 @@ class SetCreate extends React.Component {
           categories: categories.map(({ name, items }) => {
             return {
               name,
-              items: items.map(({ name }) => {
+              items: items.map(({ name , deficiencies}) => {
                 return {
-                  name
+                  name,
+                  deficiencies: deficiencies.map(({name}) => {
+                    return { name }
+                  })
                 };
               })
             };
           })
-        };
-      }),
-      deficiencies: deficiencies.map(({ name }) => {
-        return {
-          name
         };
       }),
       name
@@ -86,7 +84,7 @@ class SetCreate extends React.Component {
   };
 
   render() {
-    const { classes, inspections, deficiencies } = this.props;
+    const { classes, inspections } = this.props;
     const { enabledSet } = this.state;
 
     return (
@@ -102,11 +100,10 @@ class SetCreate extends React.Component {
                 {enabledSet ? (
                   <SetInspections
                     inspections={inspections}
-                    deficiencies={deficiencies}
                     name=""
                     isCreate={true}
-                    action={(inspections, deficiencies, name) =>
-                      this.saveSet(inspections, deficiencies, name)
+                    action={(inspections, name) =>
+                      this.saveSet(inspections, name)
                     }
                   />
                 ) : null}
@@ -122,8 +119,7 @@ class SetCreate extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    inspections: state.sets.inspections,
-    deficiencies: state.sets.deficiencies
+    inspections: state.sets.inspections
   };
 };
 

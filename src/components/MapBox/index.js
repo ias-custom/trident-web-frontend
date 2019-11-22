@@ -21,7 +21,7 @@ import {
 } from "../../redux/actions/spanActions";
 import { withStyles, Grid, Button } from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
-import { CheckCircle } from "@material-ui/icons";
+import { CheckCircle, CancelOutlined } from "@material-ui/icons";
 import { withSnackbar } from "notistack";
 import { getSubstations } from "../../redux/actions/substationActions";
 import substationImage from "../../img/substation.png";
@@ -51,18 +51,21 @@ class MapBox extends React.Component {
     structuresSelected: {
       first: {
         id: "",
-        name: ""
+        name: "",
+        type: ""
       },
       second: {
         id: "",
-        name: ""
+        name: "",
+        type: ""
       }
     },
     addFirstStructure: true,
     confirmStructures: false,
     categories: [],
     items: [],
-    popup: null
+    popup: null,
+    marker: null
   };
 
   mapLoaded = false;
@@ -127,51 +130,6 @@ class MapBox extends React.Component {
     });
   }
 
-  getInfo(marker) {
-    const { categories, items } = this.state;
-    const { classes } = this.props;
-    return `
-        <div class=${classes.divInfo}>
-          <a
-            href=${marker.properties.link}
-            class=${classes.link}
-            target="_blank"
-          >
-            <h3>${marker.properties.name}</h3>
-          </a>
-          ${
-            items.length > 0
-              ? `
-            ${categories.map(
-              (category, index) => `
-              <div key=${category.id}>
-                <p class=${classes.label}>${index + 1}. ${category.name}</p>
-                <div class=${classes.divItems}>
-                  ${items
-                    .filter(({ category_id }) => category_id === category.id)
-                    .map(
-                      item =>
-                        `<span key=${item.id} class=${classes.label}>- Item "${
-                          item.item_parent.name
-                        }":</span>
-                       <div class=${classes.divItems}>
-                        ${item.deficiencies.map(
-                          d =>
-                            `<p>${d.deficiency.name} ${d.emergency &&
-                              '<i class="fas fa-exclamation-triangle" style="color:red"></i>'}</p>`
-                        )}
-                       </div>
-                      `
-                    )}
-                </div>
-              </div>`
-            )}`
-              : "<h3>WITHOUT DEFICIENCIES</h3>"
-          }
-        </div>
-        `;
-  }
-
   formatterInfo(items, categories) {
     const itemsFilter = items.filter(
       ({ deficiencies }) => deficiencies.length > 0
@@ -183,6 +141,59 @@ class MapBox extends React.Component {
       categories: categoriesFilter,
       items: itemsFilter
     });
+  }
+
+  getInfo(marker) {
+    const { categories, items } = this.state;
+    const { classes } = this.props;
+    return (
+      <div className={classes.divInfo}>
+        <a
+          href={marker.properties.link}
+          className={classes.link}
+          target={"_blank"}
+        >
+          <h3>{marker.properties.name}</h3>
+        </a>
+        {items.length > 0 ? (
+          categories.map((category, index) => (
+            <div key={category.id}>
+              <p className={classes.label}>
+                {index + 1}. {category.name}
+              </p>
+              <div className={classes.divItems}>
+                {items
+                  .filter(({ category_id }) => category_id === category.id)
+                  .map(item => (
+                    <div key={item.id}>
+                      <span className={classes.label}>
+                        - Item "{item.item_parent.name}":
+                      </span>
+                      <div className={classes.divItems}>
+                        {item.deficiencies.map(d => (
+                          <p key={d.id}>
+                            {d.deficiency.name}{" "}
+                            {d.emergency ? (
+                              <i
+                                className="fas fa-exclamation-triangle"
+                                style={{ color: "red" }}
+                              ></i>
+                            ) : (
+                              ""
+                            )}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ))
+        ) : (
+          <h3>WITHOUT DEFICIENCIES</h3>
+        )}
+      </div>
+    );
   }
 
   getInfoSpan = async span => {
@@ -258,10 +269,6 @@ class MapBox extends React.Component {
       this.map.getCanvas().style.cursor = "";
     });
     this.map.on("click", "span", async e => {
-      if (this.state.popup) {
-        this.state.popup.remove();
-        this.setState({ popup: "" });
-      }
       const span = e.features[0];
       const spanId = span.properties.id;
       const number = span.properties.name;
@@ -272,78 +279,10 @@ class MapBox extends React.Component {
           JSON.parse(span.properties.items),
           JSON.parse(span.properties.categories)
         );
-        const popup = new mapboxgl.Popup({ offset: 10, closeOnClick: true })
-          .setLngLat([e.lngLat.lng, e.lngLat.lat])
-          .setHTML(this.getInfo(span))
-          .addTo(this.map);
-        this.setState({ popup });
+        this.setState({ marker: span, open: true });
       }
     });
   };
-
-  getDialogConfirm() {
-    const { classes } = this.props;
-    const { spanSelected, span, structuresSelected, itemValue } = this.state;
-    return (
-      <div>
-        {itemValue !== 2 ? (
-          <i className={`fas fa-map-marker-alt ${classes.iconMarker}`}></i>
-        ) : null}
-        <div className={classes.detailsMarker}>
-          <div className={classes.triangle}></div>
-          <div className={classes.infoMarker}>
-            {itemValue === 2 ? (
-              <p className={classes.paragraph}>CONFIRM THE STRUCTURES?</p>
-            ) : (
-              <p className={classes.paragraph}>¡SELECT TO LOCATION !</p>
-            )}
-            {spanSelected ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected span: {span.number}
-              </p>
-            ) : null}
-            {structuresSelected.first.id ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected structure start: {structuresSelected.first.name}
-              </p>
-            ) : null}
-            {structuresSelected.second.id ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected structure end: {structuresSelected.second.name}
-              </p>
-            ) : null}
-            <div>
-              <Button
-                variant="outlined"
-                className={classes.buttonCancel}
-                onClick={() =>
-                  this.setState({
-                    itemValue: 0,
-                    link: "",
-                    spanSelected: "",
-                    addFirstStructure: true
-                  })
-                }
-              >
-                Cancel
-              </Button>
-              <Button
-                style={{ marginLeft: 10 }}
-                variant="outlined"
-                className={classes.buttonAccept}
-                onClick={() => this.confirmAddItem()}
-              >
-                Yes, I sure
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   getInfoStructure = async structure => {
     const response = await this.props.getStructure(
@@ -352,8 +291,9 @@ class MapBox extends React.Component {
       false
     );
     let color = "";
-    if (structure.state_id !== 1) {color = "gray"}
-    else {
+    if (structure.state_id !== 1) {
+      color = "gray";
+    } else {
       const items = response.data.items.filter(
         ({ deficiencies }) => deficiencies.length > 0
       );
@@ -362,7 +302,9 @@ class MapBox extends React.Component {
           return deficiencies.find(({ emergency }) => emergency) !== undefined;
         });
         color = deficienciesEmergency.length === 0 ? "orange" : "red";
-      } else {color = "green"}
+      } else {
+        color = "green";
+      }
     }
     return {
       id: structure.id,
@@ -390,7 +332,7 @@ class MapBox extends React.Component {
         };
       })
     );
-    
+
     features.forEach(marker => {
       // create a HTML element for each feature
       var el = document.createElement("img");
@@ -422,11 +364,7 @@ class MapBox extends React.Component {
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
         .addTo(this.map);
-      el.addEventListener("click", async e => {
-        if (this.state.popup) {
-          this.state.popup.remove();
-          this.setState({ popup: "" });
-        }
+      el.addEventListener("click", e => {
         e.stopPropagation();
         const { id, name, items, categories } = marker.properties;
         const { itemValue, structuresSelected, addFirstStructure } = this.state;
@@ -436,7 +374,7 @@ class MapBox extends React.Component {
               return {
                 structuresSelected: {
                   ...prevState.structuresSelected,
-                  first: { id, name }
+                  first: { id, name, type: "st" }
                 }
               };
             });
@@ -446,7 +384,7 @@ class MapBox extends React.Component {
                 return {
                   structuresSelected: {
                     ...prevState.structuresSelected,
-                    second: { id, name }
+                    second: { id, name, type: "st" }
                   }
                 };
               });
@@ -458,12 +396,8 @@ class MapBox extends React.Component {
             }
           }
         } else {
-          this.formatterInfo(items, categories)
-          const popup = new mapboxgl.Popup({ offset: 10, closeOnClick: true })
-            .setLngLat(marker.geometry.coordinates)
-            .setHTML(this.getInfo(marker))
-            .addTo(this.map);
-          this.setState({ popup });
+          this.formatterInfo(items, categories);
+          this.setState({ open: true, marker });
         }
       });
     });
@@ -494,7 +428,7 @@ class MapBox extends React.Component {
         .setPopup(
           new mapboxgl.Popup({ offset: 10 }) // add popups
             .setHTML(
-              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
+              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
             )
         )
         .addTo(this.map);
@@ -526,7 +460,7 @@ class MapBox extends React.Component {
         .setPopup(
           new mapboxgl.Popup({ offset: 10 }) // add popups
             .setHTML(
-              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
+              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
             )
         )
         .addTo(this.map);
@@ -547,6 +481,7 @@ class MapBox extends React.Component {
           },
           properties: {
             name: sub.name,
+            id: sub.id,
             link: `/substations/${sub.id}`,
             iconSize: [30, 30]
           }
@@ -565,13 +500,47 @@ class MapBox extends React.Component {
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 10 }) // add popups
-            .setHTML(
-              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
-            )
-        )
         .addTo(this.map);
+      el.addEventListener("click", e => {
+        e.stopPropagation();
+        const { id, name } = marker.properties;
+        const { itemValue, structuresSelected, addFirstStructure } = this.state;
+        if (itemValue === 2) {
+          if (addFirstStructure) {
+            this.setState(prevState => {
+              return {
+                structuresSelected: {
+                  ...prevState.structuresSelected,
+                  first: { id, name, type: "sub" }
+                }
+              };
+            });
+          } else {
+            if (id !== structuresSelected.first.id) {
+              this.setState(prevState => {
+                return {
+                  structuresSelected: {
+                    ...prevState.structuresSelected,
+                    second: { id, name, type: "sub" }
+                  }
+                };
+              });
+            } else {
+              this.props.enqueueSnackbar("Cannot select the same substation", {
+                variant: "error",
+                anchorOrigin: { vertical: "top", horizontal: "center" }
+              });
+            }
+          }
+        } else {
+          new mapboxgl.Popup()
+            .setLngLat(marker.geometry.coordinates)
+            .setHTML(
+              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
+            )
+            .addTo(this.map);
+        }
+      })
     });
   }
 
@@ -599,7 +568,7 @@ class MapBox extends React.Component {
         .setPopup(
           new mapboxgl.Popup({ offset: 10 }) // add popups
             .setHTML(
-              `<h3>${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank'>Ir</a>`
+              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
             )
         )
         .addTo(this.map);
@@ -634,8 +603,8 @@ class MapBox extends React.Component {
     const { itemValue, structuresSelected, spanSelected, link } = this.state;
     if (itemValue === 2) {
       this.props.setStructures(
-        structuresSelected.first.id,
-        structuresSelected.second.id
+        structuresSelected.first.id + "-" + structuresSelected.first.type,
+        structuresSelected.second.id + "-" + structuresSelected.second.type
       );
     } else {
       const { lng, lat } = this.map.getCenter();
@@ -643,6 +612,70 @@ class MapBox extends React.Component {
       if ([3, 4].includes(itemValue)) this.props.setSpan(spanSelected);
     }
     this.props.history.push(link);
+  }
+
+  getDialogConfirm() {
+    const { classes } = this.props;
+    const { spanSelected, span, structuresSelected, itemValue } = this.state;
+    return (
+      <div>
+        {itemValue !== 2 ? (
+          <i className={`fas fa-map-marker-alt ${classes.iconMarker}`}></i>
+        ) : null}
+        <div className={classes.detailsMarker}>
+          <div className={classes.triangle}></div>
+          <div className={classes.infoMarker}>
+            {itemValue === 2 ? (
+              <p className={classes.paragraph}>CONFIRM THE STR/SUB?</p>
+            ) : (
+              <p className={classes.paragraph}>¡SELECT TO LOCATION !</p>
+            )}
+            {spanSelected ? (
+              <p className={classes.paragraph}>
+                {" "}
+                - Selected span: {span.number}
+              </p>
+            ) : null}
+            {structuresSelected.first.id ? (
+              <p className={classes.paragraph}>
+                {" "}
+                - Selected str/sub start: {structuresSelected.first.name}
+              </p>
+            ) : null}
+            {structuresSelected.second.id ? (
+              <p className={classes.paragraph}>
+                {" "}
+                - Selected str/sub end: {structuresSelected.second.name}
+              </p>
+            ) : null}
+            <div>
+              <Button
+                variant="outlined"
+                className={classes.buttonCancel}
+                onClick={() =>
+                  this.setState({
+                    itemValue: 0,
+                    link: "",
+                    spanSelected: "",
+                    addFirstStructure: true
+                  })
+                }
+              >
+                Cancel
+              </Button>
+              <Button
+                style={{ marginLeft: 10 }}
+                variant="outlined"
+                className={classes.buttonAccept}
+                onClick={() => this.confirmAddItem()}
+              >
+                Yes, I sure
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   cancelAddMarkingOrAccess() {
@@ -659,8 +692,8 @@ class MapBox extends React.Component {
       itemValue: 0,
       link: "",
       structuresSelected: {
-        first: { id: "", name: "" },
-        second: { id: "", name: "" }
+        first: { id: "", name: "", type: "" },
+        second: { id: "", name: "", type: "" }
       },
       addFirstStructure: true
     });
@@ -674,7 +707,9 @@ class MapBox extends React.Component {
       span,
       structuresSelected,
       addFirstStructure,
-      confirmStructures
+      confirmStructures,
+      open,
+      marker
     } = this.state;
     return (
       <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
@@ -754,7 +789,7 @@ class MapBox extends React.Component {
                     {addFirstStructure ? (
                       <div>
                         <p className={classes.paragraph}>
-                          THE SELECTED STRUCTURE START:
+                          THE SELECTED STR/SUB START:
                         </p>
                         <p className={classes.paragraph}>
                           {structuresSelected.first.id
@@ -765,7 +800,7 @@ class MapBox extends React.Component {
                     ) : (
                       <div>
                         <p className={classes.paragraph}>
-                          THE SELECTED STRUCTURE END:
+                          THE SELECTED STR/SUB END:
                         </p>
                         <p className={classes.paragraph}>
                           {structuresSelected.second.id
@@ -839,6 +874,14 @@ class MapBox extends React.Component {
             </div>
           ) : null}
           {itemValue === 1 || itemValue === 5 ? this.getDialogConfirm() : null}
+        {open && (
+          <div
+            className={classes.drawer}
+          >
+            <CancelOutlined className={classes.close} onClick={() => this.setState({open: false})}/>
+            {marker && this.getInfo(marker)}
+          </div>
+        )}
         </div>
       </Grid>
     );
@@ -875,8 +918,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(MapBox);

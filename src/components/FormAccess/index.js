@@ -22,10 +22,9 @@ const FormAccess = ({ ...propsMain }) => {
 
   async function submit(values, formikActions) {
     const { setSubmitting, resetForm } = formikActions;
-    const { type_id, owner, latitude, longitude, notes, category_id, span_id } = values;
+    const { type_id, latitude, longitude, notes, category_id, span_id } = values;
     const form = {
       type_id,
-      owner,
       latitude,
       longitude,
       notes,
@@ -41,21 +40,18 @@ const FormAccess = ({ ...propsMain }) => {
         if(propsMain.isCreate) {
           message = "The access was added successfully!"
           resetForm();
-          this.setState(prevState => {
-            return { form: { ...prevState.form, latitude: "", longitude: "" } };
-          });
         }
-        this.props.enqueueSnackbar(message, {
+        propsMain.enqueueSnackbar(message, {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
       } else {
-        this.props.enqueueSnackbar("The request could not be processed!", {
+        propsMain.enqueueSnackbar("The request could not be processed!", {
           variant: "error"
         });
       }
     } catch (error) {
-      this.props.enqueueSnackbar(error.message, { variant: "error" });
+      propsMain.enqueueSnackbar(error.message, { variant: "error" });
     }
     setSubmitting(false);
   }
@@ -72,7 +68,6 @@ const FormAccess = ({ ...propsMain }) => {
           }}
           validationSchema={Yup.object().shape({
             type_id: Yup.mixed().required("Marking type is required"),
-            owner: Yup.string().required("Owner is required"),
             notes: Yup.string().required("Notes is required"),
             longitude: Yup.string().required("Longitude is required"),
             latitude: Yup.string().required("Latitude is required"),
@@ -186,17 +181,19 @@ const FormAccess = ({ ...propsMain }) => {
                   </Grid>
                   <Grid item xs={6}>
                     <TextField
-                      name="owner"
-                      label="Owner"
+                      name="notes"
+                      label="Notes"
+                      rowsMax="4"
+                      multiline
                       required
-                      value={values.owner}
+                      value={values.notes}
                       margin="normal"
                       disabled={loading}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={!!touched.owner && !!errors.owner}
+                      error={!!touched.notes && !!errors.notes}
                       helperText={
-                        !!touched.owner && !!errors.owner && errors.owner
+                        !!touched.notes && !!errors.notes && errors.notes
                       }
                       fullWidth
                     ></TextField>
@@ -239,28 +236,6 @@ const FormAccess = ({ ...propsMain }) => {
                         !!touched.longitude &&
                         !!errors.longitude &&
                         errors.longitude
-                      }
-                      fullWidth
-                    ></TextField>
-                  </Grid>
-                </Grid>
-                <Grid container spacing={16}>
-                  <Grid item xs>
-                    <TextField
-                      name="notes"
-                      label="Notes"
-                      rows="2"
-                      rowsMax="2"
-                      multiline
-                      required
-                      value={values.notes}
-                      margin="normal"
-                      disabled={loading}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={!!touched.notes && !!errors.notes}
-                      helperText={
-                        !!touched.notes && !!errors.notes && errors.notes
                       }
                       fullWidth
                     ></TextField>

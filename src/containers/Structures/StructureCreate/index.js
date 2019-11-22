@@ -69,7 +69,7 @@ class StructureCreate extends React.Component {
   componentDidMount() {
     const { latitude, longitude } = this.props;
     this.setState(prevState => {
-      return { form: { ...prevState.form, latitude, longitude } };
+      return { form: { ...prevState.form, latitude, longitude, stateId: 2 } };
     });
     const nameItem = "structures";
     const nameSubItem = "create";

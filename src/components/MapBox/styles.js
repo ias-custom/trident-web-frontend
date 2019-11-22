@@ -138,6 +138,22 @@ const styles = theme => ({
     height: 50,
     borderRadius: "50%",
     cursor: "pointer"
+  },
+  drawer: {
+    padding: 20,
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    background: "white",
+    zIndex: 2,
+    overflowY: "auto",
+    boxShadow: "-1px 1px 5px 0px rgba(0,0,0,0.75)"
+  },
+  close: {
+    float: "right",
+    fontSize: 25,
+    cursor: "pointer"
   }
 });
   

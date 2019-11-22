@@ -64,6 +64,7 @@ import InteractionEdit from "./containers/Interactions/InteractionEdit";
 import MarkingCreate from "./containers/Markings/MarkingCreate";
 import MarkingEdit from "./containers/Markings/MarkingEdit";
 import AccessCreate from "./containers/Access/AccessCreate";
+import AccessEdit from "./containers/Access/AccessEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -124,9 +125,10 @@ class App extends Component {
 
           <PrivateRoute exact path="/projects/:projectId/spans/:id" component={SpamEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/markings/create" component={MarkingCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
-          <PrivateRoute exact path="/spans/:spanId/markings/:markingId" component={MarkingEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          <PrivateRoute exact path="/projects/:projectId/markings/:markingId" component={MarkingEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/markings/create" component={MarkingCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/access/create" component={AccessCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          <PrivateRoute exact path="/projects/:projectId/access/:accessId" component={AccessEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/interactions/create" component={InteractionCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <PrivateRoute exact path="/projects/:projectId/interactions/:interactionId" component={InteractionEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>

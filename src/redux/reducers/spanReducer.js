@@ -9,10 +9,11 @@ import {
   SET_STRUCTURE_START,
   SET_STRUCTURE_END
 } from "../actionTypes";
+const spanId = localStorage.getItem("span_id") ? localStorage.getItem("span_id") : ""
 
 const initialState = {
   spans: [],
-  spanId: "",
+  spanId: spanId,
   spanTypes: [],
   photos: [],
   items: [],

@@ -476,7 +476,7 @@ class StructureEdit extends React.Component {
                   <Grid style={{ overflow: "hidden" }}>
                     <PhotosList
                       photos={photos}
-                      isStructure={true}
+                      action={"structure"}
                       itemId={parseInt(this.structureId)}
                     />
                   </Grid>

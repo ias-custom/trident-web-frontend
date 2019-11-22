@@ -61,17 +61,23 @@ class FormStructureEdit extends React.Component {
           <Grid container spacing={16}>
             <Grid item xs>
               <TextField
-                name="name"
-                value={values.name}
-                onChange={this.props.handleChange}
+                name="number"
+                value={values.number}
+                onChange={(e) => {
+                  e.target.value = e.target.value.replace(/\s/g, "")
+                  this.props.handleChange(e)
+                }}
                 onBlur={this.props.handleBlur}
-                error={!!touched.name && !!errors.name}
-                helperText={!!touched.name && !!errors.name && errors.name}
-                label="Name"
+                label="Number"
                 fullWidth
                 margin="normal"
+                error={!!touched.number && !!errors.number}
+                helperText={
+                  !!touched.number &&
+                  !!errors.number &&
+                  errors.number
+                }
                 required
-                disabled={loading}
               />
             </Grid>
           </Grid>
@@ -143,7 +149,7 @@ class FormStructureEdit extends React.Component {
                 }
                 fullWidth
                 required
-                disabled={loading}
+                disabled
               >
                 {states.map(state => {
                   return (
@@ -222,23 +228,17 @@ class FormStructureEdit extends React.Component {
             </Grid>
             <Grid item xs={6}>
               <TextField
-                name="number"
-                value={values.number}
-                onChange={(e) => {
-                  e.target.value = e.target.value.replace(/\s/g, "")
-                  this.props.handleChange(e)
-                }}
+                name="name"
+                value={values.name}
+                onChange={this.props.handleChange}
                 onBlur={this.props.handleBlur}
-                label="Number"
+                error={!!touched.name && !!errors.name}
+                helperText={!!touched.name && !!errors.name && errors.name}
+                label="Name"
                 fullWidth
                 margin="normal"
-                error={!!touched.number && !!errors.number}
-                helperText={
-                  !!touched.number &&
-                  !!errors.number &&
-                  errors.number
-                }
                 required
+                disabled={loading}
               />
             </Grid>
           </Grid>

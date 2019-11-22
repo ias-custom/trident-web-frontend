@@ -18,7 +18,29 @@ import {
       try {
         const response = await service.getDefault(1);
         if (response.status === 200) {
-          dispatch({type: GET_DEFAULT_SET, payload: response.data})
+          let { deficiencies, inspections } = response.data
+          inspections = inspections.map( inspection => {
+            return {
+              ...inspection,
+              categories: inspection.categories.map(category => {
+                return {
+                  ...category,
+                  items: category.items.map( item => {
+                    return {
+                      ...item,
+                      deficiencies: deficiencies.map(d => {
+                        return {
+                          ...d,
+                          id: item.id + "-" + d.id
+                        }
+                      })
+                    }
+                  })
+                }
+              })
+            }
+          })
+          dispatch({type: GET_DEFAULT_SET, payload: inspections})
         }
         return response;
       } catch (error) {

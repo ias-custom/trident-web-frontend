@@ -1,13 +1,7 @@
 import React from 'react';
 import Layout from '../../../components/Layout';
-import Typography from '@material-ui/core/Typography/Typography';
-import Card from '@material-ui/core/Card/Card';
-import CardContent from '@material-ui/core/CardContent';
 import Grid from '@material-ui/core/Grid/Grid';
-import UserIcon from '@material-ui/icons/GroupOutlined';
 import { withStyles } from '@material-ui/core/styles';
-import { Link as RouterLink } from 'react-router-dom'
-import Link from '@material-ui/core/Link';
 import { compose } from "recompose";
 import { connect } from "react-redux";
 import {

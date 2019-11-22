@@ -69,6 +69,7 @@ export const UPDATE_STRUCTURE = 'UPDATE_STRUCTURE';
 export const DELETE_STRUCTURE = 'DELETE_STRUCTURE';
 export const GET_PHOTOS = 'GET_PHOTOS';
 export const GET_ITEMS_STRUCTURE = 'GET_ITEMS_STRUCTURE';
+export const ADD_STRUCTURES = 'ADD_STRUCTURES';
 
 // Spams
 export const GET_SPAN = 'GET_SPAN';

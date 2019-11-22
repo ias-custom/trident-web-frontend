@@ -65,7 +65,7 @@ class SpanCreate extends React.Component {
     try {
       const { structureStart, structureEnd } = this.props;
       this.setState(prevState => {
-        return { form: { ...prevState.form, structureStart, structureEnd } };
+        return { form: { ...prevState.form, structureStart, structureEnd, stateId: 2 } };
       });
       this.props.fetchStructures(this.projectId);
       await this.props.getSubstations();

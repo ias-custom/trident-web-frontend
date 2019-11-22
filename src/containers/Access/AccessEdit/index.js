@@ -16,7 +16,7 @@ import styles from "./styles";
 import { getAccessDetail, fetchSpans } from "../../../redux/actions/spanActions";
 import { setProjectForMap } from "../../../redux/actions/projectActions";
 import { ArrowBack } from "@material-ui/icons";
-import { FormAccess } from "../../../components";
+import { FormAccess, PhotosList, Panel } from "../../../components";
 
 class AccessEdit extends React.Component {
   state = {
@@ -28,25 +28,15 @@ class AccessEdit extends React.Component {
       latitude: "",
       span_id: ""
     },
+    photos: []
   };
 
-  spanId = this.props.match.params.spanId;
+  projectId = this.props.match.params.projectId;
   accessId = this.props.match.params.accessId;
   componentDidMount = async () => {
     try {
-      const response = await this.props.getAccessDetail(this.spanId, this.accessId);
-      if (response.status === 200) {
-        this.props.fetchSpans(this.projectId);
-        this.setState(prevState => {
-          return {
-            form: {
-              ...response.data
-            }
-          }
-        })
-      } else {
-        this.props.history.push("/404");
-      }
+      this.props.fetchSpans(this.projectId);
+      this.loadData();
       const nameItem = "access";
       const nameSubItem = "edit";
       const open = true;
@@ -55,9 +45,26 @@ class AccessEdit extends React.Component {
     } catch (error) {}
   };
 
+  loadData = async () => {
+    const response = await this.props.getAccessDetail(this.props.spanId, this.accessId);
+      if (response.status === 200) {
+        this.setState(prevState => {
+          return {
+            form: {
+              ...prevState.form,
+              ...response.data
+            },
+            photos: response.data.photos
+          }
+        })
+      } else {
+        this.props.history.push("/404");
+      }
+  }
+
   render() {
     const { classes, fromMap } = this.props;
-    const { form } = this.state;
+    const { form, photos } = this.state;
 
     return (
       <Layout title="Create Access">
@@ -75,7 +82,7 @@ class AccessEdit extends React.Component {
                   name: "Span edit",
                   to: `/projects/${this.props.match.params.projectId}/spans/${form.span_id}`
                 },
-                { name: "Create Access", to: null }
+                { name: "Edit Access", to: null }
               ]}
               classes={{ root: classes.breadcrumbs }}
             />
@@ -97,6 +104,14 @@ class AccessEdit extends React.Component {
               </Grid>
             ) : null}
             <FormAccess isCreate={false} form={form} accessId={this.accessId}/>
+            <hr/>
+            <Panel>
+              <PhotosList
+              photos={photos}  
+              action={"access"}
+              itemId={parseInt(this.accessId)}
+              reload={() => this.loadData()}/>
+            </Panel>
           </div>
         )}
       </Layout>

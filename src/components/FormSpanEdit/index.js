@@ -61,6 +61,27 @@ class FormSpanEdit extends React.Component {
             <Grid container spacing={16}>
               <Grid item xs>
                 <TextField
+                  name="number"
+                  value={values.number}
+                  onChange={e => {
+                    e.target.value = e.target.value.replace(/\s/g, "");
+                    this.props.handleChange(e);
+                  }}
+                  onBlur={this.props.handleBlur}
+                  label="Number"
+                  fullWidth
+                  margin="normal"
+                  error={!!touched.number && !!errors.number}
+                  helperText={
+                    !!touched.number && !!errors.number && errors.number
+                  }
+                  required
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={16}>
+              <Grid item xs>
+                <TextField
                   name="structureStart"
                   select
                   label="Start structure or substation"
@@ -153,7 +174,7 @@ class FormSpanEdit extends React.Component {
                     !!touched.stateId && !!errors.stateId && errors.stateId
                   }
                   fullWidth
-                  disabled={loading}
+                  disabled
                   required
                 >
                   {states.map(state => {
@@ -208,27 +229,6 @@ class FormSpanEdit extends React.Component {
                     </div>
                   ) : null}
                 </div>
-              </Grid>
-            </Grid>
-            <Grid container spacing={16}>
-              <Grid item xs>
-                <TextField
-                  name="number"
-                  value={values.number}
-                  onChange={e => {
-                    e.target.value = e.target.value.replace(/\s/g, "");
-                    this.props.handleChange(e);
-                  }}
-                  onBlur={this.props.handleBlur}
-                  label="Number"
-                  fullWidth
-                  margin="normal"
-                  error={!!touched.number && !!errors.number}
-                  helperText={
-                    !!touched.number && !!errors.number && errors.number
-                  }
-                  required
-                />
               </Grid>
             </Grid>
             <Grid container spacing={16}>
