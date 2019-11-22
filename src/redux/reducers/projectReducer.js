@@ -19,7 +19,9 @@ import {
   SET_FROM_MAP,
   SET_PROJECT_FOR_MAP,
   GET_CATEGORIES_MARKING,
-  GET_CATEGORIES_ACCESS
+  GET_CATEGORIES_ACCESS,
+  ADD_USER_PROJECT,
+  DELETE_USER_PROJECT
 } from "../actionTypes";
 
 const initialState = {
@@ -117,6 +119,12 @@ export default (state = initialState, action) => {
 
     case GET_USERS_PROJECT:
       return { ...state, users: action.payload };
+
+    case ADD_USER_PROJECT:
+      return { ...state, users: state.users.concat(action.payload) };
+
+    case DELETE_USER_PROJECT:
+      return { ...state, users: state.users.filter(id => id !== action.payload) };
 
     case GET_SPAN_TYPES:
       return { ...state, spanTypes: action.payload };

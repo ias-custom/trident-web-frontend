@@ -20,6 +20,7 @@ import FormInteraction from './FormInteraction';
 import DialogDelete from './DialogDelete';
 import FormMarking from './FormMarking';
 import FormAccess from './FormAccess';
+import ShowErrors from './ShowErrors';
 
 export {
   InputSearch,
@@ -44,5 +45,6 @@ export {
   FormInteraction,
   DialogDelete,
   FormMarking,
-  FormAccess
+  FormAccess,
+  ShowErrors
 }

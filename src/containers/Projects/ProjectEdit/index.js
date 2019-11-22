@@ -23,6 +23,7 @@ import {
   Typography,
   TextField,
   MenuItem,
+  Card,
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -58,7 +59,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { InfoSetView, TextEmpty, DialogDelete } from "../../../components";
+import { InfoSetView, TextEmpty, DialogDelete, ShowErrors } from "../../../components";
 import InputFiles from "react-input-files";
 import ReactLoading from 'react-loading';
 
@@ -342,18 +343,22 @@ class ProjectEdit extends React.Component {
     this.setState({fileName: file.name, openFile: true})
     const formData = new FormData();
     formData.append("file", file)
-    const response = await this.props.uploadStructures(formData)
+    const response = await this.props.uploadStructures(this.projectId, formData)
     this.setState({openFile: false, fileName: ""})
-    if (response.status === 200) {
+    if (response.status === 201) {
       this.props.enqueueSnackbar("The structures were succesfully loaded!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
     }
     else {
-      this.props.enqueueSnackbar("The request could not be processed!", {
+      const errors = response.data
+      console.log(errors)
+      this.props.enqueueSnackbar("", {
         variant: "error",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
+        anchorOrigin: { vertical: "top", horizontal: "center" },
+        content: key => (<ShowErrors id={key} errors={errors}/>),
+
       });
     }
   }
@@ -386,9 +391,8 @@ class ProjectEdit extends React.Component {
       fileName
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
-      return !!!users.find(user => id === user.id);
+      return !users.includes(id)
     });
-
     return (
       <Layout title="Projects">
         {() => (
@@ -663,7 +667,7 @@ class ProjectEdit extends React.Component {
                                     className={classes.iconDelete}
                                     disabled={loading}
                                     onClick={() =>
-                                      this.showModal(user.relation_id, "open", "user")
+                                      this.showModal(user.id, "open", "user")
                                     }
                                   >
                                     <Delete />
@@ -696,7 +700,7 @@ class ProjectEdit extends React.Component {
                         </Button>
                         <InputFiles
                           name="file"
-                          accept=".xlsx, .xls"
+                          accept=".csv"
                           onChange={(files, e) => {
                             this.uploadFile(files[0])
                             e.target.value = ""

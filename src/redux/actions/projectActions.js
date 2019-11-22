@@ -19,7 +19,9 @@ import {
   SET_FROM_MAP,
   SET_PROJECT_FOR_MAP,
   GET_CATEGORIES_MARKING,
-  GET_CATEGORIES_ACCESS
+  GET_CATEGORIES_ACCESS,
+  ADD_USER_PROJECT,
+  DELETE_USER_PROJECT
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -210,10 +212,7 @@ export const getUsersProject = projectId => {
       const response = await service.getUsers(projectId);
 
       if (response.status === 200) {
-        const users = response.data.map(({ user, id }) => {
-          return { ...user, relation_id: id };
-        });
-        dispatch({ type: GET_USERS_PROJECT, payload: users });
+        dispatch({ type: GET_USERS_PROJECT, payload: response.data });
       }
 
       return response;
@@ -231,9 +230,8 @@ export const addUser = (projectId, form) => {
 
     try {
       const response = await service.addUser(projectId, form);
-
       if (response.status === 201) {
-        dispatch(getUsersProject(projectId));
+        dispatch({type: ADD_USER_PROJECT, payload: response.data.user_id});
       }
 
       return response;
@@ -253,7 +251,7 @@ export const deleteUser = (projectId, userId) => {
       const response = await service.deleteUser(projectId, userId);
 
       if (response.status === 204) {
-        dispatch(getUsersProject(projectId));
+        dispatch({type: DELETE_USER_PROJECT, payload: userId});
       }
 
       return response;

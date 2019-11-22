@@ -95,7 +95,6 @@ import {
   
       try {
         const response = await service.update(projectId, structureId, body);
-        dispatch({ type: ADD_STRUCTURES, payload: response.data });
         return response;
       } catch (error) {
         return error;
@@ -104,12 +103,12 @@ import {
       }
     };
   }
-  export const uploadStructures = (body) => {
+  export const uploadStructures = (projectId, body) => {
     return async dispatch => {
       try {
-        const response = await service.upload(body);
-        if (response.status === 200) {
-
+        const response = await service.upload(projectId, body);
+        if (response.status === 201) {
+          dispatch({type: ADD_STRUCTURES, payload: response.data})
         }
         return response;
       } catch (error) {
