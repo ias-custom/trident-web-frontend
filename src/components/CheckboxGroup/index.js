@@ -21,7 +21,15 @@ import {
   CAN_ADD_PROJECT,
   CAN_CHANGE_PROJECT,
   CAN_VIEW_PROJECT,
-  CAN_DELETE_PROJECT
+  CAN_DELETE_PROJECT,
+  CAN_VIEW_SUBSTATION,
+  CAN_ADD_SUBSTATION,
+  CAN_CHANGE_SUBSTATION,
+  CAN_DELETE_SUBSTATION,
+  CAN_VIEW_SET,
+  CAN_ADD_SET,
+  CAN_CHANGE_SET,
+  CAN_DELETE_SET
 } from '../../redux/permissions';
 
 class CheckboxGroup extends React.Component {
@@ -32,6 +40,7 @@ class CheckboxGroup extends React.Component {
   }
   render() {
     let { permissionsId, classes  } = this.props;
+    console.log(permissionsId)
     const roles = [
       {
         title: "ALL MODULE USERS",
@@ -87,7 +96,42 @@ class CheckboxGroup extends React.Component {
           }
         ]
       },
-      
+      {
+        title: "ALL MODULE SUBSTATIONS",
+        permissions: [
+          {
+            title: "Substations list",
+            codename: CAN_VIEW_SUBSTATION
+          }, {
+            title: "Substation create",
+            codename: CAN_ADD_SUBSTATION
+          }, {
+            title: "Substation edit",
+            codename: CAN_CHANGE_SUBSTATION
+          }, {
+            title: "Substation delete",
+            codename: CAN_DELETE_SUBSTATION
+          }
+        ]
+      },
+      {
+        title: "ALL MODULE SETS",
+        permissions: [
+          {
+            title: "Sets list",
+            codename: CAN_VIEW_SET
+          }, {
+            title: "Set create",
+            codename: CAN_ADD_SET
+          }, {
+            title: "Set edit",
+            codename: CAN_CHANGE_SET
+          }, {
+            title: "Set delete",
+            codename: CAN_DELETE_SET
+          }
+        ]
+      },
     ]
     return (
         <Grid container spacing={16}>

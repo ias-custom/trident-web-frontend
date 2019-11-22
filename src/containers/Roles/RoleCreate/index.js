@@ -114,8 +114,7 @@ class RoleCreate extends React.Component {
                   touched,
                   handleChange,
                   handleBlur,
-                  handleSubmit,
-                  setFieldValue
+                  handleSubmit
                 } = props;
 
                 return (
