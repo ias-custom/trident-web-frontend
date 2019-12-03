@@ -65,7 +65,8 @@ class MapBox extends React.Component {
     categories: [],
     items: [],
     popup: null,
-    marker: null
+    marker: null,
+    open: false
   };
 
   mapLoaded = false;
@@ -700,7 +701,7 @@ class MapBox extends React.Component {
   }
 
   render() {
-    const { classes, projectId } = this.props;
+    const { classes, projectId, tab } = this.props;
     const {
       itemValue,
       spanSelected,
@@ -712,70 +713,72 @@ class MapBox extends React.Component {
       marker
     } = this.state;
     return (
-      <Grid style={{ height: "calc(100% - 95px)", width: "100%" }}>
+      <Grid style={{ height: "100%", width: "100%" }}>
         <div id="map" style={{ height: "100%", width: "100%" }}>
-          <div className={classes.divMenu}>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                this.setItem(1, `/projects/${projectId}/structures/create`)
-              }
-            >
-              Add structure
-              {itemValue === 1 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                this.setItem(2, `/projects/${projectId}/spans/create`)
-              }
-            >
-              Add span
-              {itemValue === 2 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() => {
-                this.setItem(3, `/projects/${projectId}/markings/create`);
-              }}
-            >
-              Add marking
-              {itemValue === 3 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                this.setItem(4, `/projects/${projectId}/access/create`)
-              }
-            >
-              Add access
-              {itemValue === 4 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                this.setItem(5, `/projects/${projectId}/interactions/create`)
-              }
-            >
-              Add interaction
-              {itemValue === 5 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-          </div>
+          {tab === 5  && (
+            <div className={classes.divMenu}>
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() =>
+                  this.setItem(1, `/projects/${projectId}/structures/create`)
+                }
+              >
+                Add structure
+                {itemValue === 1 ? (
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                ) : null}
+              </Button>
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() =>
+                  this.setItem(2, `/projects/${projectId}/spans/create`)
+                }
+              >
+                Add span
+                {itemValue === 2 ? (
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                ) : null}
+              </Button>
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() => {
+                  this.setItem(3, `/projects/${projectId}/markings/create`);
+                }}
+              >
+                Add marking
+                {itemValue === 3 ? (
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                ) : null}
+              </Button>
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() =>
+                  this.setItem(4, `/projects/${projectId}/access/create`)
+                }
+              >
+                Add access
+                {itemValue === 4 ? (
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                ) : null}
+              </Button>
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() =>
+                  this.setItem(5, `/projects/${projectId}/interactions/create`)
+                }
+              >
+                Add interaction
+                {itemValue === 5 ? (
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                ) : null}
+              </Button>
+            </div>
+          )}
           {itemValue === 2 ? (
             <div>
               {structuresSelected.first.id &&
@@ -874,14 +877,14 @@ class MapBox extends React.Component {
             </div>
           ) : null}
           {itemValue === 1 || itemValue === 5 ? this.getDialogConfirm() : null}
-        {open && (
-          <div
-            className={classes.drawer}
-          >
-            <CancelOutlined className={classes.close} onClick={() => this.setState({open: false})}/>
-            {marker && this.getInfo(marker)}
-          </div>
-        )}
+          {open && (
+            <div
+              className={classes.drawer}
+            >
+              <CancelOutlined className={classes.close} onClick={() => this.setState({open: false})}/>
+              {marker && this.getInfo(marker)}
+            </div>
+          )}
         </div>
       </Grid>
     );

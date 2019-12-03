@@ -45,8 +45,8 @@ class CustomersList extends React.Component {
 
   componentDidMount() {
     this.props.getCustomers();
-    const nameItem = "customers";
-    const nameSubItem = "list";
+    const nameItem = "admin";
+    const nameSubItem = "customers";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });

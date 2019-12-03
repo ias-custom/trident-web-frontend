@@ -7,11 +7,17 @@ const styles = theme => {
     divCategory: {
       display: "flex", 
       justifyContent: "space-between",
-      alignItems: "center"
+      alignItems: "center",
+    },
+    category: {
+      flex: 1
     },
     divItem: {
       marginBottom: 10,
       justifyContent: "flex-start"
+    },
+    item: {
+      flex: 1
     },
     collapseDetails: {
       display: "block",

@@ -61,7 +61,8 @@ class StructureEdit extends React.Component {
       inspectionId: "",
       number: ""
     },
-    enabledEquipment: false
+    enabledEquipment: false,
+    typeSet: ""
   };
 
   breadcrumbs = [
@@ -115,6 +116,7 @@ class StructureEdit extends React.Component {
           items: items,
           categories: inspection_id ? inspection.categories : [],
           deficiencies,
+          typeSet: inspection_id ? inspection.type || "1" : "",
           enabledEquipment: true
         });
         //if (inspection_id) this.props.getCategoriesInspection(inspection_id);
@@ -282,14 +284,14 @@ class StructureEdit extends React.Component {
       open,
       openInteraction,
       interactionDescription,
-      search,
       value,
       formGeneral,
       inspection_name,
       enabledEquipment,
       categories,
       deficiencies,
-      items
+      items,
+      typeSet
     } = this.state;
 
     return (
@@ -389,6 +391,7 @@ class StructureEdit extends React.Component {
                   onChange={(e, newValue) => {
                     this.handleChange(e, newValue);
                   }}
+                  disabled={loading}
                   indicatorColor="primary"
                   textColor="primary"
                   variant="fullWidth"
@@ -401,6 +404,7 @@ class StructureEdit extends React.Component {
               <Panel>
                 <SwipeableViews
                   index={value}
+                  disabled={loading}
                   onChangeIndex={this.handleChangeIndex}
                   slideStyle={{ overflowX: "hidden", overflowY: "hidden" }}
                 >
@@ -467,6 +471,7 @@ class StructureEdit extends React.Component {
                         itemId={parseInt(this.structureId)}
                         inspectionName={inspection_name}
                         isStructure={true}
+                        typeSet={typeSet}
                         changeItems={newItems =>
                           this.setState({ items: newItems })
                         }

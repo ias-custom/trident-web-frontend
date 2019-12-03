@@ -31,6 +31,20 @@ const styles = theme => {
     },
     breadcrumbs: {
       marginTop: 20
+    },
+    radioGroup: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-around"
+    },
+    radio: {
+      border: "1px solid #3f51b5",
+      borderRadius: 5,
+      paddingRight: 10,
+      margin: 0
+    },
+    radioSelected: {
+      backgroundColor: "rgba(63,81,181, 0.08)"
     }
   });
   }

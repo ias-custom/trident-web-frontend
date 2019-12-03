@@ -117,7 +117,7 @@ class App extends Component {
           <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/spans/create" component={SpanCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
-          <Route exact path="/projects/maps-view" component={MapsView} />
+          {/* <Route exact path="/projects/maps-view" component={MapsView} /> */}
           <PrivateRoute exact path="/projects/:id" component={ProjectEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <PrivateRoute exact path="/projects/:projectId/structures/create" component={StructureCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>

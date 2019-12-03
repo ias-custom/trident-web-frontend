@@ -11,12 +11,12 @@ import {
   
   export const setLoading = (loading) => ({ type: ON_LOADING, loading });
   
-  export const getDefaultSet = () => {
+  export const getDefaultSet = (type) => {
     return async dispatch => {
       dispatch(setLoading(true));
   
       try {
-        const response = await service.getDefault(1);
+        const response = await service.getDefault(1, type);
         if (response.status === 200) {
           let { deficiencies, inspections } = response.data
           inspections = inspections.map( inspection => {

@@ -145,6 +145,15 @@ const styles = theme => ({
       margin: "-4px 5px 0 0"
     },
     marginLeft: 15
+  },
+  divTable: {
+    overflowY: "auto",
+    height: "calc(100vh - 378px)",
+    minHeight: 400
+  },
+  divViews: {
+    height: "calc(100vh - 330px)",
+    minHeight: 545
   }
 });
 

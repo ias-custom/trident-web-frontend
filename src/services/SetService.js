@@ -7,10 +7,14 @@ class SetService extends Service {
     return store.getState().customers.customerSelectedId
   }
   
-  async getDefault(id) {
+  async getDefault(id, type) {
     try {
       const url = `/default-sets/${id}/`;
-      return await this.http.get(url);
+      return await this.http.get(url, {
+        params: {
+          type: type
+        }
+      });
     } catch (error) {
       return error.response;
     }

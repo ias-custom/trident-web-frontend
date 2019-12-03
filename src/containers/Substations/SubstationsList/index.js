@@ -48,8 +48,8 @@ class SubstationsList extends React.Component {
   };
 
   componentDidMount() {
-    const nameItem = "substations";
-    const nameSubItem = "list";
+    const nameItem = "setup";
+    const nameSubItem = "substations";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });

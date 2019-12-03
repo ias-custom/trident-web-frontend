@@ -4,6 +4,7 @@ import { compose } from "recompose";
 import styles from "./styles";
 import { withRouter, Prompt } from "react-router-dom";
 import { withSnackbar } from "notistack";
+import classNames from "classnames";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -26,7 +27,9 @@ import {
   CardActions,
   CardHeader,
   FormControlLabel,
-  Switch
+  Switch,
+  RadioGroup,
+  Radio
 } from "@material-ui/core";
 
 import {
@@ -40,10 +43,7 @@ import {
   updateItemStructure,
   addItemStructure
 } from "../../redux/actions/structureActions";
-import {
-  updateItemSpan,
-  addItemSpan
-} from "../../redux/actions/spanActions";
+import { updateItemSpan, addItemSpan } from "../../redux/actions/spanActions";
 import {
   ExpandMore,
   Delete,
@@ -101,15 +101,17 @@ class Equipment extends React.Component {
         resetForm();
         const newItems = this.props.items.map(item => {
           if (item.id === this.state.itemId) {
-            const newDeficiencies = [...item.deficiencies, response.data]
-            item.deficiencies = newDeficiencies
+            const newDeficiencies = [...item.deficiencies, response.data];
+            item.deficiencies = newDeficiencies;
           }
-          return item
-        })
+          return item;
+        });
         this.props.changeItems(newItems);
-        const item = this.props.items.find(({id}) => id === this.state.itemId)
+        const item = this.props.items.find(
+          ({ id }) => id === this.state.itemId
+        );
         if (item.deficiencies.length === 1) {
-          this.updateItem(4) // 4 IS ID OF STATE ITEM DEFICIENT
+          this.updateItem(4); // 4 IS ID OF STATE ITEM DEFICIENT
         }
         this.setState({ openDeficiency: false });
         this.props.enqueueSnackbar("The deficiency was added successfully!", {
@@ -128,21 +130,30 @@ class Equipment extends React.Component {
     this.props.setLoading(false);
   };
 
-  updateItem = async (stateId) => {
+  updateItem = async stateId => {
     const form = { state_id: stateId };
     try {
       let response = "";
       if (this.props.isStructure)
-        response = await this.props.updateItemStructure(this.props.itemId, this.state.itemId, form);
-      else response = await this.props.updateItemSpan(this.props.itemId, this.state.itemId, form);
+        response = await this.props.updateItemStructure(
+          this.props.itemId,
+          this.state.itemId,
+          form
+        );
+      else
+        response = await this.props.updateItemSpan(
+          this.props.itemId,
+          this.state.itemId,
+          form
+        );
 
       if (response.status === 200) {
         const newItems = this.props.items.map(item => {
           if (item.id === this.state.itemId) {
-            return response.data
+            return response.data;
           }
-          return item
-        })
+          return item;
+        });
         this.setState({ openItem: false, stateId: "" });
         this.props.changeItems(newItems);
         this.props.enqueueSnackbar("The item was updated successfully!", {
@@ -160,8 +171,8 @@ class Equipment extends React.Component {
     this.props.setLoading(false);
   };
 
-  duplicateItem = async (item) => {
-    const { state_id, item_parent_id } = item
+  duplicateItem = async item => {
+    const { state_id, item_parent_id } = item;
     const form = { state_id, item_parent_id };
     try {
       let response = "";
@@ -223,28 +234,31 @@ class Equipment extends React.Component {
 
   deleteDeficiency = async () => {
     this.props.setLoading(true);
-    
+    this.setState({ openDelete: false });
     try {
       const response = await this.props.deleteDeficiencyItem(
         this.state.itemId,
         this.state.deficiencyId
-        );
-        
-        if (response.status === 204) {
-          const newItems = this.props.items.map(item => {
-            if (item.id === this.state.itemId) {
-              const newDeficiencies = item.deficiencies.filter(({id}) => id !== this.state.deficiencyId)
-              item.deficiencies = newDeficiencies
-            }
-            return item
-          })
-          this.props.changeItems(newItems);
-          const item = this.props.items.find(({id}) => id === this.state.itemId)
-          if (item.deficiencies.length === 0) {
-            this.updateItem(3) // 3 IS ID OF STATE ITEM NOT INSPECTED
+      );
+
+      if (response.status === 204) {
+        const newItems = this.props.items.map(item => {
+          if (item.id === this.state.itemId) {
+            const newDeficiencies = item.deficiencies.filter(
+              ({ id }) => id !== this.state.deficiencyId
+            );
+            item.deficiencies = newDeficiencies;
           }
-          this.setState({ openDelete: false });
-          this.props.enqueueSnackbar("The deficiency was deleted successfully!", {
+          return item;
+        });
+        this.props.changeItems(newItems);
+        const item = this.props.items.find(
+          ({ id }) => id === this.state.itemId
+        );
+        if (item.deficiencies.length === 0) {
+          this.updateItem(3); // 3 IS ID OF STATE ITEM NOT INSPECTED
+        }
+        this.props.enqueueSnackbar("The deficiency was deleted successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
         });
@@ -263,24 +277,24 @@ class Equipment extends React.Component {
   updateDeficiency = async (value, itemId, deficiencyId) => {
     try {
       const response = await this.props.updateDeficiencyItem(
-          itemId,
-          deficiencyId, 
-          {emergency: value}
-        );
+        itemId,
+        deficiencyId,
+        { emergency: value }
+      );
 
       if (response.status === 200) {
         const newItems = this.props.items.map(item => {
           if (item.id === itemId) {
             const newDeficiencies = item.deficiencies.map(deficiency => {
               if (deficiency.id === deficiencyId) {
-                return response.data
+                return response.data;
               }
-              return deficiency
-            })
-            item.deficiencies = newDeficiencies
+              return deficiency;
+            });
+            item.deficiencies = newDeficiencies;
           }
-          return item
-        })
+          return item;
+        });
         this.props.changeItems(newItems);
         this.props.enqueueSnackbar("The deficiency was updated successfully!", {
           variant: "success",
@@ -294,7 +308,7 @@ class Equipment extends React.Component {
     } catch (error) {
       this.props.enqueueSnackbar(error.message, { variant: "error" });
     }
-  }
+  };
 
   render() {
     const {
@@ -304,7 +318,8 @@ class Equipment extends React.Component {
       deficiencies,
       categories,
       items,
-      item_states
+      item_states,
+      typeSet
     } = this.props;
     const {
       openDeficiency,
@@ -368,9 +383,7 @@ class Equipment extends React.Component {
             !loading ? this.setState({ openItem: false }) : null
           }
         >
-          <DialogTitle id="alert-dialog-title">
-            {"UPDATE ITEM"}
-          </DialogTitle>
+          <DialogTitle id="alert-dialog-title">{"UPDATE ITEM"}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               Enter the required information.
@@ -382,7 +395,7 @@ class Equipment extends React.Component {
               value={stateId}
               margin="normal"
               disabled={loading}
-              onChange={(e) => this.setState({stateId: e.target.value})}
+              onChange={e => this.setState({ stateId: e.target.value })}
               required
               fullWidth
             >
@@ -400,7 +413,9 @@ class Equipment extends React.Component {
               variant="outlined"
               className={classes.buttonCancel}
               onClick={() =>
-                !loading ? this.setState({ openItem: false, stateId: "" }) : null
+                !loading
+                  ? this.setState({ openItem: false, stateId: "" })
+                  : null
               }
             >
               Cancel
@@ -483,13 +498,18 @@ class Equipment extends React.Component {
                         required
                         fullWidth
                       >
-                        {deficiencies.filter(({id}) => !deficienciesItem.includes(id)).map(deficiency => {
-                          return (
-                            <MenuItem key={deficiency.id} value={deficiency.id}>
-                              {deficiency.name}
-                            </MenuItem>
-                          );
-                        })}
+                        {deficiencies
+                          .filter(({ id }) => !deficienciesItem.includes(id))
+                          .map(deficiency => {
+                            return (
+                              <MenuItem
+                                key={deficiency.id}
+                                value={deficiency.id}
+                              >
+                                {deficiency.name}
+                              </MenuItem>
+                            );
+                          })}
                       </TextField>
                     </Grid>
                     <Grid>
@@ -533,7 +553,7 @@ class Equipment extends React.Component {
           </DialogContent>
         </Dialog>
         <Grid>
-          <Typography 
+          <Typography
             component="h1"
             variant="h5"
             className={classes.name}
@@ -574,9 +594,7 @@ class Equipment extends React.Component {
                               action={
                                 <div>
                                   <IconButton
-                                    onClick={() =>
-                                      this.duplicateItem(item)
-                                    }
+                                    onClick={() => this.duplicateItem(item)}
                                   >
                                     <FileCopy />
                                   </IconButton>
@@ -584,7 +602,11 @@ class Equipment extends React.Component {
                                     color="primary"
                                     disabled={item.deficiencies.length > 0}
                                     onClick={() =>
-                                      this.setState({openItem: true, itemId: item.id, stateId: item.state_id})
+                                      this.setState({
+                                        openItem: true,
+                                        itemId: item.id,
+                                        stateId: item.state_id
+                                      })
                                     }
                                   >
                                     <Edit />
@@ -604,80 +626,154 @@ class Equipment extends React.Component {
                               }
                               title={
                                 <div className={classes.divHeader}>
-                                  <span>{item.item_parent.name}</span>{" "}
-                                  {item.state.name === "Deficient" ? 
-                                    <span>({item.deficiencies.length})</span> :
+                                  <span
+                                    className={classNames(
+                                      classes.itemName,
+                                      typeSet === "2" && classes.question
+                                    )}
+                                  >
+                                    {item.item_parent.name}
+                                  </span>{" "}
+                                  {item.state.name === "Deficient" ? (
+                                    <span>({item.deficiencies.length})</span>
+                                  ) : (
                                     <div>
-                                      {}
                                       <Button
                                         variant="outlined"
                                         color="primary"
-                                        className={item.state.name === "Not inspected" ? classes.buttonGray : classes.buttonGreen}
+                                        className={
+                                          item.state.name === "Not inspected"
+                                            ? classes.buttonGray
+                                            : classes.buttonGreen
+                                        }
                                       >
                                         {item.state.name}
                                       </Button>
                                     </div>
-                                  }
+                                  )}
                                 </div>
                               }
                             />
                             <CardContent
                               classes={{ root: classes.cardContent }}
                             >
-                              <p>
-                                - Deficiencies:
-                                <IconButton
-                                  className={classes.iconAdd}
-                                  disabled={!["Not inspected", "Deficient"].includes(item.state.name)}
-                                  onClick={() =>
-                                    this.setState({
-                                      itemId: item.id,
-                                      openDeficiency: true,
-                                      deficienciesItem: item.deficiencies.map(({deficiency_id}) => deficiency_id)
-                                    })
-                                  }
-                                >
-                                  <AddCircle />
-                                </IconButton>
-                              </p>
-                              {item.deficiencies.map(deficiency => (
-                                <div className={classes.divDeficiency} key={deficiency.id}>
-                                  <span className={classes.label}>{deficiency.deficiency.name} {deficiency.emergency && <Warning classes={{root: classes.warningIcon}}/>}</span>
-                                  <div>
-                                    <FormControlLabel
-                                      control={
-                                        <Switch
-                                          checked={deficiency.emergency}
-                                          onChange={e => this.updateDeficiency(e.target.checked, item.id, deficiency.id)}
-                                          disabled={loading}
-                                        />
-                                      }
-                                      label="Emergency"
-                                    />
+                              {typeSet === "1" ? (
+                                <div>
+                                  <p>
+                                    - Deficiencies:
                                     <IconButton
-                                      className={classes.iconDelete}
+                                      className={classes.iconAdd}
+                                      disabled={
+                                        ![
+                                          "Not inspected",
+                                          "Deficient"
+                                        ].includes(item.state.name)
+                                      }
                                       onClick={() =>
                                         this.setState({
                                           itemId: item.id,
-                                          deficiencyId: deficiency.id,
-                                          openDelete: true
+                                          openDeficiency: true,
+                                          deficienciesItem: item.deficiencies.map(
+                                            ({ deficiency_id }) => deficiency_id
+                                          )
                                         })
                                       }
                                     >
-                                      <Delete />
+                                      <AddCircle />
                                     </IconButton>
-                                  </div>
+                                  </p>
+                                  {item.deficiencies.map(deficiency => (
+                                    <div
+                                      className={classes.divDeficiency}
+                                      key={deficiency.id}
+                                    >
+                                      <span className={classes.label}>
+                                        {deficiency.deficiency.name}{" "}
+                                        {deficiency.emergency && (
+                                          <Warning
+                                            classes={{
+                                              root: classes.warningIcon
+                                            }}
+                                          />
+                                        )}
+                                      </span>
+                                      <div>
+                                        <FormControlLabel
+                                          control={
+                                            <Switch
+                                              checked={deficiency.emergency}
+                                              onChange={e =>
+                                                this.updateDeficiency(
+                                                  e.target.checked,
+                                                  item.id,
+                                                  deficiency.id
+                                                )
+                                              }
+                                              disabled={loading}
+                                            />
+                                          }
+                                          label="Emergency"
+                                        />
+                                        <IconButton
+                                          className={classes.iconDelete}
+                                          onClick={() =>
+                                            this.setState({
+                                              itemId: item.id,
+                                              deficiencyId: deficiency.id,
+                                              openDelete: true
+                                            })
+                                          }
+                                        >
+                                          <Delete />
+                                        </IconButton>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {item.deficiencies.length === 0 && (
+                                    <p className={classes.empty}>
+                                      WITHOUT DEFICIENCIES
+                                    </p>
+                                  )}
                                 </div>
-                              ))}
-                              {item.deficiencies.length === 0 && (
-                                <p className={classes.empty}>
-                                  WITHOUT DEFICIENCIES
-                                </p>
+                              ) : (
+                                <RadioGroup
+                                  name="type"
+                                  value={item.answer || ""}
+                                  classes={{ root: classes.radioGroup }}
+                                  onChange={e => {
+                                    item.answer = e.target.value;
+                                    this.setState({});
+                                  }}
+                                >
+                                  <FormControlLabel
+                                    value="1"
+                                    control={<Radio color="primary" />}
+                                    label="Yes"
+                                    labelPlacement="end"
+                                    classes={{ root: classes.radio }}
+                                    className={classNames(
+                                      classes.radio,
+                                      item.answer === "1" &&
+                                        classes.radioSelected
+                                    )}
+                                  />
+                                  <FormControlLabel
+                                    value="2"
+                                    control={<Radio color="primary" />}
+                                    label="No"
+                                    labelPlacement="end"
+                                    className={classNames(
+                                      classes.radio,
+                                      item.answer === "2" &&
+                                        classes.radioSelected
+                                    )}
+                                  />
+                                </RadioGroup>
                               )}
                             </CardContent>
-                            <CardActions>
+                            {/* <CardActions>
                               <Button size="small">See photos</Button>
-                            </CardActions>
+                            </CardActions> */}
                           </Card>
                         </Grid>
                       ))}
@@ -734,8 +830,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(Equipment);

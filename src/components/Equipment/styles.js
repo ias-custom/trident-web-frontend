@@ -10,6 +10,7 @@ const styles = theme => ({
     borderColor: '#bdbdbd',
     backgroundColor: '#bdbdbd',
     color: "white",
+    cursor: "auto",
     marginLeft: 5,
     '&:hover, &:focus': {
       borderColor: '#bdbdbd',
@@ -21,6 +22,7 @@ const styles = theme => ({
     borderColor: '#67c23a',
     backgroundColor: '#67c23a',
     color: 'white',
+    cursor: "auto",
     marginLeft: 5,
     '&:hover, &:focus': {
       borderColor: '#67c23a',
@@ -117,7 +119,29 @@ const styles = theme => ({
   },
   divHeader: {
     display: "flex",
-    alignItems: "center" 
+    alignItems: "center",
+    marginRight: 30
+  },
+  itemName: {
+    flex: 1
+  },
+  question: {
+    fontSize: 16,
+    lineHeight: "18px"
+  },
+  radioGroup: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center"
+  },
+  radio: {
+    border: "1px solid #3f51b5",
+    borderRadius: 5,
+    paddingRight: 10,
+    margin: "0 10px",
+  },
+  radioSelected: {
+    backgroundColor: "rgba(63,81,181, 0.08)"
   }
 });
 

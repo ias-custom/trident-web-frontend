@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid } from "@material-ui/core";
+import { Grid, RadioGroup, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Radio, Button } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
@@ -15,6 +15,7 @@ import {
 import styles from "./styles";
 import { getDefaultSet, createSet } from "../../../redux/actions/setsActions";
 import { SetInspections } from "../../../components";
+import classNames from 'classnames';
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -26,17 +27,20 @@ class SetCreate extends React.Component {
   state = {
     openId: "",
     enabledSet: false,
+    showModal: false,
+    type: "1"
   };
 
   componentDidMount = async () => {
     try {
+      this.setState({showModal: true})
       const nameItem = "sets";
       const nameSubItem = "create";
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
-      await this.props.getDefaultSet();
-      this.setState({ enabledSet: true });
+      /* await this.props.getDefaultSet();
+      this.setState({ enabledSet: true }); */
     } catch (error) {}
   };
 
@@ -83,14 +87,75 @@ class SetCreate extends React.Component {
     }
   };
 
+  confirmType = async () => {
+    this.setState({showModal: false})
+    const { type } = this.state;
+    const response = await this.props.getDefaultSet(type);
+    if (response.status === 200) {
+      this.setState({ enabledSet: true });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    }
+  }
+
   render() {
     const { classes, inspections } = this.props;
-    const { enabledSet } = this.state;
-
+    const { enabledSet, type, showModal } = this.state;
+    
     return (
       <Layout title="Create Set">
         {() => (
           <div className={classes.root}>
+            <Dialog
+            open={showModal}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            disableBackdropClick={true}
+            disableEscapeKeyDown={true}
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"What kind of set do you want to create?"}
+            </DialogTitle>
+            <DialogContent>
+              <RadioGroup name="type" value={type} onChange={e => this.setState({type: e.target.value})} classes={{root: classes.radioGroup}}>
+                <FormControlLabel
+                  value="1"
+                  control={<Radio color="primary" />}
+                  label="Constructability"
+                  labelPlacement="end"
+                  classes={{root: classes.radio}}
+                  className={classNames(
+                    classes.radio,
+                    type === "1" && classes.radioSelected,
+                  )}
+                />
+                <FormControlLabel
+                  value="2"
+                  control={<Radio color="primary" />}
+                  label="Construction"
+                  labelPlacement="end"
+                  className={classNames(
+                    classes.radio,
+                    type === "2" && classes.radioSelected,
+                  )}
+                />
+              </RadioGroup>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                variant="outlined"
+                color="primary"
+                className={classes.buttonAccept}
+                disabled={type === ""}
+                onClick={this.confirmType}
+              >
+                Confirm
+              </Button>
+            </DialogActions>
+          </Dialog>
             <SimpleBreadcrumbs
               routes={breadcrumbs}
               classes={{ root: classes.breadcrumbs }}
@@ -105,6 +170,7 @@ class SetCreate extends React.Component {
                     action={(inspections, name) =>
                       this.saveSet(inspections, name)
                     }
+                    type={type}
                   />
                 ) : null}
               </Grid>

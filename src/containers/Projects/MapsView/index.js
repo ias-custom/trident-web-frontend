@@ -23,6 +23,7 @@ class MapsView extends React.Component {
   componentDidMount = async () => {
     try {
       await this.props.fetchProjects()
+      console.log(this.props.id)
       if (this.props.id) {
         this.setState({projectId: this.props.id})
         this.props.getProject(this.props.id)

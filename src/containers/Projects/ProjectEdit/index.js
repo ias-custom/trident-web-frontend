@@ -59,7 +59,7 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { InfoSetView, TextEmpty, DialogDelete, ShowErrors } from "../../../components";
+import { InfoSetView, TextEmpty, DialogDelete, ShowErrors, MapBox } from "../../../components";
 import InputFiles from "react-input-files";
 import ReactLoading from 'react-loading';
 
@@ -94,6 +94,8 @@ class ProjectEdit extends React.Component {
 
   componentDidMount = async () => {
     try {
+      const url = new URL(window.location.href);
+      const fromMap = url.searchParams.get("map");
       this.projectId = this.props.match.params.id;
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
@@ -101,7 +103,8 @@ class ProjectEdit extends React.Component {
           projectName: response.data.name,
           inputProjectName: response.data.name,
           set: response.data.set,
-          setId: response.data.set_id
+          setId: response.data.set_id,
+          value: fromMap === "true" ? 5 : 0
         });
         this.props.fetchSets();
         this.props.getUsers();
@@ -395,7 +398,7 @@ class ProjectEdit extends React.Component {
     });
     return (
       <Layout title="Projects">
-        {() => (
+        {(openDrawer) => (
           <div>
             <DialogDelete
               item={itemName}
@@ -481,7 +484,7 @@ class ProjectEdit extends React.Component {
                 {setSelected && (
                   <InfoSetView
                     inspections={setSelected.inspections}
-                    deficiencies={setSelected.deficiencies}
+                    type={setSelected.type || 2}
                   />
                 )}
               </DialogContent>
@@ -595,16 +598,19 @@ class ProjectEdit extends React.Component {
                   <Tab label="Spans" disabled={loading} />
                   <Tab label="Set" disabled={loading} />
                   <Tab label="Interactions" disabled={loading} />
+                  <Tab label="Map" disabled={loading} />
                 </Tabs>
               </Grid>
               <Panel>
-                <SwipeableViews
+                  <SwipeableViews
                   index={value}
                   onChangeIndex={this.handleChangeIndex}
                   slideStyle={{
                     overflowX: "hidden",
                     overflowY: "hidden",
-                    padding: "0 2px"
+                    padding: "0 2px",
+                    minHeight: "500px",
+                    height: value === 3 ? "auto" : "calc(100vh - 330px)"
                   }}
                 >
                   <Grid>
@@ -627,59 +633,61 @@ class ProjectEdit extends React.Component {
                         }}
                       />
                     </div>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Username</TableCell>
-                          <TableCell>Email</TableCell>
-                          <TableCell colSpan={1}>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      {!loading &&
-                        <TableBody>
-                          {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
-                            <TableRow key={user.id}>
-                              <TableCell component="td">
-                                {user.first_name} {user.last_name}
-                              </TableCell>
-                              <TableCell component="td">
-                                {user.username}
-                              </TableCell>
-                              <TableCell component="td">{user.email}</TableCell>
-                              <TableCell>
-                                <div style={{ display: "flex" }}>
-                                  {/* <Link
-                                    component={RouterLink}
-                                    to={`/users/${user.id}`}
-                                  >
-                                    <IconButton
-                                      aria-label="Edit"
-                                      color="primary"
-                                      disabled={loading}
+                    <div className={classes.divTable}>
+                      <Table className={classes.table}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Username</TableCell>
+                            <TableCell>Email</TableCell>
+                            <TableCell colSpan={1}>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        {!loading &&
+                          <TableBody>
+                            {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
+                              <TableRow key={user.id}>
+                                <TableCell component="td">
+                                  {user.first_name} {user.last_name}
+                                </TableCell>
+                                <TableCell component="td">
+                                  {user.username}
+                                </TableCell>
+                                <TableCell component="td">{user.email}</TableCell>
+                                <TableCell>
+                                  <div style={{ display: "flex" }}>
+                                    {/* <Link
+                                      component={RouterLink}
+                                      to={`/users/${user.id}`}
                                     >
-                                      <Edit />
-                                    </IconButton>
-                                  </Link> */}
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        disabled={loading}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Link> */}
 
-                                  <IconButton
-                                    aria-label="Delete"
-                                    className={classes.iconDelete}
-                                    disabled={loading}
-                                    onClick={() =>
-                                      this.showModal(user.id, "open", "user")
-                                    }
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      }
-                    </Table>
-                    <TextEmpty itemName="USERS" empty={users.length === 0}/>
+                                    <IconButton
+                                      aria-label="Delete"
+                                      className={classes.iconDelete}
+                                      disabled={loading}
+                                      onClick={() =>
+                                        this.showModal(user.id, "open", "user")
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        }
+                      </Table>
+                      <TextEmpty itemName="USERS" empty={users.length === 0}/>
+                    </div>
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
@@ -726,67 +734,69 @@ class ProjectEdit extends React.Component {
                       />
                     </div>
                     <Grid>{this.dataPorcentage(structures)}</Grid>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell style={{ width: "50%" }}>Name</TableCell>
-                          <TableCell style={{ width: "30%" }}>State</TableCell>
-                          <TableCell colSpan={1}>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      {!loading &&
-                        <TableBody>
-                          {this.filter(structures, search, "structures").map(
-                            structure => (
-                              <TableRow key={structure.id}>
-                                <TableCell component="td">
-                                  {structure.name}
-                                </TableCell>
-                                <TableCell component="td">
-                                  {structure.state.name === "Collected" ? (
-                                    <Typography color="primary">
-                                      {structure.state.name}
-                                    </Typography>
-                                  ) : (
-                                    <Typography style={{ color: "#e44f4f" }}>
-                                      {structure.state.name}
-                                    </Typography>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  <div style={{ display: "flex" }}>
-                                    <Link
-                                      component={RouterLink}
-                                      to={`/projects/${this.projectId}/structures/${structure.id}`}
-                                    >
-                                      <IconButton
-                                        aria-label="Edit"
-                                        color="primary"
-                                        disabled={loading}
+                    <div className={classes.divTable}>
+                      <Table className={classes.table}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell style={{ width: "50%" }}>Name</TableCell>
+                            <TableCell style={{ width: "30%" }}>State</TableCell>
+                            <TableCell colSpan={1}>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        {!loading &&
+                          <TableBody>
+                            {this.filter(structures, search, "structures").map(
+                              structure => (
+                                <TableRow key={structure.id}>
+                                  <TableCell component="td">
+                                    {structure.name}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {structure.state.name === "Collected" ? (
+                                      <Typography color="primary">
+                                        {structure.state.name}
+                                      </Typography>
+                                    ) : (
+                                      <Typography style={{ color: "#e44f4f" }}>
+                                        {structure.state.name}
+                                      </Typography>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div style={{ display: "flex" }}>
+                                      <Link
+                                        component={RouterLink}
+                                        to={`/projects/${this.projectId}/structures/${structure.id}`}
                                       >
-                                        <Edit />
-                                      </IconButton>
-                                    </Link>
+                                        <IconButton
+                                          aria-label="Edit"
+                                          color="primary"
+                                          disabled={loading}
+                                        >
+                                          <Edit />
+                                        </IconButton>
+                                      </Link>
 
-                                    <IconButton
-                                      aria-label="Delete"
-                                      className={classes.iconDelete}
-                                      disabled={loading}
-                                      onClick={() =>
-                                        this.showModal(structure.id, "open", "structure")
-                                      }
-                                    >
-                                      <Delete />
-                                    </IconButton>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            )
-                          )}
-                        </TableBody>
-                      }
-                    </Table>
-                    <TextEmpty itemName="STRUCTURES" empty={structures.length === 0}/>
+                                      <IconButton
+                                        aria-label="Delete"
+                                        className={classes.iconDelete}
+                                        disabled={loading}
+                                        onClick={() =>
+                                          this.showModal(structure.id, "open", "structure")
+                                        }
+                                      >
+                                        <Delete />
+                                      </IconButton>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        }
+                      </Table>
+                      <TextEmpty itemName="STRUCTURES" empty={structures.length === 0}/>
+                    </div>
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
@@ -881,7 +891,7 @@ class ProjectEdit extends React.Component {
                     </Table>
                     <TextEmpty itemName="SPANS" empty={spans.length === 0}/>
                   </Grid>
-                  <Grid container>
+                  <Grid style={{height: "100%"}}>
                     <Grid item className={classes.divSelectSet} xs>
                       <Typography
                         variant="subtitle1"
@@ -915,7 +925,7 @@ class ProjectEdit extends React.Component {
                     {set && (
                       <InfoSetView
                         inspections={set.inspections}
-                        deficiencies={set.deficiencies}
+                        type={set.type || 1}
                       />
                     )} 
                   </Grid>
@@ -1000,8 +1010,11 @@ class ProjectEdit extends React.Component {
                           ))}
                         </TableBody>
                       </Table>
+                      <TextEmpty itemName="INTERACTIONS" empty={interactions.length === 0}/>
                     </div>
-                    <TextEmpty itemName="INTERACTIONS" empty={interactions.length === 0}/>
+                  </Grid>
+                  <Grid style={{height: "100%"}}>
+                    <MapBox projectId={this.projectId} open={openDrawer} tab={value}/>
                   </Grid>
                 </SwipeableViews>
               </Panel>

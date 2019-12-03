@@ -5,37 +5,20 @@ import {
 
 const initialState = {
   itemsMenu: {
-      users: {
-        open: false,
-        list: false,
-        create: false 
-      },
-      roles: {
-        open: false,
-        list: false,
-        create: false 
-      },
-      customers: {
-        open: false,
-        list: false,
-        create: false 
-      },
-      projects: {
-        open: false,
-        list: false,
-        create: false,
-        maps: false
-      },
-      substations: {
-        open: false,
-        list: false,
-        create: false 
-      },
-      sets: {
-        open: false,
-        list: false,
-        create: false
-      }
+    admin: {
+      open: false,
+      users: false,
+      roles: false,
+      customers: false
+    },
+    projects: {
+      list: false
+    },
+    setup: {
+      open: false,
+      substations: false,
+      sets: false
+    }
   }
 };
 

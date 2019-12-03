@@ -99,7 +99,7 @@ class AccessCreate extends React.Component {
                   className={classes.buttonBack}
                   onClick={() => {
                     this.props.setProjectForMap(this.projectId)
-                    this.props.history.push(`/projects/maps-view`)
+                    this.props.history.push(`/projects/${this.projectId}?map=true`)
                   }}
                 >
                   <ArrowBack />

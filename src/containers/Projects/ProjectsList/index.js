@@ -185,7 +185,7 @@ class ProjectsList extends React.Component {
                                   <IconButton
                                     aria-label="Edit"
                                     color="primary"
-                                    disabled={loading}
+                                    disabled={is_superuser ? false : (loading || !project.assigned)}
                                   >
                                     <Edit />
                                   </IconButton>
@@ -197,7 +197,7 @@ class ProjectsList extends React.Component {
                                   disabled={
                                     loading ||
                                     !canChangeProject ||
-                                    !is_superuser
+                                    !project.assigned
                                   }
                                 >
                                   <Edit />
@@ -207,8 +207,10 @@ class ProjectsList extends React.Component {
                                 aria-label="Delete"
                                 className={classes.iconDelete}
                                 disabled={
+                                  is_superuser ? false : 
                                   loading ||
-                                  (!canDeleteProject && !is_superuser)
+                                  (!canDeleteProject && !is_superuser) ||
+                                  !project.assigned
                                 }
                                 onClick={() => this.showModal(project.id)}
                               >

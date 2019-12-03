@@ -48,8 +48,8 @@ class RolesList extends React.Component {
 
   componentDidMount() {
     this.props.fetchRoles();
-    const nameItem = "roles";
-    const nameSubItem = "list";
+    const nameItem = "admin";
+    const nameSubItem = "roles";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });

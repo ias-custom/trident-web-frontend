@@ -26,11 +26,6 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import { withSnackbar } from "notistack";
 import {
   CAN_ADD_USER,
@@ -52,8 +47,8 @@ class UserList extends React.Component {
   };
 
   componentDidMount() {
-    const nameItem = "users";
-    const nameSubItem = "list";
+    const nameItem = "admin";
+    const nameSubItem = "users";
     const open = true;
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });

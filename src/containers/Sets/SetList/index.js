@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { compose } from "recompose";
-import { fetchRoles } from "../../../redux/actions/roleActions";
 import { Link as RouterLink, withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
 import {
@@ -55,8 +54,8 @@ class SetList extends React.Component {
   componentDidMount() {
     try {
       this.props.fetchSets();
-      const nameItem = "sets";
-      const nameSubItem = "list";
+      const nameItem = "setup";
+      const nameSubItem = "sets";
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });

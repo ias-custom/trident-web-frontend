@@ -1,44 +1,59 @@
 const styles = theme => {
-    return ({
+  return {
+    divMain: {
+      marginTop: 20
+    },
     paper: {
       padding: "2px 15px",
-      marginBottom: 10
+      marginBottom: 10,
+      overflowY: "auto"
     },
     divCategory: {
-      display: "flex", 
+      display: "flex",
       justifyContent: "space-between",
       alignItems: "center"
     },
     divItem: {
-      marginBottom: 10,
+      justifyContent: "flex-start"
+    },
+    divItemMargin: {
+      marginBottom: 15,
       justifyContent: "flex-start"
     },
     collapseDetails: {
       display: "block",
-      justifyContent: "space-between",
+      justifyContent: "space-between"
     },
-    categoryName: {
-      marginBottom: 20,
+    itemName: {
+      lineHeight: "16px",
+      textAlign: "left",
+      flex: 1
+    },
+    question: {
+      fontSize: 15,
+      lineHeight: "16px",
+      textAlign: "left",
+      flex: 1
     },
     collapse: {
       background: "transparent",
       marginBottom: "15px !important"
     },
     inspections: {
-      marginTop: 20,
+      marginTop: 20
     },
     iconDelete: {
-      '& svg': {
-        color: "#f50057"      
+      "& svg": {
+        color: "#f50057"
       },
-      '&:hover': {
+      "&:hover": {
         backgroundColor: "rgba(237,83,85, 0.08)"
       },
-      '&:disabled': {
-        '& svg': {
-          color: "gray"      
-        },
-      },
+      "&:disabled": {
+        "& svg": {
+          color: "gray"
+        }
+      }
     },
     iconItem: {
       marginLeft: 15
@@ -54,7 +69,7 @@ const styles = theme => {
       marginBottom: 30,
       marginTop: 11
     }
-  });
-  }
-  
-  export default styles;
+  };
+};
+
+export default styles;

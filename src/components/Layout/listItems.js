@@ -8,12 +8,12 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import RolesIcon from '@material-ui/icons/AssignmentInd';
-import CustomersIcon from '@material-ui/icons/HowToReg';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ReportingIcon from '@material-ui/icons/Assessment';
 import ProjectIcon from '@material-ui/icons/Work';
-import BusinessIcon from '@material-ui/icons/Business';
+import BusinessIcon from '@material-ui/icons/Business'
+import RolesIcon from '@material-ui/icons/AssignmentInd'
+import CustomersIcon from '@material-ui/icons/HowToReg'
 
 import UserIcon from '@material-ui/icons/GroupOutlined';
 import { Link as RouterLink } from 'react-router-dom';
@@ -22,18 +22,13 @@ import styles from './styles';
 import { withStyles, Divider } from '@material-ui/core';
 import {  toggleItemMenu, setProjectForMap } from '../../redux/actions/layoutActions';
 import {
-  CAN_ADD_USER,
   CAN_VIEW_USER,
-  CAN_ADD_ROLE,
   CAN_VIEW_ROLE,
-  CAN_ADD_PROJECT,
   CAN_VIEW_PROJECT,
-  CAN_ADD_SUBSTATION,
   CAN_VIEW_SUBSTATION,
-  CAN_ADD_SET,
   CAN_VIEW_SET,
 } from '../../redux/permissions'
-import { FolderOpen } from '@material-ui/icons';
+import { FolderOpen, SettingsApplications } from '@material-ui/icons';
 /*
 import Collapse from "@material-ui/core/Collapse/Collapse";
 import ExpandLess from '@material-ui/icons/ExpandLess';
@@ -43,20 +38,13 @@ import StarBorder from '@material-ui/icons/StarBorder';
 
 
 const UsersLink = props => <RouterLink to="/users" {...props} />;
-const UsersCreateLink = props => <RouterLink to="/users/create" {...props} />;
 const RolesLink = props => <RouterLink to="/roles" {...props} />;
-const RolesCreateLink = props => <RouterLink to="/roles/create" {...props} />;
 const CustomersLink = props => <RouterLink to="/customers" {...props} />;
-const CustomersCreateLink = props => <RouterLink to="/customers/create" {...props} />;
 const ProjectsLink = props => <RouterLink to="/projects" {...props} />;
-const ProjectCreateLink = props => <RouterLink to="/projects/create" {...props} />;
 const DashboardLink = props => <RouterLink to="/home" {...props} />;
 const ReportingLink = props => <RouterLink to="/reports" {...props} />;
 const SubstationsLink = props => <RouterLink to="/substations" {...props} />;
-const SubstationCreateLink = props => <RouterLink to="/substations/create" {...props} />;
-const MapLink = props => <RouterLink to="/projects/maps-view" {...props} />;
 const SetsLink = props => <RouterLink to="/sets" {...props} />;
-const SetCreateLink = props => <RouterLink to="/sets/create" {...props} />;
 
 class MainListItems extends React.Component {
   
@@ -71,91 +59,53 @@ class MainListItems extends React.Component {
     const { classes, itemsMenu, permissions, is_superuser } = this.props
     return (
       <div>
-        {permissions.includes(CAN_ADD_USER) || permissions.includes(CAN_VIEW_USER) || is_superuser ? (
-          <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('users', !itemsMenu.users.open)}} className={classes.listItem}>
-              <ListItemIcon>
-                <UserIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Users System Admin" />
-              {itemsMenu.users.open ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-            <Collapse in={itemsMenu.users.open}>
-              <List component="div">
-                { permissions.includes(CAN_VIEW_USER) || is_superuser ? (
-                  <Link component={UsersLink} underline="none">
-                    <ListItem button className={classes.subMenu} selected={itemsMenu.users.list}>
-                      <ListItemText primary="Users List" />
-                    </ListItem>
-                  </Link>
-                ): null }
-                { permissions.includes(CAN_ADD_USER) || is_superuser ? (
-                  <Link component={UsersCreateLink} underline="none">
-                    <ListItem button className={classes.subMenu} selected={itemsMenu.users.create}>
-                      <ListItemText primary="User Create" />
-                    </ListItem>
-                  </Link>
-                ): null }
-              </List>
-            </Collapse>
-          </div>
-          
-        ): null}
-        { permissions.includes(CAN_ADD_ROLE) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ? (
-          <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('roles', !itemsMenu.roles.open)}} className={classes.listItem}>
-              <ListItemIcon>
-                <RolesIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Roles Admin" />
-              {itemsMenu.roles.open ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-            <Collapse in={itemsMenu.roles.open}>
-              <List component="div">
+        <div>
+          <ListItem button onClick={()=>{this.changeStateOpen('admin', !itemsMenu.admin.open)}} className={classes.listItem}>
+            <ListItemIcon>
+              <SettingsApplications/>
+            </ListItemIcon>
+            <ListItemText primary="System Admin" />
+            {itemsMenu.admin.open ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={itemsMenu.admin.open}>
+            <List component="div">
+              { permissions.includes(CAN_VIEW_USER) || is_superuser ? (
+                <Link component={UsersLink} underline="none">
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.admin.users}>
+                    <ListItemIcon>
+                      <UserIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Users" />
+                  </ListItem>
+                </Link>
+              ): null }
               { permissions.includes(CAN_VIEW_ROLE) || is_superuser ? (
                 <Link component={RolesLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.roles.list}>
-                    <ListItemText primary="Roles List" />
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.admin.roles}>
+                    <ListItemIcon>
+                      <RolesIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Roles" />
                   </ListItem>
                 </Link>
-              ):null }
-              { permissions.includes(CAN_ADD_ROLE) || is_superuser ? (
-                <Link component={RolesCreateLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.roles.create}>
-                    <ListItemText primary="Role Create" />
-                  </ListItem>
-                </Link>
-              ):null}
-              </List>
-            </Collapse>
-          </div>
-        ): null}
-        { is_superuser ? (
-          <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('customers',!itemsMenu.customers.open)}} className={classes.listItem}>
-              <ListItemIcon>
-                <CustomersIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Customers Admin" />
-              {itemsMenu.customers.open ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-            <Collapse in={itemsMenu.customers.open}>
-              <List component="div">
+              ): null }
+              { is_superuser ? (
                 <Link component={CustomersLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.customers.list}>
-                    <ListItemText primary="Customers List" />
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.admin.customers}>
+                    <ListItemIcon>
+                      <CustomersIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Customers" />
                   </ListItem>
                 </Link>
-                <Link component={CustomersCreateLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.customers.create}>
-                    <ListItemText primary="Customer Create" />
-                  </ListItem>
-                </Link>
-              </List>
-            </Collapse>
-          </div>
-        ):null}
-        {permissions.includes(CAN_ADD_USER) || permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_ADD_ROLE) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ? <Divider /> : null}
+              ) : null}
+            </List>
+          </Collapse>
+        </div>
+        {/* permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || permissions.includes(CAN_VIEW_) || is_superuser ? (
+          
+        ): null */}
+        {permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ? <Divider /> : null}
         <Link component={DashboardLink}>
           <ListItem button>
             <ListItemIcon>
@@ -172,91 +122,44 @@ class MainListItems extends React.Component {
             <ListItemText primary={`${customerName} Reports`} className={classes.textEllipsis}/>
           </ListItem>
         </Link>
-        { permissions.includes(CAN_ADD_PROJECT) || permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? (
-          <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('projects', !itemsMenu.projects.open)}} className={classes.listItem}>
+        {permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? (
+          <Link component={ProjectsLink} underline="none">
+            <ListItem button selected={itemsMenu.projects.list}>
               <ListItemIcon>
                 <ProjectIcon/>
               </ListItemIcon>
-              <ListItemText primary={`${customerName} Projects`} className={classes.textEllipsis} />
-              {itemsMenu.projects.open ? <ExpandLess /> : <ExpandMore />}
+              <ListItemText primary="Projects" />
             </ListItem>
-            <Collapse in={itemsMenu.projects.open}>
-              <List component="div">
-              { permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? (
-                <Link component={ProjectsLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.projects.list}>
-                    <ListItemText primary="Projects List" />
-                  </ListItem>
-                </Link>
-              ):null }
-              { permissions.includes(CAN_ADD_PROJECT) || is_superuser ? (
-                <Link component={ProjectCreateLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.projects.create}>
-                    <ListItemText primary="Project Create" />
-                  </ListItem>
-                </Link>
-              ):null}
-              <Link component={MapLink} underline="none" onClick={() => this.props.setProjectForMap("")}>
-                <ListItem button className={classes.subMenu} selected={itemsMenu.projects.maps}>
-                  <ListItemText primary="Map View" />
-                </ListItem>
-              </Link>
-              </List>
-            </Collapse>
-          </div>
-        ): null}
-        { permissions.includes(CAN_ADD_SUBSTATION) || permissions.includes(CAN_VIEW_SUBSTATION) || is_superuser ? (
+          </Link>
+        ) : null}
+        { permissions.includes(CAN_VIEW_SUBSTATION) || permissions.includes(CAN_VIEW_SET) || is_superuser ? (
           <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('substations', !itemsMenu.substations.open)}} className={classes.listItem}>
+            <ListItem button onClick={()=>{this.changeStateOpen('setup', !itemsMenu.setup.open)}} className={classes.listItem}>
               <ListItemIcon>
-                <BusinessIcon/>
+                <SettingsApplications/>
               </ListItemIcon>
-              <ListItemText primary={`Substations Admin`} className={classes.textEllipsis} />
-              {itemsMenu.substations.open ? <ExpandLess /> : <ExpandMore />}
+              <ListItemText primary={"Customer Setup - Admin"} className={classes.textEllipsis} />
+              {itemsMenu.setup.open ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
-            <Collapse in={itemsMenu.substations.open}>
+            <Collapse in={itemsMenu.setup.open}>
               <List component="div">
               { permissions.includes(CAN_VIEW_SUBSTATION) || is_superuser ? (
                 <Link component={SubstationsLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.substations.list}>
-                    <ListItemText primary="Substation List" />
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.setup.substations}>
+                    <ListItemIcon>
+                      <BusinessIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Substations" />
                   </ListItem>
                 </Link>
               ):null }
-              { permissions.includes(CAN_ADD_SUBSTATION) || is_superuser ? (
-                <Link component={SubstationCreateLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.substations.create}>
-                    <ListItemText primary="Substation Create" />
-                  </ListItem>
-                </Link>
-              ):null}
-              </List>
-            </Collapse>
-          </div>
-        ): null}
-        { permissions.includes(CAN_ADD_SET) || permissions.includes(CAN_VIEW_SET) || is_superuser ? (
-          <div>
-            <ListItem button onClick={()=>{this.changeStateOpen('sets', !itemsMenu.sets.open)}} className={classes.listItem}>
-              <ListItemIcon>
-                <FolderOpen/>
-              </ListItemIcon>
-              <ListItemText primary={`Sets Admin`} className={classes.textEllipsis} />
-              {itemsMenu.sets.open ? <ExpandLess /> : <ExpandMore />}
-            </ListItem>
-            <Collapse in={itemsMenu.sets.open}>
-              <List component="div">
               { permissions.includes(CAN_VIEW_SET) || is_superuser ? (
                 <Link component={SetsLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.sets.list}>
-                    <ListItemText primary="Set List" />
-                  </ListItem>
-                </Link>
-              ):null }
-              { permissions.includes(CAN_ADD_SET) || is_superuser ? (
-                <Link component={SetCreateLink} underline="none">
-                  <ListItem button className={classes.subMenu} selected={itemsMenu.sets.create}>
-                    <ListItemText primary="Set Create" />
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.setup.sets}>
+                    <ListItemIcon>
+                      <FolderOpen/>
+                    </ListItemIcon>
+                    <ListItemText primary="Sets" />
                   </ListItem>
                 </Link>
               ):null}

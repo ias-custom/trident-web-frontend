@@ -217,6 +217,7 @@ class SetInspections extends React.Component {
 
   validateSet () {
     const { inspections, name } = this.state;
+    const { type } = this.props;
     let error = false
     inspections.forEach(({categories}) => {
       var empty = categories.find(({items}) => items.length === 0)
@@ -227,22 +228,24 @@ class SetInspections extends React.Component {
         });
         return 
       }
-      categories.forEach(({items}) => {
-        var empty = items.find(({deficiencies}) => deficiencies.length === 0)
-        if (empty) {
-          error = true
-          this.props.enqueueSnackbar(`Opps! The item "${empty.name}" has no deficiencies.`, {
-            variant: "error"
-          });
-          return 
-        }
-      })
+      if (type === "1") {
+        categories.forEach(({items}) => {
+          var empty = items.find(({deficiencies}) => deficiencies.length === 0)
+          if (empty) {
+            error = true
+            this.props.enqueueSnackbar(`Opps! The item "${empty.name}" has no deficiencies.`, {
+              variant: "error"
+            });
+            return 
+          }
+        })
+      }
     })
     if (!error) this.props.action(inspections, name)
   }
 
   render() {
-    let { classes, isCreate } = this.props;
+    let { classes, isCreate, type } = this.props;
     const {
       loading,
       openId,
@@ -273,6 +276,9 @@ class SetInspections extends React.Component {
             <TextField
               name="name"
               value={newName}
+              multiline={type === "2" && action === "item"}
+              rowsMax={8}
+              rows={4}
               onChange={e => this.setState({ newName: e.target.value })}
               label="Name"
               fullWidth
@@ -352,6 +358,7 @@ class SetInspections extends React.Component {
                       <div className={classes.divCategory}>
                         <TextField
                           name="name"
+                          className={classes.category}
                           value={category.name}
                           label=""
                           required
@@ -426,8 +433,12 @@ class SetInspections extends React.Component {
                                   value={item.name}
                                   label=""
                                   required
+                                  className={classes.item}
                                   disabled={loading}
                                   autoFocus={item.edit}
+                                  multiline={type === "2"}
+                                  rowsMax={8}
+                                  rows={4}
                                   inputProps={{
                                     className: classes.inputCategory
                                   }}
@@ -458,22 +469,24 @@ class SetInspections extends React.Component {
                                 >
                                   <Cancel />
                                 </IconButton>
-                                {itemId === item.id ? (
-                                  <IconButton
-                                    className={classes.buttonCollapse}
-                                    onClick={() => this.setState({ itemId: 0 })}
-                                  >
-                                    <ExpandLess />
-                                  </IconButton>
-                                ) : (
-                                  <IconButton
-                                    className={classes.buttonCollapse}
-                                    onClick={() =>
-                                      this.setState({ itemId: item.id })
-                                    }
-                                  >
-                                    <ExpandMore />
-                                  </IconButton>
+                                {type === "1" && (
+                                  itemId === item.id ? (
+                                    <IconButton
+                                      className={classes.buttonCollapse}
+                                      onClick={() => this.setState({ itemId: 0 })}
+                                    >
+                                      <ExpandLess />
+                                    </IconButton>
+                                  ) : (
+                                    <IconButton
+                                      className={classes.buttonCollapse}
+                                      onClick={() =>
+                                        this.setState({ itemId: item.id })
+                                      }
+                                    >
+                                      <ExpandMore />
+                                    </IconButton>
+                                  )
                                 )}
                               </div>
                               {itemId === item.id && (

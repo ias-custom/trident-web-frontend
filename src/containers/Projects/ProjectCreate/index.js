@@ -3,6 +3,7 @@ import {
   Grid,
   TextField,
   Button,
+  MenuItem,
 } from "@material-ui/core";
 import { compose } from "recompose";
 import { withRouter, Prompt } from "react-router-dom";
@@ -33,8 +34,7 @@ class ProjectCreate extends React.Component {
 
   form = {
     name: "",
-    area: "",
-    tagsId: []
+    type: ""
   };
 
   componentDidMount() {
@@ -49,18 +49,17 @@ class ProjectCreate extends React.Component {
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
-    const { name } = values;
-    const form = { name };
+    const form = { ...values };
 
     try {
       const response = await this.props.createProject(form);
 
       if (response.status === 201) {
         resetForm();
-        this.props.history.push("/projects");
         this.props.enqueueSnackbar("The role has been created!", {
           variant: "success"
         });
+        this.props.history.push("/projects");
       } else {
         this.props.enqueueSnackbar("The request could not be processed!", {
           variant: "error"
@@ -100,7 +99,8 @@ class ProjectCreate extends React.Component {
                 ...this.form
               }}
               validationSchema={Yup.object().shape({
-                name: Yup.string().required("Name is required")
+                name: Yup.string().required("Name is required"),
+                type: Yup.mixed().required("Type is required")
               })}
               enableReinitialize
             >
@@ -127,7 +127,7 @@ class ProjectCreate extends React.Component {
                       <Grid item sm={12} md={12}>
                         <Panel>
                           <Grid container spacing={16}>
-                            <Grid item xs>
+                            <Grid item xs={6}>
                               <TextField
                                 name="name"
                                 value={values.name}
@@ -143,17 +143,30 @@ class ProjectCreate extends React.Component {
                                 required
                               />
                             </Grid>
-                            {/* <Grid item xs>
+                            <Grid item xs={6}>
                               <TextField
-                                name="area"
-                                value={values.area}
+                                name="type"
+                                select
+                                value={values.type}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                label="Area"
+                                error={!!touched.type && !!errors.type}
+                                helperText={
+                                  !!touched.type && !!errors.type && errors.type
+                                }
+                                label="Type"
                                 fullWidth
                                 margin="normal"
-                              />
-                            </Grid> */}
+                                required
+                              >
+                                <MenuItem key={1} value={1}>
+                                  Constructability
+                                </MenuItem>
+                                <MenuItem key={2} value={2}>
+                                  Construction
+                                </MenuItem>
+                              </TextField>
+                            </Grid>
                           </Grid>
   
                           {/* <Grid container spacing={16}>
