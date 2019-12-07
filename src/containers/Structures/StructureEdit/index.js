@@ -81,12 +81,12 @@ class StructureEdit extends React.Component {
 
   componentDidMount = async () => {
     try {
+      this.props.getPhotos(this.structureId);
       const response = await this.props.getStructure(
         this.projectId,
         this.structureId
       );
       if (response.status === 200) {
-        this.props.getPhotos(this.structureId);
         const {
           state_id,
           type_structure_id,
@@ -98,7 +98,6 @@ class StructureEdit extends React.Component {
           inspection,
           number,
           items,
-          deficiencies
         } = response.data;
         this.setState({
           formGeneral: {
@@ -115,7 +114,6 @@ class StructureEdit extends React.Component {
           inspection_name: inspection_id ? inspection.name : "",
           items: items,
           categories: inspection_id ? inspection.categories : [],
-          deficiencies,
           typeSet: inspection_id ? inspection.type || "1" : "",
           enabledEquipment: true
         });
@@ -277,6 +275,31 @@ class StructureEdit extends React.Component {
     setSubmitting(false);
     this.props.setLoading(false);
   };
+  changeState = async (stateId) => {
+    const form = {
+      stateId
+    }
+    try {
+      const response = await this.props.updateStructure(
+        this.projectId,
+        this.structureId,
+        form
+      );
+
+      if (response.status === 200) {
+        this.setState(prevState => {
+          return {
+            formGeneral: {
+              ...prevState.formGeneral,
+              stateId
+            }
+          }
+        });
+      } 
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   render() {
     const { classes, loading, photos } = this.props;
@@ -289,7 +312,6 @@ class StructureEdit extends React.Component {
       inspection_name,
       enabledEquipment,
       categories,
-      deficiencies,
       items,
       typeSet
     } = this.state;
@@ -466,7 +488,6 @@ class StructureEdit extends React.Component {
                       <Equipment
                         categories={categories}
                         items={items}
-                        deficiencies={deficiencies}
                         projectId={this.projectId}
                         itemId={parseInt(this.structureId)}
                         inspectionName={inspection_name}
@@ -475,6 +496,8 @@ class StructureEdit extends React.Component {
                         changeItems={newItems =>
                           this.setState({ items: newItems })
                         }
+                        state={formGeneral.stateId}
+                        changeItem={(stateId) => this.changeState(stateId)}
                       />
                     )}
                   </Grid>

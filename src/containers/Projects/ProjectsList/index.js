@@ -178,18 +178,27 @@ class ProjectsList extends React.Component {
                           <TableCell>
                             <div style={{ display: "flex" }}>
                               {canChangeProject || is_superuser ? (
-                                <Link
-                                  component={RouterLink}
-                                  to={`/projects/${project.id}`}
-                                >
-                                  <IconButton
-                                    aria-label="Edit"
-                                    color="primary"
-                                    disabled={is_superuser ? false : (loading || !project.assigned)}
+                                is_superuser || project.assigned ? (
+                                  <Link
+                                    component={RouterLink}
+                                    to={`/projects/${project.id}`}
                                   >
-                                    <Edit />
-                                  </IconButton>
-                                </Link>
+                                    <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Link>
+                                ) : (
+                                  <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      disabled
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                )
                               ) : (
                                 <IconButton
                                   aria-label="Edit"

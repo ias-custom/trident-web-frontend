@@ -67,20 +67,14 @@ class SubstationsList extends React.Component {
   closeModal = () => {
     this.setState({ open: false });
   };
-  filter = (users, keyword) => {
-    if (keyword === "") return users;
-
-    const fields = ["first_name", "last_name", "email", "username"];
-    const regex = new RegExp(keyword, "i");
-
-    return users.filter(user => {
-      const obj = { ...user };
-
-      return (
-        fields.filter(field => {
-          return typeof obj[field] === "string" && obj[field].match(regex);
-        }).length > 0
-      );
+  filter = (substations, keyword) => {
+    if (keyword === "") return substations;
+    return substations.filter(station => {
+      return station.name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+             station.customer.name.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+             station.number.toLowerCase().indexOf(keyword.toLowerCase()) !== -1 ||
+             station.latitude.indexOf(keyword.toLowerCase()) !== -1 ||
+             station.longitude.indexOf(keyword.toLowerCase()) !== -1
     });
   };
 

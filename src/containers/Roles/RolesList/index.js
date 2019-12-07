@@ -106,7 +106,8 @@ class RolesList extends React.Component {
     const canChangeRole = permissions.includes(CAN_CHANGE_ROLE);
     const canDeleteRole = permissions.includes(CAN_DELETE_ROLE);
     const { search, open } = this.state;
-
+    console.log(canChangeRole)
+    console.log(loading || !canChangeRole || !is_superuser)
     return (
       <Layout title="Roles">
         {() => (

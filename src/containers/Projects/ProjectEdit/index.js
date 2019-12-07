@@ -23,7 +23,7 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Card,
+  Card
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -46,10 +46,7 @@ import {
   deleteStructure,
   uploadStructures
 } from "../../../redux/actions/structureActions";
-import {
-  deleteSpan,
-  setStructures
-} from "../../../redux/actions/spanActions";
+import { deleteSpan, setStructures } from "../../../redux/actions/spanActions";
 import { deleteInteraction } from "../../../redux/actions/interactionActions";
 import { getUsers } from "../../../redux/actions/userActions";
 import { setLoading } from "../../../redux/actions/globalActions";
@@ -59,9 +56,24 @@ import SimpleBreadcrumbs from "../../../components/SimpleBreadcrumbs";
 import Panel from "../../../components/Panel";
 import styles from "./styles";
 import SwipeableViews from "react-swipeable-views";
-import { InfoSetView, TextEmpty, DialogDelete, ShowErrors, MapBox } from "../../../components";
+import {
+  InfoSetView,
+  TextEmpty,
+  DialogDelete,
+  ShowErrors,
+  MapBox
+} from "../../../components";
 import InputFiles from "react-input-files";
-import ReactLoading from 'react-loading';
+import ReactLoading from "react-loading";
+import {
+  CAN_CHANGE_PROJECT,
+  CAN_ADD_STRUCTURE,
+  CAN_ADD_SPAM,
+  CAN_CHANGE_STRUCTURE,
+  CAN_DELETE_STRUCTURE,
+  CAN_CHANGE_SPAM,
+  CAN_DELETE_SPAM
+} from "../../../redux/permissions";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -201,7 +213,7 @@ class ProjectEdit extends React.Component {
     }
   };
 
-  showModal = async (itemId, item, itemName="") => {
+  showModal = async (itemId, item, itemName = "") => {
     let form = { [item]: true, itemId, itemName };
     if (item === "openSpan") {
       if (this.props.structures.length < 2) {
@@ -342,29 +354,30 @@ class ProjectEdit extends React.Component {
     this.setState({ setSelected: response.data, openSet: true });
   };
 
-  uploadFile = async (file) => {
-    this.setState({fileName: file.name, openFile: true})
+  uploadFile = async file => {
+    this.setState({ fileName: file.name, openFile: true });
     const formData = new FormData();
-    formData.append("file", file)
-    const response = await this.props.uploadStructures(this.projectId, formData)
-    this.setState({openFile: false, fileName: ""})
+    formData.append("file", file);
+    const response = await this.props.uploadStructures(
+      this.projectId,
+      formData
+    );
+    this.setState({ openFile: false, fileName: "" });
     if (response.status === 201) {
       this.props.enqueueSnackbar("The structures were succesfully loaded!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
-    }
-    else {
-      const errors = response.data
-      console.log(errors)
+    } else {
+      const errors = response.data;
+      console.log(errors);
       this.props.enqueueSnackbar("", {
         variant: "error",
         anchorOrigin: { vertical: "top", horizontal: "center" },
-        content: key => (<ShowErrors id={key} errors={errors}/>),
-
+        content: key => <ShowErrors id={key} errors={errors} />
       });
     }
-  }
+  };
   render() {
     const {
       classes,
@@ -374,7 +387,9 @@ class ProjectEdit extends React.Component {
       users,
       users_customer,
       sets,
-      interactions
+      interactions,
+      permissions,
+      is_superuser
     } = this.props;
     const {
       search,
@@ -394,11 +409,19 @@ class ProjectEdit extends React.Component {
       fileName
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
-      return !users.includes(id)
+      return !users.includes(id);
     });
+    const canChangeProject = permissions.includes(CAN_CHANGE_PROJECT);
+    const canAddStructure = permissions.includes(CAN_ADD_STRUCTURE);
+    const canChangeStructure = permissions.includes(CAN_CHANGE_STRUCTURE);
+    const canDeleteStructure = permissions.includes(CAN_DELETE_STRUCTURE);
+    const canAddSpan = permissions.includes(CAN_ADD_SPAM);
+    const canChangeSpan = permissions.includes(CAN_CHANGE_SPAM);
+    const canDeleteSpan = permissions.includes(CAN_DELETE_SPAM);
+
     return (
       <Layout title="Projects">
-        {(openDrawer) => (
+        {openDrawer => (
           <div>
             <DialogDelete
               item={itemName}
@@ -517,14 +540,30 @@ class ProjectEdit extends React.Component {
               disableBackdropClick={true}
               disableEscapeKeyDown={true}
             >
-              <DialogTitle id="alert-dialog-title">
-                UPLOAD FILE
-              </DialogTitle>
+              <DialogTitle id="alert-dialog-title">UPLOAD FILE</DialogTitle>
               <DialogContent>
-                <p style={{wordBreak: "break-all"}}><span style={{fontWeight: "bold", marginRight: 10}}>File:</span>{fileName}</p>
-                <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
-                  <ReactLoading type={"spin"} color={"#3f51b5"} height={'40px'} width={'40px'} />
-                  <span style={{color: "#3f51b5", marginTop: 5}}>LOADING...</span>
+                <p style={{ wordBreak: "break-all" }}>
+                  <span style={{ fontWeight: "bold", marginRight: 10 }}>
+                    File:
+                  </span>
+                  {fileName}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column"
+                  }}
+                >
+                  <ReactLoading
+                    type={"spin"}
+                    color={"#3f51b5"}
+                    height={"40px"}
+                    width={"40px"}
+                  />
+                  <span style={{ color: "#3f51b5", marginTop: 5 }}>
+                    LOADING...
+                  </span>
                 </div>
               </DialogContent>
             </Dialog>
@@ -576,7 +615,7 @@ class ProjectEdit extends React.Component {
                     aria-label="Edit"
                     color="primary"
                     onClick={() => this.showInputEdit()}
-                    disabled={loading}
+                    disabled={loading || !canChangeProject}
                   >
                     <Edit />
                   </IconButton>
@@ -602,7 +641,7 @@ class ProjectEdit extends React.Component {
                 </Tabs>
               </Grid>
               <Panel>
-                  <SwipeableViews
+                <SwipeableViews
                   index={value}
                   onChangeIndex={this.handleChangeIndex}
                   slideStyle={{
@@ -643,9 +682,15 @@ class ProjectEdit extends React.Component {
                             <TableCell colSpan={1}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        {!loading &&
+                        {!loading && (
                           <TableBody>
-                            {this.filter(users_customer.filter(({id}) => users.includes(id)), search, "users").map(user => (
+                            {this.filter(
+                              users_customer.filter(({ id }) =>
+                                users.includes(id)
+                              ),
+                              search,
+                              "users"
+                            ).map(user => (
                               <TableRow key={user.id}>
                                 <TableCell component="td">
                                   {user.first_name} {user.last_name}
@@ -653,7 +698,9 @@ class ProjectEdit extends React.Component {
                                 <TableCell component="td">
                                   {user.username}
                                 </TableCell>
-                                <TableCell component="td">{user.email}</TableCell>
+                                <TableCell component="td">
+                                  {user.email}
+                                </TableCell>
                                 <TableCell>
                                   <div style={{ display: "flex" }}>
                                     {/* <Link
@@ -684,9 +731,9 @@ class ProjectEdit extends React.Component {
                               </TableRow>
                             ))}
                           </TableBody>
-                        }
+                        )}
                       </Table>
-                      <TextEmpty itemName="USERS" empty={users.length === 0}/>
+                      <TextEmpty itemName="USERS" empty={users.length === 0} />
                     </div>
                   </Grid>
                   <Grid>
@@ -695,7 +742,9 @@ class ProjectEdit extends React.Component {
                         <Button
                           variant="outlined"
                           color="primary"
-                          disabled={loading}
+                          disabled={
+                            loading || (!is_superuser && !canAddStructure)
+                          }
                           onClick={() => {
                             this.props.setPoint("", "");
                             this.props.setFromMap(false);
@@ -710,17 +759,20 @@ class ProjectEdit extends React.Component {
                           name="file"
                           accept=".csv"
                           onChange={(files, e) => {
-                            this.uploadFile(files[0])
-                            e.target.value = ""
+                            this.uploadFile(files[0]);
+                            e.target.value = "";
                           }}
                         >
                           <Button
-                          variant="outlined"
-                          disabled={loading}
-                          className={classes.upload}
-                        >
-                          <CloudUpload/>Multiple structures
-                        </Button>
+                            variant="outlined"
+                            disabled={
+                              loading || (!is_superuser && !canAddStructure)
+                            }
+                            className={classes.upload}
+                          >
+                            <CloudUpload />
+                            Multiple structures
+                          </Button>
                         </InputFiles>
                       </div>
                       <Input
@@ -739,11 +791,13 @@ class ProjectEdit extends React.Component {
                         <TableHead>
                           <TableRow>
                             <TableCell style={{ width: "50%" }}>Name</TableCell>
-                            <TableCell style={{ width: "30%" }}>State</TableCell>
+                            <TableCell style={{ width: "30%" }}>
+                              State
+                            </TableCell>
                             <TableCell colSpan={1}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
-                        {!loading &&
+                        {!loading && (
                           <TableBody>
                             {this.filter(structures, search, "structures").map(
                               structure => (
@@ -764,25 +818,42 @@ class ProjectEdit extends React.Component {
                                   </TableCell>
                                   <TableCell>
                                     <div style={{ display: "flex" }}>
-                                      <Link
-                                        component={RouterLink}
-                                        to={`/projects/${this.projectId}/structures/${structure.id}`}
-                                      >
+                                      {canChangeStructure || is_superuser ? (
+                                        <Link
+                                          component={RouterLink}
+                                          to={`/projects/${this.projectId}/structures/${structure.id}`}
+                                        >
+                                          <IconButton
+                                            aria-label="Edit"
+                                            color="primary"
+                                            disabled={loading}
+                                          >
+                                            <Edit />
+                                          </IconButton>
+                                        </Link>
+                                      ) : (
                                         <IconButton
                                           aria-label="Edit"
                                           color="primary"
-                                          disabled={loading}
+                                          disabled
                                         >
                                           <Edit />
                                         </IconButton>
-                                      </Link>
+                                      )}
 
                                       <IconButton
                                         aria-label="Delete"
                                         className={classes.iconDelete}
-                                        disabled={loading}
+                                        disabled={
+                                          loading ||
+                                          (!canDeleteStructure && !is_superuser)
+                                        }
                                         onClick={() =>
-                                          this.showModal(structure.id, "open", "structure")
+                                          this.showModal(
+                                            structure.id,
+                                            "open",
+                                            "structure"
+                                          )
                                         }
                                       >
                                         <Delete />
@@ -793,9 +864,12 @@ class ProjectEdit extends React.Component {
                               )
                             )}
                           </TableBody>
-                        }
+                        )}
                       </Table>
-                      <TextEmpty itemName="STRUCTURES" empty={structures.length === 0}/>
+                      <TextEmpty
+                        itemName="STRUCTURES"
+                        empty={structures.length === 0}
+                      />
                     </div>
                   </Grid>
                   <Grid>
@@ -803,7 +877,7 @@ class ProjectEdit extends React.Component {
                       <Button
                         variant="outlined"
                         color="primary"
-                        disabled={loading}
+                        disabled={loading || (!is_superuser && !canAddSpan)}
                         onClick={() => {
                           this.props.setStructures("", "");
                           this.props.setFromMap(false);
@@ -861,22 +935,30 @@ class ProjectEdit extends React.Component {
                             </TableCell>
                             <TableCell>
                               <div style={{ display: "flex" }}>
-                                <Link
-                                  component={RouterLink}
-                                  to={`/projects/${this.projectId}/spans/${span.id}`}
-                                >
-                                  <IconButton
-                                    aria-label="Edit"
-                                    color="primary"
-                                    disabled={loading}
+                                {canChangeSpan || is_superuser ? (
+                                  <Link
+                                    component={RouterLink}
+                                    to={`/projects/${this.projectId}/spans/${span.id}`}
                                   >
+                                    <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      disabled={loading}
+                                    >
+                                      <Edit />
+                                    </IconButton>
+                                  </Link>
+                                ) : (
+                                  <IconButton aria-label="Edit" color="primary">
                                     <Edit />
                                   </IconButton>
-                                </Link>
+                                )}
                                 <IconButton
                                   aria-label="Delete"
                                   className={classes.iconDelete}
-                                  disabled={loading}
+                                  disabled={
+                                    loading || (!canDeleteSpan && !is_superuser)
+                                  }
                                   onClick={() =>
                                     this.showModal(span.id, "open", "span")
                                   }
@@ -889,9 +971,9 @@ class ProjectEdit extends React.Component {
                         ))}
                       </TableBody>
                     </Table>
-                    <TextEmpty itemName="SPANS" empty={spans.length === 0}/>
+                    <TextEmpty itemName="SPANS" empty={spans.length === 0} />
                   </Grid>
-                  <Grid style={{height: "100%"}}>
+                  <Grid style={{ height: "100%" }}>
                     <Grid item className={classes.divSelectSet} xs>
                       <Typography
                         variant="subtitle1"
@@ -927,11 +1009,15 @@ class ProjectEdit extends React.Component {
                         inspections={set.inspections}
                         type={set.type || 1}
                       />
-                    )} 
+                    )}
                   </Grid>
                   <Grid>
                     <div className={classes.header}>
-                      <Link component={RouterLink} color="inherit" to={`/projects/${this.projectId}/interactions/create`}>
+                      <Link
+                        component={RouterLink}
+                        color="inherit"
+                        to={`/projects/${this.projectId}/interactions/create`}
+                      >
                         <Button variant="outlined" color="primary">
                           Create Interaction
                         </Button>
@@ -946,75 +1032,92 @@ class ProjectEdit extends React.Component {
                         }}
                       />
                     </div>
-                    <div style={{overflowX: "auto"}}>
+                    <div style={{ overflowX: "auto" }}>
                       <Table className={classes.table}>
                         <TableHead>
                           <TableRow>
-                            <TableCell style={{minWidth: 180}}>Name</TableCell>
-                            <TableCell style={{minWidth: 120}}>Title</TableCell>
-                            <TableCell style={{minWidth: 120}}>Type</TableCell>
+                            <TableCell style={{ minWidth: 180 }}>
+                              Name
+                            </TableCell>
+                            <TableCell style={{ minWidth: 120 }}>
+                              Title
+                            </TableCell>
+                            <TableCell style={{ minWidth: 120 }}>
+                              Type
+                            </TableCell>
                             <TableCell>Latitude</TableCell>
                             <TableCell>Longitude</TableCell>
                             <TableCell>Contact Info</TableCell>
                             <TableCell>Notes</TableCell>
-                            <TableCell style={{minWidth: 160}}>Actions</TableCell>
+                            <TableCell style={{ minWidth: 160 }}>
+                              Actions
+                            </TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {this.filter(interactions, search).map(interaction => (
-                            <TableRow key={interaction.id}>
-                              <TableCell
-                                component="td"
-                                className={classes.cellDescription}
-                              >
-                                {interaction.name}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.title}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.type}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.latitude}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.longitude}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.contact_info || "-"}
-                              </TableCell>
-                              <TableCell>
-                                {interaction.notes || "-"}
-                              </TableCell>
-                              <TableCell>
-                                <div>
-                                <Link component={RouterLink} color="inherit" to={`/projects/${this.projectId}/interactions/${interaction.id}`}>
-                                  <IconButton color="primary">
-                                    <Edit/>
-                                  </IconButton>
-                                </Link>
-                                  <IconButton
-                                    aria-label="Delete"
-                                    className={classes.iconDelete}
-                                    disabled={loading}
-                                    onClick={() =>
-                                      this.showModal(interaction.id, "open", "interaction")
-                                    }
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                          {this.filter(interactions, search).map(
+                            interaction => (
+                              <TableRow key={interaction.id}>
+                                <TableCell
+                                  component="td"
+                                  className={classes.cellDescription}
+                                >
+                                  {interaction.name}
+                                </TableCell>
+                                <TableCell>{interaction.title}</TableCell>
+                                <TableCell>{interaction.type}</TableCell>
+                                <TableCell>{interaction.latitude}</TableCell>
+                                <TableCell>{interaction.longitude}</TableCell>
+                                <TableCell>
+                                  {interaction.contact_info || "-"}
+                                </TableCell>
+                                <TableCell>
+                                  {interaction.notes || "-"}
+                                </TableCell>
+                                <TableCell>
+                                  <div>
+                                    <Link
+                                      component={RouterLink}
+                                      color="inherit"
+                                      to={`/projects/${this.projectId}/interactions/${interaction.id}`}
+                                    >
+                                      <IconButton color="primary">
+                                        <Edit />
+                                      </IconButton>
+                                    </Link>
+                                    <IconButton
+                                      aria-label="Delete"
+                                      className={classes.iconDelete}
+                                      disabled={loading}
+                                      onClick={() =>
+                                        this.showModal(
+                                          interaction.id,
+                                          "open",
+                                          "interaction"
+                                        )
+                                      }
+                                    >
+                                      <Delete />
+                                    </IconButton>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )
+                          )}
                         </TableBody>
                       </Table>
-                      <TextEmpty itemName="INTERACTIONS" empty={interactions.length === 0}/>
+                      <TextEmpty
+                        itemName="INTERACTIONS"
+                        empty={interactions.length === 0}
+                      />
                     </div>
                   </Grid>
-                  <Grid style={{height: "100%"}}>
-                    <MapBox projectId={this.projectId} open={openDrawer} tab={value}/>
+                  <Grid style={{ height: "100%" }}>
+                    <MapBox
+                      projectId={this.projectId}
+                      open={openDrawer}
+                      tab={value}
+                    />
                   </Grid>
                 </SwipeableViews>
               </Panel>
@@ -1068,8 +1171,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "ProjectEdit" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(ProjectEdit);

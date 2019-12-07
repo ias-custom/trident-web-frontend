@@ -42,7 +42,7 @@ import * as Yup from "yup";
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Users", to: "/users" },
-  { name: "Create User", to: null }
+  { name: "User Create", to: null }
 ];
 
 class UserCreate extends React.Component {
@@ -269,7 +269,7 @@ class UserCreate extends React.Component {
                               <TextField
                                 name="role_id"
                                 select
-                                label="Roles"
+                                label="Rol"
                                 value={values.role_id}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
@@ -280,6 +280,7 @@ class UserCreate extends React.Component {
                                   errors.role_id
                                 }
                                 margin="normal"
+                                required
                                 fullWidth
                               >
                                 {roles.map(role => {

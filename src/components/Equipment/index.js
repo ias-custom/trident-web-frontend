@@ -69,6 +69,7 @@ class Equipment extends React.Component {
     parentItems: [],
     categoryId: "",
     deficienciesItem: [],
+    deficienciesParent: [],
     formDeficiency: {
       emergency: false,
       deficiency_id: ""
@@ -111,7 +112,10 @@ class Equipment extends React.Component {
           ({ id }) => id === this.state.itemId
         );
         if (item.deficiencies.length === 1) {
-          this.updateItem(4); // 4 IS ID OF STATE ITEM DEFICIENT
+          this.updateItem(4, false); // 4 IS ID OF STATE ITEM DEFICIENT
+          if (this.props.state === 2) {
+            this.props.changeItem(1)
+          } 
         }
         this.setState({ openDeficiency: false });
         this.props.enqueueSnackbar("The deficiency was added successfully!", {
@@ -130,7 +134,7 @@ class Equipment extends React.Component {
     this.props.setLoading(false);
   };
 
-  updateItem = async stateId => {
+  updateItem = async (stateId, showNotify = true) => {
     const form = { state_id: stateId };
     try {
       let response = "";
@@ -156,10 +160,19 @@ class Equipment extends React.Component {
         });
         this.setState({ openItem: false, stateId: "" });
         this.props.changeItems(newItems);
-        this.props.enqueueSnackbar("The item was updated successfully!", {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        });
+        const items = newItems.filter(i => i.state.name !== "Not inspected")
+        if (items.length === 0 && this.props.state === 1) {
+          this.props.changeItem(2)
+        } 
+        if (items.length > 0 && this.props.state === 2) {
+          this.props.changeItem(1)
+        } 
+        if (showNotify) {
+          this.props.enqueueSnackbar("The item was updated successfully!", {
+            variant: "success",
+            anchorOrigin: { vertical: "top", horizontal: "center" }
+          });
+        }
       } else {
         this.props.enqueueSnackbar("The request could not be processed!", {
           variant: "error"
@@ -256,7 +269,13 @@ class Equipment extends React.Component {
           ({ id }) => id === this.state.itemId
         );
         if (item.deficiencies.length === 0) {
-          this.updateItem(3); // 3 IS ID OF STATE ITEM NOT INSPECTED
+          await this.updateItem(3, false); // 3 IS ID OF STATE ITEM NOT INSPECTED
+          if (this.props.state === 1) {
+            const items = this.props.items.filter(i => i.state.name !== "Not inspected")
+            if (items.length === 0) {
+              this.props.changeItem(2)
+            }
+          } 
         }
         this.props.enqueueSnackbar("The deficiency was deleted successfully!", {
           variant: "success",
@@ -315,7 +334,6 @@ class Equipment extends React.Component {
       classes,
       loading,
       inspectionName,
-      deficiencies,
       categories,
       items,
       item_states,
@@ -328,7 +346,8 @@ class Equipment extends React.Component {
       openDelete,
       deficienciesItem,
       stateId,
-      openItem
+      openItem,
+      deficienciesParent
     } = this.state;
     return (
       <div style={{ height: "100%" }}>
@@ -498,7 +517,7 @@ class Equipment extends React.Component {
                         required
                         fullWidth
                       >
-                        {deficiencies
+                        {deficienciesParent
                           .filter(({ id }) => !deficienciesItem.includes(id))
                           .map(deficiency => {
                             return (
@@ -675,7 +694,8 @@ class Equipment extends React.Component {
                                           openDeficiency: true,
                                           deficienciesItem: item.deficiencies.map(
                                             ({ deficiency_id }) => deficiency_id
-                                          )
+                                          ),
+                                          deficienciesParent: item.deficiencies_parent
                                         })
                                       }
                                     >
@@ -822,8 +842,7 @@ const mapDispatchToProps = {
 Equipment.propTypes = {
   inspection_id: PropTypes.any,
   categories: PropTypes.array.isRequired,
-  items: PropTypes.array.isRequired,
-  deficiencies: PropTypes.array.isRequired
+  items: PropTypes.array.isRequired
 };
 
 export default compose(

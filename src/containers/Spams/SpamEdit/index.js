@@ -81,7 +81,8 @@ class SpanEdit extends React.Component {
     categories: [],
     deficiencies: [],
     accessId: "",
-    markingId: ""
+    markingId: "",
+    typeSet: ""
   };
 
   breadcrumbs = [
@@ -126,8 +127,7 @@ class SpanEdit extends React.Component {
           number,
           inspection_id,
           inspection,
-          items,
-          deficiencies
+          items
         } = response.data;
         this.setState({
           formGeneral: {
@@ -146,7 +146,7 @@ class SpanEdit extends React.Component {
           inspection_name: inspection_id ? inspection.name : "",
           items: items || [],
           categories: inspection_id ? inspection.categories : [],
-          deficiencies: deficiencies,
+          typeSet: inspection_id ? inspection.type || "1" : "",
           enabledEquipment: true
         });
         // if (inspection_id) this.props.getCategoriesInspection(inspection_id);
@@ -343,6 +343,32 @@ class SpanEdit extends React.Component {
     this.props.history.push(`/projects/${this.projectId}/access/create`);
   }
 
+  changeState = async (stateId) => {
+    const form = {
+      stateId
+    }
+    try {
+      const response = await this.props.updateSpan(
+        this.projectId,
+        this.spanId,
+        form
+      );
+
+      if (response.status === 200) {
+        this.setState(prevState => {
+          return {
+            formGeneral: {
+              ...prevState.formGeneral,
+              stateId
+            }
+          }
+        });
+      } 
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   render() {
     const {
       classes,
@@ -364,10 +390,9 @@ class SpanEdit extends React.Component {
       items,
       markingId,
       accessId,
-      deficiencies,
-      itemName
+      itemName,
+      typeSet
     } = this.state;
-    console.log(markings)
     return (
       <Layout title="Projects">
         {() => (
@@ -477,7 +502,6 @@ class SpanEdit extends React.Component {
                       <Equipment
                         categories={categories}
                         items={items}
-                        deficiencies={deficiencies}
                         projectId={this.projectId}
                         itemId={parseInt(this.spanId)}
                         inspectionName={inspection_name}
@@ -485,6 +509,9 @@ class SpanEdit extends React.Component {
                         changeItems={newItems =>
                           this.setState({ items: newItems })
                         }
+                        state={formGeneral.stateId}
+                        typeSet={typeSet}
+                        changeItem={(stateId) => this.changeState(stateId)}
                       />
                     )}
                   </Grid>

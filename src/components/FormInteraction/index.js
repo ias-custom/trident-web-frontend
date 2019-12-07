@@ -95,7 +95,7 @@ const FormInteraction = ({ ...props }) => {
             <TextField
               name="typeId"
               select
-              label="Title"
+              label="Type"
               value={values.typeId}
               margin="normal"
               onChange={props.handleChange}

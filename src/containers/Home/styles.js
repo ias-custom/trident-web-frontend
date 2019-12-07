@@ -14,6 +14,9 @@ const styles = theme => ({
   link: {
     textDecoration: 'none'
   },
+  divFirst: {
+    marginTop: 20
+  },
   divEmpty: {
     border: "2px dashed #b3b0b0",
     display: "flex",

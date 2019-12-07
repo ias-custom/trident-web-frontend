@@ -58,7 +58,7 @@ class UserEdit extends React.Component {
     await this.props.fetchRoles();
     await this.props.getCustomers();
     try {
-      this.userId = this.props.match.params.id;
+      this.userId = parseInt(this.props.match.params.id);
       const response = await this.props.getUser(this.userId);
       if (response.status === 200) {
         this.loadForm(response.data);
@@ -79,6 +79,7 @@ class UserEdit extends React.Component {
       groups,
       customer_ids
     } = data;
+    console.log(customer_ids)
     this.form.username = username;
     this.form.email = email;
     this.form.first_name = first_name;
@@ -107,7 +108,6 @@ class UserEdit extends React.Component {
     const customer_ids = values.customersId;
     const groups = [values.role_id];
     const app_access = values.enterApp;
-
     const form = {
       first_name,
       last_name,
@@ -141,8 +141,9 @@ class UserEdit extends React.Component {
   };
 
   render() {
-    const { classes, loading, roles, customers } = this.props;
-
+    const { classes, loading, roles, customers, userLoguedId, customerSelectedId } = this.props;
+    console.log(userLoguedId, customerSelectedId)
+    console.log(this.userId, typeof(this.userId))
     return (
       <Layout title="Edit User">
         {() => (
@@ -334,6 +335,7 @@ class UserEdit extends React.Component {
                                     <MenuItem
                                       key={customer.id}
                                       value={customer.id}
+                                      disabled={userLoguedId === this.userId && customer.id === customerSelectedId}
                                     >
                                       <Checkbox
                                         checked={
@@ -341,6 +343,7 @@ class UserEdit extends React.Component {
                                             id => id === customer.id
                                           )
                                         }
+                                        disabled={userLoguedId === this.userId && customer.id === customerSelectedId}
                                       />
                                       <ListItemText primary={customer.name} />
                                     </MenuItem>
@@ -403,7 +406,9 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     roles: state.roles.roles,
-    customers: state.customers.customers
+    customers: state.customers.customers,
+    userLoguedId: state.auth.id,
+    customerSelectedId: state.customers.customerSelectedId
   };
 };
 

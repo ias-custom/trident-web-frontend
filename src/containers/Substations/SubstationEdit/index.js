@@ -88,7 +88,7 @@ class SubstationEdit extends React.Component {
       customer_id,
       project_ids
     } = data;
-
+    
     const response = await this.props.getProjectsOfCustomer(customer_id)
     if (response.status === 200) {
       this.setState({projects: response.data});
