@@ -32,6 +32,7 @@ import { fetchStructures } from "../../../redux/actions/structureActions";
 import { setProjectForMap } from "../../../redux/actions/projectActions";
 import { ArrowBack } from "@material-ui/icons";
 import { getSubstations } from "../../../redux/actions/substationActions";
+import { getProject } from "../../../redux/actions/projectActions";
 
 class SpanCreate extends React.Component {
   state = {
@@ -47,7 +48,8 @@ class SpanCreate extends React.Component {
       name: "",
       description: ""
     },
-    open: false
+    open: false,
+    inspections: []
   };
 
   breadcrumbs = [
@@ -63,12 +65,19 @@ class SpanCreate extends React.Component {
   projectId = this.props.match.params.projectId;
   componentDidMount = async () => {
     try {
-      const { structureStart, structureEnd } = this.props;
-      this.setState(prevState => {
-        return { form: { ...prevState.form, structureStart, structureEnd, stateId: 2 } };
-      });
       this.props.fetchStructures(this.projectId);
       await this.props.getSubstations();
+      const { structureStart, structureEnd } = this.props;
+      this.setState(prevState => {
+        return {
+          form: {
+            ...prevState.form,
+            structureStart,
+            structureEnd,
+            stateId: 2
+          }
+        };
+      });
       const nameItem = "spans";
       const nameSubItem = "create";
       const open = true;
@@ -88,7 +97,7 @@ class SpanCreate extends React.Component {
       spanType,
       inspectionId
     } = values;
-    
+
     const form = {
       number,
       state_id: stateId,
@@ -96,15 +105,15 @@ class SpanCreate extends React.Component {
       inspection_id: inspectionId
     };
 
-    let id = structureStart.split("-")[0]
-    let type = structureStart.split("-")[1]
-    if (type === "st") Object.assign(form, {start_structure_id: id})
-    else Object.assign(form, {start_substation_id: id})
+    let id = structureStart.split("-")[0];
+    let type = structureStart.split("-")[1];
+    if (type === "st") Object.assign(form, { start_structure_id: id });
+    else Object.assign(form, { start_substation_id: id });
 
-    id = structureEnd.split("-")[0]
-    type = structureEnd.split("-")[1]
-    if (type === "st") Object.assign(form, {end_structure_id: id})
-    else Object.assign(form, {end_substation_id: id})
+    id = structureEnd.split("-")[0];
+    type = structureEnd.split("-")[1];
+    if (type === "st") Object.assign(form, { end_structure_id: id });
+    else Object.assign(form, { end_substation_id: id });
 
     try {
       const response = await this.props.addSpan(this.projectId, form);
@@ -151,10 +160,10 @@ class SpanCreate extends React.Component {
 
   render() {
     const { classes, loading, structures, fromMap, substations } = this.props;
-    const { form, formSpanType, open } = this.state;
-    
+    const { form, formSpanType, open, inspections } = this.state;
+
     return (
-      <Layout title="Create Structure">
+      <Layout title="Create Span">
         {() => (
           <div className={classes.root}>
             <Dialog
@@ -252,7 +261,9 @@ class SpanCreate extends React.Component {
                   className={classes.buttonBack}
                   onClick={() => {
                     this.props.setProjectForMap(this.projectId);
-                    this.props.history.push(`/projects/${this.projectId}?map=true`)
+                    this.props.history.push(
+                      `/projects/${this.projectId}?map=true`
+                    );
                   }}
                 >
                   <ArrowBack />
@@ -287,7 +298,6 @@ class SpanCreate extends React.Component {
                 {props => {
                   const {
                     isSubmitting,
-                    resetForm,
                     values,
                     isValid,
                     dirty,
@@ -295,7 +305,8 @@ class SpanCreate extends React.Component {
                     touched,
                     handleChange,
                     handleBlur,
-                    handleSubmit
+                    handleSubmit,
+                    setFieldValue
                   } = props;
 
                   return (
@@ -304,6 +315,7 @@ class SpanCreate extends React.Component {
                       values={values}
                       isValid={isValid}
                       touched={touched}
+                      setFieldValue={setFieldValue}
                       errors={errors}
                       isSubmitting={isSubmitting}
                       handleChange={handleChange}
@@ -349,15 +361,14 @@ const mapDispatchToProps = {
   addSpanType,
   fetchStructures,
   getSubstations,
-  setProjectForMap
+  setProjectForMap,
+  getProject
+
 };
 
 export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "SpanCreate" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(SpanCreate);

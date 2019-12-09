@@ -33,6 +33,7 @@ import woodStructureRed from "../../img/wood_structure_red.png";
 import steelStructureRed from "../../img/steel_structure_red.png";
 import woodStructureGreen from "../../img/wood_structure_green.png";
 import steelStructureGreen from "../../img/steel_structure_green.png";
+import { CAN_ADD_STRUCTURE, CAN_ADD_SPAM } from "../../redux/permissions";
 
 class MapBox extends React.Component {
   state = {
@@ -701,7 +702,7 @@ class MapBox extends React.Component {
   }
 
   render() {
-    const { classes, projectId, tab } = this.props;
+    const { classes, projectId, tab, is_superuser, permissions } = this.props;
     const {
       itemValue,
       spanSelected,
@@ -717,30 +718,35 @@ class MapBox extends React.Component {
         <div id="map" style={{ height: "100%", width: "100%" }}>
           {tab === 5  && (
             <div className={classes.divMenu}>
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() =>
-                  this.setItem(1, `/projects/${projectId}/structures/create`)
-                }
-              >
-                Add structure
-                {itemValue === 1 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() =>
-                  this.setItem(2, `/projects/${projectId}/spans/create`)
-                }
-              >
-                Add span
-                {itemValue === 2 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
+              {(is_superuser || permissions.includes(CAN_ADD_STRUCTURE)) && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() =>
+                    this.setItem(1, `/projects/${projectId}/structures/create`)
+                  }
+                >
+                  Add structure
+                  {itemValue === 1 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
+              {(is_superuser || permissions.includes(CAN_ADD_SPAM)) && (
+
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() =>
+                    this.setItem(2, `/projects/${projectId}/spans/create`)
+                  }
+                >
+                  Add span
+                  {itemValue === 2 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}              
               <Button
                 variant="outlined"
                 className={classes.buttonMenu}
@@ -899,7 +905,9 @@ const mapStateToProps = state => {
     markings: state.spans.markings,
     access: state.spans.access,
     interactions: state.interactions.list,
-    substations: state.substations.list
+    substations: state.substations.list,
+    permissions: state.auth.permissions,
+    is_superuser: state.auth.is_superuser
   };
 };
 

@@ -49,7 +49,7 @@ class Home extends React.Component {
       <Layout title="Dashboard">
         {open => (
           <div className={classes.root}>
-            <Grid container spacing={16}>
+            <Grid container spacing={16} className={classes.divFirst}>
               {(permissions.includes(CAN_VIEW_USER) || is_superuser) && (
                 <Grid item xs={6} sm={4}>
                   <Link

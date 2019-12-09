@@ -31,6 +31,9 @@ class FormSpanEdit extends React.Component {
     const response = await this.props.getProject(this.props.projectId);
     if (response.status === 200) {
       const { set } = response.data;
+      if (this.props.isCreate){
+        this.props.setFieldValue("inspectionId", set.inspections[0].id)
+      }
       this.setState({ inspections: set.inspections });
     }
   };
@@ -248,8 +251,8 @@ class FormSpanEdit extends React.Component {
                     errors.inspectionId
                   }
                   fullWidth
+                  disabled
                   required
-                  disabled={loading}
                 >
                   {inspections.map(inspection => {
                     return (
