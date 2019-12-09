@@ -114,7 +114,7 @@ class SpanEdit extends React.Component {
           value: 4,
           accessId: parseInt(url.searchParams.get("id"))
         });
-      this.props.getSubstations()
+      this.props.getSubstations();
       const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
         const {
@@ -287,15 +287,24 @@ class SpanEdit extends React.Component {
       type_id: spanType,
       inspection_id: inspectionId
     };
-    let id = structureStart.split("-")[0]
-    let type = structureStart.split("-")[1]
-    if (type === "st") Object.assign(form, {start_structure_id: id})
-    else Object.assign(form, {start_substation_id: id})
+    let id = structureStart.split("-")[0];
+    let type = structureStart.split("-")[1];
+    if (type === "st")
+      Object.assign(form, {
+        start_structure_id: id,
+        start_substation_id: null
+      });
+    else
+      Object.assign(form, {
+        start_substation_id: id,
+        start_structure_id: null
+      });
 
-    id = structureEnd.split("-")[0]
-    type = structureEnd.split("-")[1]
-    if (type === "st") Object.assign(form, {end_structure_id: id})
-    else Object.assign(form, {end_substation_id: id})
+    id = structureEnd.split("-")[0];
+    type = structureEnd.split("-")[1];
+    if (type === "st")
+      Object.assign(form, { end_structure_id: id, end_substation_id: null });
+    else Object.assign(form, { end_substation_id: id, end_structure_id: null });
 
     try {
       const response = await this.props.updateSpan(
@@ -343,10 +352,10 @@ class SpanEdit extends React.Component {
     this.props.history.push(`/projects/${this.projectId}/access/create`);
   }
 
-  changeState = async (stateId) => {
+  changeState = async stateId => {
     const form = {
       stateId
-    }
+    };
     try {
       const response = await this.props.updateSpan(
         this.projectId,
@@ -361,13 +370,13 @@ class SpanEdit extends React.Component {
               ...prevState.formGeneral,
               stateId
             }
-          }
+          };
         });
-      } 
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   render() {
     const {
@@ -511,7 +520,7 @@ class SpanEdit extends React.Component {
                         }
                         state={formGeneral.stateId}
                         typeSet={typeSet}
-                        changeItem={(stateId) => this.changeState(stateId)}
+                        changeItem={stateId => this.changeState(stateId)}
                       />
                     )}
                   </Grid>
@@ -589,7 +598,9 @@ class SpanEdit extends React.Component {
                                           aria-label="Edit"
                                           color="primary"
                                           disabled={loading}
-                                          onClick={() => this.props.setSpan(this.spanId)}
+                                          onClick={() =>
+                                            this.props.setSpan(this.spanId)
+                                          }
                                         >
                                           <Edit />
                                         </IconButton>
@@ -689,7 +700,9 @@ class SpanEdit extends React.Component {
                                         aria-label="Edit"
                                         color="primary"
                                         disabled={loading}
-                                        onClick={() => this.props.setSpan(this.spanId)}
+                                        onClick={() =>
+                                          this.props.setSpan(this.spanId)
+                                        }
                                       >
                                         <Edit />
                                       </IconButton>
@@ -766,8 +779,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "SpanEdit" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(SpanEdit);

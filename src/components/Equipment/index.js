@@ -88,6 +88,7 @@ class Equipment extends React.Component {
   }
 
   addDeficiency = async (values, formikActions) => {
+    this.setState({ openDeficiency: false });
     const { setSubmitting, resetForm } = formikActions;
     this.props.setLoading(true);
     const { deficiency_id, emergency } = values;
@@ -117,7 +118,6 @@ class Equipment extends React.Component {
             this.props.changeItem(1)
           } 
         }
-        this.setState({ openDeficiency: false });
         this.props.enqueueSnackbar("The deficiency was added successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }

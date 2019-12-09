@@ -507,7 +507,7 @@ class ProjectEdit extends React.Component {
                 {setSelected && (
                   <InfoSetView
                     inspections={setSelected.inspections}
-                    type={setSelected.type || 2}
+                    type={setSelected.type || 1}
                   />
                 )}
               </DialogContent>
@@ -899,78 +899,80 @@ class ProjectEdit extends React.Component {
                       />
                     </div>
                     <Grid>{this.dataPorcentage(spans)}</Grid>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell style={{ width: "50%" }}>ID</TableCell>
-                          <TableCell style={{ width: "30%" }}>State</TableCell>
-                          <TableCell>Actions</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {this.filter(spans, search, "spans").map(span => (
-                          <TableRow key={span.id}>
-                            <TableCell component="td">
-                              <Link
-                                component={RouterLink}
-                                to={`/projects/${this.projectId}/spans/${span.id}`}
-                              >
-                                {span.id}
-                              </Link>
-                            </TableCell>
-                            <TableCell>
-                              {span.state ? (
-                                span.state.name === "Collected" ? (
-                                  <Typography color="primary">
-                                    {span.state.name}
-                                  </Typography>
+                    <div className={classes.divTable}>
+                      <Table className={classes.table}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell style={{ width: "50%" }}>ID</TableCell>
+                            <TableCell style={{ width: "30%" }}>State</TableCell>
+                            <TableCell>Actions</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {this.filter(spans, search, "spans").map(span => (
+                            <TableRow key={span.id}>
+                              <TableCell component="td">
+                                <Link
+                                  component={RouterLink}
+                                  to={`/projects/${this.projectId}/spans/${span.id}`}
+                                >
+                                  {span.id}
+                                </Link>
+                              </TableCell>
+                              <TableCell>
+                                {span.state ? (
+                                  span.state.name === "Collected" ? (
+                                    <Typography color="primary">
+                                      {span.state.name}
+                                    </Typography>
+                                  ) : (
+                                    <Typography style={{ color: "#e44f4f" }}>
+                                      {span.state.name}
+                                    </Typography>
+                                  )
                                 ) : (
-                                  <Typography style={{ color: "#e44f4f" }}>
-                                    {span.state.name}
-                                  </Typography>
-                                )
-                              ) : (
-                                "-"
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div style={{ display: "flex" }}>
-                                {canChangeSpan || is_superuser ? (
-                                  <Link
-                                    component={RouterLink}
-                                    to={`/projects/${this.projectId}/spans/${span.id}`}
-                                  >
-                                    <IconButton
-                                      aria-label="Edit"
-                                      color="primary"
-                                      disabled={loading}
+                                  "-"
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div style={{ display: "flex" }}>
+                                  {canChangeSpan || is_superuser ? (
+                                    <Link
+                                      component={RouterLink}
+                                      to={`/projects/${this.projectId}/spans/${span.id}`}
                                     >
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        disabled={loading}
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </Link>
+                                  ) : (
+                                    <IconButton aria-label="Edit" color="primary">
                                       <Edit />
                                     </IconButton>
-                                  </Link>
-                                ) : (
-                                  <IconButton aria-label="Edit" color="primary">
-                                    <Edit />
+                                  )}
+                                  <IconButton
+                                    aria-label="Delete"
+                                    className={classes.iconDelete}
+                                    disabled={
+                                      loading || (!canDeleteSpan && !is_superuser)
+                                    }
+                                    onClick={() =>
+                                      this.showModal(span.id, "open", "span")
+                                    }
+                                  >
+                                    <Delete />
                                   </IconButton>
-                                )}
-                                <IconButton
-                                  aria-label="Delete"
-                                  className={classes.iconDelete}
-                                  disabled={
-                                    loading || (!canDeleteSpan && !is_superuser)
-                                  }
-                                  onClick={() =>
-                                    this.showModal(span.id, "open", "span")
-                                  }
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                     <TextEmpty itemName="SPANS" empty={spans.length === 0} />
                   </Grid>
                   <Grid style={{ height: "100%" }}>

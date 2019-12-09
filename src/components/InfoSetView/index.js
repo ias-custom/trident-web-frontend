@@ -65,40 +65,41 @@ const InfoSetView = ({ ...props }) => {
                     <div>
                       <p className={classes.textItems}>ITEMS:</p>
                       {category.items.map(item => (
-                        <div
-                          key={item.id}
-                          className={classNames(
-                            classes.divCategory,
-                            classes.divItem,
-                            type === 2 && classes.divItemMargin
-                          )}
-                        >
-                          <Typography
-                            variant={type === 1 ? "subtitle1" : "h6"}
-                            align="center"
-                            classes={{ subtitle1: classes.itemName, h6: classes.question }}
+                        <Grid key={item.id}>
+                          <div
+                            className={classNames(
+                              classes.divCategory,
+                              classes.divItem,
+                              type === 2 && classes.divItemMargin
+                            )}
                           >
-                            {item.name}
-                          </Typography>
-                          { type === 1 && (
-                            itemId === item.id ? (
-                              <IconButton
-                                className={classes.buttonCollapse}
-                                onClick={() => setItemId(0)}
-                              >
-                                <ExpandLess />
-                              </IconButton>
-                            ) : (
-                              <IconButton
-                                className={classes.buttonCollapse}
-                                onClick={() =>
-                                  setItemId(item.id)
-                                }
-                              >
-                                <ExpandMore />
-                              </IconButton>
-                            )
-                          )}
+                            <Typography
+                              variant={type === 1 ? "subtitle1" : "h6"}
+                              align="center"
+                              classes={{ subtitle1: classes.itemName, h6: classes.question }}
+                            >
+                              {item.name}
+                            </Typography>
+                            { type === 1 && (
+                              itemId === item.id ? (
+                                <IconButton
+                                  className={classes.buttonCollapse}
+                                  onClick={() => setItemId(0)}
+                                >
+                                  <ExpandLess />
+                                </IconButton>
+                              ) : (
+                                <IconButton
+                                  className={classes.buttonCollapse}
+                                  onClick={() =>
+                                    setItemId(item.id)
+                                  }
+                                >
+                                  <ExpandMore />
+                                </IconButton>
+                              )
+                            )}
+                          </div>
                           {itemId === item.id && (
                             <div className={classes.divDeficiency}>
                               <p className={classes.textItems}>
@@ -123,7 +124,7 @@ const InfoSetView = ({ ...props }) => {
                               ))}
                             </div>
                           )}
-                        </div>
+                        </Grid>
                       ))}
                     </div>
                   ) : null}

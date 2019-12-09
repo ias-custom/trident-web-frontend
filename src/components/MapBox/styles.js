@@ -154,6 +154,11 @@ const styles = theme => ({
     float: "right",
     fontSize: 25,
     cursor: "pointer"
+  },
+  avatar: {
+    margin: "0 10px 10px 0",
+    display: "inline-block",
+    cursor: "pointer"
   }
 });
   

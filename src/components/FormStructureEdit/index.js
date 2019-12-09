@@ -85,6 +85,23 @@ class FormStructureEdit extends React.Component {
           <Grid container spacing={16}>
             <Grid item xs>
               <TextField
+                name="name"
+                value={values.name}
+                onChange={this.props.handleChange}
+                onBlur={this.props.handleBlur}
+                error={!!touched.name && !!errors.name}
+                helperText={!!touched.name && !!errors.name && errors.name}
+                label="Name"
+                fullWidth
+                margin="normal"
+                required
+                disabled={loading}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={16}>
+            <Grid item xs>
+              <TextField
                 name="address"
                 value={values.address}
                 onChange={this.props.handleChange}
@@ -226,21 +243,6 @@ class FormStructureEdit extends React.Component {
                   );
                 })}
               </TextField>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                name="name"
-                value={values.name}
-                onChange={this.props.handleChange}
-                onBlur={this.props.handleBlur}
-                error={!!touched.name && !!errors.name}
-                helperText={!!touched.name && !!errors.name && errors.name}
-                label="Name"
-                fullWidth
-                margin="normal"
-                required
-                disabled={loading}
-              />
             </Grid>
           </Grid>
         </Grid>

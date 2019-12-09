@@ -19,6 +19,28 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import CheckboxGroup from "../../../components/CheckboxGroup";
 import { getRole, updateRole } from "../../../redux/actions/roleActions";
+import { 
+  CAN_ADD_USER, 
+  CAN_VIEW_USER ,
+  CAN_CHANGE_USER,
+  CAN_DELETE_USER,
+  CAN_ADD_ROLE,
+  CAN_VIEW_ROLE,
+  CAN_CHANGE_ROLE,
+  CAN_DELETE_ROLE,
+  CAN_ADD_PROJECT,
+  CAN_CHANGE_PROJECT,
+  CAN_VIEW_PROJECT,
+  CAN_DELETE_PROJECT,
+  CAN_VIEW_SUBSTATION,
+  CAN_ADD_SUBSTATION,
+  CAN_CHANGE_SUBSTATION,
+  CAN_DELETE_SUBSTATION,
+  CAN_VIEW_SET,
+  CAN_ADD_SET,
+  CAN_CHANGE_SET,
+  CAN_DELETE_SET
+} from '../../../redux/permissions';
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -85,6 +107,24 @@ class RoleEdit extends React.Component {
   };
 
   changeCheckbox(permissions, add, props) {
+    if (permissions.length === 1 && add === true) {
+      const perm = permissions[0]
+      if (perm === CAN_CHANGE_USER || perm === CAN_DELETE_USER || perm === CAN_ADD_USER) {
+        permissions.push(CAN_VIEW_USER)
+      }
+      if (perm === CAN_CHANGE_ROLE || perm === CAN_DELETE_ROLE || perm === CAN_ADD_ROLE) {
+        permissions.push(CAN_VIEW_ROLE)
+      }
+      if (perm === CAN_CHANGE_SET || perm === CAN_DELETE_SET || perm === CAN_ADD_SET) {
+        permissions.push(CAN_VIEW_SET)
+      }
+      if (perm === CAN_CHANGE_PROJECT || perm === CAN_DELETE_PROJECT || perm === CAN_ADD_PROJECT) {
+        permissions.push(CAN_VIEW_PROJECT)
+      }
+      if (perm === CAN_CHANGE_SUBSTATION || perm === CAN_DELETE_SUBSTATION || perm === CAN_ADD_SUBSTATION) {
+        permissions.push(CAN_VIEW_SUBSTATION)
+      }
+    }
     const { setFieldValue, values } = props;
     const permissionsFinal = new Set([...values.permissionsId, ...permissions]);
     if (add) {

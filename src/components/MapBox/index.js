@@ -19,7 +19,7 @@ import {
   setStructures,
   getSpan
 } from "../../redux/actions/spanActions";
-import { withStyles, Grid, Button } from "@material-ui/core";
+import { withStyles, Grid, Button, Avatar, Dialog, DialogContent, DialogTitle } from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
 import { CheckCircle, CancelOutlined } from "@material-ui/icons";
 import { withSnackbar } from "notistack";
@@ -67,7 +67,9 @@ class MapBox extends React.Component {
     items: [],
     popup: null,
     marker: null,
-    open: false
+    open: false,
+    openPhoto: false,
+    url: ""
   };
 
   mapLoaded = false;
@@ -147,6 +149,7 @@ class MapBox extends React.Component {
 
   getInfo(marker) {
     const { categories, items } = this.state;
+    console.log(items);
     const { classes } = this.props;
     return (
       <div className={classes.divInfo}>
@@ -173,17 +176,41 @@ class MapBox extends React.Component {
                       </span>
                       <div className={classes.divItems}>
                         {item.deficiencies.map(d => (
-                          <p key={d.id}>
-                            {d.deficiency.name}{" "}
-                            {d.emergency ? (
-                              <i
-                                className="fas fa-exclamation-triangle"
-                                style={{ color: "red" }}
-                              ></i>
-                            ) : (
-                              ""
-                            )}
-                          </p>
+                          <div>
+                            <p key={d.id}>
+                              {d.deficiency.name}{" "}
+                              {d.emergency ? (
+                                <i
+                                  className="fas fa-exclamation-triangle"
+                                  style={{ color: "red" }}
+                                ></i>
+                              ) : (
+                                ""
+                              )}
+                            </p>
+                            {/* d.photos.map(p => (
+                               <Avatar alt="photo" src={p.url} key={p.id}/>
+                            )) */}
+                            <div>
+                              {[
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png"
+                              ].map(p => (
+                                <Avatar
+                                  alt="photo"
+                                  src={p}
+                                  className={classes.avatar}
+                                  onClick={() =>
+                                    this.setState({ openPhoto: true, url: p })
+                                  }
+                                />
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -542,7 +569,7 @@ class MapBox extends React.Component {
             )
             .addTo(this.map);
         }
-      })
+      });
     });
   }
 
@@ -711,12 +738,26 @@ class MapBox extends React.Component {
       addFirstStructure,
       confirmStructures,
       open,
-      marker
+      marker,
+      openPhoto,
+      url
     } = this.state;
     return (
       <Grid style={{ height: "100%", width: "100%" }}>
+        <Dialog
+          open={openPhoto}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          onEscapeKeyDown={() => this.setState({openPhoto: false})}
+          onBackdropClick={() => this.setState({openPhoto: false})}
+        >
+          <DialogTitle>{""}</DialogTitle>
+          <DialogContent>
+            <img src={url} alt="deficiency" style={{height: 400}}/>
+          </DialogContent>
+        </Dialog>
         <div id="map" style={{ height: "100%", width: "100%" }}>
-          {tab === 5  && (
+          {tab === 5 && (
             <div className={classes.divMenu}>
               {(is_superuser || permissions.includes(CAN_ADD_STRUCTURE)) && (
                 <Button
@@ -728,12 +769,13 @@ class MapBox extends React.Component {
                 >
                   Add structure
                   {itemValue === 1 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                    <CheckCircle
+                      className={classes.iconButtonMenu}
+                    ></CheckCircle>
                   ) : null}
                 </Button>
               )}
               {(is_superuser || permissions.includes(CAN_ADD_SPAM)) && (
-
                 <Button
                   variant="outlined"
                   className={classes.buttonMenu}
@@ -743,10 +785,12 @@ class MapBox extends React.Component {
                 >
                   Add span
                   {itemValue === 2 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                    <CheckCircle
+                      className={classes.iconButtonMenu}
+                    ></CheckCircle>
                   ) : null}
                 </Button>
-              )}              
+              )}
               <Button
                 variant="outlined"
                 className={classes.buttonMenu}
@@ -884,10 +928,11 @@ class MapBox extends React.Component {
           ) : null}
           {itemValue === 1 || itemValue === 5 ? this.getDialogConfirm() : null}
           {open && (
-            <div
-              className={classes.drawer}
-            >
-              <CancelOutlined className={classes.close} onClick={() => this.setState({open: false})}/>
+            <div className={classes.drawer}>
+              <CancelOutlined
+                className={classes.close}
+                onClick={() => this.setState({ open: false })}
+              />
               {marker && this.getInfo(marker)}
             </div>
           )}

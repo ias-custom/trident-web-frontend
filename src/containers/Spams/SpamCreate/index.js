@@ -107,13 +107,22 @@ class SpanCreate extends React.Component {
 
     let id = structureStart.split("-")[0];
     let type = structureStart.split("-")[1];
-    if (type === "st") Object.assign(form, { start_structure_id: id });
-    else Object.assign(form, { start_substation_id: id });
+    if (type === "st")
+      Object.assign(form, {
+        start_structure_id: id,
+        start_substation_id: null
+      });
+    else
+      Object.assign(form, {
+        start_substation_id: id,
+        start_structure_id: null
+      });
 
     id = structureEnd.split("-")[0];
     type = structureEnd.split("-")[1];
-    if (type === "st") Object.assign(form, { end_structure_id: id });
-    else Object.assign(form, { end_substation_id: id });
+    if (type === "st")
+      Object.assign(form, { end_structure_id: id, end_substation_id: null });
+    else Object.assign(form, { end_substation_id: id, end_structure_id: null });
 
     try {
       const response = await this.props.addSpan(this.projectId, form);
@@ -160,7 +169,7 @@ class SpanCreate extends React.Component {
 
   render() {
     const { classes, loading, structures, fromMap, substations } = this.props;
-    const { form, formSpanType, open, inspections } = this.state;
+    const { form, formSpanType, open } = this.state;
 
     return (
       <Layout title="Create Span">
@@ -363,7 +372,6 @@ const mapDispatchToProps = {
   getSubstations,
   setProjectForMap,
   getProject
-
 };
 
 export default compose(

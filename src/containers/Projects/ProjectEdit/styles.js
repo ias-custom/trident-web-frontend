@@ -149,7 +149,7 @@ const styles = theme => ({
   divTable: {
     overflowY: "auto",
     height: "calc(100vh - 378px)",
-    minHeight: 400
+    minHeight: 372
   },
   divViews: {
     height: "calc(100vh - 330px)",
