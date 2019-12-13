@@ -149,7 +149,6 @@ class MapBox extends React.Component {
 
   getInfo(marker) {
     const { categories, items } = this.state;
-    console.log(items);
     const { classes } = this.props;
     return (
       <div className={classes.divInfo}>
@@ -729,7 +728,7 @@ class MapBox extends React.Component {
   }
 
   render() {
-    const { classes, projectId, tab, is_superuser, permissions } = this.props;
+    const { classes, projectId, tab, type } = this.props;
     const {
       itemValue,
       spanSelected,
@@ -757,25 +756,23 @@ class MapBox extends React.Component {
           </DialogContent>
         </Dialog>
         <div id="map" style={{ height: "100%", width: "100%" }}>
-          {tab === 5 && (
+          {((tab === 5 && type === 1) || (tab === 4 && type === 2)) && (
             <div className={classes.divMenu}>
-              {(is_superuser || permissions.includes(CAN_ADD_STRUCTURE)) && (
-                <Button
-                  variant="outlined"
-                  className={classes.buttonMenu}
-                  onClick={() =>
-                    this.setItem(1, `/projects/${projectId}/structures/create`)
-                  }
-                >
-                  Add structure
-                  {itemValue === 1 ? (
-                    <CheckCircle
-                      className={classes.iconButtonMenu}
-                    ></CheckCircle>
-                  ) : null}
-                </Button>
-              )}
-              {(is_superuser || permissions.includes(CAN_ADD_SPAM)) && (
+              <Button
+                variant="outlined"
+                className={classes.buttonMenu}
+                onClick={() =>
+                  this.setItem(1, `/projects/${projectId}/structures/create`)
+                }
+              >
+                Add structure
+                {itemValue === 1 ? (
+                  <CheckCircle
+                    className={classes.iconButtonMenu}
+                  ></CheckCircle>
+                ) : null}
+              </Button>
+              {type === 1 && (
                 <Button
                   variant="outlined"
                   className={classes.buttonMenu}
@@ -791,30 +788,34 @@ class MapBox extends React.Component {
                   ) : null}
                 </Button>
               )}
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() => {
-                  this.setItem(3, `/projects/${projectId}/markings/create`);
-                }}
-              >
-                Add marking
-                {itemValue === 3 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() =>
-                  this.setItem(4, `/projects/${projectId}/access/create`)
-                }
-              >
-                Add access
-                {itemValue === 4 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
+              { type === 1 && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() => {
+                    this.setItem(3, `/projects/${projectId}/markings/create`);
+                  }}
+                >
+                  Add marking
+                  {itemValue === 3 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
+              { type === 1 && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() =>
+                    this.setItem(4, `/projects/${projectId}/access/create`)
+                  }
+                >
+                  Add access
+                  {itemValue === 4 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
               <Button
                 variant="outlined"
                 className={classes.buttonMenu}

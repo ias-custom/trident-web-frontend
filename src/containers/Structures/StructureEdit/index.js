@@ -82,55 +82,57 @@ class StructureEdit extends React.Component {
   componentDidMount = async () => {
     try {
       this.props.getPhotos(this.structureId);
-      const response = await this.props.getStructure(
-        this.projectId,
-        this.structureId
-      );
-      console.log(response.data)
-      if (response.status === 200) {
-        const {
-          state_id,
-          type_structure_id,
-          name,
-          latitude,
-          longitude,
-          address,
-          inspection_id,
-          inspection,
-          number,
-          items,
-          questions
-        } = response.data;
-        this.setState({
-          formGeneral: {
-            inspectionId: inspection_id || "",
-            stateId: state_id,
-            structureTypeId: type_structure_id || "",
-            name,
-            latitude,
-            longitude,
-            address: address || "",
-            number: number || ""
-          },
-          inspection_id,
-          inspection_name: inspection_id ? inspection.name : "",
-          items: inspection_id === 1 ? items : questions,
-          categories: inspection_id ? inspection.categories : [],
-          typeSet: inspection_id ? inspection.type || "2" : "",
-          enabledEquipment: true
-        });
-        //if (inspection_id) this.props.getCategoriesInspection(inspection_id);
-
-        const nameItem = "projects";
-        const open = true;
-        this.props.toggleItemMenu({ nameItem, open });
-        this.props.selectedItemMenu({ nameItem, nameSubItem: "detail" });
-      } else {
-        this.props.history.push("/404");
-      }
+      this.loadData()
+      const nameItem = "projects";
+      const open = true;
+      this.props.toggleItemMenu({ nameItem, open });
+      this.props.selectedItemMenu({ nameItem, nameSubItem: "detail" });
     } catch (error) {}
   };
 
+  loadData = async ()  => {
+    const response = await this.props.getStructure(
+      this.projectId,
+      this.structureId
+    );
+    console.log(response.data)
+    if (response.status === 200) {
+      const {
+        state_id,
+        type_structure_id,
+        name,
+        latitude,
+        longitude,
+        address,
+        inspection_id,
+        inspection,
+        number,
+        items,
+        questions,
+        project
+      } = response.data;
+      this.setState({
+        formGeneral: {
+          inspectionId: inspection_id || "",
+          stateId: state_id,
+          structureTypeId: type_structure_id || "",
+          name,
+          latitude,
+          longitude,
+          address: address || "",
+          number: number || ""
+        },
+        inspection_id,
+        inspection_name: inspection_id ? inspection.name : "",
+        items: (project && project.inspection_id) === 1 ? items : items,
+        categories: inspection_id ? inspection.categories : [],
+        typeSet: project ? project.inspection_id : 1,
+        enabledEquipment: true
+      });
+    } else {
+      this.props.history.push("/404");
+    }
+  }
   handleSearch = event => {
     this.setState({ search: event.target.value });
   };
@@ -250,18 +252,7 @@ class StructureEdit extends React.Component {
       );
 
       if (response.status === 200) {
-        this.setState({
-          formGeneral: {
-            name,
-            stateId,
-            latitude,
-            longitude,
-            structureTypeId,
-            address,
-            inspectionId,
-            number
-          }
-        });
+        this.loadData()
         this.props.enqueueSnackbar("The structure was updated successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }

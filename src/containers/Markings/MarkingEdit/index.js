@@ -45,7 +45,6 @@ class MarkingEdit extends React.Component {
 
   loadData = async () => {
     const response = await this.props.getMarking(this.props.spanId, this.markingId);
-    console.log(response.data)
     if (response.status === 200) {
       this.setState(prevState => {
         return {

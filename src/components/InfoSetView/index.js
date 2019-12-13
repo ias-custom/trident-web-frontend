@@ -77,7 +77,7 @@ const InfoSetView = ({ ...props }) => {
                               align="center"
                               classes={{ subtitle1: classes.itemName}}
                             >
-                              {item.name}
+                              - {item.name}
                             </Typography>
                             { itemId === item.id ? (
                               <IconButton
@@ -137,7 +137,7 @@ const InfoSetView = ({ ...props }) => {
                               align="center"
                               classes={{ h6: classes.question }}
                             >
-                              {question.name}
+                              - {question.name}
                             </Typography>
                           </div>
                         </Grid>

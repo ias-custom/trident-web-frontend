@@ -730,7 +730,7 @@ class Equipment extends React.Component {
                             <CardHeader
                               action={
                                 <div>
-                                  {typeSet === "1" ? (
+                                  {typeSet === 1 ? (
                                     <div>
                                       <IconButton
                                         onClick={() => this.duplicateItem(item)}
@@ -791,14 +791,14 @@ class Equipment extends React.Component {
                                   <span
                                     className={classNames(
                                       classes.itemName,
-                                      typeSet === "2" && classes.question
+                                      typeSet === 2 && classes.question
                                     )}
                                   >
-                                    {typeSet === "1"
+                                    {typeSet === 1
                                       ? item.item_parent.name
                                       : item.name}
                                   </span>{" "}
-                                  {typeSet === "1" &&
+                                  {typeSet === 1 &&
                                     (item.state.name === "Deficient" ? (
                                       <span>({item.deficiencies.length})</span>
                                     ) : (
@@ -822,7 +822,7 @@ class Equipment extends React.Component {
                             <CardContent
                               classes={{ root: classes.cardContent }}
                             >
-                              {typeSet === "1" ? (
+                              {typeSet === 1 ? (
                                 <div>
                                   <p>
                                     - Deficiencies:

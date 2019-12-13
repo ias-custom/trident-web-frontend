@@ -65,15 +65,6 @@ import {
 } from "../../../components";
 import InputFiles from "react-input-files";
 import ReactLoading from "react-loading";
-import {
-  CAN_CHANGE_PROJECT,
-  CAN_ADD_STRUCTURE,
-  CAN_ADD_SPAM,
-  CAN_CHANGE_STRUCTURE,
-  CAN_DELETE_STRUCTURE,
-  CAN_CHANGE_SPAM,
-  CAN_DELETE_SPAM
-} from "../../../redux/permissions";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -388,10 +379,7 @@ class ProjectEdit extends React.Component {
       spans,
       users,
       users_customer,
-      sets,
       interactions,
-      permissions,
-      is_superuser
     } = this.props;
     const {
       search,
@@ -403,7 +391,6 @@ class ProjectEdit extends React.Component {
       inputProjectName,
       userSelected,
       openFile,
-      setId,
       openSet,
       set,
       setSelected,
@@ -414,13 +401,6 @@ class ProjectEdit extends React.Component {
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
     });
-    const canChangeProject = permissions.includes(CAN_CHANGE_PROJECT);
-    const canAddStructure = permissions.includes(CAN_ADD_STRUCTURE);
-    const canChangeStructure = permissions.includes(CAN_CHANGE_STRUCTURE);
-    const canDeleteStructure = permissions.includes(CAN_DELETE_STRUCTURE);
-    const canAddSpan = permissions.includes(CAN_ADD_SPAM);
-    const canChangeSpan = permissions.includes(CAN_CHANGE_SPAM);
-    const canDeleteSpan = permissions.includes(CAN_DELETE_SPAM);
 
     return (
       <Layout title="Projects">
@@ -618,7 +598,7 @@ class ProjectEdit extends React.Component {
                     aria-label="Edit"
                     color="primary"
                     onClick={() => this.showInputEdit()}
-                    disabled={loading || !canChangeProject}
+                    disabled={loading}
                   >
                     <Edit />
                   </IconButton>
@@ -745,9 +725,7 @@ class ProjectEdit extends React.Component {
                         <Button
                           variant="outlined"
                           color="primary"
-                          disabled={
-                            loading || (!is_superuser && !canAddStructure)
-                          }
+                          disabled={loading}
                           onClick={() => {
                             this.props.setPoint("", "");
                             this.props.setFromMap(false);
@@ -768,9 +746,7 @@ class ProjectEdit extends React.Component {
                         >
                           <Button
                             variant="outlined"
-                            disabled={
-                              loading || (!is_superuser && !canAddStructure)
-                            }
+                            disabled={loading}
                             className={classes.upload}
                           >
                             <CloudUpload />
@@ -821,36 +797,22 @@ class ProjectEdit extends React.Component {
                                   </TableCell>
                                   <TableCell>
                                     <div style={{ display: "flex" }}>
-                                      {canChangeStructure || is_superuser ? (
-                                        <Link
-                                          component={RouterLink}
-                                          to={`/projects/${this.projectId}/structures/${structure.id}`}
-                                        >
-                                          <IconButton
-                                            aria-label="Edit"
-                                            color="primary"
-                                            disabled={loading}
-                                          >
-                                            <Edit />
-                                          </IconButton>
-                                        </Link>
-                                      ) : (
+                                      <Link
+                                        component={RouterLink}
+                                        to={`/projects/${this.projectId}/structures/${structure.id}`}
+                                      >
                                         <IconButton
                                           aria-label="Edit"
                                           color="primary"
-                                          disabled
+                                          disabled={loading}
                                         >
                                           <Edit />
                                         </IconButton>
-                                      )}
-
+                                      </Link>
                                       <IconButton
                                         aria-label="Delete"
                                         className={classes.iconDelete}
-                                        disabled={
-                                          loading ||
-                                          (!canDeleteStructure && !is_superuser)
-                                        }
+                                        disabled={loading}
                                         onClick={() =>
                                           this.showModal(
                                             structure.id,
@@ -881,7 +843,7 @@ class ProjectEdit extends React.Component {
                         <Button
                           variant="outlined"
                           color="primary"
-                          disabled={loading || (!is_superuser && !canAddSpan)}
+                          disabled={loading}
                           onClick={() => {
                             this.props.setStructures("", "");
                             this.props.setFromMap(false);
@@ -940,30 +902,22 @@ class ProjectEdit extends React.Component {
                                 </TableCell>
                                 <TableCell>
                                   <div style={{ display: "flex" }}>
-                                    {canChangeSpan || is_superuser ? (
-                                      <Link
-                                        component={RouterLink}
-                                        to={`/projects/${this.projectId}/spans/${span.id}`}
+                                    <Link
+                                      component={RouterLink}
+                                      to={`/projects/${this.projectId}/spans/${span.id}`}
+                                    >
+                                      <IconButton
+                                        aria-label="Edit"
+                                        color="primary"
+                                        disabled={loading}
                                       >
-                                        <IconButton
-                                          aria-label="Edit"
-                                          color="primary"
-                                          disabled={loading}
-                                        >
-                                          <Edit />
-                                        </IconButton>
-                                      </Link>
-                                    ) : (
-                                      <IconButton aria-label="Edit" color="primary">
                                         <Edit />
                                       </IconButton>
-                                    )}
+                                    </Link>
                                     <IconButton
                                       aria-label="Delete"
                                       className={classes.iconDelete}
-                                      disabled={
-                                        loading || (!canDeleteSpan && !is_superuser)
-                                      }
+                                      disabled={loading}
                                       onClick={() =>
                                         this.showModal(span.id, "open", "span")
                                       }
@@ -981,7 +935,7 @@ class ProjectEdit extends React.Component {
                     </Grid>
                   ): (
                     <Grid style={{ height: "100%" }}>
-                      <Grid item className={classes.divSelectSet} xs>
+                      {/* <Grid item className={classes.divSelectSet} xs>
                         <Typography
                           variant="subtitle1"
                           className={classes.textSelect}
@@ -1010,7 +964,7 @@ class ProjectEdit extends React.Component {
                             </MenuItem>
                           )}
                         </TextField>
-                      </Grid>
+                      </Grid> */}
                       {set && (
                         <InfoSetView
                           inspections={set.inspections}
@@ -1021,7 +975,7 @@ class ProjectEdit extends React.Component {
                   )}
                   {type === 1 ? (
                     <Grid style={{ height: "100%" }}>
-                      <Grid item className={classes.divSelectSet} xs>
+                      {/* <Grid item className={classes.divSelectSet} xs>
                         <Typography
                           variant="subtitle1"
                           className={classes.textSelect}
@@ -1050,7 +1004,7 @@ class ProjectEdit extends React.Component {
                             </MenuItem>
                           )}
                         </TextField>
-                      </Grid>
+                      </Grid> */}
                       {set && (
                         <InfoSetView
                           inspections={set.inspections}
@@ -1269,6 +1223,7 @@ class ProjectEdit extends React.Component {
                         projectId={this.projectId}
                         open={openDrawer}
                         tab={value}
+                        type={type}
                       />
                     </Grid>
                   )}
@@ -1278,6 +1233,7 @@ class ProjectEdit extends React.Component {
                         projectId={this.projectId}
                         open={openDrawer}
                         tab={value}
+                        type={type}
                       />
                     </Grid>
                   )}

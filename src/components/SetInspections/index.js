@@ -382,7 +382,7 @@ class SetInspections extends React.Component {
                 >
                   {name}
                 </Typography>
-                <div>
+                {/* <div>
                   <Button
                     variant="outlined"
                     color="primary"
@@ -391,7 +391,7 @@ class SetInspections extends React.Component {
                   >
                     Add Category
                   </Button>
-                </div>
+                </div> */}
                 {categories.map(category => (
                   <div key={category.id}>
                     <Paper className={classes.paper}>
@@ -420,7 +420,7 @@ class SetInspections extends React.Component {
                             this.setState({});
                           }}
                         />
-                        <IconButton
+                        {/* <IconButton
                           aria-label="Delete"
                           className={classes.iconDelete}
                           disabled={loading}
@@ -429,7 +429,7 @@ class SetInspections extends React.Component {
                           }}
                         >
                           <Cancel />
-                        </IconButton>
+                        </IconButton> */}
                         {openId === category.id ? (
                           <IconButton
                             className={classes.buttonCollapse}
@@ -452,13 +452,13 @@ class SetInspections extends React.Component {
                         <div>
                           <p className={classes.textItems}>
                             {type === "1" ? "ITEMS" : "QUESTIONS"}
-                            <IconButton
+                            {/* <IconButton
                               className={classes.iconAdd}
                               disabled={loading}
                               onClick={() => this.openAddItem(id, category.id)}
                             >
                               <AddCircle />
-                            </IconButton>
+                            </IconButton> */}
                           </p>
                           {type === "1"
                             ? category.items.map(item => (
@@ -497,7 +497,7 @@ class SetInspections extends React.Component {
                                         this.setState({});
                                       }}
                                     />
-                                    <IconButton
+                                    {/* <IconButton
                                       className={classNames(
                                         classes.iconDelete,
                                         classes.iconItem
@@ -513,7 +513,7 @@ class SetInspections extends React.Component {
                                       disabled={loading}
                                     >
                                       <Cancel />
-                                    </IconButton>
+                                    </IconButton> */}
                                     {type === "1" &&
                                       (itemId === item.id ? (
                                         <IconButton
@@ -539,7 +539,7 @@ class SetInspections extends React.Component {
                                     <div className={classes.divDeficiency}>
                                       <p className={classes.textItems}>
                                         DEFICIENCIES:{" "}
-                                        <IconButton
+                                        {/* <IconButton
                                           className={classes.iconAdd}
                                           disabled={loading}
                                           onClick={() =>
@@ -551,7 +551,7 @@ class SetInspections extends React.Component {
                                           }
                                         >
                                           <AddCircle />
-                                        </IconButton>
+                                        </IconButton> */}
                                       </p>
                                       {item.deficiencies.map(d => (
                                         <div
@@ -584,7 +584,7 @@ class SetInspections extends React.Component {
                                               this.setState({});
                                             }}
                                           />
-                                          <IconButton
+                                          {/* <IconButton
                                             className={classNames(
                                               classes.iconDelete,
                                               classes.iconItem
@@ -599,7 +599,7 @@ class SetInspections extends React.Component {
                                             disabled={loading}
                                           >
                                             <Cancel />
-                                          </IconButton>
+                                          </IconButton> */}
                                         </div>
                                       ))}
                                     </div>
@@ -643,7 +643,7 @@ class SetInspections extends React.Component {
                                         this.setState({});
                                       }}
                                     />
-                                    <IconButton
+                                    {/* <IconButton
                                       className={classNames(
                                         classes.iconDelete,
                                         classes.iconItem
@@ -659,97 +659,8 @@ class SetInspections extends React.Component {
                                       disabled={loading}
                                     >
                                       <Cancel />
-                                    </IconButton>
-                                    {type === "1" &&
-                                      (itemId === item.id ? (
-                                        <IconButton
-                                          className={classes.buttonCollapse}
-                                          onClick={() =>
-                                            this.setState({ itemId: 0 })
-                                          }
-                                        >
-                                          <ExpandLess />
-                                        </IconButton>
-                                      ) : (
-                                        <IconButton
-                                          className={classes.buttonCollapse}
-                                          onClick={() =>
-                                            this.setState({ itemId: item.id })
-                                          }
-                                        >
-                                          <ExpandMore />
-                                        </IconButton>
-                                      ))}
+                                    </IconButton> */}
                                   </div>
-                                  {itemId === item.id && (
-                                    <div className={classes.divDeficiency}>
-                                      <p className={classes.textItems}>
-                                        DEFICIENCIES:{" "}
-                                        <IconButton
-                                          className={classes.iconAdd}
-                                          disabled={loading}
-                                          onClick={() =>
-                                            this.openAddDeficiency(
-                                              id,
-                                              category.id,
-                                              item.id
-                                            )
-                                          }
-                                        >
-                                          <AddCircle />
-                                        </IconButton>
-                                      </p>
-                                      {item.deficiencies.map(d => (
-                                        <div
-                                          key={d.id}
-                                          className={classNames(
-                                            classes.divCategory,
-                                            classes.divItem
-                                          )}
-                                        >
-                                          <TextField
-                                            name="name"
-                                            value={d.name}
-                                            label=""
-                                            required
-                                            disabled={loading}
-                                            inputProps={{
-                                              className: classes.inputCategory
-                                            }}
-                                            onChange={e => {
-                                              if (e.target.value === "") {
-                                                this.props.enqueueSnackbar(
-                                                  "The deficiency are not empty",
-                                                  {
-                                                    variant: "error"
-                                                  }
-                                                );
-                                                return;
-                                              }
-                                              d.name = e.target.value;
-                                              this.setState({});
-                                            }}
-                                          />
-                                          <IconButton
-                                            className={classNames(
-                                              classes.iconDelete,
-                                              classes.iconItem
-                                            )}
-                                            aria-label="Delete"
-                                            onClick={() => {
-                                              item.deficiencies = item.deficiencies.filter(
-                                                ({ id }) => id !== d.id
-                                              );
-                                              this.setState({});
-                                            }}
-                                            disabled={loading}
-                                          >
-                                            <Cancel />
-                                          </IconButton>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
                                 </Grid>
                               ))}
                         </div>

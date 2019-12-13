@@ -127,7 +127,9 @@ class SpanEdit extends React.Component {
           number,
           inspection_id,
           inspection,
-          items
+          items,
+          questions,
+          project
         } = response.data;
         this.setState({
           formGeneral: {
@@ -144,9 +146,9 @@ class SpanEdit extends React.Component {
           },
           inspection_id,
           inspection_name: inspection_id ? inspection.name : "",
-          items: items || [],
+          items: (project && project.inspection_id === 1) ? items : questions,
           categories: inspection_id ? inspection.categories : [],
-          typeSet: inspection_id ? inspection.type || "1" : "",
+          typeSet: project ? project.inspection_id : 1,
           enabledEquipment: true
         });
         // if (inspection_id) this.props.getCategoriesInspection(inspection_id);
@@ -423,6 +425,7 @@ class SpanEdit extends React.Component {
                   onChange={(e, newValue) => {
                     this.handleChange(e, newValue);
                   }}
+                  disabled={loading}
                   indicatorColor="primary"
                   textColor="primary"
                   variant="fullWidth"

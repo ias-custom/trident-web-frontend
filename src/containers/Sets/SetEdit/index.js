@@ -60,7 +60,26 @@ class SetEdit extends React.Component {
   updateSet = async (inspections, name) => {
     const { type } = this.state;
     const form = {
-      inspections,
+      inspections: inspections.map(inspection => {
+        return {
+          ...inspection,
+          categories: inspection.categories.map(({ id, name, items, questions }) => {
+            if (type === "1"){
+              return {
+                id,
+                name,
+                items
+              };
+            } else {
+              return {
+                id,
+                name,
+                questions
+              };
+            }
+          })
+        }
+      }),
       name,
       inspection_id: type
     }

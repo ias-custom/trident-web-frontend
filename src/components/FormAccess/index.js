@@ -16,7 +16,7 @@ const FormAccess = ({ ...propsMain }) => {
   const { loading, spans, categories_access } = propsMain;
 
   useEffect(() => {
-    propsMain.getCategoriesAccess();
+    //propsMain.getCategoriesAccess();
     return () => {};
   }, []);
 

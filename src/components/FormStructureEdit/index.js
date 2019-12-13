@@ -27,7 +27,7 @@ class FormStructureEdit extends React.Component {
   componentDidMount = async () => {
     this.props.fetchStructureTypes(this.props.projectId);
     this.props.fetchStates();
-    const response = await this.props.getProject(this.props.projectId)
+    const response = await this.props.getProject(this.props.projectId, false)
     if (response.status === 200) {
       const { set } = response.data
       this.setState({inspections: set.inspections})

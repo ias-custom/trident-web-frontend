@@ -93,22 +93,23 @@ export const getInfoProject = id => {
   };
 };
 
-export const getProject = id => {
+export const getProject = (id, saveData = true) => {
   return async dispatch => {
     dispatch(setLoading(true));
 
     try {
       const response = await service.get(id);
-
       if (response.status === 200) {
-        const { structures, spans, users, interactions, crossings, access } = response.data
-        dispatch({ type: GET_PROJECT, payload: response.data });
-        dispatch({ type: GET_USERS_PROJECT, payload: users });
-        dispatch({ type: GET_STRUCTURES, payload: structures });
-        dispatch({ type: GET_SPANS, payload: spans });
-        dispatch({ type: GET_MARKINGS, payload: crossings });
-        dispatch({ type: GET_ACCESS, payload: access });
-        dispatch({ type: GET_INTERACTIONS, payload: interactions });
+        if (saveData) {
+          const { structures, spans, users, interactions, crossings, access } = response.data
+          dispatch({ type: GET_PROJECT, payload: response.data });
+          dispatch({ type: GET_USERS_PROJECT, payload: users });
+          dispatch({ type: GET_STRUCTURES, payload: structures });
+          dispatch({ type: GET_SPANS, payload: spans });
+          dispatch({ type: GET_MARKINGS, payload: crossings });
+          dispatch({ type: GET_ACCESS, payload: access });
+          dispatch({ type: GET_INTERACTIONS, payload: interactions });
+        }
       }
 
       return response;

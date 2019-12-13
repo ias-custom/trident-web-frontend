@@ -28,7 +28,7 @@ class FormSpanEdit extends React.Component {
   componentDidMount = async () => {
     this.props.fetchSpanTypes(this.props.projectId);
     this.props.fetchStates();
-    const response = await this.props.getProject(this.props.projectId);
+    const response = await this.props.getProject(this.props.projectId, false);
     if (response.status === 200) {
       const { set } = response.data;
       if (this.props.isCreate){

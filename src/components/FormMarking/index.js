@@ -16,7 +16,7 @@ const FormMarking = ({ ...propsMain }) => {
   const { loading, spans, categories_marking } = propsMain;
 
   useEffect(() => {
-    propsMain.getCategoriesMarking();
+    //propsMain.getCategoriesMarking();
     return () => {};
   }, []);
 

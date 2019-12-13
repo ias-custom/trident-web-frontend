@@ -55,7 +55,6 @@ import {
 import SubstationsList from "./containers/Substations/SubstationsList";
 import SubstationCreate from "./containers/Substations/SubstationCreate";
 import SubstationEdit from "./containers/Substations/SubstationEdit";
-import MapsView from "./containers/Projects/MapsView";
 import SetList from "./containers/Sets/SetList";
 import SetCreate from "./containers/Sets/SetCreate";
 import SetEdit from "./containers/Sets/SetEdit";
