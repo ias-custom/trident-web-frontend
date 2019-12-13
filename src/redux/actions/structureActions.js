@@ -288,3 +288,33 @@ import {
       }
     }
   }
+
+  export const addAnswerStructure = (structureId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addAnswer(structureId, form)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateAnswerStructure = (structureId, answerId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateAnswer(structureId, answerId, form)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }

@@ -27,7 +27,8 @@ class SetEdit extends React.Component {
     openId: "",
     enabledSet: false,
     name: "",
-    inspections: []
+    inspections: [],
+    type: ""
   };
   
   setId = null;
@@ -52,14 +53,16 @@ class SetEdit extends React.Component {
   };
 
   loadForm = data => {
-    const { name, inspections } = data;
-    this.setState({ name, inspections, enabledSet: true });
+    const { name, inspections, inspection_id } = data;
+    this.setState({ name, inspections, enabledSet: true, type: String(inspection_id) });
   };
 
   updateSet = async (inspections, name) => {
+    const { type } = this.state;
     const form = {
       inspections,
-      name
+      name,
+      inspection_id: type
     }
 
     try {
@@ -82,7 +85,7 @@ class SetEdit extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { enabledSet, inspections, name } = this.state;
+    const { enabledSet, inspections, name, type } = this.state;
 
     return (
       <Layout title="Edit Set">
@@ -102,6 +105,7 @@ class SetEdit extends React.Component {
                     action={(inspections, name) =>
                       this.updateSet(inspections, name)
                     }
+                    type={type}
                   />
                 ) : null}
               </Grid>

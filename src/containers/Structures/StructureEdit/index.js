@@ -86,6 +86,7 @@ class StructureEdit extends React.Component {
         this.projectId,
         this.structureId
       );
+      console.log(response.data)
       if (response.status === 200) {
         const {
           state_id,
@@ -98,6 +99,7 @@ class StructureEdit extends React.Component {
           inspection,
           number,
           items,
+          questions
         } = response.data;
         this.setState({
           formGeneral: {
@@ -112,9 +114,9 @@ class StructureEdit extends React.Component {
           },
           inspection_id,
           inspection_name: inspection_id ? inspection.name : "",
-          items: items,
+          items: inspection_id === 1 ? items : questions,
           categories: inspection_id ? inspection.categories : [],
-          typeSet: inspection_id ? inspection.type || "1" : "",
+          typeSet: inspection_id ? inspection.type || "2" : "",
           enabledEquipment: true
         });
         //if (inspection_id) this.props.getCategoriesInspection(inspection_id);

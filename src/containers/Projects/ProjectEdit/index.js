@@ -99,7 +99,8 @@ class ProjectEdit extends React.Component {
     setSelected: null,
     itemName: "",
     openFile: false,
-    fileName: ""
+    fileName: "",
+    type: ""
   };
 
   projectId = null;
@@ -116,7 +117,8 @@ class ProjectEdit extends React.Component {
           inputProjectName: response.data.name,
           set: response.data.set,
           setId: response.data.set_id,
-          value: fromMap === "true" ? 5 : 0
+          value: fromMap === "true" ? (response.data.inspection_id === 1 ? 5 : 4) : 0,
+          type: response.data.inspection_id
         });
         this.props.fetchSets();
         this.props.getUsers();
@@ -406,7 +408,8 @@ class ProjectEdit extends React.Component {
       set,
       setSelected,
       itemName,
-      fileName
+      fileName,
+      type
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
@@ -507,7 +510,7 @@ class ProjectEdit extends React.Component {
                 {setSelected && (
                   <InfoSetView
                     inspections={setSelected.inspections}
-                    type={setSelected.type || 1}
+                    type={setSelected.inspection_id || 1}
                   />
                 )}
               </DialogContent>
@@ -634,7 +637,7 @@ class ProjectEdit extends React.Component {
                 >
                   <Tab label="Users" disabled={loading} />
                   <Tab label="Structures" disabled={loading} />
-                  <Tab label="Spans" disabled={loading} />
+                  {type === 1 ? (<Tab label="Spans" disabled={loading}/>) : null}
                   <Tab label="Set" disabled={loading} />
                   <Tab label="Interactions" disabled={loading} />
                   <Tab label="Map" disabled={loading} />
@@ -649,7 +652,7 @@ class ProjectEdit extends React.Component {
                     overflowY: "hidden",
                     padding: "0 2px",
                     minHeight: "500px",
-                    height: value === 3 ? "auto" : "calc(100vh - 330px)"
+                    height: ((type === 1 && value === 3) || (type === 2 && value === 2)) ? "auto" : "calc(100vh - 330px)"
                   }}
                 >
                   <Grid>
@@ -872,231 +875,97 @@ class ProjectEdit extends React.Component {
                       />
                     </div>
                   </Grid>
-                  <Grid>
-                    <div className={classes.header}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        disabled={loading || (!is_superuser && !canAddSpan)}
-                        onClick={() => {
-                          this.props.setStructures("", "");
-                          this.props.setFromMap(false);
-                          this.props.history.push(
-                            `/projects/${this.projectId}/spans/create`
-                          );
-                        }}
-                      >
-                        Add Span
-                      </Button>
-                      <Input
-                        style={{ width: 300 }}
-                        defaultValue=""
-                        className={classes.search}
-                        inputProps={{
-                          placeholder: "Search...",
-                          onChange: this.handleSearch
-                        }}
-                      />
-                    </div>
-                    <Grid>{this.dataPorcentage(spans)}</Grid>
-                    <div className={classes.divTable}>
-                      <Table className={classes.table}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell style={{ width: "50%" }}>ID</TableCell>
-                            <TableCell style={{ width: "30%" }}>State</TableCell>
-                            <TableCell>Actions</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {this.filter(spans, search, "spans").map(span => (
-                            <TableRow key={span.id}>
-                              <TableCell component="td">
-                                <Link
-                                  component={RouterLink}
-                                  to={`/projects/${this.projectId}/spans/${span.id}`}
-                                >
-                                  {span.id}
-                                </Link>
-                              </TableCell>
-                              <TableCell>
-                                {span.state ? (
-                                  span.state.name === "Collected" ? (
-                                    <Typography color="primary">
-                                      {span.state.name}
-                                    </Typography>
-                                  ) : (
-                                    <Typography style={{ color: "#e44f4f" }}>
-                                      {span.state.name}
-                                    </Typography>
-                                  )
-                                ) : (
-                                  "-"
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div style={{ display: "flex" }}>
-                                  {canChangeSpan || is_superuser ? (
-                                    <Link
-                                      component={RouterLink}
-                                      to={`/projects/${this.projectId}/spans/${span.id}`}
-                                    >
-                                      <IconButton
-                                        aria-label="Edit"
-                                        color="primary"
-                                        disabled={loading}
-                                      >
-                                        <Edit />
-                                      </IconButton>
-                                    </Link>
-                                  ) : (
-                                    <IconButton aria-label="Edit" color="primary">
-                                      <Edit />
-                                    </IconButton>
-                                  )}
-                                  <IconButton
-                                    aria-label="Delete"
-                                    className={classes.iconDelete}
-                                    disabled={
-                                      loading || (!canDeleteSpan && !is_superuser)
-                                    }
-                                    onClick={() =>
-                                      this.showModal(span.id, "open", "span")
-                                    }
-                                  >
-                                    <Delete />
-                                  </IconButton>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                    <TextEmpty itemName="SPANS" empty={spans.length === 0} />
-                  </Grid>
-                  <Grid style={{ height: "100%" }}>
-                    <Grid item className={classes.divSelectSet} xs>
-                      <Typography
-                        variant="subtitle1"
-                        className={classes.textSelect}
-                      >
-                        SELECT THE SET:
-                      </Typography>
-                      <TextField
-                        name="set_id"
-                        select
-                        label="Sets"
-                        value={setId}
-                        onChange={e => this.openConfirmSet(e.target.value)}
-                        margin="none"
-                        fullWidth
-                      >
-                        {sets.map(set => {
-                          return (
-                            <MenuItem key={set.id} value={set.id}>
-                              {set.name}
-                            </MenuItem>
-                          );
-                        })}
-                        {set && setId === 1 && (
-                          <MenuItem key={set.id} value={set.id}>
-                            {set.name}
-                          </MenuItem>
-                        )}
-                      </TextField>
-                    </Grid>
-                    {set && (
-                      <InfoSetView
-                        inspections={set.inspections}
-                        type={set.type || 1}
-                      />
-                    )}
-                  </Grid>
-                  <Grid>
-                    <div className={classes.header}>
-                      <Link
-                        component={RouterLink}
-                        color="inherit"
-                        to={`/projects/${this.projectId}/interactions/create`}
-                      >
-                        <Button variant="outlined" color="primary">
-                          Create Interaction
+                  {type === 1 ? (
+                    <Grid>
+                      <div className={classes.header}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          disabled={loading || (!is_superuser && !canAddSpan)}
+                          onClick={() => {
+                            this.props.setStructures("", "");
+                            this.props.setFromMap(false);
+                            this.props.history.push(
+                              `/projects/${this.projectId}/spans/create`
+                            );
+                          }}
+                        >
+                          Add Span
                         </Button>
-                      </Link>
-                      <Input
-                        style={{ width: 300 }}
-                        defaultValue=""
-                        className={classes.search}
-                        inputProps={{
-                          placeholder: "Search...",
-                          onChange: this.handleSearch
-                        }}
-                      />
-                    </div>
-                    <div style={{ overflowX: "auto" }}>
-                      <Table className={classes.table}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell style={{ minWidth: 180 }}>
-                              Name
-                            </TableCell>
-                            <TableCell style={{ minWidth: 120 }}>
-                              Title
-                            </TableCell>
-                            <TableCell style={{ minWidth: 120 }}>
-                              Type
-                            </TableCell>
-                            <TableCell>Latitude</TableCell>
-                            <TableCell>Longitude</TableCell>
-                            <TableCell>Contact Info</TableCell>
-                            <TableCell>Notes</TableCell>
-                            <TableCell style={{ minWidth: 160 }}>
-                              Actions
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {this.filter(interactions, search).map(
-                            interaction => (
-                              <TableRow key={interaction.id}>
-                                <TableCell
-                                  component="td"
-                                  className={classes.cellDescription}
-                                >
-                                  {interaction.name}
-                                </TableCell>
-                                <TableCell>{interaction.title}</TableCell>
-                                <TableCell>{interaction.type}</TableCell>
-                                <TableCell>{interaction.latitude}</TableCell>
-                                <TableCell>{interaction.longitude}</TableCell>
-                                <TableCell>
-                                  {interaction.contact_info || "-"}
+                        <Input
+                          style={{ width: 300 }}
+                          defaultValue=""
+                          className={classes.search}
+                          inputProps={{
+                            placeholder: "Search...",
+                            onChange: this.handleSearch
+                          }}
+                        />
+                      </div>
+                      <Grid>{this.dataPorcentage(spans)}</Grid>
+                      <div className={classes.divTable}>
+                        <Table className={classes.table}>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell style={{ width: "50%" }}>ID</TableCell>
+                              <TableCell style={{ width: "30%" }}>State</TableCell>
+                              <TableCell>Actions</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {this.filter(spans, search, "spans").map(span => (
+                              <TableRow key={span.id}>
+                                <TableCell component="td">
+                                  <Link
+                                    component={RouterLink}
+                                    to={`/projects/${this.projectId}/spans/${span.id}`}
+                                  >
+                                    {span.id}
+                                  </Link>
                                 </TableCell>
                                 <TableCell>
-                                  {interaction.notes || "-"}
+                                  {span.state ? (
+                                    span.state.name === "Collected" ? (
+                                      <Typography color="primary">
+                                        {span.state.name}
+                                      </Typography>
+                                    ) : (
+                                      <Typography style={{ color: "#e44f4f" }}>
+                                        {span.state.name}
+                                      </Typography>
+                                    )
+                                  ) : (
+                                    "-"
+                                  )}
                                 </TableCell>
                                 <TableCell>
-                                  <div>
-                                    <Link
-                                      component={RouterLink}
-                                      color="inherit"
-                                      to={`/projects/${this.projectId}/interactions/${interaction.id}`}
-                                    >
-                                      <IconButton color="primary">
+                                  <div style={{ display: "flex" }}>
+                                    {canChangeSpan || is_superuser ? (
+                                      <Link
+                                        component={RouterLink}
+                                        to={`/projects/${this.projectId}/spans/${span.id}`}
+                                      >
+                                        <IconButton
+                                          aria-label="Edit"
+                                          color="primary"
+                                          disabled={loading}
+                                        >
+                                          <Edit />
+                                        </IconButton>
+                                      </Link>
+                                    ) : (
+                                      <IconButton aria-label="Edit" color="primary">
                                         <Edit />
                                       </IconButton>
-                                    </Link>
+                                    )}
                                     <IconButton
                                       aria-label="Delete"
                                       className={classes.iconDelete}
-                                      disabled={loading}
+                                      disabled={
+                                        loading || (!canDeleteSpan && !is_superuser)
+                                      }
                                       onClick={() =>
-                                        this.showModal(
-                                          interaction.id,
-                                          "open",
-                                          "interaction"
-                                        )
+                                        this.showModal(span.id, "open", "span")
                                       }
                                     >
                                       <Delete />
@@ -1104,23 +973,314 @@ class ProjectEdit extends React.Component {
                                   </div>
                                 </TableCell>
                               </TableRow>
-                            )
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                      <TextEmpty itemName="SPANS" empty={spans.length === 0} />
+                    </Grid>
+                  ): (
+                    <Grid style={{ height: "100%" }}>
+                      <Grid item className={classes.divSelectSet} xs>
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.textSelect}
+                        >
+                          SELECT THE SET:
+                        </Typography>
+                        <TextField
+                          name="set_id"
+                          select
+                          label="Sets"
+                          value={setId}
+                          onChange={e => this.openConfirmSet(e.target.value)}
+                          margin="none"
+                          fullWidth
+                        >
+                          {sets.filter(({inspection_id}) => inspection_id === type).map(set => {
+                            return (
+                              <MenuItem key={set.id} value={set.id}>
+                                {set.name}
+                              </MenuItem>
+                            );
+                          })}
+                          {set && setId === 1 && (
+                            <MenuItem key={set.id} value={set.id}>
+                              {set.name}
+                            </MenuItem>
                           )}
-                        </TableBody>
-                      </Table>
-                      <TextEmpty
-                        itemName="INTERACTIONS"
-                        empty={interactions.length === 0}
+                        </TextField>
+                      </Grid>
+                      {set && (
+                        <InfoSetView
+                          inspections={set.inspections}
+                          type={set.inspection_id}
+                        />
+                      )}
+                    </Grid>
+                  )}
+                  {type === 1 ? (
+                    <Grid style={{ height: "100%" }}>
+                      <Grid item className={classes.divSelectSet} xs>
+                        <Typography
+                          variant="subtitle1"
+                          className={classes.textSelect}
+                        >
+                          SELECT THE SET:
+                        </Typography>
+                        <TextField
+                          name="set_id"
+                          select
+                          label="Sets"
+                          value={setId}
+                          onChange={e => this.openConfirmSet(e.target.value)}
+                          margin="none"
+                          fullWidth
+                        >
+                          {sets.map(set => {
+                            return (
+                              <MenuItem key={set.id} value={set.id}>
+                                {set.name}
+                              </MenuItem>
+                            );
+                          })}
+                          {set && setId === 1 && (
+                            <MenuItem key={set.id} value={set.id}>
+                              {set.name}
+                            </MenuItem>
+                          )}
+                        </TextField>
+                      </Grid>
+                      {set && (
+                        <InfoSetView
+                          inspections={set.inspections}
+                          type={set.inspection_id}
+                        />
+                      )}
+                    </Grid>
+                  ) : (
+                    <Grid>
+                      <div className={classes.header}>
+                        <Link
+                          component={RouterLink}
+                          color="inherit"
+                          to={`/projects/${this.projectId}/interactions/create`}
+                        >
+                          <Button variant="outlined" color="primary">
+                            Create Interaction
+                          </Button>
+                        </Link>
+                        <Input
+                          style={{ width: 300 }}
+                          defaultValue=""
+                          className={classes.search}
+                          inputProps={{
+                            placeholder: "Search...",
+                            onChange: this.handleSearch
+                          }}
+                        />
+                      </div>
+                      <div style={{ overflowX: "auto" }}>
+                        <Table className={classes.table}>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell style={{ minWidth: 180 }}>
+                                Name
+                              </TableCell>
+                              <TableCell style={{ minWidth: 120 }}>
+                                Title
+                              </TableCell>
+                              <TableCell style={{ minWidth: 120 }}>
+                                Type
+                              </TableCell>
+                              <TableCell>Latitude</TableCell>
+                              <TableCell>Longitude</TableCell>
+                              <TableCell>Contact Info</TableCell>
+                              <TableCell>Notes</TableCell>
+                              <TableCell style={{ minWidth: 160 }}>
+                                Actions
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {this.filter(interactions, search).map(
+                              interaction => (
+                                <TableRow key={interaction.id}>
+                                  <TableCell
+                                    component="td"
+                                    className={classes.cellDescription}
+                                  >
+                                    {interaction.name}
+                                  </TableCell>
+                                  <TableCell>{interaction.title}</TableCell>
+                                  <TableCell>{interaction.type}</TableCell>
+                                  <TableCell>{interaction.latitude}</TableCell>
+                                  <TableCell>{interaction.longitude}</TableCell>
+                                  <TableCell>
+                                    {interaction.contact_info || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    {interaction.notes || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div>
+                                      <Link
+                                        component={RouterLink}
+                                        color="inherit"
+                                        to={`/projects/${this.projectId}/interactions/${interaction.id}`}
+                                      >
+                                        <IconButton color="primary">
+                                          <Edit />
+                                        </IconButton>
+                                      </Link>
+                                      <IconButton
+                                        aria-label="Delete"
+                                        className={classes.iconDelete}
+                                        disabled={loading}
+                                        onClick={() =>
+                                          this.showModal(
+                                            interaction.id,
+                                            "open",
+                                            "interaction"
+                                          )
+                                        }
+                                      >
+                                        <Delete />
+                                      </IconButton>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        </Table>
+                        <TextEmpty
+                          itemName="INTERACTIONS"
+                          empty={interactions.length === 0}
+                        />
+                      </div>
+                    </Grid>
+                  )}
+                  {type === 1 ? (
+                    <Grid>
+                      <div className={classes.header}>
+                        <Link
+                          component={RouterLink}
+                          color="inherit"
+                          to={`/projects/${this.projectId}/interactions/create`}
+                        >
+                          <Button variant="outlined" color="primary">
+                            Create Interaction
+                          </Button>
+                        </Link>
+                        <Input
+                          style={{ width: 300 }}
+                          defaultValue=""
+                          className={classes.search}
+                          inputProps={{
+                            placeholder: "Search...",
+                            onChange: this.handleSearch
+                          }}
+                        />
+                      </div>
+                      <div style={{ overflowX: "auto" }}>
+                        <Table className={classes.table}>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell style={{ minWidth: 180 }}>
+                                Name
+                              </TableCell>
+                              <TableCell style={{ minWidth: 120 }}>
+                                Title
+                              </TableCell>
+                              <TableCell style={{ minWidth: 120 }}>
+                                Type
+                              </TableCell>
+                              <TableCell>Latitude</TableCell>
+                              <TableCell>Longitude</TableCell>
+                              <TableCell>Contact Info</TableCell>
+                              <TableCell>Notes</TableCell>
+                              <TableCell style={{ minWidth: 160 }}>
+                                Actions
+                              </TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {this.filter(interactions, search).map(
+                              interaction => (
+                                <TableRow key={interaction.id}>
+                                  <TableCell
+                                    component="td"
+                                    className={classes.cellDescription}
+                                  >
+                                    {interaction.name}
+                                  </TableCell>
+                                  <TableCell>{interaction.title}</TableCell>
+                                  <TableCell>{interaction.type}</TableCell>
+                                  <TableCell>{interaction.latitude}</TableCell>
+                                  <TableCell>{interaction.longitude}</TableCell>
+                                  <TableCell>
+                                    {interaction.contact_info || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    {interaction.notes || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div>
+                                      <Link
+                                        component={RouterLink}
+                                        color="inherit"
+                                        to={`/projects/${this.projectId}/interactions/${interaction.id}`}
+                                      >
+                                        <IconButton color="primary">
+                                          <Edit />
+                                        </IconButton>
+                                      </Link>
+                                      <IconButton
+                                        aria-label="Delete"
+                                        className={classes.iconDelete}
+                                        disabled={loading}
+                                        onClick={() =>
+                                          this.showModal(
+                                            interaction.id,
+                                            "open",
+                                            "interaction"
+                                          )
+                                        }
+                                      >
+                                        <Delete />
+                                      </IconButton>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        </Table>
+                        <TextEmpty
+                          itemName="INTERACTIONS"
+                          empty={interactions.length === 0}
+                        />
+                      </div>
+                    </Grid>
+                  ) : (
+                    <Grid style={{ height: "100%" }}>
+                      <MapBox
+                        projectId={this.projectId}
+                        open={openDrawer}
+                        tab={value}
                       />
-                    </div>
-                  </Grid>
-                  <Grid style={{ height: "100%" }}>
-                    <MapBox
-                      projectId={this.projectId}
-                      open={openDrawer}
-                      tab={value}
-                    />
-                  </Grid>
+                    </Grid>
+                  )}
+                  {type === 1 && (
+                    <Grid style={{ height: "100%" }}>
+                      <MapBox
+                        projectId={this.projectId}
+                        open={openDrawer}
+                        tab={value}
+                      />
+                    </Grid>
+                  )}
                 </SwipeableViews>
               </Panel>
             </div>

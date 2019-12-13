@@ -36,11 +36,13 @@ class CheckboxGroup extends React.Component {
 
   havePermissions (permissions) {
     const codenames = permissions.map( ({codename}) => codename)
+    console.log(permissions)
+    console.log(this.props.permissionsId.filter( id => (codenames.includes(id))))
+    console.log("==================")
     return codenames.length === (this.props.permissionsId.filter( id => (codenames.includes(id)))).length
   }
   render() {
     let { permissionsId, classes  } = this.props;
-    console.log(permissionsId)
     const roles = [
       {
         title: "ALL MODULE USERS",

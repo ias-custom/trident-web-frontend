@@ -46,26 +46,39 @@ class SetCreate extends React.Component {
 
 
   saveSet = async (inspections, name) => {
+    const { type } = this.state;
     const form = {
       inspections: inspections.map(({ name, categories }) => {
         return {
           name: name,
-          categories: categories.map(({ name, items }) => {
-            return {
-              name,
-              items: items.map(({ name , deficiencies}) => {
-                return {
-                  name,
-                  deficiencies: deficiencies.map(({name}) => {
-                    return { name }
-                  })
-                };
-              })
-            };
+          categories: categories.map(({ name, items, questions }) => {
+            if (type === "1"){
+              return {
+                name,
+                items: items.map(({ name , deficiencies}) => {
+                  return {
+                    name,
+                    deficiencies: deficiencies.map(({name}) => {
+                      return { name }
+                    })
+                  };
+                })
+              };
+            } else {
+              return {
+                name,
+                questions: questions.map(({ name }) => {
+                  return {
+                    name
+                  };
+                })
+              };
+            }
           })
         };
       }),
-      name
+      name,
+      inspection_id: type
     };
     try {
       const response = await this.props.createSet(form);

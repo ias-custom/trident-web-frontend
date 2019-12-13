@@ -18,7 +18,7 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { createProject, fetchTags } from "../../../redux/actions/projectActions";
+import { createProject, fetchTags, fetchInspectionsProject } from "../../../redux/actions/projectActions";
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -34,11 +34,12 @@ class ProjectCreate extends React.Component {
 
   form = {
     name: "",
-    type: ""
+    inspection_id: ""
   };
 
   componentDidMount() {
     this.props.fetchTags();
+    this.props.fetchInspectionsProject()
     const nameItem = "projects";
     const nameSubItem = "create";
     const open = true;
@@ -85,8 +86,7 @@ class ProjectCreate extends React.Component {
     );
   }
   render() {
-    const { classes, loading } = this.props;
-
+    const { classes, loading, inspections_project } = this.props;
     return (
       <Layout title="Create Role">
         {() => (
@@ -100,7 +100,7 @@ class ProjectCreate extends React.Component {
               }}
               validationSchema={Yup.object().shape({
                 name: Yup.string().required("Name is required"),
-                type: Yup.mixed().required("Type is required")
+                inspection_id: Yup.mixed().required("Type is required")
               })}
               enableReinitialize
             >
@@ -145,26 +145,25 @@ class ProjectCreate extends React.Component {
                             </Grid>
                             <Grid item xs={6}>
                               <TextField
-                                name="type"
+                                name="inspection_id"
                                 select
-                                value={values.type}
+                                value={values.inspection_id}
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                error={!!touched.type && !!errors.type}
+                                error={!!touched.inspection_id && !!errors.inspection_id}
                                 helperText={
-                                  !!touched.type && !!errors.type && errors.type
+                                  !!touched.inspection_id && !!errors.inspection_id && errors.inspection_id
                                 }
                                 label="Type"
                                 fullWidth
                                 margin="normal"
                                 required
                               >
-                                <MenuItem key={1} value={1}>
-                                  Constructability
-                                </MenuItem>
-                                <MenuItem key={2} value={2}>
-                                  Construction
-                                </MenuItem>
+                                {inspections_project.map(i => (
+                                  <MenuItem key={i.id} value={i.id}>
+                                    {i.name}
+                                  </MenuItem>
+                                ))}
                               </TextField>
                             </Grid>
                           </Grid>
@@ -240,7 +239,8 @@ class ProjectCreate extends React.Component {
 const mapStateToProps = state => {
   return {
     loading: state.global.loading,
-    tags: state.projects.tags
+    tags: state.projects.tags,
+    inspections_project: state.projects.inspections_project
   };
 };
 
@@ -249,7 +249,8 @@ const mapDispatchToProps = {
   fetchTags,
   toggleItemMenu,
   selectedItemMenu,
-  createProject
+  createProject,
+  fetchInspectionsProject
 };
 
 export default compose(

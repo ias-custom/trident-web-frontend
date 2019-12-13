@@ -519,3 +519,33 @@ export const addSpan = (projectId, form) => {
       }
     }
   }
+
+  export const addAnswerSpan = (spanId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.addAnswer(spanId, form)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }
+
+  export const updateAnswerSpan = (spanId, answerId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true))
+
+      try {
+        const response = await service.updateAnswer(spanId, answerId, form)
+        return response;
+      } catch (error) {
+        
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  }

@@ -49,7 +49,6 @@ export const login = (username, password) => {
         dispatch({ type: GET_CUSTOMER_SELECTED, payload: customers[0].id })
         localStorage.setItem('customers',  JSON.stringify(customers));
         localStorage.setItem('customerSelectedId',  JSON.stringify(customers[0].id));
-
         const fullName = first_name ? `${first_name} ${last_name}` : username;
         const avatar = fullName.replace(/\s/g, '').substr(0, 2).toUpperCase();
         const permissionsList = permissions.map( ({codename}) => codename)

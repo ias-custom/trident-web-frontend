@@ -252,6 +252,22 @@ class SpanService extends Service {
     }
   }
 
+  addAnswer = async (spanId, form) => {
+    try {
+        return await this.http.post(`/spans/${spanId}/answers/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  updateAnswer = async (spanId, answerId, form) => {
+    try {
+        return await this.http.patch(`/spans/${spanId}/answers/${answerId}/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 }
 
 export default SpanService;

@@ -225,9 +225,19 @@ class ProjectService extends Service {
   //SETS
   addSet = async (projectId, form) => {
     try {
-      const url = `projects/${projectId}/sets/`;
+      const url = `/projects/${projectId}/sets/`;
 
       return await this.http.post(url, form);
+    } catch (error) {
+      return error.response;
+    }
+  };
+
+  fetchInspectionsProject = async () => {
+    try {
+      const url = `/project-inspections`;
+
+      return await this.http.get(url);
     } catch (error) {
       return error.response;
     }

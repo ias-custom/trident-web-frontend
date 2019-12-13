@@ -21,7 +21,8 @@ import {
   GET_CATEGORIES_MARKING,
   GET_CATEGORIES_ACCESS,
   ADD_USER_PROJECT,
-  DELETE_USER_PROJECT
+  DELETE_USER_PROJECT,
+  INSPECTIONS_PROJECT
 } from "../actionTypes";
 
 const initialState = {
@@ -75,6 +76,7 @@ const initialState = {
     }
   ],
   id: "",
+  inspections_project: [],
   categories_access: [
     {
       id: 1,
@@ -174,6 +176,9 @@ export default (state = initialState, action) => {
 
     case GET_CATEGORIES_ACCESS:
       return { ...state, categories_access: action.payload };
+
+    case INSPECTIONS_PROJECT:
+      return { ...state, inspections_project: action.payload };
 
     default:
       return state;

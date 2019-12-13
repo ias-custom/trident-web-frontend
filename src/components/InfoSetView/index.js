@@ -19,7 +19,7 @@ const InfoSetView = ({ ...props }) => {
   const [openId, setOpenId] = useState("");
   const [itemId, setItemId] = useState("");
   const { inspections, classes, type } = props;
-
+  console.log(inspections)
   return (
     <Grid container>
       <Grid item xs={12}>
@@ -63,41 +63,38 @@ const InfoSetView = ({ ...props }) => {
                   </div>
                   {openId === category.id ? (
                     <div>
-                      <p className={classes.textItems}>ITEMS:</p>
+                      <p className={classes.textItems}>{type === 1 ? "ITEMS" : "QUESTIONS"}:</p>
                       {category.items.map(item => (
                         <Grid key={item.id}>
                           <div
                             className={classNames(
                               classes.divCategory,
-                              classes.divItem,
-                              type === 2 && classes.divItemMargin
+                              classes.divItem
                             )}
                           >
                             <Typography
-                              variant={type === 1 ? "subtitle1" : "h6"}
+                              variant={"subtitle1"}
                               align="center"
-                              classes={{ subtitle1: classes.itemName, h6: classes.question }}
+                              classes={{ subtitle1: classes.itemName}}
                             >
                               {item.name}
                             </Typography>
-                            { type === 1 && (
-                              itemId === item.id ? (
-                                <IconButton
-                                  className={classes.buttonCollapse}
-                                  onClick={() => setItemId(0)}
-                                >
-                                  <ExpandLess />
-                                </IconButton>
-                              ) : (
-                                <IconButton
-                                  className={classes.buttonCollapse}
-                                  onClick={() =>
-                                    setItemId(item.id)
-                                  }
-                                >
-                                  <ExpandMore />
-                                </IconButton>
-                              )
+                            { itemId === item.id ? (
+                              <IconButton
+                                className={classes.buttonCollapse}
+                                onClick={() => setItemId(0)}
+                              >
+                                <ExpandLess />
+                              </IconButton>
+                            ) : (
+                              <IconButton
+                                className={classes.buttonCollapse}
+                                onClick={() =>
+                                  setItemId(item.id)
+                                }
+                              >
+                                <ExpandMore />
+                              </IconButton>
                             )}
                           </div>
                           {itemId === item.id && (
@@ -124,6 +121,25 @@ const InfoSetView = ({ ...props }) => {
                               ))}
                             </div>
                           )}
+                        </Grid>
+                      ))}
+                      {category.questions.map(question => (
+                        <Grid key={question.id}>
+                          <div
+                            className={classNames(
+                              classes.divCategory,
+                              classes.divItem,
+                              classes.divItemMargin
+                            )}
+                          >
+                            <Typography
+                              variant={"h6"}
+                              align="center"
+                              classes={{ h6: classes.question }}
+                            >
+                              {question.name}
+                            </Typography>
+                          </div>
                         </Grid>
                       ))}
                     </div>

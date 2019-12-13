@@ -134,6 +134,22 @@ class StructureService extends Service {
     }
   }
 
+  addAnswer = async (structureId, form) => {
+    try {
+        return await this.http.post(`/structures/${structureId}/answers/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
+  updateAnswer = async (structureId, answerId, form) => {
+    try {
+        return await this.http.patch(`/structures/${structureId}/answers/${answerId}/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 }
 
 export default StructureService;

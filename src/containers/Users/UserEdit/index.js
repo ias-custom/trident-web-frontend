@@ -79,7 +79,6 @@ class UserEdit extends React.Component {
       groups,
       customer_ids
     } = data;
-    console.log(customer_ids)
     this.form.username = username;
     this.form.email = email;
     this.form.first_name = first_name;
@@ -142,8 +141,6 @@ class UserEdit extends React.Component {
 
   render() {
     const { classes, loading, roles, customers, userLoguedId, customerSelectedId } = this.props;
-    console.log(userLoguedId, customerSelectedId)
-    console.log(this.userId, typeof(this.userId))
     return (
       <Layout title="Edit User">
         {() => (

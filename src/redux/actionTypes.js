@@ -63,6 +63,7 @@ export const SET_LATITUDE = 'SET_LATITUDE';
 export const SET_LONGITUDE = 'SET_LONGITUDE';
 export const SET_FROM_MAP = 'SET_FROM_MAP';
 export const SET_PROJECT_FOR_MAP = 'SET_PROJECT_FOR_MAP';
+export const INSPECTIONS_PROJECT = 'INSPECTIONS_PROJECT';
 
 // Structures
 export const GET_STRUCTURES = 'GET_STRUCTURES';

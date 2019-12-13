@@ -29,7 +29,8 @@ import {
   FormControlLabel,
   Switch,
   RadioGroup,
-  Radio
+  Radio,
+  Tooltip
 } from "@material-ui/core";
 
 import {
@@ -41,9 +42,16 @@ import {
 } from "../../redux/actions/globalActions";
 import {
   updateItemStructure,
-  addItemStructure
+  addItemStructure,
+  addAnswerStructure,
+  updateAnswerStructure
 } from "../../redux/actions/structureActions";
-import { updateItemSpan, addItemSpan } from "../../redux/actions/spanActions";
+import {
+  updateItemSpan,
+  addItemSpan,
+  addAnswerSpan,
+  updateAnswerSpan
+} from "../../redux/actions/spanActions";
 import {
   ExpandMore,
   Delete,
@@ -73,7 +81,13 @@ class Equipment extends React.Component {
     formDeficiency: {
       emergency: false,
       deficiency_id: ""
-    }
+    },
+    openQuestion: false,
+    description: "",
+    add: false,
+    answer: {},
+    answerId: "",
+    questionId: ""
   };
 
   componentDidMount() {
@@ -115,8 +129,8 @@ class Equipment extends React.Component {
         if (item.deficiencies.length === 1) {
           this.updateItem(4, false); // 4 IS ID OF STATE ITEM DEFICIENT
           if (this.props.state === 2) {
-            this.props.changeItem(1)
-          } 
+            this.props.changeItem(1);
+          }
         }
         this.props.enqueueSnackbar("The deficiency was added successfully!", {
           variant: "success",
@@ -160,13 +174,13 @@ class Equipment extends React.Component {
         });
         this.setState({ openItem: false, stateId: "" });
         this.props.changeItems(newItems);
-        const items = newItems.filter(i => i.state.name !== "Not inspected")
+        const items = newItems.filter(i => i.state.name !== "Not inspected");
         if (items.length === 0 && this.props.state === 1) {
-          this.props.changeItem(2)
-        } 
+          this.props.changeItem(2);
+        }
         if (items.length > 0 && this.props.state === 2) {
-          this.props.changeItem(1)
-        } 
+          this.props.changeItem(1);
+        }
         if (showNotify) {
           this.props.enqueueSnackbar("The item was updated successfully!", {
             variant: "success",
@@ -271,11 +285,13 @@ class Equipment extends React.Component {
         if (item.deficiencies.length === 0) {
           await this.updateItem(3, false); // 3 IS ID OF STATE ITEM NOT INSPECTED
           if (this.props.state === 1) {
-            const items = this.props.items.filter(i => i.state.name !== "Not inspected")
+            const items = this.props.items.filter(
+              i => i.state.name !== "Not inspected"
+            );
             if (items.length === 0) {
-              this.props.changeItem(2)
+              this.props.changeItem(2);
             }
-          } 
+          }
         }
         this.props.enqueueSnackbar("The deficiency was deleted successfully!", {
           variant: "success",
@@ -329,6 +345,50 @@ class Equipment extends React.Component {
     }
   };
 
+  addOrUpdateAnswer = async (item, answer, add, answerId) => {
+    const { description } = this.state;
+    item.answer = {
+      toggle: answer,
+      question_id: item.id,
+      description: answer ? null : description
+    };
+    const form = { ...item.answer };
+    this.setState({ openQuestion: false });
+    let response = "";
+    if (add) {
+      if (this.props.isStructure)
+        response = await this.props.addAnswerStructure(this.props.itemId, form);
+      else
+        response = await this.props.addAnswerStructure(this.props.itemId, form);
+    } else {
+      if (this.props.isStructure)
+        response = await this.props.updateAnswerStructure(
+          this.props.itemId,
+          answerId,
+          form
+        );
+      else
+        response = await this.props.updateAnswerSpan(
+          this.props.itemId,
+          answerId,
+          form
+        );
+    }
+    console.log(response);
+    if (response.status === 200 || response.status === 201) {
+      console.log(this.props.state);
+      if (this.props.state === 2) {
+        /* const questions = this.props.items.filter(
+          q => q.answer !== null
+        );
+        if (questions.length === 0) {
+          this.props.changeItem(1);
+        } */
+        this.props.changeItem(1);
+      }
+    } else {
+    }
+  };
   render() {
     const {
       classes,
@@ -347,7 +407,13 @@ class Equipment extends React.Component {
       deficienciesItem,
       stateId,
       openItem,
-      deficienciesParent
+      deficienciesParent,
+      openQuestion,
+      question,
+      description,
+      add,
+      answer,
+      answerId
     } = this.state;
     return (
       <div style={{ height: "100%" }}>
@@ -571,6 +637,58 @@ class Equipment extends React.Component {
             </Formik>
           </DialogContent>
         </Dialog>
+        <Dialog
+          open={openQuestion}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          classes={{ paper: classes.dialog }}
+          onBackdropClick={() =>
+            !loading ? this.setState({ openQuestion: false }) : null
+          }
+          onEscapeKeyDown={() =>
+            !loading ? this.setState({ openQuestion: false }) : null
+          }
+        >
+          <DialogTitle id="alert-dialog-title">{"Add reason"}</DialogTitle>
+          <DialogContent>
+            <TextField
+              name="description"
+              label="Description"
+              placeholder="Enter the text here"
+              value={description}
+              multiline
+              rows="2"
+              rowsMax="6"
+              margin="normal"
+              disabled={loading}
+              onChange={e => this.setState({ description: e.target.value })}
+              required
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              variant="outlined"
+              className={classes.buttonCancel}
+              onClick={() =>
+                !loading ? this.setState({ openQuestion: false }) : null
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              className={classes.buttonAccept}
+              disabled={description === ""}
+              onClick={() =>
+                this.addOrUpdateAnswer(question, answer, add, answerId)
+              }
+            >
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Grid>
           <Typography
             component="h1"
@@ -612,24 +730,49 @@ class Equipment extends React.Component {
                             <CardHeader
                               action={
                                 <div>
-                                  <IconButton
-                                    onClick={() => this.duplicateItem(item)}
-                                  >
-                                    <FileCopy />
-                                  </IconButton>
-                                  <IconButton
-                                    color="primary"
-                                    disabled={item.deficiencies.length > 0}
-                                    onClick={() =>
-                                      this.setState({
-                                        openItem: true,
-                                        itemId: item.id,
-                                        stateId: item.state_id
-                                      })
-                                    }
-                                  >
-                                    <Edit />
-                                  </IconButton>
+                                  {typeSet === "1" ? (
+                                    <div>
+                                      <IconButton
+                                        onClick={() => this.duplicateItem(item)}
+                                      >
+                                        <FileCopy />
+                                      </IconButton>
+                                      <IconButton
+                                        color="primary"
+                                        disabled={item.deficiencies.length > 0}
+                                        onClick={() =>
+                                          this.setState({
+                                            openItem: true,
+                                            itemId: item.id,
+                                            stateId: item.state_id
+                                          })
+                                        }
+                                      >
+                                        <Edit />
+                                      </IconButton>
+                                    </div>
+                                  ) : (
+                                    item.answer &&
+                                    !item.answer.toggle && (
+                                      <Tooltip title="Change reason" aria-label="Reason" disableFocusListener>
+                                        <IconButton
+                                          color="primary"
+                                          onClick={() =>
+                                            this.setState({
+                                              openQuestion: true,
+                                              question: item,
+                                              answerId: item.answer.id,
+                                              aadd: false,
+                                              answer: false,
+                                              description: item.answer.description
+                                            })
+                                          }
+                                        >
+                                          <Edit />
+                                        </IconButton>
+                                      </Tooltip>
+                                    )
+                                  )}
                                   {/* <IconButton
                                     className={classes.iconDelete}
                                     onClick={() =>
@@ -651,25 +794,28 @@ class Equipment extends React.Component {
                                       typeSet === "2" && classes.question
                                     )}
                                   >
-                                    {item.item_parent.name}
+                                    {typeSet === "1"
+                                      ? item.item_parent.name
+                                      : item.name}
                                   </span>{" "}
-                                  {item.state.name === "Deficient" ? (
-                                    <span>({item.deficiencies.length})</span>
-                                  ) : (
-                                    <div>
-                                      <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        className={
-                                          item.state.name === "Not inspected"
-                                            ? classes.buttonGray
-                                            : classes.buttonGreen
-                                        }
-                                      >
-                                        {item.state.name}
-                                      </Button>
-                                    </div>
-                                  )}
+                                  {typeSet === "1" &&
+                                    (item.state.name === "Deficient" ? (
+                                      <span>({item.deficiencies.length})</span>
+                                    ) : (
+                                      <div>
+                                        <Button
+                                          variant="outlined"
+                                          color="primary"
+                                          className={
+                                            item.state.name === "Not inspected"
+                                              ? classes.buttonGray
+                                              : classes.buttonGreen
+                                          }
+                                        >
+                                          {item.state.name}
+                                        </Button>
+                                      </div>
+                                    ))}
                                 </div>
                               }
                             />
@@ -695,7 +841,8 @@ class Equipment extends React.Component {
                                           deficienciesItem: item.deficiencies.map(
                                             ({ deficiency_id }) => deficiency_id
                                           ),
-                                          deficienciesParent: item.deficiencies_parent
+                                          deficienciesParent:
+                                            item.deficiencies_parent
                                         })
                                       }
                                     >
@@ -758,33 +905,64 @@ class Equipment extends React.Component {
                               ) : (
                                 <RadioGroup
                                   name="type"
-                                  value={item.answer || ""}
+                                  value={
+                                    item.answer
+                                      ? item.answer.toggle
+                                        ? "1"
+                                        : "2"
+                                      : ""
+                                  }
                                   classes={{ root: classes.radioGroup }}
                                   onChange={e => {
-                                    item.answer = e.target.value;
-                                    this.setState({});
+                                    let add = true;
+                                    let answerId = "";
+                                    if (item.answer !== null) {
+                                      add = false;
+                                      answerId = item.answer.id;
+                                    }
+                                    if (e.target.value === "2") {
+                                      this.setState({
+                                        openQuestion: true,
+                                        question: item,
+                                        answerId,
+                                        add,
+                                        answer:
+                                          e.target.value === "1" ? true : false
+                                      });
+                                      return;
+                                    }
+                                    this.addOrUpdateAnswer(
+                                      item,
+                                      e.target.value === "1" ? true : false,
+                                      add,
+                                      answerId
+                                    );
                                   }}
                                 >
                                   <FormControlLabel
                                     value="1"
                                     control={<Radio color="primary" />}
+                                    disabled={loading}
                                     label="Yes"
                                     labelPlacement="end"
                                     classes={{ root: classes.radio }}
                                     className={classNames(
                                       classes.radio,
-                                      item.answer === "1" &&
+                                      item.answer &&
+                                        item.answer.toggle === true &&
                                         classes.radioSelected
                                     )}
                                   />
                                   <FormControlLabel
                                     value="2"
                                     control={<Radio color="primary" />}
+                                    disabled={loading}
                                     label="No"
                                     labelPlacement="end"
                                     className={classNames(
                                       classes.radio,
-                                      item.answer === "2" &&
+                                      item.answer &&
+                                        item.answer.toggle === false &&
                                         classes.radioSelected
                                     )}
                                   />
@@ -836,7 +1014,11 @@ const mapDispatchToProps = {
   updateItemStructure,
   updateItemSpan,
   addItemStructure,
-  addItemSpan
+  addItemSpan,
+  addAnswerStructure,
+  updateAnswerStructure,
+  addAnswerSpan,
+  updateAnswerSpan
 };
 
 Equipment.propTypes = {

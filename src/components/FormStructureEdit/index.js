@@ -30,7 +30,6 @@ class FormStructureEdit extends React.Component {
     const response = await this.props.getProject(this.props.projectId)
     if (response.status === 200) {
       const { set } = response.data
-      console.log(set.inspections, "set")
       this.setState({inspections: set.inspections})
     }
   }

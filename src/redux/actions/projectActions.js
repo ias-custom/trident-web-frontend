@@ -21,7 +21,8 @@ import {
   GET_CATEGORIES_MARKING,
   GET_CATEGORIES_ACCESS,
   ADD_USER_PROJECT,
-  DELETE_USER_PROJECT
+  DELETE_USER_PROJECT,
+  INSPECTIONS_PROJECT
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -169,6 +170,26 @@ export const updateProject = (id, body) => {
 
       if (response.status === 200) {
         dispatch(fetchProjects());
+      }
+
+      return response;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const fetchInspectionsProject = () => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.fetchInspectionsProject();
+      console.log(response.data)
+      if (response.status === 200) {
+        dispatch({type: INSPECTIONS_PROJECT, payload: response.data});
       }
 
       return response;

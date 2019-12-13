@@ -107,8 +107,6 @@ class Home extends React.Component {
                   </Link>
                 </Grid>
               )}
-            </Grid>
-            <Grid container spacing={16}>
               {(permissions.includes(CAN_VIEW_PROJECT) || is_superuser) && (
                 <Grid item xs={6} sm={4}>
                   <Link
