@@ -19,6 +19,7 @@ import {
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
 import { createProject, fetchTags, fetchInspectionsProject } from "../../../redux/actions/projectActions";
+import { fetchSets } from "../../../redux/actions/setsActions";
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -34,12 +35,14 @@ class ProjectCreate extends React.Component {
 
   form = {
     name: "",
-    inspection_id: ""
+    inspection_id: "",
+    set_id: ""
   };
 
   componentDidMount() {
     this.props.fetchTags();
-    this.props.fetchInspectionsProject()
+    this.props.fetchSets();
+    this.props.fetchInspectionsProject();
     const nameItem = "projects";
     const nameSubItem = "create";
     const open = true;
@@ -57,7 +60,7 @@ class ProjectCreate extends React.Component {
 
       if (response.status === 201) {
         resetForm();
-        this.props.enqueueSnackbar("The role has been created!", {
+        this.props.enqueueSnackbar("The project has been created!", {
           variant: "success"
         });
         this.props.history.push("/projects");
@@ -73,22 +76,10 @@ class ProjectCreate extends React.Component {
     this.props.setLoading(false);
   };
 
-  changeCheckbox(permissions, add, props) {
-    const { setFieldValue, values } = props;
-    const permissionsFinal = new Set([...values.permissionsId, ...permissions]);
-    if (add) {
-      setFieldValue("permissionsId", [...permissionsFinal]);
-      return;
-    }
-    setFieldValue(
-      "permissionsId",
-      values.permissionsId.filter(id => !permissions.includes(id))
-    );
-  }
   render() {
-    const { classes, loading, inspections_project } = this.props;
+    const { classes, loading, inspections_project, sets } = this.props;
     return (
-      <Layout title="Create Role">
+      <Layout title="Create Project">
         {() => (
           <div className={classes.root}>
             <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
@@ -100,7 +91,8 @@ class ProjectCreate extends React.Component {
               }}
               validationSchema={Yup.object().shape({
                 name: Yup.string().required("Name is required"),
-                inspection_id: Yup.mixed().required("Type is required")
+                inspection_id: Yup.mixed().required("Type is required"),
+                set_id: Yup.mixed().required("Set is required"),
               })}
               enableReinitialize
             >
@@ -141,6 +133,7 @@ class ProjectCreate extends React.Component {
                                 fullWidth
                                 margin="normal"
                                 required
+                                disabled={loading}
                               />
                             </Grid>
                             <Grid item xs={6}>
@@ -158,10 +151,35 @@ class ProjectCreate extends React.Component {
                                 fullWidth
                                 margin="normal"
                                 required
+                                disabled={loading}
                               >
                                 {inspections_project.map(i => (
                                   <MenuItem key={i.id} value={i.id}>
                                     {i.name}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <TextField
+                                name="set_id"
+                                select
+                                value={values.set_id}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.set_id && !!errors.set_id}
+                                helperText={
+                                  !!touched.inspection_id && !!errors.set_id && errors.set_id
+                                }
+                                label="Set"
+                                fullWidth
+                                disabled={values.inspection_id === "" || loading}
+                                margin="normal"
+                                required
+                              >
+                                {sets.filter(({inspection_id}) => inspection_id === values.inspection_id).map(s => (
+                                  <MenuItem key={s.id} value={s.id}>
+                                    {s.name}
                                   </MenuItem>
                                 ))}
                               </TextField>
@@ -240,7 +258,8 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     tags: state.projects.tags,
-    inspections_project: state.projects.inspections_project
+    inspections_project: state.projects.inspections_project,
+    sets: state.sets.list
   };
 };
 
@@ -250,7 +269,8 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   createProject,
-  fetchInspectionsProject
+  fetchInspectionsProject,
+  fetchSets
 };
 
 export default compose(

@@ -188,7 +188,6 @@ export const fetchInspectionsProject = () => {
 
     try {
       const response = await service.fetchInspectionsProject();
-      console.log(response.data)
       if (response.status === 200) {
         dispatch({type: INSPECTIONS_PROJECT, payload: response.data});
       }

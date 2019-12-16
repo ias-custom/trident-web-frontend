@@ -42,7 +42,7 @@ import * as Yup from "yup";
 const breadcrumbs = [
   { name: "Home", to: "/home" },
   { name: "Users", to: "/users" },
-  { name: "User Create", to: null }
+  { name: "Create User", to: null }
 ];
 
 class UserCreate extends React.Component {

@@ -175,8 +175,8 @@ class MapBox extends React.Component {
                       </span>
                       <div className={classes.divItems}>
                         {item.deficiencies.map(d => (
-                          <div>
-                            <p key={d.id}>
+                          <div key={d.id}>
+                            <p>
                               {d.deficiency.name}{" "}
                               {d.emergency ? (
                                 <i
@@ -578,7 +578,7 @@ class MapBox extends React.Component {
         type: "Feature",
         geometry: {
           type: "Point",
-          coordinates: [item.coordinate[0], item.coordinate[1]]
+          coordinates: [parseFloat(item.longitude), parseFloat(item.latitude)]
         },
         properties: {
           name: item.name,

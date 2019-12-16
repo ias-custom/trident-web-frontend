@@ -124,7 +124,7 @@ class StructureEdit extends React.Component {
         },
         inspection_id,
         inspection_name: inspection_id ? inspection.name : "",
-        items: (project && project.inspection_id) === 1 ? items : items,
+        items: (project && project.inspection_id) === 1 ? items : questions,
         categories: inspection_id ? inspection.categories : [],
         typeSet: project ? project.inspection_id : 1,
         enabledEquipment: true
