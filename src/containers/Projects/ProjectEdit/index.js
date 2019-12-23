@@ -769,7 +769,7 @@ class ProjectEdit extends React.Component {
                       <Table className={classes.table}>
                         <TableHead>
                           <TableRow>
-                            <TableCell style={{ width: "50%" }}>Name</TableCell>
+                            <TableCell style={{ width: "50%" }}>Number</TableCell>
                             <TableCell style={{ width: "30%" }}>
                               State
                             </TableCell>
@@ -782,7 +782,7 @@ class ProjectEdit extends React.Component {
                               structure => (
                                 <TableRow key={structure.id}>
                                   <TableCell component="td">
-                                    {structure.name}
+                                    {structure.number}
                                   </TableCell>
                                   <TableCell component="td">
                                     {structure.state.name === "Collected" ? (
@@ -869,7 +869,7 @@ class ProjectEdit extends React.Component {
                         <Table className={classes.table}>
                           <TableHead>
                             <TableRow>
-                              <TableCell style={{ width: "50%" }}>ID</TableCell>
+                              <TableCell style={{ width: "50%" }}>Number</TableCell>
                               <TableCell style={{ width: "30%" }}>State</TableCell>
                               <TableCell>Actions</TableCell>
                             </TableRow>
@@ -882,7 +882,7 @@ class ProjectEdit extends React.Component {
                                     component={RouterLink}
                                     to={`/projects/${this.projectId}/spans/${span.id}`}
                                   >
-                                    {span.id}
+                                    {span.number}
                                   </Link>
                                 </TableCell>
                                 <TableCell>
@@ -1224,6 +1224,7 @@ class ProjectEdit extends React.Component {
                         open={openDrawer}
                         tab={value}
                         type={type}
+                        getProject={() => this.props.getProject(this.projectId)}
                       />
                     </Grid>
                   )}
@@ -1234,6 +1235,7 @@ class ProjectEdit extends React.Component {
                         open={openDrawer}
                         tab={value}
                         type={type}
+                        getProject={() => this.props.getProject(this.projectId)}
                       />
                     </Grid>
                   )}

@@ -17,7 +17,6 @@ import {
   
       try {
         const response = await service.getDefault(type);
-        console.log(response.data)
         if (response.status === 200) {
           let { inspections } = response.data[0]
           dispatch({type: GET_DEFAULT_SET, payload: inspections})

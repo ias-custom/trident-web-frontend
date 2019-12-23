@@ -10,33 +10,46 @@ import {
   withStyles,
   Grid,
   TextField,
-  MenuItem,
-  Tooltip,
-  IconButton
+  MenuItem
 } from "@material-ui/core";
 import { Form } from "formik";
 import { fetchSpanTypes } from "../../redux/actions/spanActions";
 import { fetchStates } from "../../redux/actions/globalActions";
 import { getProject } from "../../redux/actions/projectActions";
-import { AddCircle } from "@material-ui/icons";
 
 class FormSpanEdit extends React.Component {
   state = {
-    inspections: []
+    inspections: [],
+    numberStart: "",
+    numberEnd: ""
   };
 
   componentDidMount = async () => {
+    const { values, structures } = this.props;
     this.props.fetchSpanTypes(this.props.projectId);
     this.props.fetchStates();
     const response = await this.props.getProject(this.props.projectId, false);
     if (response.status === 200) {
       const { set } = response.data;
-      if (this.props.isCreate){
-        this.props.setFieldValue("inspectionId", set.inspections[0].id)
+      if (this.props.isCreate) {
+        this.props.setFieldValue("inspectionId", set.inspections[0].id);
       }
       this.setState({ inspections: set.inspections });
     }
+    if (values.structureStart && values.structureEnd) {
+      let numberStart = structures.find(
+        ({ id }) => id === parseInt(values.structureStart.split("-")[0])
+      ).number;
+      let numberEnd = structures.find(
+        ({ id }) => id === parseInt(values.structureEnd.split("-")[0])
+      ).number;
+      this.setState({ numberStart, numberEnd });
+      console.log(numberStart,numberEnd)
+      this.props.setFieldValue("number", `Span ${numberStart}-${numberEnd}`)
+      this.setState({})
+    }
   };
+  
   render() {
     const {
       classes,
@@ -50,9 +63,10 @@ class FormSpanEdit extends React.Component {
       states,
       spansTypes,
       structures,
-      isCreate
+      isCreate,
+      setFieldValue
     } = this.props;
-    const { inspections } = this.state;
+    const { inspections, numberStart, numberEnd } = this.state;
     return (
       <Form onSubmit={this.props.handleSubmit}>
         <Prompt
@@ -79,6 +93,7 @@ class FormSpanEdit extends React.Component {
                     !!touched.number && !!errors.number && errors.number
                   }
                   required
+                  disabled
                 />
               </Grid>
             </Grid>
@@ -90,7 +105,20 @@ class FormSpanEdit extends React.Component {
                   label="Start structure or substation"
                   value={values.structureStart}
                   margin="normal"
-                  onChange={this.props.handleChange}
+                  onChange={e => {
+                    const structureId = parseInt(e.target.value.split("-")[0]);
+                    const numberStart = structures.find(
+                      ({ id }) => id === structureId
+                    ).number;
+                    if (values.structureEnd) {
+                      setFieldValue(
+                        "number",
+                        `Span ${numberStart}-${numberEnd}`
+                      );
+                    }
+                    this.setState({ numberStart });
+                    this.props.handleChange(e);
+                  }}
                   onBlur={this.props.handleBlur}
                   error={!!touched.structureStart && !!errors.structureStart}
                   helperText={
@@ -116,7 +144,7 @@ class FormSpanEdit extends React.Component {
                             structure.project_ids !== undefined ? "sub" : "st"
                           }`}
                         >
-                          {structure.name}
+                          {structure.number}
                         </MenuItem>
                       );
                     })}
@@ -129,7 +157,20 @@ class FormSpanEdit extends React.Component {
                   label="End structure or substation"
                   value={values.structureEnd}
                   margin="normal"
-                  onChange={this.props.handleChange}
+                  onChange={e => {
+                    const structureId = parseInt(e.target.value.split("-")[0]);
+                    const numberEnd = structures.find(
+                      ({ id }) => id === structureId
+                    ).number;
+                    if (values.structureStart) {
+                      setFieldValue(
+                        "number",
+                        `Span ${numberStart}-${numberEnd}`
+                      );
+                    }
+                    this.setState({ numberEnd });
+                    this.props.handleChange(e);
+                  }}
                   onBlur={this.props.handleBlur}
                   error={!!touched.structureEnd && !!errors.structureEnd}
                   helperText={
@@ -155,7 +196,7 @@ class FormSpanEdit extends React.Component {
                             structure.project_ids !== undefined ? "sub" : "st"
                           }`}
                         >
-                          {structure.name}
+                          {structure.number}
                         </MenuItem>
                       );
                     })}
@@ -190,7 +231,7 @@ class FormSpanEdit extends React.Component {
                 </TextField>
               </Grid>
               <Grid item xs>
-                <div style={{ display: "flex" }}>
+                {/* <div style={{ display: "flex" }}>
                   <TextField
                     name="spanType"
                     select
@@ -231,11 +272,7 @@ class FormSpanEdit extends React.Component {
                       </Tooltip>
                     </div>
                   ) : null}
-                </div>
-              </Grid>
-            </Grid>
-            <Grid container spacing={16}>
-              <Grid item xs={6}>
+                </div> */}
                 <TextField
                   name="inspectionId"
                   select
@@ -264,6 +301,36 @@ class FormSpanEdit extends React.Component {
                 </TextField>
               </Grid>
             </Grid>
+            {/* <Grid container spacing={16}>
+              <Grid item xs={6}>
+                <TextField
+                  name="inspectionId"
+                  select
+                  label="Inspection"
+                  value={values.inspectionId}
+                  margin="normal"
+                  onChange={this.props.handleChange}
+                  onBlur={this.props.handleBlur}
+                  error={!!touched.inspectionId && !!errors.inspectionId}
+                  helperText={
+                    !!touched.inspectionId &&
+                    !!errors.inspectionId &&
+                    errors.inspectionId
+                  }
+                  fullWidth
+                  disabled
+                  required
+                >
+                  {inspections.map(inspection => {
+                    return (
+                      <MenuItem key={inspection.id} value={inspection.id}>
+                        {inspection.name}
+                      </MenuItem>
+                    );
+                  })}
+                </TextField>
+              </Grid>
+            </Grid> */}
           </Grid>
         </Grid>
         <br />
@@ -328,8 +395,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(FormSpanEdit);

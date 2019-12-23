@@ -285,6 +285,7 @@ class UserEdit extends React.Component {
                                   errors.role_id
                                 }
                                 margin="normal"
+                                required
                                 fullWidth
                               >
                                 {roles.map(role => {

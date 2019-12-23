@@ -159,7 +159,20 @@ const styles = theme => ({
     margin: "0 10px 10px 0",
     display: "inline-block",
     cursor: "pointer"
-  }
+  },
+  iconDelete: {
+    '& svg': {
+      color: "#f50057"      
+    },
+    '&:hover': {
+      backgroundColor: "rgba(237,83,85, 0.08)"
+    },
+    '&:disabled': {
+      '& svg': {
+        color: "gray"      
+      },
+    },
+  },
 });
   
   export default styles;

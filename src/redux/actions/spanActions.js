@@ -8,7 +8,9 @@ import {
   GET_ACCESS,
   GET_SPAN,
   SET_STRUCTURE_START,
-  SET_STRUCTURE_END
+  SET_STRUCTURE_END,
+  DELETE_MARKING,
+  DELETE_ACCESS
 } from "../actionTypes";
 import SpanService from "../../services/SpanService";
 
@@ -366,7 +368,7 @@ export const addSpan = (projectId, form) => {
       try {
         const response = await service.deleteMarking(spanId, markingId)
         if (response.status === 204) {
-          dispatch(getMarkings(spanId))
+          dispatch({type: DELETE_MARKING, payload: markingId})
         }
         return response;
       } catch (error) {
@@ -479,7 +481,7 @@ export const addSpan = (projectId, form) => {
       try {
         const response = await service.deleteAccess(spanId, accessId)
         if (response.status === 204) {
-          dispatch(getAccess(spanId))
+          dispatch({type: DELETE_ACCESS, payload: accessId})
         }
         return response;
       } catch (error) {

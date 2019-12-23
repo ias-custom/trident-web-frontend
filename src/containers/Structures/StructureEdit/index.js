@@ -82,7 +82,7 @@ class StructureEdit extends React.Component {
   componentDidMount = async () => {
     try {
       this.props.getPhotos(this.structureId);
-      this.loadData()
+      this.loadData();
       const nameItem = "projects";
       const open = true;
       this.props.toggleItemMenu({ nameItem, open });
@@ -90,12 +90,11 @@ class StructureEdit extends React.Component {
     } catch (error) {}
   };
 
-  loadData = async ()  => {
+  loadData = async () => {
     const response = await this.props.getStructure(
       this.projectId,
       this.structureId
     );
-    console.log(response.data)
     if (response.status === 200) {
       const {
         state_id,
@@ -132,7 +131,7 @@ class StructureEdit extends React.Component {
     } else {
       this.props.history.push("/404");
     }
-  }
+  };
   handleSearch = event => {
     this.setState({ search: event.target.value });
   };
@@ -252,7 +251,7 @@ class StructureEdit extends React.Component {
       );
 
       if (response.status === 200) {
-        this.loadData()
+        this.loadData();
         this.props.enqueueSnackbar("The structure was updated successfully!", {
           variant: "success",
           anchorOrigin: { vertical: "top", horizontal: "center" }
@@ -268,10 +267,10 @@ class StructureEdit extends React.Component {
     setSubmitting(false);
     this.props.setLoading(false);
   };
-  changeState = async (stateId) => {
+  changeState = async stateId => {
     const form = {
       stateId
-    }
+    };
     try {
       const response = await this.props.updateStructure(
         this.projectId,
@@ -286,13 +285,13 @@ class StructureEdit extends React.Component {
               ...prevState.formGeneral,
               stateId
             }
-          }
+          };
         });
-      } 
+      }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   render() {
     const { classes, loading, photos } = this.props;
@@ -435,10 +434,14 @@ class StructureEdit extends React.Component {
                       validationSchema={Yup.object().shape({
                         name: Yup.string().required("Name is required"),
                         stateId: Yup.mixed().required("State is required"),
-                        latitude: Yup.string().required("Latitude is required"),
-                        longitude: Yup.string().required(
-                          "Longitude is required"
-                        ),
+                        latitude: Yup.number()
+                          .lessThan(91, "The value must be between -90 and 90")
+                          .moreThan(-91, "The value must be between -90 and 90")
+                          .required("Latitude is required"),
+                        longitude: Yup.number()
+                          .lessThan(91, "The value must be between -90 and 90")
+                          .moreThan(-91, "The value must be between -90 and 90")
+                          .required("Longitude is required"),
                         inspectionId: Yup.mixed().required(
                           "Inspection is required"
                         ),
@@ -490,7 +493,7 @@ class StructureEdit extends React.Component {
                           this.setState({ items: newItems })
                         }
                         state={formGeneral.stateId}
-                        changeItem={(stateId) => this.changeState(stateId)}
+                        changeItem={stateId => this.changeState(stateId)}
                       />
                     )}
                   </Grid>
@@ -533,8 +536,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "StructureEdit" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(StructureEdit);

@@ -49,7 +49,8 @@ class SpanCreate extends React.Component {
       description: ""
     },
     open: false,
-    inspections: []
+    inspections: [],
+    enableForm: false
   };
 
   breadcrumbs = [
@@ -65,7 +66,7 @@ class SpanCreate extends React.Component {
   projectId = this.props.match.params.projectId;
   componentDidMount = async () => {
     try {
-      this.props.fetchStructures(this.projectId);
+      await this.props.fetchStructures(this.projectId);
       await this.props.getSubstations();
       const { structureStart, structureEnd } = this.props;
       this.setState(prevState => {
@@ -75,7 +76,8 @@ class SpanCreate extends React.Component {
             structureStart,
             structureEnd,
             stateId: 2
-          }
+          },
+          enableForm: true
         };
       });
       const nameItem = "spans";
@@ -169,7 +171,7 @@ class SpanCreate extends React.Component {
 
   render() {
     const { classes, loading, structures, fromMap, substations } = this.props;
-    const { form, formSpanType, open } = this.state;
+    const { form, formSpanType, open, enableForm } = this.state;
 
     return (
       <Layout title="Create Span">
@@ -281,68 +283,68 @@ class SpanCreate extends React.Component {
               </Grid>
             ) : null}
             <Panel>
-              <Formik
-                onSubmit={this.save}
-                enableReinitialize
-                validateOnChange
-                initialValues={{
-                  ...form
-                }}
-                validationSchema={Yup.object().shape({
-                  stateId: Yup.mixed().required("State is required"),
-                  spanType: Yup.string().required("Span type is required"),
-                  structureStart: Yup.string().required(
-                    "Structure start is required"
-                  ),
-                  structureEnd: Yup.string().required(
-                    "Structure end is required"
-                  ),
-                  number: Yup.string()
-                    .max(10)
-                    .required("Number is required")
-                    .trim(),
-                  inspectionId: Yup.mixed().required("Inspection is required")
-                })}
-              >
-                {props => {
-                  const {
-                    isSubmitting,
-                    values,
-                    isValid,
-                    dirty,
-                    errors,
-                    touched,
-                    handleChange,
-                    handleBlur,
-                    handleSubmit,
-                    setFieldValue
-                  } = props;
+              {enableForm && (
+                <Formik
+                  onSubmit={this.save}
+                  enableReinitialize
+                  validateOnChange
+                  initialValues={{
+                    ...form
+                  }}
+                  validationSchema={Yup.object().shape({
+                    stateId: Yup.mixed().required("State is required"),
+                    structureStart: Yup.string().required(
+                      "Structure start is required"
+                    ),
+                    structureEnd: Yup.string().required(
+                      "Structure end is required"
+                    ),
+                    number: Yup.string()
+                      .required("Number is required")
+                      .trim(),
+                    inspectionId: Yup.mixed().required("Inspection is required")
+                  })}
+                >
+                  {props => {
+                    const {
+                      isSubmitting,
+                      values,
+                      isValid,
+                      dirty,
+                      errors,
+                      touched,
+                      handleChange,
+                      handleBlur,
+                      handleSubmit,
+                      setFieldValue
+                    } = props;
 
-                  return (
-                    <FormSpanEdit
-                      dirty={dirty}
-                      values={values}
-                      isValid={isValid}
-                      touched={touched}
-                      setFieldValue={setFieldValue}
-                      errors={errors}
-                      isSubmitting={isSubmitting}
-                      handleChange={handleChange}
-                      handleBlur={handleBlur}
-                      handleSubmit={handleSubmit}
-                      projectId={this.projectId}
-                      structures={[
-                        ...structures,
-                        ...substations.filter(({ project_ids }) =>
-                          project_ids.includes(parseInt(this.projectId))
-                        )
-                      ]}
-                      isCreate={true}
-                      showModal={() => this.setState({ open: true })}
-                    />
-                  );
-                }}
-              </Formik>
+                    return (
+                      <FormSpanEdit
+                        dirty={dirty}
+                        values={values}
+                        isValid={isValid}
+                        touched={touched}
+                        setFieldValue={setFieldValue}
+                        errors={errors}
+                        isSubmitting={isSubmitting}
+                        handleChange={handleChange}
+                        handleBlur={handleBlur}
+                        handleSubmit={handleSubmit}
+                        projectId={this.projectId}
+                        structures={[
+                          ...structures,
+                          ...substations.filter(({ project_ids }) =>
+                            project_ids.includes(parseInt(this.projectId))
+                          )
+                        ]}
+                        isCreate={true}
+                        showModal={() => this.setState({ open: true })}
+                      />
+                    );
+                  }}
+                </Formik>
+              )}
             </Panel>
           </div>
         )}

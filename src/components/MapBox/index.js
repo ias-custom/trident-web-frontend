@@ -9,21 +9,44 @@ import {
   selectedItemMenu
 } from "../../redux/actions/layoutActions";
 import { setPoint, setFromMap } from "../../redux/actions/projectActions";
+import { deleteInteraction } from "../../redux/actions/interactionActions";
 import {
   fetchStructures,
-  getStructure
+  getStructure,
+  deleteStructure
 } from "../../redux/actions/structureActions";
 import {
   fetchSpans,
   setSpan,
   setStructures,
-  getSpan
+  getSpan,
+  deleteSpan,
+  deleteMarking,
+  deleteAccess
 } from "../../redux/actions/spanActions";
-import { withStyles, Grid, Button, Avatar, Dialog, DialogContent, DialogTitle } from "@material-ui/core";
+import {
+  withStyles,
+  Grid,
+  Button,
+  Avatar,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton
+} from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
-import { CheckCircle, CancelOutlined } from "@material-ui/icons";
+import {
+  CheckCircle,
+  CancelOutlined,
+  Edit,
+  Cancel,
+  Delete
+} from "@material-ui/icons";
 import { withSnackbar } from "notistack";
-import { getSubstations } from "../../redux/actions/substationActions";
+import {
+  getSubstations,
+  deleteSubstation
+} from "../../redux/actions/substationActions";
 import substationImage from "../../img/substation.png";
 import woodStructureGray from "../../img/wood_structure_gray.png";
 import steelStructureGray from "../../img/steel_structure_gray.png";
@@ -34,6 +57,7 @@ import steelStructureRed from "../../img/steel_structure_red.png";
 import woodStructureGreen from "../../img/wood_structure_green.png";
 import steelStructureGreen from "../../img/steel_structure_green.png";
 import { CAN_ADD_STRUCTURE, CAN_ADD_SPAM } from "../../redux/permissions";
+import DialogDelete from "../DialogDelete";
 
 class MapBox extends React.Component {
   state = {
@@ -69,7 +93,9 @@ class MapBox extends React.Component {
     marker: null,
     open: false,
     openPhoto: false,
-    url: ""
+    url: "",
+    item: null,
+    openDelete: false
   };
 
   mapLoaded = false;
@@ -97,7 +123,9 @@ class MapBox extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.open !== this.props.open) {
       setTimeout(() => {
-        this.map.resize();
+        if (this.map) {
+          this.map.resize();
+        }
       }, 180);
     }
   }
@@ -147,7 +175,54 @@ class MapBox extends React.Component {
     });
   }
 
+  deleteItem = async () => {
+    this.setState({ openDelete: false });
+    const { item, marker } = this.state;
+    let response = "";
+    if (
+      marker.properties.itemName === "Structure" ||
+      marker.properties.itemName === "Span" ||
+      marker.properties.itemName === "Interaction"
+    ) {
+      response = await marker.properties.delete(
+        this.props.projectId,
+        marker.properties.id
+      );
+    }
+    if (
+      marker.properties.itemName === "Crossing" ||
+      marker.properties.itemName === "Access"
+    ) {
+      response = await marker.properties.delete(
+        marker.properties.span_id,
+        marker.properties.id
+      );
+    }
+    if (marker.properties.itemName === "Substation") {
+      response = await marker.properties.delete(marker.properties.id);
+    }
+    if (response.status === 204) {
+      item.remove();
+      this.setState({ open: false });
+      this.props.enqueueSnackbar(
+        `¡${marker.properties.itemName} removed succesfully!`,
+        {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        }
+      );
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed",
+        {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        }
+      );
+    }
+  };
+
   getInfo(marker) {
+    console.log(marker, "marker");
     const { categories, items } = this.state;
     const { classes } = this.props;
     return (
@@ -157,69 +232,80 @@ class MapBox extends React.Component {
           className={classes.link}
           target={"_blank"}
         >
-          <h3>{marker.properties.name}</h3>
+          <h3>{marker.properties.number}</h3>
         </a>
-        {items.length > 0 ? (
-          categories.map((category, index) => (
-            <div key={category.id}>
-              <p className={classes.label}>
-                {index + 1}. {category.name}
-              </p>
-              <div className={classes.divItems}>
-                {items
-                  .filter(({ category_id }) => category_id === category.id)
-                  .map(item => (
-                    <div key={item.id}>
-                      <span className={classes.label}>
-                        - Item "{item.item_parent.name}":
-                      </span>
-                      <div className={classes.divItems}>
-                        {item.deficiencies.map(d => (
-                          <div key={d.id}>
-                            <p>
-                              {d.deficiency.name}{" "}
-                              {d.emergency ? (
-                                <i
-                                  className="fas fa-exclamation-triangle"
-                                  style={{ color: "red" }}
-                                ></i>
-                              ) : (
-                                ""
-                              )}
-                            </p>
-                            {/* d.photos.map(p => (
-                               <Avatar alt="photo" src={p.url} key={p.id}/>
-                            )) */}
-                            <div>
-                              {[
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
-                                "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png"
-                              ].map(p => (
-                                <Avatar
-                                  alt="photo"
-                                  src={p}
-                                  className={classes.avatar}
-                                  onClick={() =>
-                                    this.setState({ openPhoto: true, url: p })
-                                  }
-                                />
-                              ))}
+        <Grid container justify="center">
+          <IconButton
+            aria-label="Delete"
+            className={classes.iconDelete}
+            onClick={() => this.setState({ openDelete: true })}
+          >
+            <Delete />
+          </IconButton>
+        </Grid>
+        { (marker.properties.itemName === "Structure" || marker.properties.itemName === "Span") ? (
+          items.length > 0 ? (
+            categories.map((category, index) => (
+              <div key={category.id}>
+                <p className={classes.label}>
+                  {index + 1}. {category.name}
+                </p>
+                <div className={classes.divItems}>
+                  {items
+                    .filter(({ category_id }) => category_id === category.id)
+                    .map(item => (
+                      <div key={item.id}>
+                        <span className={classes.label}>
+                          - Item "{item.item_parent.name}":
+                        </span>
+                        <div className={classes.divItems}>
+                          {item.deficiencies.map(d => (
+                            <div key={d.id}>
+                              <p>
+                                {d.deficiency.name}{" "}
+                                {d.emergency ? (
+                                  <i
+                                    className="fas fa-exclamation-triangle"
+                                    style={{ color: "red" }}
+                                  ></i>
+                                ) : (
+                                  ""
+                                )}
+                              </p>
+                              {/* d.photos.map(p => (
+                                <Avatar alt="photo" src={p.url} key={p.id}/>
+                              )) */}
+                              <div>
+                                {[
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png",
+                                  "https://uploads-ssl.webflow.com/5c8147c9231350d8ded8875e/5c846ad47c584b9a97e70d6a_avatar-3.png"
+                                ].map(p => (
+                                  <Avatar
+                                    alt="photo"
+                                    src={p}
+                                    className={classes.avatar}
+                                    onClick={() =>
+                                      this.setState({ openPhoto: true, url: p })
+                                    }
+                                  />
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <h3>WITHOUT DEFICIENCIES</h3>
-        )}
+            ))
+          ) : (
+            <h3>WITHOUT DEFICIENCIES</h3>
+          )
+        ) : null}
       </div>
     );
   }
@@ -245,8 +331,10 @@ class MapBox extends React.Component {
     }
     return {
       id: span.id,
+      itemName: "Span",
       link: `/projects/${this.props.projectId}/spans/${span.id}`,
-      name: span.number,
+      delete: this.props.deleteSpan,
+      number: span.number,
       items: response.data.items,
       categories: response.data.inspection.categories,
       color
@@ -299,7 +387,7 @@ class MapBox extends React.Component {
     this.map.on("click", "span", async e => {
       const span = e.features[0];
       const spanId = span.properties.id;
-      const number = span.properties.name;
+      const number = span.properties.number;
       if ([3, 4].includes(this.state.itemValue)) {
         this.setState({ span: { id: spanId, number } });
       } else {
@@ -336,8 +424,10 @@ class MapBox extends React.Component {
     }
     return {
       id: structure.id,
+      itemName: "Structure",
       link: `/projects/${this.props.projectId}/structures/${structure.id}`,
-      name: structure.name,
+      delete: this.props.deleteStructure,
+      number: structure.number,
       items: response.data.items,
       categories: response.data.inspection.categories,
       color,
@@ -394,7 +484,7 @@ class MapBox extends React.Component {
         .addTo(this.map);
       el.addEventListener("click", e => {
         e.stopPropagation();
-        const { id, name, items, categories } = marker.properties;
+        const { id, number, items, categories } = marker.properties;
         const { itemValue, structuresSelected, addFirstStructure } = this.state;
         if (itemValue === 2) {
           if (addFirstStructure) {
@@ -402,7 +492,7 @@ class MapBox extends React.Component {
               return {
                 structuresSelected: {
                   ...prevState.structuresSelected,
-                  first: { id, name, type: "st" }
+                  first: { id, number, type: "st" }
                 }
               };
             });
@@ -412,7 +502,7 @@ class MapBox extends React.Component {
                 return {
                   structuresSelected: {
                     ...prevState.structuresSelected,
-                    second: { id, name, type: "st" }
+                    second: { id, number, type: "st" }
                   }
                 };
               });
@@ -425,7 +515,7 @@ class MapBox extends React.Component {
           }
         } else {
           this.formatterInfo(items, categories);
-          this.setState({ open: true, marker });
+          this.setState({ open: true, marker, item: el });
         }
       });
     });
@@ -440,7 +530,11 @@ class MapBox extends React.Component {
           coordinates: [marking.coordinate[0], marking.coordinate[1]]
         },
         properties: {
-          name: marking.details,
+          number: marking.notes,
+          itemName: "Crossing",
+          delete: this.props.deleteMarking,
+          id: marking.id,
+          span_id: marking.span_id,
           link: `/projects/${this.props.projectId}/spans/${marking.span_id}?marking=true&id=${marking.id}`
         }
       };
@@ -453,13 +547,12 @@ class MapBox extends React.Component {
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 10 }) // add popups
-            .setHTML(
-              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
-            )
-        )
         .addTo(this.map);
+        el.addEventListener("click", e => {
+          e.stopPropagation();
+          this.formatterInfo([], []);
+          this.setState({ open: true, marker, item: el });
+        });
     });
   }
 
@@ -472,7 +565,11 @@ class MapBox extends React.Component {
           coordinates: [a.coordinate[0], a.coordinate[1]]
         },
         properties: {
-          name: a.notes,
+          number: a.notes,
+          itemName: "Access",
+          id: a.id,
+          span_id: a.span_id,
+          delete: this.props.deleteAccess,
           link: `/projects/${this.props.projectId}/spans/${a.span_id}?access=true&id=${a.id}`
         }
       };
@@ -485,13 +582,13 @@ class MapBox extends React.Component {
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 10 }) // add popups
-            .setHTML(
-              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
-            )
-        )
         .addTo(this.map);
+
+      el.addEventListener("click", e => {
+        e.stopPropagation();
+        this.formatterInfo([], []);
+        this.setState({ open: true, marker, item: el });
+      });
     });
   }
 
@@ -508,7 +605,9 @@ class MapBox extends React.Component {
             coordinates: [parseFloat(sub.longitude), parseFloat(sub.latitude)]
           },
           properties: {
-            name: sub.name,
+            number: sub.number,
+            itemName: "Substation",
+            delete: this.props.deleteSubstation,
             id: sub.id,
             link: `/substations/${sub.id}`,
             iconSize: [30, 30]
@@ -531,7 +630,7 @@ class MapBox extends React.Component {
         .addTo(this.map);
       el.addEventListener("click", e => {
         e.stopPropagation();
-        const { id, name } = marker.properties;
+        const { id, number } = marker.properties;
         const { itemValue, structuresSelected, addFirstStructure } = this.state;
         if (itemValue === 2) {
           if (addFirstStructure) {
@@ -539,7 +638,7 @@ class MapBox extends React.Component {
               return {
                 structuresSelected: {
                   ...prevState.structuresSelected,
-                  first: { id, name, type: "sub" }
+                  first: { id, number, type: "sub" }
                 }
               };
             });
@@ -549,7 +648,7 @@ class MapBox extends React.Component {
                 return {
                   structuresSelected: {
                     ...prevState.structuresSelected,
-                    second: { id, name, type: "sub" }
+                    second: { id, number, type: "sub" }
                   }
                 };
               });
@@ -561,12 +660,11 @@ class MapBox extends React.Component {
             }
           }
         } else {
-          new mapboxgl.Popup()
-            .setLngLat(marker.geometry.coordinates)
-            .setHTML(
-              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
-            )
-            .addTo(this.map);
+          el.addEventListener("click", e => {
+            e.stopPropagation();
+            this.formatterInfo([], []);
+            this.setState({ open: true, marker, item: el });
+          });
         }
       });
     });
@@ -581,7 +679,10 @@ class MapBox extends React.Component {
           coordinates: [parseFloat(item.longitude), parseFloat(item.latitude)]
         },
         properties: {
-          name: item.name,
+          number: item.name,
+          id: item.id,
+          itemName: "Interaction",
+          delete: this.props.deleteInteraction,
           link: `/projects/${this.props.projectId}/interactions/${item.id}`
         }
       };
@@ -593,13 +694,12 @@ class MapBox extends React.Component {
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el)
         .setLngLat(marker.geometry.coordinates)
-        .setPopup(
-          new mapboxgl.Popup({ offset: 10 }) // add popups
-            .setHTML(
-              `<div style="text-align:center"><h2 style="text-align:center">${marker.properties.name}</h3><a href='${marker.properties.link}' target='_blank' style="color: black">SEE MORE</a></div>`
-            )
-        )
         .addTo(this.map);
+      el.addEventListener("click", e => {
+        e.stopPropagation();
+        this.formatterInfo([], []);
+        this.setState({ open: true, marker, item: el });
+      });
     });
   }
 
@@ -667,13 +767,13 @@ class MapBox extends React.Component {
             {structuresSelected.first.id ? (
               <p className={classes.paragraph}>
                 {" "}
-                - Selected str/sub start: {structuresSelected.first.name}
+                - Selected str/sub start: {structuresSelected.first.number}
               </p>
             ) : null}
             {structuresSelected.second.id ? (
               <p className={classes.paragraph}>
                 {" "}
-                - Selected str/sub end: {structuresSelected.second.name}
+                - Selected str/sub end: {structuresSelected.second.number}
               </p>
             ) : null}
             <div>
@@ -739,20 +839,30 @@ class MapBox extends React.Component {
       open,
       marker,
       openPhoto,
-      url
+      url,
+      openDelete
     } = this.state;
+    console.log(marker);
     return (
       <Grid style={{ height: "100%", width: "100%" }}>
+        {openDelete && (
+          <DialogDelete
+            item={marker.properties.itemName.toLowerCase()}
+            open={openDelete}
+            closeModal={() => this.setState({ openDelete: false })}
+            remove={this.deleteItem}
+          />
+        )}
         <Dialog
           open={openPhoto}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
-          onEscapeKeyDown={() => this.setState({openPhoto: false})}
-          onBackdropClick={() => this.setState({openPhoto: false})}
+          onEscapeKeyDown={() => this.setState({ openPhoto: false })}
+          onBackdropClick={() => this.setState({ openPhoto: false })}
         >
           <DialogTitle>{""}</DialogTitle>
           <DialogContent>
-            <img src={url} alt="deficiency" style={{height: 400}}/>
+            <img src={url} alt="deficiency" style={{ height: 400 }} />
           </DialogContent>
         </Dialog>
         <div id="map" style={{ height: "100%", width: "100%" }}>
@@ -767,9 +877,7 @@ class MapBox extends React.Component {
               >
                 Add structure
                 {itemValue === 1 ? (
-                  <CheckCircle
-                    className={classes.iconButtonMenu}
-                  ></CheckCircle>
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
               {type === 1 && (
@@ -788,7 +896,7 @@ class MapBox extends React.Component {
                   ) : null}
                 </Button>
               )}
-              { type === 1 && (
+              {type === 1 && (
                 <Button
                   variant="outlined"
                   className={classes.buttonMenu}
@@ -798,11 +906,13 @@ class MapBox extends React.Component {
                 >
                   Add marking
                   {itemValue === 3 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                    <CheckCircle
+                      className={classes.iconButtonMenu}
+                    ></CheckCircle>
                   ) : null}
                 </Button>
               )}
-              { type === 1 && (
+              {type === 1 && (
                 <Button
                   variant="outlined"
                   className={classes.buttonMenu}
@@ -812,7 +922,9 @@ class MapBox extends React.Component {
                 >
                   Add access
                   {itemValue === 4 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                    <CheckCircle
+                      className={classes.iconButtonMenu}
+                    ></CheckCircle>
                   ) : null}
                 </Button>
               )}
@@ -847,7 +959,7 @@ class MapBox extends React.Component {
                         </p>
                         <p className={classes.paragraph}>
                           {structuresSelected.first.id
-                            ? structuresSelected.first.name
+                            ? structuresSelected.first.number
                             : "Not selected"}
                         </p>
                       </div>
@@ -858,7 +970,7 @@ class MapBox extends React.Component {
                         </p>
                         <p className={classes.paragraph}>
                           {structuresSelected.second.id
-                            ? structuresSelected.second.name
+                            ? structuresSelected.second.number
                             : "Not selected"}
                         </p>
                       </div>
@@ -968,7 +1080,13 @@ const mapDispatchToProps = {
   setFromMap,
   getStructure,
   getSpan,
-  getSubstations
+  getSubstations,
+  deleteStructure,
+  deleteSpan,
+  deleteMarking,
+  deleteSubstation,
+  deleteAccess,
+  deleteInteraction
 };
 
 export default compose(

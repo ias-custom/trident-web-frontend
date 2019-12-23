@@ -160,6 +160,13 @@ class SetCreate extends React.Component {
             <DialogActions>
               <Button
                 variant="outlined"
+                className={classes.buttonCancel}
+                onClick={() => this.props.history.push("/sets")}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outlined"
                 color="primary"
                 className={classes.buttonAccept}
                 disabled={type === ""}

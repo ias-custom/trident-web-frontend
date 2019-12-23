@@ -69,30 +69,6 @@ export const createProject = body => {
   };
 };
 
-export const getInfoProject = id => {
-  return async dispatch => {
-    dispatch(setLoading(true));
-
-    try {
-      const response = await service.getInfo(id);
-
-      if (response.status === 200) {
-        const { structures, spans, markings, access } = response.data
-        dispatch({ type: GET_STRUCTURES, payload: structures });
-        dispatch({ type: GET_SPANS, payload: spans });
-        dispatch({ type: GET_MARKINGS, payload: markings });
-        dispatch({ type: GET_ACCESS, payload: access });
-      }
-
-      return response;
-    } catch (error) {
-      console.error(error.log);
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-};
-
 export const getProject = (id, saveData = true) => {
   return async dispatch => {
     dispatch(setLoading(true));
@@ -101,6 +77,7 @@ export const getProject = (id, saveData = true) => {
       const response = await service.get(id);
       if (response.status === 200) {
         if (saveData) {
+          console.log(response.data)
           const { structures, spans, users, interactions, crossings, access } = response.data
           dispatch({ type: GET_PROJECT, payload: response.data });
           dispatch({ type: GET_USERS_PROJECT, payload: users });

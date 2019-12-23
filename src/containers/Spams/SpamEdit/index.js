@@ -114,6 +114,7 @@ class SpanEdit extends React.Component {
           value: 4,
           accessId: parseInt(url.searchParams.get("id"))
         });
+      await this.props.fetchStructures(this.projectId);
       this.props.getSubstations();
       const response = await this.props.getSpan(this.projectId, this.spanId);
       if (response.status === 200) {
@@ -146,14 +147,13 @@ class SpanEdit extends React.Component {
           },
           inspection_id,
           inspection_name: inspection_id ? inspection.name : "",
-          items: (project && project.inspection_id === 1) ? items : questions,
+          items: project && project.inspection_id === 1 ? items : questions,
           categories: inspection_id ? inspection.categories : [],
           typeSet: project ? project.inspection_id : 1,
           enabledEquipment: true
         });
         // if (inspection_id) this.props.getCategoriesInspection(inspection_id);
         this.props.getPhotosSpan(this.spanId);
-        this.props.fetchStructures(this.projectId);
         this.props.getMarkings(this.spanId);
         this.props.getAccess(this.spanId);
         const nameItem = "projects";
@@ -444,70 +444,70 @@ class SpanEdit extends React.Component {
                   slideStyle={{ overflowX: "hidden", overflowY: "hidden" }}
                 >
                   <Grid>
-                    <Formik
-                      onSubmit={this.update}
-                      validateOnChange
-                      enableReinitialize
-                      ref={this.formikGeneral}
-                      initialValues={{
-                        ...formGeneral
-                      }}
-                      validationSchema={Yup.object().shape({
-                        stateId: Yup.mixed().required("State is required"),
-                        spanType: Yup.string().required(
-                          "Span type is required"
-                        ),
-                        structureStart: Yup.string().required(
-                          "Structure start is required"
-                        ),
-                        structureEnd: Yup.string().required(
-                          "Structure end is required"
-                        ),
-                        number: Yup.string()
-                          .max(10)
-                          .required("Number is required")
-                          .trim(),
-                        inspectionId: Yup.mixed().required(
-                          "Inspection is required"
-                        )
-                      })}
-                    >
-                      {props => {
-                        const {
-                          isSubmitting,
-                          values,
-                          isValid,
-                          dirty,
-                          errors,
-                          touched,
-                          handleChange,
-                          handleBlur,
-                          handleSubmit
-                        } = props;
+                    { enabledEquipment && (
+                      <Formik
+                        onSubmit={this.update}
+                        validateOnChange
+                        enableReinitialize
+                        ref={this.formikGeneral}
+                        initialValues={{
+                          ...formGeneral
+                        }}
+                        validationSchema={Yup.object().shape({
+                          stateId: Yup.mixed().required("State is required"),
+                          structureStart: Yup.string().required(
+                            "Structure start is required"
+                          ),
+                          structureEnd: Yup.string().required(
+                            "Structure end is required"
+                          ),
+                          number: Yup.string()
+                            .required("Number is required")
+                            .trim(),
+                          inspectionId: Yup.mixed().required(
+                            "Inspection is required"
+                          )
+                        })}
+                      >
+                        {props => {
+                          const {
+                            isSubmitting,
+                            values,
+                            isValid,
+                            dirty,
+                            errors,
+                            touched,
+                            handleChange,
+                            handleBlur,
+                            handleSubmit,
+                            setFieldValue
+                          } = props;
 
-                        return (
-                          <FormSpanEdit
-                            dirty={dirty}
-                            values={values}
-                            isValid={isValid}
-                            touched={touched}
-                            errors={errors}
-                            isSubmitting={isSubmitting}
-                            handleChange={handleChange}
-                            handleBlur={handleBlur}
-                            handleSubmit={handleSubmit}
-                            structures={[
-                              ...structures,
-                              ...substations.filter(({ project_ids }) =>
-                                project_ids.includes(parseInt(this.projectId))
-                              )
-                            ]}
-                            projectId={this.projectId}
-                            isCreate={false}
-                          />
-                        );
-                      }}
-                    </Formik>
+                          return (
+                            <FormSpanEdit
+                              dirty={dirty}
+                              values={values}
+                              isValid={isValid}
+                              touched={touched}
+                              errors={errors}
+                              setFieldValue={setFieldValue}
+                              isSubmitting={isSubmitting}
+                              handleChange={handleChange}
+                              handleBlur={handleBlur}
+                              handleSubmit={handleSubmit}
+                              structures={[
+                                ...structures,
+                                ...substations.filter(({ project_ids }) =>
+                                  project_ids.includes(parseInt(this.projectId))
+                                )
+                              ]}
+                              projectId={this.projectId}
+                              isCreate={false}
+                            />
+                          );
+                        }}
+                      </Formik>
+                    )}
                   </Grid>
                   <Grid style={{ height: "100%" }}>
                     {enabledEquipment && (

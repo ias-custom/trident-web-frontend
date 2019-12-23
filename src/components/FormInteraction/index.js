@@ -4,21 +4,17 @@ import { compose } from "recompose";
 import styles from "./styles";
 import { withRouter, Prompt } from "react-router-dom";
 import { withSnackbar } from "notistack";
-import PropTypes from "prop-types";
 import {
   Button,
   withStyles,
   Grid,
   TextField,
   MenuItem,
-  Tooltip,
-  IconButton
 } from "@material-ui/core";
 import { Form } from "formik";
 import { fetchStructureTypes } from "../../redux/actions/structureActions";
 import { fetchStates } from "../../redux/actions/globalActions";
 import { getProject } from "../../redux/actions/projectActions";
-import { AddCircle } from "@material-ui/icons";
 
 const TITLE_CHOICES = [
   { id: 0, name: "Occupant" },
@@ -34,7 +30,6 @@ const FormInteraction = ({ ...props }) => {
     values,
     touched,
     errors,
-    classes,
     loading,
     isValid,
     isCreate,

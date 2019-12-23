@@ -94,6 +94,11 @@ class SetList extends React.Component {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
+    } else {
+      this.props.enqueueSnackbar(response.data.message, {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
     }
   };
 

@@ -178,7 +178,7 @@ class FormStructureEdit extends React.Component {
               </TextField>
             </Grid>
             <Grid item xs>
-              <div style={{display: "flex"}}>
+              {/* <div style={{display: "flex"}}>
                 <TextField
                   name="structureTypeId"
                   select
@@ -213,11 +213,7 @@ class FormStructureEdit extends React.Component {
                     </Tooltip>
                   </div>
                 ) : null}
-              </div>
-            </Grid>
-          </Grid>
-          <Grid container spacing={16}>
-            <Grid item xs={6}>
+              </div> */}
               <TextField
                 name="inspectionId"
                 select
@@ -244,6 +240,34 @@ class FormStructureEdit extends React.Component {
               </TextField>
             </Grid>
           </Grid>
+          {/* <Grid container spacing={16}>
+            <Grid item xs={6}>
+              <TextField
+                name="inspectionId"
+                select
+                label="Inspection"
+                value={values.inspectionId}
+                margin="normal"
+                onChange={this.props.handleChange}
+                onBlur={this.props.handleBlur}
+                error={!!touched.inspectionId && !!errors.inspectionId}
+                helperText={
+                  !!touched.inspectionId && !!errors.inspectionId && errors.inspectionId
+                }
+                fullWidth
+                required
+                disabled={loading}
+              >
+                {inspections.map(inspection => {
+                  return (
+                    <MenuItem key={inspection.id} value={inspection.id}>
+                      {inspection.name}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+          </Grid> */}
         </Grid>
         <br />
         <Grid container justify="flex-end">

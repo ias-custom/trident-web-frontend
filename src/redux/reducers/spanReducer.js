@@ -7,9 +7,13 @@ import {
   GET_ACCESS,
   GET_SPAN,
   SET_STRUCTURE_START,
-  SET_STRUCTURE_END
+  SET_STRUCTURE_END,
+  DELETE_MARKING,
+  DELETE_ACCESS
 } from "../actionTypes";
-const spanId = localStorage.getItem("span_id") ? localStorage.getItem("span_id") : ""
+const spanId = localStorage.getItem("span_id")
+  ? localStorage.getItem("span_id")
+  : "";
 
 const initialState = {
   spans: [],
@@ -40,12 +44,24 @@ export default (state = initialState, action) => {
     case GET_ITEMS_SPAN:
       return { ...state, items: action.payload };
 
+    case DELETE_MARKING:
+      return {
+        ...state,
+        markings: state.markings.filter(({ id }) => id !== action.payload)
+      };
+
     case GET_MARKINGS:
       return { ...state, markings: action.payload };
 
     case GET_ACCESS:
       return { ...state, access: action.payload };
-      
+    
+    case DELETE_ACCESS:
+      return {
+        ...state,
+        access: state.access.filter(({ id }) => id !== action.payload)
+      };
+
     case SET_STRUCTURE_START:
       return { ...state, structureStart: action.payload };
 

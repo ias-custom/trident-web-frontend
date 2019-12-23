@@ -45,7 +45,16 @@ const styles = theme => {
     },
     radioSelected: {
       backgroundColor: "rgba(63,81,181, 0.08)"
-    }
+    },
+    buttonCancel: {
+      borderColor: '#f50057',
+      color: '#f50057',
+      '&:hover, &:focus': {
+        borderColor: '#f50057',
+        backgroundColor: '#f50057',
+        color: 'white'
+      }
+    },
   });
   }
   

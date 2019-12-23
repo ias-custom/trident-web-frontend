@@ -57,7 +57,6 @@ import {
         if (response.status === 204) {
           dispatch({type: DELETE_SUBSTATION, payload: id});
         } 
-        dispatch({type: DELETE_SUBSTATION, payload: id});
         return response;
       } catch (error) {
         console.error(error);

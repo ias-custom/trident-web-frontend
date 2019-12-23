@@ -31,9 +31,7 @@ import {
   addStructure,
   addStructureType
 } from "../../../redux/actions/structureActions";
-import {
-  setProjectForMap
-} from "../../../redux/actions/projectActions";
+import { setProjectForMap } from "../../../redux/actions/projectActions";
 import { ArrowBack } from "@material-ui/icons";
 
 class StructureCreate extends React.Component {
@@ -250,8 +248,10 @@ class StructureCreate extends React.Component {
                   color="primary"
                   className={classes.buttonBack}
                   onClick={() => {
-                    this.props.setProjectForMap(this.projectId)
-                    this.props.history.push(`/projects/${this.projectId}?map=true`)
+                    this.props.setProjectForMap(this.projectId);
+                    this.props.history.push(
+                      `/projects/${this.projectId}?map=true`
+                    );
                   }}
                 >
                   <ArrowBack />
@@ -270,8 +270,14 @@ class StructureCreate extends React.Component {
                 validationSchema={Yup.object().shape({
                   name: Yup.string().required("Name is required"),
                   stateId: Yup.mixed().required("State is required"),
-                  latitude: Yup.string().required("Latitude is required"),
-                  longitude: Yup.string().required("Longitude is required"),
+                  latitude: Yup.number()
+                    .lessThan(91, "The value must be between -90 and 90")
+                    .moreThan(-91, "The value must be between -90 and 90")
+                    .required("Latitude is required"),
+                  longitude: Yup.number()
+                  .lessThan(91, "The value must be between -90 and 90")
+                  .moreThan(-91, "The value must be between -90 and 90")
+                  .required("Longitude is required"),
                   inspectionId: Yup.mixed().required("Inspection is required"),
                   number: Yup.string().required("Number is required")
                 })}
@@ -337,8 +343,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "StructureCreate" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(StructureCreate);

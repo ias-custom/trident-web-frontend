@@ -19,7 +19,6 @@ const InfoSetView = ({ ...props }) => {
   const [openId, setOpenId] = useState("");
   const [itemId, setItemId] = useState("");
   const { inspections, classes, type } = props;
-  console.log(inspections)
   return (
     <Grid container>
       <Grid item xs={12}>

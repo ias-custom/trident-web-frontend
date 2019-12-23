@@ -69,8 +69,14 @@ const FormAccess = ({ ...propsMain }) => {
           validationSchema={Yup.object().shape({
             type_id: Yup.mixed().required("Marking type is required"),
             notes: Yup.string().required("Notes is required"),
-            longitude: Yup.string().required("Longitude is required"),
-            latitude: Yup.string().required("Latitude is required"),
+            longitude: Yup.number()
+            .lessThan(91, "The value must be between -90 and 90")
+            .moreThan(-91, "The value must be between -90 and 90")
+            .required("Longitude is required"),
+            latitude: Yup.number()
+            .lessThan(91, "The value must be between -90 and 90")
+            .moreThan(-91, "The value must be between -90 and 90")
+            .required("Latitude is required"),
             category_id: Yup.mixed().required("Category is required")
           })}
         >

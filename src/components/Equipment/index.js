@@ -762,9 +762,9 @@ class Equipment extends React.Component {
                                               openQuestion: true,
                                               question: item,
                                               answerId: item.answer.id,
-                                              aadd: false,
+                                              add: false,
                                               answer: false,
-                                              description: item.answer.description
+                                              description: ""
                                             })
                                           }
                                         >
