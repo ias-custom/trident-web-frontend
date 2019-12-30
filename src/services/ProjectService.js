@@ -35,7 +35,7 @@ class ProjectService extends Service {
 
   get = async id => {
     try {
-      const url = `customers/${this.getCustomerSelectedId()}/projects/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/projects/${id}/`;
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -44,7 +44,7 @@ class ProjectService extends Service {
 
   getInfo = async id => {
     try {
-      const url = `customers/${this.getCustomerSelectedId()}/projects/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/projects/${id}/`;
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -74,7 +74,7 @@ class ProjectService extends Service {
   // USERS OF PROJECT
   getUsers = async projectId => {
     try {
-      const url = `projects/${projectId}/users/`;
+      const url = `/projects/${projectId}/users/`;
 
       return await this.http.get(url);
     } catch (error) {
@@ -84,7 +84,7 @@ class ProjectService extends Service {
 
   addUser = async (projectId, form) => {
     try {
-      const url = `projects/${projectId}/users/`;
+      const url = `/projects/${projectId}/users/`;
 
       return await this.http.post(url, form);
     } catch (error) {
@@ -94,7 +94,7 @@ class ProjectService extends Service {
 
   deleteUser = async (projectId, userId) => {
     try {
-      const url = `projects/${projectId}/users/${userId}`;
+      const url = `/projects/${projectId}/users/${userId}`;
       return await this.http.delete(url);
     } catch (error) {
       return error.response;
@@ -105,7 +105,7 @@ class ProjectService extends Service {
   // INSPECTIONS
   getInspections = async projectId => {
     try {
-      const url = `projects/${projectId}/inspections/`;
+      const url = `/projects/${projectId}/inspections/`;
   
       return await this.http.get(url);
     } catch (error) {
@@ -115,7 +115,7 @@ class ProjectService extends Service {
 
   getCategories = async inspectionId => {
     try {
-      const url = `inspections/${inspectionId}/categories/`;
+      const url = `/inspections/${inspectionId}/categories/`;
   
       return await this.http.get(url);
     } catch (error) {
@@ -125,7 +125,7 @@ class ProjectService extends Service {
 
   updateCategory = async (categoryId, inspectionId, form) => {
     try {
-      const url = `inspections/${inspectionId}/categories/${categoryId}/`;
+      const url = `/inspections/${inspectionId}/categories/${categoryId}/`;
   
       return await this.http.patch(url, form);
     } catch (error) {
@@ -135,7 +135,7 @@ class ProjectService extends Service {
 
   updateItemCategory = async (categoryId, itemId, form) => {
     try {
-      const url = `categories/${categoryId}/parent-items/${itemId}/`;
+      const url = `/categories/${categoryId}/parent-items/${itemId}/`;
   
       return await this.http.patch(url, form);
     } catch (error) {
@@ -145,7 +145,7 @@ class ProjectService extends Service {
 
   getDeficiencies = async projectId => {
     try {
-      const url = `projects/${projectId}/deficiencies/`;
+      const url = `/projects/${projectId}/deficiencies/`;
   
       return await this.http.get(url);
     } catch (error) {
@@ -155,7 +155,7 @@ class ProjectService extends Service {
 
   addDeficiency = async (projectId, form) => {
     try {
-      const url = `projects/${projectId}/deficiencies/`;
+      const url = `/projects/${projectId}/deficiencies/`;
 
       return await this.http.post(url, form);
     } catch (error) {
@@ -165,7 +165,7 @@ class ProjectService extends Service {
   
   deleteDeficiency = async (projectId, deficiencyId) => {
     try {
-      const url = `projects/${projectId}/deficiencies/${deficiencyId}`;
+      const url = `/projects/${projectId}/deficiencies/${deficiencyId}`;
 
       return await this.http.delete(url);
     } catch (error) {
@@ -175,9 +175,7 @@ class ProjectService extends Service {
 
   getCategoriesMarking = async () => {
     try {
-      //const url = `projects/${projectId}/marking-types/`;
-      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/marking-categories`
-      return await this.http.get(url);
+      return await this.http.get(`/marking-categories`);
     } catch (error) {
       return error.response;
     }
@@ -185,8 +183,7 @@ class ProjectService extends Service {
 
   getCategoriesAccess = async () => {
     try {
-      const url = `http://trident-env.f4ikagat8m.us-east-2.elasticbeanstalk.com/api/access-categories`
-      return await this.http.get(url);
+      return await this.http.get(`/access-categories`);
     } catch (error) {
       return error.response;
     }
@@ -194,9 +191,7 @@ class ProjectService extends Service {
 
   getMarkingsTypes = async projectId => {
     try {
-      //const url = `projects/${projectId}/marking-types/`;
-      const url = `/marking-types`
-      return await this.http.get(url);
+      return await this.http.get(`/marking-types`);
     } catch (error) {
       return error.response;
     }
@@ -204,9 +199,7 @@ class ProjectService extends Service {
   
   getAccessTypes = async projectId => {
     try {
-      //const url = `projects/${projectId}/access-types/`;
-      const url = `/access-types`
-      return await this.http.get(url);
+      return await this.http.get(`/access-types`);
     } catch (error) {
       return error.response;
     }
@@ -214,7 +207,6 @@ class ProjectService extends Service {
 
   getAccessTypeDetail = async accessTypeId => {
     try {
-      //const url = `projects/${projectId}/access-types/${accessTypeId}`;
       const url = `/access-types/${accessTypeId}/details`
       return await this.http.get(url);
     } catch (error) {

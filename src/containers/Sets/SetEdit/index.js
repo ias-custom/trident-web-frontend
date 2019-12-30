@@ -105,7 +105,6 @@ class SetEdit extends React.Component {
   render() {
     const { classes } = this.props;
     const { enabledSet, inspections, name, type } = this.state;
-
     return (
       <Layout title="Edit Set">
         {() => (
