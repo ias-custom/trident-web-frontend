@@ -169,7 +169,7 @@ class ProjectCreate extends React.Component {
                                 onBlur={handleBlur}
                                 error={!!touched.set_id && !!errors.set_id}
                                 helperText={
-                                  !!touched.inspection_id && !!errors.set_id && errors.set_id
+                                  !!touched.set_id && !!errors.set_id && errors.set_id
                                 }
                                 label="Set"
                                 fullWidth

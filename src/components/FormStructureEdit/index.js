@@ -4,38 +4,38 @@ import { compose } from "recompose";
 import styles from "./styles";
 import { withRouter, Prompt } from "react-router-dom";
 import { withSnackbar } from "notistack";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import {
   Button,
   withStyles,
   Grid,
   TextField,
-  MenuItem,
-  Tooltip,
-  IconButton
+  MenuItem
 } from "@material-ui/core";
 import { Form } from "formik";
 import { fetchStructureTypes } from "../../redux/actions/structureActions";
 import { fetchStates } from "../../redux/actions/globalActions";
 import { getProject } from "../../redux/actions/projectActions";
-import { AddCircle } from "@material-ui/icons";
 
 class FormStructureEdit extends React.Component {
   state = {
     inspections: []
-  }
+  };
   componentDidMount = async () => {
     this.props.fetchStructureTypes(this.props.projectId);
     this.props.fetchStates();
-    const response = await this.props.getProject(this.props.projectId, false)
+    const response = await this.props.getProject(this.props.projectId, false);
     if (response.status === 200) {
-      const { set } = response.data
-      this.setState({inspections: set.inspections})
+      const { set } = response.data;
+      this.setState({
+        inspections: set.inspections.filter(
+          ({ belong_to }) => belong_to === "Structure"
+        )
+      });
     }
-  }
+  };
   render() {
     const {
-      classes,
       dirty,
       values,
       touched,
@@ -44,13 +44,10 @@ class FormStructureEdit extends React.Component {
       isSubmitting,
       isValid,
       states,
-      structureTypes,
       isCreate
     } = this.props;
-    const {
-      inspections 
-    } = this.state;
-    
+    const { inspections } = this.state;
+
     return (
       <Form onSubmit={this.props.handleSubmit}>
         <Prompt
@@ -63,9 +60,9 @@ class FormStructureEdit extends React.Component {
               <TextField
                 name="number"
                 value={values.number}
-                onChange={(e) => {
-                  e.target.value = e.target.value.replace(/\s/g, "")
-                  this.props.handleChange(e)
+                onChange={e => {
+                  e.target.value = e.target.value.replace(/\s/g, "");
+                  this.props.handleChange(e);
                 }}
                 onBlur={this.props.handleBlur}
                 label="Number"
@@ -73,9 +70,7 @@ class FormStructureEdit extends React.Component {
                 margin="normal"
                 error={!!touched.number && !!errors.number}
                 helperText={
-                  !!touched.number &&
-                  !!errors.number &&
-                  errors.number
+                  !!touched.number && !!errors.number && errors.number
                 }
                 required
               />
@@ -224,7 +219,9 @@ class FormStructureEdit extends React.Component {
                 onBlur={this.props.handleBlur}
                 error={!!touched.inspectionId && !!errors.inspectionId}
                 helperText={
-                  !!touched.inspectionId && !!errors.inspectionId && errors.inspectionId
+                  !!touched.inspectionId &&
+                  !!errors.inspectionId &&
+                  errors.inspectionId
                 }
                 fullWidth
                 required
@@ -299,7 +296,6 @@ class FormStructureEdit extends React.Component {
             </Button>
           )}
         </Grid>
-        
       </Form>
     );
   }
@@ -330,8 +326,5 @@ export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(FormStructureEdit);

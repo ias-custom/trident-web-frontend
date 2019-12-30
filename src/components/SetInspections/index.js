@@ -15,11 +15,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Paper
+  Paper,
+  Tabs,
+  Tab
 } from "@material-ui/core";
 import { ExpandMore, Cancel, ExpandLess, AddCircle } from "@material-ui/icons";
 import classNames from "classnames";
 import Panel from "../../components/Panel";
+import SwipeableViews from "react-swipeable-views";
 
 class SetInspections extends React.Component {
   state = {
@@ -31,8 +34,21 @@ class SetInspections extends React.Component {
     itemId: "",
     openAdd: false,
     action: "",
-    newName: ""
+    newName: "",
+    value: 0
   };
+  /* componentDidMount() {
+    if (this.props.type === "1" && this.state.inspections.length > 0) {
+      let newInspections = this.state.inspections.map((i, index) => {
+        return {
+          ...i,
+          type: index + 1
+        };
+      });
+      newInspections = [...newInspections, newInspections[0]];
+      this.setState({ inspections: newInspections });
+    }
+  } */
 
   openCollapse(openId, category) {
     category.newName = "";
@@ -95,12 +111,18 @@ class SetInspections extends React.Component {
       }
       return undefined;
     });
-    const quantity = type === "1" ? category.items.length : category.questions.length
+    const quantity =
+      type === "1" ? category.items.length : category.questions.length;
     if (quantity === 1) {
-      this.props.enqueueSnackbar(`The category must have at least 1 ${type === 1 ? "item" : "question"}`, {
-        variant: "error",
-        anchorOrigin: { vertical: "top", horizontal: "center" }
-      });
+      this.props.enqueueSnackbar(
+        `The category must have at least 1 ${
+          type === "1" ? "item" : "question"
+        }`,
+        {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "center" }
+        }
+      );
       return;
     }
     if (type === "1") {
@@ -187,7 +209,7 @@ class SetInspections extends React.Component {
             } else {
               category.questions.unshift({
                 id: Math.random(),
-                name: newName,
+                name: newName
               });
             }
           }
@@ -283,6 +305,312 @@ class SetInspections extends React.Component {
     if (!error) this.props.action(inspections, name);
   }
 
+  showInfo(typeInspection) {
+    const { inspections, openId, itemId, value } = this.state;
+    const { classes, isCreate, loading, type } = this.props;
+    return inspections
+      .filter(({ belong_to }) => belong_to === typeInspection)
+      .map(({ id, name, categories }) => (
+        <Grid item xs={value === 0 ? 6 : 12} key={id}>
+          <Typography
+            variant="h6"
+            align="center"
+            classes={{ h6: classes.categoryName }}
+          >
+            {name}
+          </Typography>
+          {isCreate && (
+            <div>
+              <Button
+                variant="outlined"
+                color="primary"
+                style={{ marginBottom: 10 }}
+                onClick={() => this.openAddCategory(id)}
+              >
+                Add Category
+              </Button>
+            </div>
+          )}
+          {categories.map(category => (
+            <div key={category.id}>
+              <Paper className={classes.paper}>
+                <div className={classes.divCategory}>
+                  <TextField
+                    name="name"
+                    className={classes.category}
+                    value={category.name}
+                    label=""
+                    required
+                    disabled={loading}
+                    inputProps={{
+                      className: classes.inputCategory
+                    }}
+                    onChange={e => {
+                      if (e.target.value === "") {
+                        this.props.enqueueSnackbar(
+                          "The category are not empty",
+                          {
+                            variant: "error"
+                          }
+                        );
+                        return;
+                      }
+                      category.name = e.target.value;
+                      this.setState({});
+                    }}
+                  />
+                  {isCreate && (
+                    <IconButton
+                      aria-label="Delete"
+                      className={classes.iconDelete}
+                      disabled={loading}
+                      onClick={() => {
+                        this.deleteCategory(category.id, id);
+                      }}
+                    >
+                      <Cancel />
+                    </IconButton>
+                  )}
+                  {openId === category.id ? (
+                    <IconButton
+                      className={classes.buttonCollapse}
+                      onClick={() => this.setState({ openId: 0 })}
+                    >
+                      <ExpandLess />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      className={classes.buttonCollapse}
+                      onClick={() => this.setState({ openId: category.id })}
+                    >
+                      <ExpandMore />
+                    </IconButton>
+                  )}
+                </div>
+                {openId === category.id ? (
+                  <div>
+                    <p className={classes.textItems}>
+                      {type === "1" ? "ITEMS" : "QUESTIONS"}
+                      {isCreate && (
+                        <IconButton
+                          className={classes.iconAdd}
+                          disabled={loading}
+                          onClick={() => this.openAddItem(id, category.id)}
+                        >
+                          <AddCircle />
+                        </IconButton>
+                      )}
+                    </p>
+                    {type === "1"
+                      ? category.items.map(item => (
+                          <Grid key={item.id}>
+                            <div
+                              className={classNames(
+                                classes.divCategory,
+                                classes.divItem
+                              )}
+                            >
+                              <TextField
+                                name="name"
+                                value={item.name}
+                                label=""
+                                required
+                                className={classes.item}
+                                disabled={loading}
+                                autoFocus={item.edit}
+                                multiline={type === "2"}
+                                rowsMax={8}
+                                rows={4}
+                                inputProps={{
+                                  className: classes.inputCategory
+                                }}
+                                onChange={e => {
+                                  if (e.target.value === "") {
+                                    this.props.enqueueSnackbar(
+                                      "The item are not empty",
+                                      {
+                                        variant: "error"
+                                      }
+                                    );
+                                    return;
+                                  }
+                                  item.name = e.target.value;
+                                  this.setState({});
+                                }}
+                              />
+                              {isCreate && (
+                                <IconButton
+                                  className={classNames(
+                                    classes.iconDelete,
+                                    classes.iconItem
+                                  )}
+                                  aria-label="Delete"
+                                  onClick={() => {
+                                    this.deleteItem(item.id, category.id, id);
+                                  }}
+                                  disabled={loading}
+                                >
+                                  <Cancel />
+                                </IconButton>
+                              )}
+                              {type === "1" &&
+                                (itemId === item.id ? (
+                                  <IconButton
+                                    className={classes.buttonCollapse}
+                                    onClick={() => this.setState({ itemId: 0 })}
+                                  >
+                                    <ExpandLess />
+                                  </IconButton>
+                                ) : (
+                                  <IconButton
+                                    className={classes.buttonCollapse}
+                                    onClick={() =>
+                                      this.setState({ itemId: item.id })
+                                    }
+                                  >
+                                    <ExpandMore />
+                                  </IconButton>
+                                ))}
+                            </div>
+                            {itemId === item.id && (
+                              <div className={classes.divDeficiency}>
+                                <p className={classes.textItems}>
+                                  DEFICIENCIES:{" "}
+                                  {isCreate && (
+                                    <IconButton
+                                      className={classes.iconAdd}
+                                      disabled={loading}
+                                      onClick={() =>
+                                        this.openAddDeficiency(
+                                          id,
+                                          category.id,
+                                          item.id
+                                        )
+                                      }
+                                    >
+                                      <AddCircle />
+                                    </IconButton>
+                                  )}
+                                </p>
+                                {item.deficiencies.map(d => (
+                                  <div
+                                    key={d.id}
+                                    className={classNames(
+                                      classes.divCategory,
+                                      classes.divItem
+                                    )}
+                                  >
+                                    <TextField
+                                      name="name"
+                                      value={d.name}
+                                      label=""
+                                      required
+                                      disabled={loading}
+                                      inputProps={{
+                                        className: classes.inputCategory
+                                      }}
+                                      onChange={e => {
+                                        if (e.target.value === "") {
+                                          this.props.enqueueSnackbar(
+                                            "The deficiency are not empty",
+                                            {
+                                              variant: "error"
+                                            }
+                                          );
+                                          return;
+                                        }
+                                        d.name = e.target.value;
+                                        this.setState({});
+                                      }}
+                                    />
+                                    {isCreate && (
+                                      <IconButton
+                                        className={classNames(
+                                          classes.iconDelete,
+                                          classes.iconItem
+                                        )}
+                                        aria-label="Delete"
+                                        onClick={() => {
+                                          item.deficiencies = item.deficiencies.filter(
+                                            ({ id }) => id !== d.id
+                                          );
+                                          this.setState({});
+                                        }}
+                                        disabled={loading}
+                                      >
+                                        <Cancel />
+                                      </IconButton>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </Grid>
+                        ))
+                      : category.questions.map(item => (
+                          <Grid key={item.id}>
+                            <div
+                              className={classNames(
+                                classes.divCategory,
+                                classes.divItem
+                              )}
+                            >
+                              <TextField
+                                name="name"
+                                value={item.name}
+                                label=""
+                                required
+                                className={classes.item}
+                                disabled={loading}
+                                autoFocus={item.edit}
+                                multiline={type === "2"}
+                                rowsMax={8}
+                                rows={4}
+                                inputProps={{
+                                  className: classes.inputCategory
+                                }}
+                                onChange={e => {
+                                  if (e.target.value === "") {
+                                    const message =
+                                      type === "1"
+                                        ? "The item are not empty"
+                                        : "The question are not empty";
+                                    this.props.enqueueSnackbar(message, {
+                                      variant: "error"
+                                    });
+                                    return;
+                                  }
+                                  item.name = e.target.value;
+                                  this.setState({});
+                                }}
+                              />
+                              {isCreate && (
+                                <IconButton
+                                  className={classNames(
+                                    classes.iconDelete,
+                                    classes.iconItem
+                                  )}
+                                  aria-label="Delete"
+                                  onClick={() => {
+                                    this.deleteItem(item.id, category.id, id);
+                                  }}
+                                  disabled={loading}
+                                >
+                                  <Cancel />
+                                </IconButton>
+                              )}
+                            </div>
+                          </Grid>
+                        ))}
+                  </div>
+                ) : null}
+              </Paper>
+            </div>
+          ))}
+        </Grid>
+      ));
+  }
+
   render() {
     let { classes, isCreate, type } = this.props;
     const {
@@ -294,7 +622,8 @@ class SetInspections extends React.Component {
       inspections,
       name,
       changeName,
-      newName
+      newName,
+      value
     } = this.state;
     return (
       <Panel>
@@ -341,7 +670,8 @@ class SetInspections extends React.Component {
               disabled={newName.length === 0}
               onClick={() => {
                 if (action === "category") this.confirmAddCategory();
-                if (action === "item" || action === "question") this.confirmAddItem();
+                if (action === "item" || action === "question")
+                  this.confirmAddItem();
                 if (action === "deficiency") this.confirmAddDeficiency();
               }}
             >
@@ -373,303 +703,354 @@ class SetInspections extends React.Component {
             />
           </Grid>
           <Grid container spacing={16}>
-            {inspections.map(({ id, name, categories }) => (
-              <Grid item xs={6} key={id}>
-                <Typography
-                  variant="h6"
-                  align="center"
-                  classes={{ h6: classes.categoryName }}
-                >
-                  {name}
-                </Typography>
-                {/* <div>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    style={{ marginBottom: 10 }}
-                    onClick={() => this.openAddCategory(id)}
+            {type === "1" ? (
+              <div style={{width: "100%"}}>
+                <Grid className={classes.divTabs}>
+                  <Tabs
+                    value={value}
+                    onChange={(e, newValue) => {
+                      this.setState({ value: newValue });
+                    }}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    variant="fullWidth"
                   >
-                    Add Category
-                  </Button>
-                </div> */}
-                {categories.map(category => (
-                  <div key={category.id}>
-                    <Paper className={classes.paper}>
-                      <div className={classes.divCategory}>
-                        <TextField
-                          name="name"
-                          className={classes.category}
-                          value={category.name}
-                          label=""
-                          required
-                          disabled={loading}
-                          inputProps={{
-                            className: classes.inputCategory
-                          }}
-                          onChange={e => {
-                            if (e.target.value === "") {
-                              this.props.enqueueSnackbar(
-                                "The category are not empty",
-                                {
-                                  variant: "error"
-                                }
-                              );
-                              return;
-                            }
-                            category.name = e.target.value;
-                            this.setState({});
-                          }}
-                        />
-                        {/* <IconButton
-                          aria-label="Delete"
-                          className={classes.iconDelete}
-                          disabled={loading}
-                          onClick={() => {
-                            this.deleteCategory(category.id, id);
-                          }}
-                        >
-                          <Cancel />
-                        </IconButton> */}
-                        {openId === category.id ? (
-                          <IconButton
-                            className={classes.buttonCollapse}
-                            onClick={() => this.setState({ openId: 0 })}
-                          >
-                            <ExpandLess />
-                          </IconButton>
-                        ) : (
-                          <IconButton
-                            className={classes.buttonCollapse}
-                            onClick={() =>
-                              this.setState({ openId: category.id })
-                            }
-                          >
-                            <ExpandMore />
-                          </IconButton>
-                        )}
-                      </div>
-                      {openId === category.id ? (
-                        <div>
-                          <p className={classes.textItems}>
-                            {type === "1" ? "ITEMS" : "QUESTIONS"}
-                            {/* <IconButton
-                              className={classes.iconAdd}
+                    <Tab label="For Structure" disabled={loading} />
+                    <Tab label="For Span" disabled={loading} />
+                  </Tabs>
+                </Grid>
+                <SwipeableViews
+                  index={value}
+                  onChangeIndex={value => this.setState({ value })}
+                  slideStyle={{
+                    overflowX: "hidden",
+                    overflowY: "hidden",
+                    padding: "0 2px",
+                    minHeight: "500px"
+                  }}
+                >
+                  <Grid container spacing={16}>{this.showInfo("Structure")}</Grid>
+                  <Grid container spacing={16}>{this.showInfo("Span")}</Grid>
+                </SwipeableViews>
+              </div>
+            ) : (
+              inspections.map(({ id, name, categories }) => (
+                <Grid item xs={6} key={id}>
+                  <Typography
+                    variant="h6"
+                    align="center"
+                    classes={{ h6: classes.categoryName }}
+                  >
+                    {name}
+                  </Typography>
+                  {isCreate && (
+                    <div>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        style={{ marginBottom: 10 }}
+                        onClick={() => this.openAddCategory(id)}
+                      >
+                        Add Category
+                      </Button>
+                    </div>
+                  )}
+                  {categories.map(category => (
+                    <div key={category.id}>
+                      <Paper className={classes.paper}>
+                        <div className={classes.divCategory}>
+                          <TextField
+                            name="name"
+                            className={classes.category}
+                            value={category.name}
+                            label=""
+                            required
+                            disabled={loading}
+                            inputProps={{
+                              className: classes.inputCategory
+                            }}
+                            onChange={e => {
+                              if (e.target.value === "") {
+                                this.props.enqueueSnackbar(
+                                  "The category are not empty",
+                                  {
+                                    variant: "error"
+                                  }
+                                );
+                                return;
+                              }
+                              category.name = e.target.value;
+                              this.setState({});
+                            }}
+                          />
+                          {isCreate && (
+                            <IconButton
+                              aria-label="Delete"
+                              className={classes.iconDelete}
                               disabled={loading}
-                              onClick={() => this.openAddItem(id, category.id)}
+                              onClick={() => {
+                                this.deleteCategory(category.id, id);
+                              }}
                             >
-                              <AddCircle />
-                            </IconButton> */}
-                          </p>
-                          {type === "1"
-                            ? category.items.map(item => (
-                                <Grid key={item.id}>
-                                  <div
-                                    className={classNames(
-                                      classes.divCategory,
-                                      classes.divItem
-                                    )}
-                                  >
-                                    <TextField
-                                      name="name"
-                                      value={item.name}
-                                      label=""
-                                      required
-                                      className={classes.item}
-                                      disabled={loading}
-                                      autoFocus={item.edit}
-                                      multiline={type === "2"}
-                                      rowsMax={8}
-                                      rows={4}
-                                      inputProps={{
-                                        className: classes.inputCategory
-                                      }}
-                                      onChange={e => {
-                                        if (e.target.value === "") {
-                                          this.props.enqueueSnackbar(
-                                            "The item are not empty",
-                                            {
-                                              variant: "error"
-                                            }
-                                          );
-                                          return;
-                                        }
-                                        item.name = e.target.value;
-                                        this.setState({});
-                                      }}
-                                    />
-                                    {/* <IconButton
-                                      className={classNames(
-                                        classes.iconDelete,
-                                        classes.iconItem
-                                      )}
-                                      aria-label="Delete"
-                                      onClick={() => {
-                                        this.deleteItem(
-                                          item.id,
-                                          category.id,
-                                          id
-                                        );
-                                      }}
-                                      disabled={loading}
-                                    >
-                                      <Cancel />
-                                    </IconButton> */}
-                                    {type === "1" &&
-                                      (itemId === item.id ? (
-                                        <IconButton
-                                          className={classes.buttonCollapse}
-                                          onClick={() =>
-                                            this.setState({ itemId: 0 })
-                                          }
-                                        >
-                                          <ExpandLess />
-                                        </IconButton>
-                                      ) : (
-                                        <IconButton
-                                          className={classes.buttonCollapse}
-                                          onClick={() =>
-                                            this.setState({ itemId: item.id })
-                                          }
-                                        >
-                                          <ExpandMore />
-                                        </IconButton>
-                                      ))}
-                                  </div>
-                                  {itemId === item.id && (
-                                    <div className={classes.divDeficiency}>
-                                      <p className={classes.textItems}>
-                                        DEFICIENCIES:{" "}
-                                        {/* <IconButton
-                                          className={classes.iconAdd}
-                                          disabled={loading}
-                                          onClick={() =>
-                                            this.openAddDeficiency(
-                                              id,
-                                              category.id,
-                                              item.id
-                                            )
-                                          }
-                                        >
-                                          <AddCircle />
-                                        </IconButton> */}
-                                      </p>
-                                      {item.deficiencies.map(d => (
-                                        <div
-                                          key={d.id}
-                                          className={classNames(
-                                            classes.divCategory,
-                                            classes.divItem
-                                          )}
-                                        >
-                                          <TextField
-                                            name="name"
-                                            value={d.name}
-                                            label=""
-                                            required
-                                            disabled={loading}
-                                            inputProps={{
-                                              className: classes.inputCategory
-                                            }}
-                                            onChange={e => {
-                                              if (e.target.value === "") {
-                                                this.props.enqueueSnackbar(
-                                                  "The deficiency are not empty",
-                                                  {
-                                                    variant: "error"
-                                                  }
-                                                );
-                                                return;
-                                              }
-                                              d.name = e.target.value;
-                                              this.setState({});
-                                            }}
-                                          />
-                                          {/* <IconButton
-                                            className={classNames(
-                                              classes.iconDelete,
-                                              classes.iconItem
-                                            )}
-                                            aria-label="Delete"
-                                            onClick={() => {
-                                              item.deficiencies = item.deficiencies.filter(
-                                                ({ id }) => id !== d.id
-                                              );
-                                              this.setState({});
-                                            }}
-                                            disabled={loading}
-                                          >
-                                            <Cancel />
-                                          </IconButton> */}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </Grid>
-                              ))
-                            : category.questions.map(item => (
-                                <Grid key={item.id}>
-                                  <div
-                                    className={classNames(
-                                      classes.divCategory,
-                                      classes.divItem
-                                    )}
-                                  >
-                                    <TextField
-                                      name="name"
-                                      value={item.name}
-                                      label=""
-                                      required
-                                      className={classes.item}
-                                      disabled={loading}
-                                      autoFocus={item.edit}
-                                      multiline={type === "2"}
-                                      rowsMax={8}
-                                      rows={4}
-                                      inputProps={{
-                                        className: classes.inputCategory
-                                      }}
-                                      onChange={e => {
-                                        if (e.target.value === "") {
-                                          const message =
-                                            type === "1"
-                                              ? "The item are not empty"
-                                              : "The question are not empty";
-                                          this.props.enqueueSnackbar(message, {
-                                            variant: "error"
-                                          });
-                                          return;
-                                        }
-                                        item.name = e.target.value;
-                                        this.setState({});
-                                      }}
-                                    />
-                                    {/* <IconButton
-                                      className={classNames(
-                                        classes.iconDelete,
-                                        classes.iconItem
-                                      )}
-                                      aria-label="Delete"
-                                      onClick={() => {
-                                        this.deleteItem(
-                                          item.id,
-                                          category.id,
-                                          id
-                                        );
-                                      }}
-                                      disabled={loading}
-                                    >
-                                      <Cancel />
-                                    </IconButton> */}
-                                  </div>
-                                </Grid>
-                              ))}
+                              <Cancel />
+                            </IconButton>
+                          )}
+                          {openId === category.id ? (
+                            <IconButton
+                              className={classes.buttonCollapse}
+                              onClick={() => this.setState({ openId: 0 })}
+                            >
+                              <ExpandLess />
+                            </IconButton>
+                          ) : (
+                            <IconButton
+                              className={classes.buttonCollapse}
+                              onClick={() =>
+                                this.setState({ openId: category.id })
+                              }
+                            >
+                              <ExpandMore />
+                            </IconButton>
+                          )}
                         </div>
-                      ) : null}
-                    </Paper>
-                  </div>
-                ))}
-              </Grid>
-            ))}
+                        {openId === category.id ? (
+                          <div>
+                            <p className={classes.textItems}>
+                              {type === "1" ? "ITEMS" : "QUESTIONS"}
+                              {isCreate && (
+                                <IconButton
+                                  className={classes.iconAdd}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.openAddItem(id, category.id)
+                                  }
+                                >
+                                  <AddCircle />
+                                </IconButton>
+                              )}
+                            </p>
+                            {type === "1"
+                              ? category.items.map(item => (
+                                  <Grid key={item.id}>
+                                    <div
+                                      className={classNames(
+                                        classes.divCategory,
+                                        classes.divItem
+                                      )}
+                                    >
+                                      <TextField
+                                        name="name"
+                                        value={item.name}
+                                        label=""
+                                        required
+                                        className={classes.item}
+                                        disabled={loading}
+                                        autoFocus={item.edit}
+                                        multiline={type === "2"}
+                                        rowsMax={8}
+                                        rows={4}
+                                        inputProps={{
+                                          className: classes.inputCategory
+                                        }}
+                                        onChange={e => {
+                                          if (e.target.value === "") {
+                                            this.props.enqueueSnackbar(
+                                              "The item are not empty",
+                                              {
+                                                variant: "error"
+                                              }
+                                            );
+                                            return;
+                                          }
+                                          item.name = e.target.value;
+                                          this.setState({});
+                                        }}
+                                      />
+                                      {isCreate && (
+                                        <IconButton
+                                          className={classNames(
+                                            classes.iconDelete,
+                                            classes.iconItem
+                                          )}
+                                          aria-label="Delete"
+                                          onClick={() => {
+                                            this.deleteItem(
+                                              item.id,
+                                              category.id,
+                                              id
+                                            );
+                                          }}
+                                          disabled={loading}
+                                        >
+                                          <Cancel />
+                                        </IconButton>
+                                      )}
+                                      {type === "1" &&
+                                        (itemId === item.id ? (
+                                          <IconButton
+                                            className={classes.buttonCollapse}
+                                            onClick={() =>
+                                              this.setState({ itemId: 0 })
+                                            }
+                                          >
+                                            <ExpandLess />
+                                          </IconButton>
+                                        ) : (
+                                          <IconButton
+                                            className={classes.buttonCollapse}
+                                            onClick={() =>
+                                              this.setState({ itemId: item.id })
+                                            }
+                                          >
+                                            <ExpandMore />
+                                          </IconButton>
+                                        ))}
+                                    </div>
+                                    {itemId === item.id && (
+                                      <div className={classes.divDeficiency}>
+                                        <p className={classes.textItems}>
+                                          DEFICIENCIES:{" "}
+                                          {isCreate && (
+                                            <IconButton
+                                              className={classes.iconAdd}
+                                              disabled={loading}
+                                              onClick={() =>
+                                                this.openAddDeficiency(
+                                                  id,
+                                                  category.id,
+                                                  item.id
+                                                )
+                                              }
+                                            >
+                                              <AddCircle />
+                                            </IconButton>
+                                          )}
+                                        </p>
+                                        {item.deficiencies.map(d => (
+                                          <div
+                                            key={d.id}
+                                            className={classNames(
+                                              classes.divCategory,
+                                              classes.divItem
+                                            )}
+                                          >
+                                            <TextField
+                                              name="name"
+                                              value={d.name}
+                                              label=""
+                                              required
+                                              disabled={loading}
+                                              inputProps={{
+                                                className: classes.inputCategory
+                                              }}
+                                              onChange={e => {
+                                                if (e.target.value === "") {
+                                                  this.props.enqueueSnackbar(
+                                                    "The deficiency are not empty",
+                                                    {
+                                                      variant: "error"
+                                                    }
+                                                  );
+                                                  return;
+                                                }
+                                                d.name = e.target.value;
+                                                this.setState({});
+                                              }}
+                                            />
+                                            {isCreate && (
+                                              <IconButton
+                                                className={classNames(
+                                                  classes.iconDelete,
+                                                  classes.iconItem
+                                                )}
+                                                aria-label="Delete"
+                                                onClick={() => {
+                                                  item.deficiencies = item.deficiencies.filter(
+                                                    ({ id }) => id !== d.id
+                                                  );
+                                                  this.setState({});
+                                                }}
+                                                disabled={loading}
+                                              >
+                                                <Cancel />
+                                              </IconButton>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </Grid>
+                                ))
+                              : category.questions.map(item => (
+                                  <Grid key={item.id}>
+                                    <div
+                                      className={classNames(
+                                        classes.divCategory,
+                                        classes.divItem
+                                      )}
+                                    >
+                                      <TextField
+                                        name="name"
+                                        value={item.name}
+                                        label=""
+                                        required
+                                        className={classes.item}
+                                        disabled={loading}
+                                        autoFocus={item.edit}
+                                        multiline={type === "2"}
+                                        rowsMax={8}
+                                        rows={4}
+                                        inputProps={{
+                                          className: classes.inputCategory
+                                        }}
+                                        onChange={e => {
+                                          if (e.target.value === "") {
+                                            const message =
+                                              type === "1"
+                                                ? "The item are not empty"
+                                                : "The question are not empty";
+                                            this.props.enqueueSnackbar(
+                                              message,
+                                              {
+                                                variant: "error"
+                                              }
+                                            );
+                                            return;
+                                          }
+                                          item.name = e.target.value;
+                                          this.setState({});
+                                        }}
+                                      />
+                                      {isCreate && (
+                                        <IconButton
+                                          className={classNames(
+                                            classes.iconDelete,
+                                            classes.iconItem
+                                          )}
+                                          aria-label="Delete"
+                                          onClick={() => {
+                                            this.deleteItem(
+                                              item.id,
+                                              category.id,
+                                              id
+                                            );
+                                          }}
+                                          disabled={loading}
+                                        >
+                                          <Cancel />
+                                        </IconButton>
+                                      )}
+                                    </div>
+                                  </Grid>
+                                ))}
+                          </div>
+                        ) : null}
+                      </Paper>
+                    </div>
+                  ))}
+                </Grid>
+              ))
+            )}
           </Grid>
         </Grid>
         <br />

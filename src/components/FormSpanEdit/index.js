@@ -32,7 +32,7 @@ class FormSpanEdit extends React.Component {
     if (response.status === 200) {
       const { set } = response.data;
       if (this.props.isCreate) {
-        this.props.setFieldValue("inspectionId", set.inspections[0].id);
+        this.props.setFieldValue("inspectionId", set.inspections.find(({belong_to}) => belong_to === "Span").id);
       }
       this.setState({ inspections: set.inspections });
     }
@@ -44,7 +44,6 @@ class FormSpanEdit extends React.Component {
         ({ id }) => id === parseInt(values.structureEnd.split("-")[0])
       ).number;
       this.setState({ numberStart, numberEnd });
-      console.log(numberStart,numberEnd)
       this.props.setFieldValue("number", `Span ${numberStart}-${numberEnd}`)
       this.setState({})
     }
