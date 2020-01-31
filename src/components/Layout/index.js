@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Redirect } from "react-router-dom";
 import { compose } from "recompose";
@@ -28,162 +28,147 @@ import { setCustomerSelected } from '../../redux/actions/customerActions';
 import styles from './styles';
 import Select from '@material-ui/core/Select';
 
-class Layout extends React.Component {
-  constructor(props) {
-    super(props);
+const Layout= ({...props}) => {
+  const [open, setOpen] = useState(true)
+  const [openLogout, setOpenLogout] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null)
+  const { classes, title, loading, auth, customers, customerSelectedId } = props;
 
-    this.state = {
-      open: true,
-      anchorEl: null,
-    };
-  }
-
-  componentDidMount () {
-  }
-
-  changeSelectCustomer = (event) => {
-    this.props.setCustomerSelected(parseInt(event.target.value))
+  function changeSelectCustomer(event) {
+    props.setCustomerSelected(parseInt(event.target.value))
     localStorage.setItem("customerSelectedId", event.target.value)
     //this.props.history.push("/home")
     window.location.reload();
   }
-  handleDrawerOpen = () => {
-    this.setState({ open: true });
+  function handleDrawerOpen() {
+    setOpen(true)
   };
 
-  handleDrawerClose = () => {
-    this.setState({ open: false });
+  function handleDrawerClose(){
+    setOpen(false)
   };
 
 
-  handleMenu = event => {
-    this.setState({ anchorEl: event.currentTarget });
+  function handleMenu(event) {
+    setOpenLogout(true)
+    setAnchorEl(event.currentTarget)
   };
 
-  handleCloseMenu = () => {
-    this.setState({ anchorEl: null });
+  function handleCloseMenu() {
+    setOpenLogout(false)
+    setAnchorEl(null)
   };
 
-  logout = () => {
-    this.props.logout();
-    this.setState({ redirect: true });
+  function logout() {
+    props.logout();
   };
-
-  handleCloseSnackbar = () => {
-    this.setState({ openSnackbar: false });
-  };
-
-  render() {
-    const { classes, title, loading, auth, customers, customerSelectedId } = this.props;
-    if (auth.token === null) {
-      return <Redirect to="/login" />
-    }
-    const logoCustomer = (customers.find( c => c.id === customerSelectedId)).thumbnail
-    const { anchorEl } = this.state;
-    const open = Boolean(anchorEl);
-
-
-    return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar
-          position="absolute"
-          className={classNames(classes.appBar, this.state.open && classes.appBarShift)}
-        >
-          <LinearLoading loading={loading}/>
-
-          <Toolbar disableGutters={!this.state.open} className={classes.toolbar}>
-            <IconButton
-              color="inherit"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerOpen}
-              className={classNames(
-                classes.menuButton,
-                this.state.open && classes.menuButtonHidden,
-              )}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Grid container className={classes.divRight}>
-              <Grid item className={classes.divTitle}>
-                <Typography
-                  component="h1"
-                  variant="h6"
-                  color="inherit"
-                  noWrap
-                >
-                  {title || 'Dashboard'}
-                </Typography>
-              </Grid>
-              <Grid item className={classes.divAvatar}>
-                <img src={logoCustomer} alt="logoCustomer"/>
-                <div></div>
-              </Grid>
-              <Grid item>
-              { customers.length > 0 ? (
-                <Select
-                  value={customerSelectedId}
-                  autoWidth={true}
-                  className={classes.selectCustomer}
-                  classes={{select: classes.divSelect, icon: classes.IconSelect }}
-                  onChange={this.changeSelectCustomer}
-                > 
-                  {customers.map( ({id, name}) => (
-                    <MenuItem value={id} key={id}>{name}</MenuItem>
-                  ))}
-                </Select>
-              ): null}
-              <IconButton color="inherit" onClick={this.handleMenu}>
-                <Avatar>{auth.avatar}</Avatar>
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={this.handleCloseMenu}
-              >
-                <MenuItem onClick={this.handleCloseMenu}>
-                  {auth.fullName}
-                </MenuItem>
-                <MenuItem onClick={this.logout}>Log Out</MenuItem>
-              </Menu>
-              </Grid>
-              
-            
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: classNames(classes.drawerPaper, !this.state.open && classes.drawerPaperClose),
-          }}
-          open={this.state.open}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={this.handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          <List><MainListItems/></List>
-        </Drawer>
-        <main className={classes.content}>
-
-          <div className={classes.appBarSpacer} />
-          {this.props.children(this.state.open)}
-        </main>
-      </div>
-    );
+    
+  if (auth.token === null) {
+    return <Redirect to="/login" />
   }
+  const logoCustomer = (customers.find( c => c.id === customerSelectedId)).thumbnail
+
+
+  return (
+    <div className={classes.root}>
+      <CssBaseline />
+      <AppBar
+        position="absolute"
+        className={classNames(classes.appBar, open && classes.appBarShift)}
+      >
+        <LinearLoading loading={loading}/>
+
+        <Toolbar disableGutters={!open} className={classes.toolbar}>
+          <IconButton
+            color="inherit"
+            aria-label="Open drawer"
+            onClick={handleDrawerOpen}
+            className={classNames(
+              classes.menuButton,
+              open && classes.menuButtonHidden,
+            )}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Grid container className={classes.divRight}>
+            <Grid item className={classes.divTitle}>
+              <Typography
+                component="h1"
+                variant="h6"
+                color="inherit"
+                noWrap
+              >
+                {title || 'Dashboard'}
+              </Typography>
+            </Grid>
+            <Grid item className={classes.divAvatar}>
+              <img src={logoCustomer} alt="logoCustomer"/>
+              <div></div>
+            </Grid>
+            <Grid item>
+            { customers.length > 0 ? (
+              <Select
+                value={customerSelectedId}
+                autoWidth={true}
+                className={classes.selectCustomer}
+                classes={{select: classes.divSelect, icon: classes.IconSelect }}
+                onChange={changeSelectCustomer}
+              > 
+                {customers.map( ({id, name}) => (
+                  <MenuItem value={id} key={id}>{name}</MenuItem>
+                ))}
+              </Select>
+            ): null}
+            <IconButton color="inherit" onClick={handleMenu}>
+              <Avatar>{auth.avatar}</Avatar>
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={openLogout}
+              onClose={handleCloseMenu}
+            >
+              <MenuItem onClick={handleCloseMenu}>
+                {auth.fullName}
+              </MenuItem>
+              <MenuItem onClick={logout}>Log Out</MenuItem>
+            </Menu>
+            </Grid>
+            
+          
+          </Grid>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="permanent"
+        classes={{
+          paper: classNames(classes.drawerPaper, !open && classes.drawerPaperClose),
+        }}
+        open={open}
+      >
+        <div className={classes.toolbarIcon}>
+          <IconButton onClick={handleDrawerClose}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
+        <List><MainListItems/></List>
+      </Drawer>
+      <main className={classes.content}>
+
+        <div className={classes.appBarSpacer} />
+        {props.children(open)}
+      </main>
+    </div>
+  );
 }
 
 Layout.propTypes = {

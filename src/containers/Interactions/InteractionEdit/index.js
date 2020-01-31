@@ -72,7 +72,7 @@ class InteractionEdit extends React.Component {
   };
 
   update = async (values, formikActions) => {
-    const { setSubmitting, resetForm } = formikActions;
+    const { setSubmitting } = formikActions;
     this.props.setLoading(true);
     const {
       name,

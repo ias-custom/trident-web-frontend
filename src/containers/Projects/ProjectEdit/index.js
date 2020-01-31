@@ -22,8 +22,7 @@ import {
   Grid,
   Typography,
   TextField,
-  MenuItem,
-  Card
+  MenuItem
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -91,7 +90,8 @@ class ProjectEdit extends React.Component {
     itemName: "",
     openFile: false,
     fileName: "",
-    type: ""
+    type: "",
+    enabledMap: false
   };
 
   projectId = null;
@@ -109,7 +109,8 @@ class ProjectEdit extends React.Component {
           set: response.data.set,
           setId: response.data.set_id,
           value: fromMap === "true" ? (response.data.inspection_id === 1 ? 5 : 4) : 0,
-          type: response.data.inspection_id
+          type: response.data.inspection_id,
+          enabledMap: true
         });
         this.props.fetchSets();
         this.props.getUsers();
@@ -396,7 +397,8 @@ class ProjectEdit extends React.Component {
       setSelected,
       itemName,
       fileName,
-      type
+      type,
+      enabledMap
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
@@ -1221,10 +1223,10 @@ class ProjectEdit extends React.Component {
                     <Grid style={{ height: "100%" }}>
                       <MapBox
                         projectId={this.projectId}
-                        open={openDrawer}
+                        openMenu={openDrawer}
                         tab={value}
                         type={type}
-                        getProject={() => this.props.getProject(this.projectId)}
+                        enabledMap={enabledMap}
                       />
                     </Grid>
                   )}
@@ -1232,10 +1234,10 @@ class ProjectEdit extends React.Component {
                     <Grid style={{ height: "100%" }}>
                       <MapBox
                         projectId={this.projectId}
-                        open={openDrawer}
+                        openMenu={openDrawer}
                         tab={value}
                         type={type}
-                        getProject={() => this.props.getProject(this.projectId)}
+                        enabledMap={enabledMap}
                       />
                     </Grid>
                   )}

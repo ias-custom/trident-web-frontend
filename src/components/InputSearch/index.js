@@ -4,29 +4,26 @@ import { InputBase, withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import styles from './styles';
 
-class InputSearch extends React.Component {
+const InputSearch= ({...props}) => {
+  const { classes, value, ...rest } = props;
 
-  render() {
-    const { classes, value, ...rest } = this.props;
-
-    return (
-      <div className={classes.search}>
-        <div className={classes.searchIcon}>
-          <Search />
-        </div>
-        <InputBase
-          placeholder="Search..."
-          classes={{
-            root: classes.inputRoot,
-            input: classes.inputInput
-          }}
-          value={value}
-          onChange={(e) => this.props.onChange(e)}
-          {...rest}
-        />
+  return (
+    <div className={classes.search}>
+      <div className={classes.searchIcon}>
+        <Search />
       </div>
-    )
-  }
+      <InputBase
+        placeholder="Search..."
+        classes={{
+          root: classes.inputRoot,
+          input: classes.inputInput
+        }}
+        value={value}
+        onChange={(e) => props.onChange(e)}
+        {...rest}
+      />
+    </div>
+  )
 };
 
 InputSearch.propTypes = {

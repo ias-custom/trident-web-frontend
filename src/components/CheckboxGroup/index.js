@@ -32,18 +32,9 @@ import {
   CAN_DELETE_SET
 } from '../../redux/permissions';
 
-class CheckboxGroup extends React.Component {
-
-  havePermissions (permissions) {
-    const codenames = permissions.map( ({codename}) => codename)
-    console.log(permissions)
-    console.log(this.props.permissionsId.filter( id => (codenames.includes(id))))
-    console.log("==================")
-    return codenames.length === (this.props.permissionsId.filter( id => (codenames.includes(id)))).length
-  }
-  render() {
-    let { permissionsId, classes  } = this.props;
-    const roles = [
+const CheckboxGroup = ({...props}) => {
+  let { permissionsId, classes  } = props;
+  const roles = [
       {
         title: "ALL MODULE USERS",
         permissions: [
@@ -135,51 +126,55 @@ class CheckboxGroup extends React.Component {
         ]
       },
     ]
-    return (
-        <Grid container spacing={16}>
-            {roles.map((role, index) => (
-              <Grid item container xs={12} key={role.title}>
-                <Divider style={{'display': index === 0 ? 'none': 'block'}} className={classes.divider}></Divider>
-                <Grid item xs={12}>
-                  <FormControlLabel
+    
+  function havePermissions (permissions) {
+    const codenames = permissions.map( ({codename}) => codename)
+    return codenames.length === (props.permissionsId.filter( id => (codenames.includes(id)))).length
+  }
+  return (
+      <Grid container spacing={16}>
+          {roles.map((role, index) => (
+            <Grid item container xs={12} key={role.title}>
+              <Divider style={{'display': index === 0 ? 'none': 'block'}} className={classes.divider}></Divider>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Switch checked={havePermissions(role.permissions)} onChange={ () => {
+                      if (havePermissions(role.permissions)) {
+                          props.onChange(role.permissions.map( ({codename}) => codename), false)
+                      } else {
+                          props.onChange(role.permissions.map( ({codename}) => codename), true)
+                      }
+                    }} />
+                  }
+                  label={role.title}
+                />
+              </Grid>
+              {role.permissions.map( ({title, codename}) => (
+                <Grid item xs={6} key={title}>
+                  <FormControlLabel 
+                    key={codename}
                     control={
-                      <Switch checked={this.havePermissions(role.permissions)} onChange={ () => {
-                        if (this.havePermissions(role.permissions)) {
-                            this.props.onChange(role.permissions.map( ({codename}) => codename), false)
-                        } else {
-                            this.props.onChange(role.permissions.map( ({codename}) => codename), true)
-                        }
-                      }} />
+                      <Checkbox
+                        checked={!!permissionsId.find(id => id === codename)}
+                        onClick={() => {
+                          if (permissionsId.find(id => id === codename)) {
+                              props.onChange([codename], false)
+                          } else {
+                              props.onChange([codename], true)
+                          }
+                        }}
+                      />
                     }
-                    label={role.title}
+                    label={title}
                   />
                 </Grid>
-                {role.permissions.map( ({title, codename}) => (
-                  <Grid item xs={6} key={title}>
-                    <FormControlLabel 
-                      key={codename}
-                      control={
-                        <Checkbox
-                          checked={!!permissionsId.find(id => id === codename)}
-                          onClick={() => {
-                            if (permissionsId.find(id => id === codename)) {
-                                this.props.onChange([codename], false)
-                            } else {
-                                this.props.onChange([codename], true)
-                            }
-                          }}
-                        />
-                      }
-                      label={title}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            ))
-            }
-        </Grid>
-    )
-  }
+              ))}
+            </Grid>
+          ))
+          }
+      </Grid>
+  )
 };
 
 CheckboxGroup.propTypes = {

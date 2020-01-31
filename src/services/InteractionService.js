@@ -1,5 +1,4 @@
 import Service from "./Service";
-import store from "../redux/store";
 
 class InteractionService extends Service {
 

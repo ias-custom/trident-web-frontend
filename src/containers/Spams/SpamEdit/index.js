@@ -242,7 +242,9 @@ class SpanEdit extends React.Component {
       this.setState(prevState => {
         return { formGeneral: prevState.formGeneral };
       });
-      this.formikGeneral.current.resetForm();
+      if (this.state.enabledEquipment) {
+        this.formikGeneral.current.resetForm();
+      }
     }
   }
 

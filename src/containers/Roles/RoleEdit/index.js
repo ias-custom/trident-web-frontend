@@ -170,7 +170,7 @@ class RoleEdit extends React.Component {
                   handleChange,
                   handleBlur,
                   handleSubmit,
-                  setFieldValue
+                  //setFieldValue
                 } = props;
 
                 return (

@@ -8,28 +8,25 @@ import { Link as RouterLink } from 'react-router-dom'
 import Link from '@material-ui/core/Link';
 import styles from './styles';
 
-class SimpleBreadcrumbs extends React.Component {
-  render() {
-    const { classes, routes } = this.props;
-
-    return (
-      <div className={classes.root}>
-        <Paper className={classes.paper}>
-          <Breadcrumbs arial-label="Breadcrumb">
-            {
-              routes.map((route, index) => {
-                return (
-                  route.to !== null ?
-                  <Link key={index} component={RouterLink} color="inherit" to={route.to}>{route.name}</Link> :
-                  <Typography key={index} color="textPrimary">{route.name}</Typography>
-                )
-              })
-            }
-          </Breadcrumbs>
-        </Paper>
-      </div>
-    );
-  }
+const SimpleBreadcrumbs=({...props}) => {
+  const { classes, routes } = props;
+  return (
+    <div className={classes.root}>
+      <Paper className={classes.paper}>
+        <Breadcrumbs arial-label="Breadcrumb">
+          {
+            routes.map((route, index) => {
+              return (
+                route.to !== null ?
+                <Link key={index} component={RouterLink} color="inherit" to={route.to}>{route.name}</Link> :
+                <Typography key={index} color="textPrimary">{route.name}</Typography>
+              )
+            })
+          }
+        </Breadcrumbs>
+      </Paper>
+    </div>
+  );
 }
 
 SimpleBreadcrumbs.propTypes = {

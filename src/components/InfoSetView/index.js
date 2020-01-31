@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { compose } from "recompose";
 import { withRouter } from "react-router-dom";
 import { withSnackbar } from "notistack";
-import _ from "lodash";
 import {
   Grid,
   withStyles,
