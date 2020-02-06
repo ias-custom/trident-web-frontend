@@ -69,7 +69,7 @@ class UserList extends React.Component {
   filter = (users, keyword) => {
     if (keyword === "") return users;
 
-    const fields = ["first_name", "last_name", "email", "username"];
+    const fields = ["first_name", "last_name", "email", "username", "roles"];
     const regex = new RegExp(keyword, "i");
 
     return users.filter(user => {
@@ -77,7 +77,10 @@ class UserList extends React.Component {
 
       return (
         fields.filter(field => {
-          return typeof obj[field] === "string" && obj[field].match(regex);
+          if (field !== "roles") {
+            return typeof obj[field] === "string" && obj[field].match(regex)
+          }
+          return obj[field].length > 0 && obj[field][0].name.match(regex)
         }).length > 0
       );
     });
@@ -178,7 +181,7 @@ class UserList extends React.Component {
                               <Typography color="secondary">Inactive</Typography>
                             )}
                           </TableCell>
-                          <TableCell>{user.role ? user.role.label : "-"}</TableCell>
+                          <TableCell>{user.roles.length > 0 ? user.roles[0].name : "-"}</TableCell>
                           <TableCell align="center">
                             <div style={{ display: "flex" }}>
                               {canChangeUser || is_superuser ? (

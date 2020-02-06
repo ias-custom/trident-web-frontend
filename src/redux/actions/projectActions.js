@@ -77,7 +77,6 @@ export const getProject = (id, saveData = true) => {
       const response = await service.get(id);
       if (response.status === 200) {
         if (saveData) {
-          console.log(response.data)
           const { structures, spans, users, interactions, crossings, access } = response.data
           dispatch({ type: GET_PROJECT, payload: response.data });
           dispatch({ type: GET_USERS_PROJECT, payload: users });
@@ -145,10 +144,6 @@ export const updateProject = (id, body) => {
 
     try {
       const response = await service.update(id, body);
-
-      if (response.status === 200) {
-        dispatch(fetchProjects());
-      }
 
       return response;
     } catch (error) {

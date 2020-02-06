@@ -20,6 +20,7 @@ import {
 } from "../../../redux/actions/layoutActions";
 import { createProject, fetchTags, fetchInspectionsProject } from "../../../redux/actions/projectActions";
 import { fetchSets } from "../../../redux/actions/setsActions";
+import { fetchLines } from "../../../redux/actions/LineActions";
 import styles from "./styles";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -40,8 +41,9 @@ class ProjectCreate extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchTags();
+    //this.props.fetchTags();
     this.props.fetchSets();
+    this.props.fetchLines();
     this.props.fetchInspectionsProject();
     const nameItem = "projects";
     const nameSubItem = "create";
@@ -63,7 +65,7 @@ class ProjectCreate extends React.Component {
         this.props.enqueueSnackbar("The project has been created!", {
           variant: "success"
         });
-        this.props.history.push("/projects");
+        this.props.history.push(`/projects/${response.data.id}`);
       } else {
         this.props.enqueueSnackbar("The request could not be processed!", {
           variant: "error"
@@ -77,7 +79,7 @@ class ProjectCreate extends React.Component {
   };
 
   render() {
-    const { classes, loading, inspections_project, sets } = this.props;
+    const { classes, loading, inspections_project, sets, lines } = this.props;
     return (
       <Layout title="Create Project">
         {() => (
@@ -93,6 +95,7 @@ class ProjectCreate extends React.Component {
                 name: Yup.string().required("Name is required"),
                 inspection_id: Yup.mixed().required("Type is required"),
                 set_id: Yup.mixed().required("Set is required"),
+                line_id: Yup.mixed().required("Line is required"),
               })}
               enableReinitialize
             >
@@ -184,6 +187,30 @@ class ProjectCreate extends React.Component {
                                 ))}
                               </TextField>
                             </Grid>
+                            <Grid item xs={6}>
+                              <TextField
+                                name="line_id"
+                                select
+                                value={values.line_id}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.line_id && !!errors.line_id}
+                                helperText={
+                                  !!touched.line_id && !!errors.line_id && errors.line_id
+                                }
+                                label="Line"
+                                fullWidth
+                                margin="normal"
+                                required
+                                disabled={loading}
+                              >
+                                {lines.map(l => (
+                                  <MenuItem key={l.id} value={l.id}>
+                                    {l.name}
+                                  </MenuItem>
+                                ))}
+                              </TextField>
+                            </Grid>
                           </Grid>
   
                           {/* <Grid container spacing={16}>
@@ -241,7 +268,7 @@ class ProjectCreate extends React.Component {
                       color="primary"
                       fullWidth
                     >
-                      Create Project
+                      Next
                     </Button>
                   </Form>
                 );
@@ -259,7 +286,8 @@ const mapStateToProps = state => {
     loading: state.global.loading,
     tags: state.projects.tags,
     inspections_project: state.projects.inspections_project,
-    sets: state.sets.list
+    sets: state.sets.list,
+    lines: state.lines.list
   };
 };
 
@@ -270,7 +298,8 @@ const mapDispatchToProps = {
   selectedItemMenu,
   createProject,
   fetchInspectionsProject,
-  fetchSets
+  fetchSets,
+  fetchLines
 };
 
 export default compose(

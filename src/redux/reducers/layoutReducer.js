@@ -11,13 +11,18 @@ const initialState = {
       roles: false,
       customers: false
     },
+    menu: {
+      apps: false
+    },
     projects: {
-      list: false
+      list: false,
+      viewer: false
     },
     setup: {
       open: false,
       substations: false,
-      sets: false
+      sets: false,
+      lines: false
     }
   }
 };

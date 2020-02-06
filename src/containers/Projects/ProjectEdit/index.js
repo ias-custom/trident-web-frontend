@@ -26,7 +26,7 @@ import {
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel, CloudUpload } from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel, CloudUpload, Gif } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -63,6 +63,7 @@ import {
   MapBox
 } from "../../../components";
 import InputFiles from "react-input-files";
+import { fetchLines } from "../../../redux/actions/LineActions";
 import ReactLoading from "react-loading";
 
 const breadcrumbs = [
@@ -71,6 +72,10 @@ const breadcrumbs = [
   { name: "Project edit", to: null }
 ];
 
+const status = [
+  {id: 1, name: "ACTIVE"},
+  {id: 2, name: "COMPLETED"},
+]
 class ProjectEdit extends React.Component {
   state = {
     search: "",
@@ -78,6 +83,7 @@ class ProjectEdit extends React.Component {
     openUser: false,
     itemId: null,
     value: 0,
+    projectStatus: "",
     projectName: "",
     inputProjectName: "",
     editName: false,
@@ -91,7 +97,8 @@ class ProjectEdit extends React.Component {
     openFile: false,
     fileName: "",
     type: "",
-    enabledMap: false
+    enabledMap: false,
+    projectLine: ""
   };
 
   projectId = null;
@@ -103,8 +110,11 @@ class ProjectEdit extends React.Component {
       this.projectId = this.props.match.params.id;
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
+        this.props.fetchLines()
         this.setState({
           projectName: response.data.name,
+          projectStatus: response.data.state_id || "",
+          projectLine: response.data.line_id || "",
           inputProjectName: response.data.name,
           set: response.data.set,
           setId: response.data.set_id,
@@ -372,6 +382,40 @@ class ProjectEdit extends React.Component {
       });
     }
   };
+
+  changeStatus = async state_id => {
+    const form = { state_id };
+    const response = await this.props.updateProject(this.projectId, form);
+    if (response.status === 200 || response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      this.props.enqueueSnackbar("¡Project updated successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.setState({projectStatus: ""})
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  };
+  changeLine = async line_id => {
+    const form = { line_id };
+    const response = await this.props.updateProject(this.projectId, form);
+    if (response.status === 200 || response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      this.props.enqueueSnackbar("¡Project updated successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.setState({projectLine: ""})
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  };
+
   render() {
     const {
       classes,
@@ -381,6 +425,7 @@ class ProjectEdit extends React.Component {
       users,
       users_customer,
       interactions,
+      lines
     } = this.props;
     const {
       search,
@@ -398,12 +443,13 @@ class ProjectEdit extends React.Component {
       itemName,
       fileName,
       type,
-      enabledMap
+      enabledMap,
+      projectStatus,
+      projectLine
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
     });
-
     return (
       <Layout title="Projects">
         {openDrawer => (
@@ -426,12 +472,12 @@ class ProjectEdit extends React.Component {
                 !loading ? this.closeModal("openUser", null) : false
               }
             >
-              <DialogTitle id="alert-dialog-title">{"Add user"}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">{"Add inspector"}</DialogTitle>
               <DialogContent>
                 <TextField
                   name="user_selected"
                   select
-                  label="Users"
+                  label="Inspectors"
                   value={userSelected}
                   margin="normal"
                   disabled={loading}
@@ -557,55 +603,108 @@ class ProjectEdit extends React.Component {
                 routes={breadcrumbs}
                 classes={{ root: classes.breadcrumbs }}
               />
-              {editName ? (
-                <Grid item xs={6}>
-                  <TextField
-                    name="name"
-                    value={inputProjectName}
-                    label=""
-                    required
-                    autoFocus={editName}
-                    inputProps={{ className: classes.inputName }}
-                    onChange={e =>
-                      this.setState({ inputProjectName: e.target.value })
-                    }
-                  />
-                  <IconButton
-                    className={classes.buttonSave}
-                    aria-label="Save"
-                    color="primary"
-                    onClick={() => this.saveName()}
-                    disabled={loading || inputProjectName.length === 0}
-                  >
-                    <Save />
-                  </IconButton>
-                  <IconButton
-                    className={classes.iconDelete}
-                    aria-label="Cancel"
-                    onClick={() => {
-                      this.setState({
-                        inputProjectName: projectName,
-                        editName: false
-                      });
-                    }}
-                    disabled={loading}
-                  >
-                    <Cancel />
-                  </IconButton>
+              <Grid container justify="space-between" style={{marginBottom: 20}}>
+                <Grid style={{paddingTop: 12}}>
+                  {editName ? (
+                    <Grid  style={{display: 'flex'}}>
+                      <TextField
+                        name="name"
+                        value={inputProjectName}
+                        label=""
+                        required
+                        autoFocus={editName}
+                        inputProps={{ className: classes.inputName }}
+                        onChange={e =>
+                          this.setState({ inputProjectName: e.target.value })
+                        }
+                        style={{minWidth: 150, maxWidth: 250 }}
+                      />
+                      <IconButton
+                        className={classes.buttonSave}
+                        aria-label="Save"
+                        color="primary"
+                        onClick={() => this.saveName()}
+                        disabled={loading || inputProjectName.length === 0}
+                      >
+                        <Save />
+                      </IconButton>
+                      <IconButton
+                        className={classes.iconDelete}
+                        aria-label="Cancel"
+                        onClick={() => {
+                          this.setState({
+                            inputProjectName: projectName,
+                            editName: false
+                          });
+                        }}
+                        disabled={loading}
+                      >
+                        <Cancel />
+                      </IconButton>
+                    </Grid>
+                  ) : (
+                    <Typography component="h1" variant="h5">
+                      {projectName}
+                      <IconButton
+                        aria-label="Edit"
+                        color="primary"
+                        onClick={() => this.showInputEdit()}
+                        disabled={loading}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Typography>
+                  )}
                 </Grid>
-              ) : (
-                <Typography component="h1" variant="h5">
-                  {projectName}
-                  <IconButton
-                    aria-label="Edit"
-                    color="primary"
-                    onClick={() => this.showInputEdit()}
-                    disabled={loading}
+                <Grid>
+                  <TextField
+                    name="status"
+                    select
+                    label="Status"
+                    value={projectStatus}
+                    margin="none"
+                    onChange={e => {
+                      const value = e.target.value
+                      this.setState({projectStatus: value})
+                      this.changeStatus(value)
+                    }}
+                    style={{width: 250}}
+                    required
                   >
-                    <Edit />
-                  </IconButton>
-                </Typography>
-              )}
+                    {status.map(state => {
+                      return (
+                        <MenuItem key={state.id} value={state.id}>
+                          {state.name}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
+                <Grid>
+                  <TextField
+                    name="line_id"
+                    select
+                    label="Line"
+                    value={projectLine}
+                    margin="none"
+                    onChange={e => {
+                      const value = e.target.value
+                      this.setState({projectLine: value})
+                      this.changeLine(value)
+                    }}
+                    style={{width: 250}}
+                    required
+                  >
+                    {lines.map(line => {
+                      return (
+                        <MenuItem key={line.id} value={line.id}>
+                          {line.name}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
+              </Grid>
 
               <Grid className={classes.divTabs}>
                 <Tabs
@@ -617,7 +716,7 @@ class ProjectEdit extends React.Component {
                   textColor="primary"
                   variant="fullWidth"
                 >
-                  <Tab label="Users" disabled={loading} />
+                  <Tab label="Inspectors" disabled={loading} />
                   <Tab label="Structures" disabled={loading} />
                   {type === 1 ? (<Tab label="Spans" disabled={loading}/>) : null}
                   <Tab label="Set" disabled={loading} />
@@ -645,7 +744,7 @@ class ProjectEdit extends React.Component {
                         disabled={loading}
                         onClick={() => this.showModal(null, "openUser")}
                       >
-                        Add User
+                        Add Inspector
                       </Button>
                       <Input
                         style={{ width: 300 }}
@@ -718,7 +817,7 @@ class ProjectEdit extends React.Component {
                           </TableBody>
                         )}
                       </Table>
-                      <TextEmpty itemName="USERS" empty={users.length === 0} />
+                      <TextEmpty itemName="INSPECTORS" empty={users.length === 0} />
                     </div>
                   </Grid>
                   <Grid>
@@ -1263,7 +1362,8 @@ const mapStateToProps = state => {
     spans: state.spans.spans,
     interactions: state.interactions.list,
     deficiencies: state.projects.deficiencies,
-    sets: state.sets.list
+    sets: state.sets.list,
+    lines: state.lines.list
   };
 };
 
@@ -1286,7 +1386,8 @@ const mapDispatchToProps = {
   getSet,
   deleteInteraction,
   setFromMap,
-  uploadStructures
+  uploadStructures,
+  fetchLines
 };
 
 export default compose(

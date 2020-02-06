@@ -34,19 +34,14 @@ class Home extends React.Component {
   };
   componentDidMount() {
     try {
-      const open = false;
-      this.props.toggleItemMenu({ nameItem: "users", open });
-      this.props.toggleItemMenu({ nameItem: "roles", open });
-      this.props.toggleItemMenu({ nameItem: "customers", open });
-      this.props.selectedItemMenu({ nameItem: "home", nameSubItem: "home" });
-      this.props.fetchProjects();
+      this.props.selectedItemMenu({ nameItem: "menu", nameSubItem: "apps" });
     } catch (error) {}
   }
 
   render() {
     const { classes, permissions, is_superuser } = this.props;
     return (
-      <Layout title="Dashboard">
+      <Layout title="Menu">
         {open => (
           <div className={classes.root}>
             <Grid container spacing={16} className={classes.divFirst}>

@@ -51,8 +51,6 @@ class ProjectsList extends React.Component {
       this.props.fetchProjects();
       const nameItem = "projects";
       const nameSubItem = "list";
-      const open = true;
-      this.props.toggleItemMenu({ nameItem, open });
       this.props.selectedItemMenu({ nameItem, nameSubItem });
     } catch (error) {}
   }
@@ -164,16 +162,20 @@ class ProjectsList extends React.Component {
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
-                      <TableCell style={{ width: "80%" }}>Name</TableCell>
-                      <TableCell colSpan={1}>Actions</TableCell>
+                      <TableCell style={{width: '40%'}}>Name</TableCell>
+                      <TableCell style={{width: '40%'}}>Type</TableCell>
+                      <TableCell style={{width: '20%'}}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   {!loading && (
                     <TableBody>
                       {this.filter(projects, search).map(project => (
                         <TableRow key={project.id}>
-                          <TableCell component="td" style={{ width: "80%" }}>
+                          <TableCell component="td">
                             {project.name}
+                          </TableCell>
+                          <TableCell>
+                            {project.inspection_name || 'Constructability'}
                           </TableCell>
                           <TableCell>
                             <div style={{ display: "flex" }}>

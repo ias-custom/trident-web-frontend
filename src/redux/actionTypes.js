@@ -110,7 +110,8 @@ export const GET_DEFAULT_SET = 'GET_DEFAULT_SET';
 export const GET_INTERACTIONS = 'GET_INTERACTIONS';
 export const DELETE_INTERACTION = 'DELETE_INTERACTION';
 
-
-
 export const HANDLE_FORM = 'HANDLE_FORM';
 export const SET_CURRENT_FORM = 'SET_CURRENT_FORM';
+
+export const GET_LINES = 'GET_LINES';
+export const DELETE_LINE = 'DELETE_LINE';

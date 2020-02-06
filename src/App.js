@@ -64,6 +64,9 @@ import MarkingCreate from "./containers/Markings/MarkingCreate";
 import MarkingEdit from "./containers/Markings/MarkingEdit";
 import AccessCreate from "./containers/Access/AccessCreate";
 import AccessEdit from "./containers/Access/AccessEdit";
+import LinesList from "./containers/Lines/LinesList";
+import LineCreate from "./containers/Lines/LineCreate";
+import LineEdit from "./containers/Lines/LineEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -139,7 +142,9 @@ class App extends Component {
           <PrivateRoute exact path="/sets" component={SetList} allowedPermission={CAN_VIEW_SET}/>
           <PrivateRoute exact path="/sets/create" component={SetCreate} allowedPermission={CAN_ADD_SET}/>
           <PrivateRoute exact path="/sets/:id" component={SetEdit} allowedPermission={CAN_CHANGE_SET}/>
-          
+          <Route exact path="/lines" component={LinesList} />
+          <Route exact path="/lines/create" component={LineCreate} />
+          <Route exact path="/lines/:id" component={LineEdit} />
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
         </Switch>

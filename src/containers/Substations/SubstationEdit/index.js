@@ -85,21 +85,15 @@ class SubstationEdit extends React.Component {
       number,
       latitude,
       longitude,
-      customer_id,
-      project_ids
+      customer_id
     } = data;
     
-    const response = await this.props.getProjectsOfCustomer(customer_id)
-    if (response.status === 200) {
-      this.setState({projects: response.data});
-    }
     const form = {
       name,
       number,
       latitude,
       longitude,
       customerId: customer_id,
-      projectIds: project_ids
     }
     this.form = form
     this.setState({});
@@ -147,7 +141,7 @@ class SubstationEdit extends React.Component {
     this.props.setLoading(false);
   };
 
-  getProjectsOfCustomer = async (customerId, oldCustomerId) => {
+  /* getProjectsOfCustomer = async (customerId, oldCustomerId) => {
     if (customerId !== oldCustomerId) {
       const response = await this.props.getProjectsOfCustomer(customerId);
       this.form.projectIds = []
@@ -157,7 +151,7 @@ class SubstationEdit extends React.Component {
         this.setState({ projects: response.data });
       }
     }
-  };
+  }; */
 
   render() {
     const { projects } = this.state;
@@ -335,70 +329,6 @@ class SubstationEdit extends React.Component {
                                   );
                                 })}
                               </TextField>
-                            </Grid>
-                          </Grid>
-                          <Grid container spacing={16}>
-                            <Grid item xs>
-                              <FormControl fullWidth margin="normal">
-                                <InputLabel
-                                  htmlFor="select-multiple-chip"
-                                  error={
-                                    !!touched.projectIds && !!errors.projectIds
-                                  }
-                                >
-                                  Projects
-                                </InputLabel>
-                                <Select
-                                  multiple
-                                  name="projectIds"
-                                  value={values.projectIds}
-                                  onChange={handleChange}
-                                  onBlur={handleBlur}
-                                  disabled={loading || values.customerId === ""}
-                                  error={
-                                    !!touched.projectIds && !!errors.projectIds
-                                  }
-                                  input={<Input id="select-multiple-chip" />}
-                                  renderValue={selected => (
-                                    <div className={classes.chips}>
-                                      {selected.map((selectedId) => (
-                                        <Chip
-                                          key={selectedId}
-                                          label={
-                                            projects.find(
-                                              ({ id }) => id === selectedId
-                                            ).name
-                                          }
-                                          className={classes.chip}
-                                        />
-                                      ))}
-                                    </div>
-                                  )}
-                                  fullWidth
-                                >
-                                  {projects.map(project => (
-                                    <MenuItem key={project.id} value={project.id}>
-                                      <Checkbox
-                                        checked={
-                                          !!values.projectIds.find(
-                                            id => id === project.id
-                                          )
-                                        }
-                                      />
-                                      <ListItemText primary={project.name} />
-                                    </MenuItem>
-                                  ))}
-                                </Select>
-                                <FormHelperText
-                                  error={
-                                    !!touched.projectIds && !!errors.projectIds
-                                  }
-                                >
-                                  {!!touched.projectIds &&
-                                    !!errors.projectIds &&
-                                    errors.projectIds}
-                                </FormHelperText>
-                              </FormControl>
                             </Grid>
                           </Grid>
                         </Panel>

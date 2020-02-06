@@ -76,16 +76,16 @@ class UserEdit extends React.Component {
       last_name,
       email,
       username,
-      groups,
-      customer_ids
+      roles,
+      //customer_ids
     } = data;
     this.form.username = username;
     this.form.email = email;
     this.form.first_name = first_name;
     this.form.last_name = last_name;
-    this.form.role_id = groups[0] || "";
+    this.form.role_id = roles[0].id || "";
     this.form.enterApp = data.app_access || false;
-    this.form.customersId = customer_ids;
+    //this.form.customersId = customer_ids;
     this.setState({});
   };
 
@@ -102,10 +102,11 @@ class UserEdit extends React.Component {
 
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
+    const { customerSelectedId } = this.props;
     this.props.setLoading(true);
     const { first_name, last_name, email, username, password } = values;
-    const customer_ids = values.customersId;
-    const groups = [values.role_id];
+    const customer_ids = [customerSelectedId];
+    const role_ids = [values.role_id];
     const app_access = values.enterApp;
     const form = {
       first_name,
@@ -113,7 +114,7 @@ class UserEdit extends React.Component {
       username,
       password,
       email,
-      groups,
+      role_ids,
       app_access,
       customer_ids
     };
@@ -161,9 +162,9 @@ class UserEdit extends React.Component {
                 last_name: Yup.string().required("Last name is required"),
                 username: Yup.string().required("Username is required"),
                 role_id: Yup.mixed().required("Role is required"),
-                customersId: Yup.array()
+                /* customersId: Yup.array()
                   .min(1, "Select at least one customer")
-                  .required("Role is required")
+                  .required("Role is required") */
               })}
             >
               {props => {
@@ -297,7 +298,7 @@ class UserEdit extends React.Component {
                                 })}
                               </TextField>
                             </Grid>
-                            <Grid item xs>
+                            {/* <Grid item xs>
                               <FormControl fullWidth margin="normal">
                                 <InputLabel
                                   htmlFor="select-multiple-chip"
@@ -351,7 +352,7 @@ class UserEdit extends React.Component {
                                   {!!errors.customersId && errors.customersId}
                                 </FormHelperText>
                               </FormControl>
-                            </Grid>
+                            </Grid> */}
                           </Grid>
                           <Grid container spacing={16}>
                             <Grid item xs>

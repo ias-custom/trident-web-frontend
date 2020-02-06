@@ -28,7 +28,7 @@ import {
   CAN_VIEW_SUBSTATION,
   CAN_VIEW_SET,
 } from '../../redux/permissions'
-import { FolderOpen, SettingsApplications } from '@material-ui/icons';
+import { FolderOpen, SettingsApplications, Timeline } from '@material-ui/icons';
 /*
 import Collapse from "@material-ui/core/Collapse/Collapse";
 import ExpandLess from '@material-ui/icons/ExpandLess';
@@ -41,10 +41,13 @@ const UsersLink = props => <RouterLink to="/users" {...props} />;
 const RolesLink = props => <RouterLink to="/roles" {...props} />;
 const CustomersLink = props => <RouterLink to="/customers" {...props} />;
 const ProjectsLink = props => <RouterLink to="/projects" {...props} />;
-const DashboardLink = props => <RouterLink to="/home" {...props} />;
+const ProjectViewerLink = props => <RouterLink to="/project-viewer" {...props} />;
+const MenuLink = props => <RouterLink to="/home" {...props} />;
+const DashboardLink = props => <RouterLink to="/dashboard" {...props} />;
 const ReportingLink = props => <RouterLink to="/reports" {...props} />;
 const SubstationsLink = props => <RouterLink to="/substations" {...props} />;
 const SetsLink = props => <RouterLink to="/sets" {...props} />;
+const LinesLink = props => <RouterLink to="/lines" {...props} />;
 
 class MainListItems extends React.Component {
   
@@ -54,8 +57,6 @@ class MainListItems extends React.Component {
   
   
   render () {
-    const customerSelected = this.props.customers.find( ({id}) => id === this.props.customerSelectedId)
-    const customerName = customerSelected.name
     const { classes, itemsMenu, permissions, is_superuser } = this.props
     return (
       <div>
@@ -106,20 +107,36 @@ class MainListItems extends React.Component {
           
         ): null */}
         {permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ? <Divider /> : null}
-        <Link component={DashboardLink}>
-          <ListItem button>
+        <Link component={MenuLink} underline="none">
+          <ListItem button selected={itemsMenu.menu.apps}>
             <ListItemIcon>
               <DashboardIcon />
             </ListItemIcon>
-            <ListItemText primary={`${customerName} Dashboard`} className={classes.textEllipsis}/>
+            <ListItemText primary="Menu" className={classes.textEllipsis}/>
           </ListItem>
         </Link>
-        <Link component={ReportingLink}>
+        <Link component={DashboardLink} underline="none">
           <ListItem button>
             <ListItemIcon>
               <ReportingIcon />
             </ListItemIcon>
-            <ListItemText primary={`${customerName} Reports`} className={classes.textEllipsis}/>
+            <ListItemText primary="Dashboard" className={classes.textEllipsis}/>
+          </ListItem>
+        </Link>
+        <Link component={ReportingLink} underline="none">
+          <ListItem button>
+            <ListItemIcon>
+              <ReportingIcon />
+            </ListItemIcon>
+            <ListItemText primary="Reporting" className={classes.textEllipsis}/>
+          </ListItem>
+        </Link>
+        <Link component={ProjectViewerLink} underline="none">
+          <ListItem button selected={itemsMenu.projects.viewer}>
+            <ListItemIcon>
+              <ProjectIcon/>
+            </ListItemIcon>
+            <ListItemText primary="Project Viewer" />
           </ListItem>
         </Link>
         {permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? (
@@ -128,7 +145,7 @@ class MainListItems extends React.Component {
               <ListItemIcon>
                 <ProjectIcon/>
               </ListItemIcon>
-              <ListItemText primary="Projects" />
+              <ListItemText primary="Project Setup" />
             </ListItem>
           </Link>
         ) : null}
@@ -138,7 +155,7 @@ class MainListItems extends React.Component {
               <ListItemIcon>
                 <SettingsApplications/>
               </ListItemIcon>
-              <ListItemText primary={"Customer Setup - Admin"} className={classes.textEllipsis} />
+              <ListItemText primary={"Utility Setup - Admin"} className={classes.textEllipsis} />
               {itemsMenu.setup.open ? <ExpandLess /> : <ExpandMore />}
             </ListItem>
             <Collapse in={itemsMenu.setup.open}>
@@ -163,6 +180,14 @@ class MainListItems extends React.Component {
                   </ListItem>
                 </Link>
               ):null}
+              <Link component={LinesLink} underline="none">
+                  <ListItem button className={classes.subMenu} selected={itemsMenu.setup.lines}>
+                    <ListItemIcon>
+                      <Timeline/>
+                    </ListItemIcon>
+                    <ListItemText primary="Lines" />
+                  </ListItem>
+                </Link>
               </List>
             </Collapse>
           </div>
@@ -175,8 +200,6 @@ class MainListItems extends React.Component {
 const mapStateToProps = (state) => {
   return {
     itemsMenu: state.layout.itemsMenu,
-    customerSelectedId: state.customers.customerSelectedId,
-    customers: state.customers.customers,
     permissions: state.auth.permissions,
     is_superuser: state.auth.is_superuser
   }

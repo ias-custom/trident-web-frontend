@@ -42,16 +42,15 @@ export const login = (username, password) => {
 
     try {
       const response = await service.login(username, password);
-
       if (response.status === 200) {
-        const { id, first_name = '', last_name = '', username, token, customers, is_superuser, permissions } = response.data;
+        const { id, first_name = '', last_name = '', username, token, customers, is_superuser, roles } = response.data;
         dispatch({ type: GET_CUSTOMERS, payload: customers })
         dispatch({ type: GET_CUSTOMER_SELECTED, payload: customers[0].id })
         localStorage.setItem('customers',  JSON.stringify(customers));
         localStorage.setItem('customerSelectedId',  JSON.stringify(customers[0].id));
         const fullName = first_name ? `${first_name} ${last_name}` : username;
         const avatar = fullName.replace(/\s/g, '').substr(0, 2).toUpperCase();
-        const permissionsList = permissions.map( ({codename}) => codename)
+        const permissionsList = roles.map( ({codename}) => codename)
         const auth = { id, fullName, username, avatar, token, is_superuser, permissions:permissionsList };
 
         localStorage.setItem('auth', JSON.stringify(auth));

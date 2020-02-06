@@ -21,6 +21,7 @@ import DialogDelete from './DialogDelete';
 import FormMarking from './FormMarking';
 import FormAccess from './FormAccess';
 import ShowErrors from './ShowErrors';
+import FormLine from './FormLine';
 
 export {
   InputSearch,
@@ -46,5 +47,6 @@ export {
   DialogDelete,
   FormMarking,
   FormAccess,
-  ShowErrors
+  ShowErrors,
+  FormLine
 }

@@ -43,10 +43,6 @@ const breadcrumbs = [
 ];
 
 class SubstationCreate extends React.Component {
-  state = {
-    projects: []
-  };
-
   form = {
     name: "",
     number: "",
@@ -112,16 +108,15 @@ class SubstationCreate extends React.Component {
     this.props.setLoading(false);
   };
 
-  getProjectsOfCustomer = async customerId => {
+  /* getProjectsOfCustomer = async customerId => {
     const response = await this.props.getProjectsOfCustomer(customerId);
     if (response.status === 200) {
       this.setState({ projects: response.data });
     }
-  };
+  }; */
 
   render() {
     const { classes, loading, customers } = this.props;
-    const { projects } = this.state;
 
     return (
       <Layout title="Create Substation">
@@ -267,11 +262,11 @@ class SubstationCreate extends React.Component {
                               <TextField
                                 name="customerId"
                                 select
-                                label="Customers"
+                                label="Customer"
                                 value={values.customerId}
                                 onChange={e => {
                                   handleChange(e);
-                                  this.getProjectsOfCustomer(e.target.value);
+                                  //this.getProjectsOfCustomer(e.target.value);
                                 }}
                                 onBlur={handleBlur}
                                 error={
@@ -284,6 +279,7 @@ class SubstationCreate extends React.Component {
                                 }
                                 margin="normal"
                                 fullWidth
+                                required
                               >
                                 {customers.map(customer => {
                                   return (
@@ -298,7 +294,7 @@ class SubstationCreate extends React.Component {
                               </TextField>
                             </Grid>
                           </Grid>
-                          <Grid container spacing={16}>
+                          {/* <Grid container spacing={16}>
                             <Grid item xs>
                               <FormControl fullWidth margin="normal">
                                 <InputLabel
@@ -357,7 +353,7 @@ class SubstationCreate extends React.Component {
                                 </FormHelperText>
                               </FormControl>
                             </Grid>
-                          </Grid>
+                          </Grid> */}
                         </Panel>
                       </Grid>
                     </Grid>

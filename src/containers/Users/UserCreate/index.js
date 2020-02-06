@@ -56,7 +56,7 @@ class UserCreate extends React.Component {
     password: "",
     role_id: "",
     enterApp: false,
-    customersId: []
+    //customersId: []
   };
 
   componentDidMount() {
@@ -66,7 +66,7 @@ class UserCreate extends React.Component {
     this.props.toggleItemMenu({ nameItem, open });
     this.props.selectedItemMenu({ nameItem, nameSubItem });
     try {
-      this.props.getCustomers();
+      //this.props.getCustomers();
       this.props.fetchRoles();
     } catch (error) {
       console.error(error.message);
@@ -75,10 +75,11 @@ class UserCreate extends React.Component {
 
   handleSubmit = async (values, formikActions) => {
     const { setSubmitting, resetForm } = formikActions;
+    const { customerSelectedId } = this.props;
     this.props.setLoading(true);
     const { first_name, last_name, email, username, password } = values;
-    const customer_ids = values.customersId.map(({ id }) => id);
-    const groups = [values.role_id];
+    const customer_ids = [customerSelectedId];
+    const role_ids = [values.role_id];
     const app_access = values.enterApp;
 
     const form = {
@@ -87,7 +88,7 @@ class UserCreate extends React.Component {
       username,
       password,
       email,
-      groups,
+      role_ids,
       app_access,
       customer_ids
     };
@@ -138,9 +139,9 @@ class UserCreate extends React.Component {
                   .required("Password is required"),
                 username: Yup.string().required("Username is required"),
                 role_id: Yup.mixed().required("Role is required"),
-                customersId: Yup.array()
+                /* customersId: Yup.array()
                   .min(1, "Select at least one customer")
-                  .required("Customer is required")
+                  .required("Customer is required") */
               })}
             >
               {props => {
@@ -293,7 +294,7 @@ class UserCreate extends React.Component {
                               </TextField>
                             </Grid>
                           </Grid>
-                          <Grid container spacing={16}>
+                          {/* <Grid container spacing={16}>
                             <Grid item xs>
                               <FormControl fullWidth margin="normal">
                                 <InputLabel
@@ -351,7 +352,7 @@ class UserCreate extends React.Component {
                                 </FormHelperText>
                               </FormControl>
                             </Grid>
-                          </Grid>
+                          </Grid> */}
                           <Grid container spacing={16}>
                             <Grid item xs>
                               <FormControlLabel
@@ -399,7 +400,8 @@ const mapStateToProps = state => {
   return {
     loading: state.global.loading,
     roles: state.roles.roles,
-    customers: state.customers.customers
+    customers: state.customers.customers,
+    customerSelectedId: state.customers.customerSelectedId
   };
 };
 

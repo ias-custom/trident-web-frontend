@@ -11,6 +11,7 @@ import spanReducer from "./spanReducer";
 import substationsReducer from "./substationReducer";
 import setReducer from "./setReducer";
 import interactionReducer from "./interactionReducer";
+import lineReducer from "./LineReducer";
 
 export default combineReducers({
   global: globalReducer,
@@ -24,5 +25,6 @@ export default combineReducers({
   spans: spanReducer,
   substations: substationsReducer,
   sets: setReducer,
-  interactions: interactionReducer
+  interactions: interactionReducer,
+  lines: lineReducer
 });
