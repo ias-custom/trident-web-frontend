@@ -96,7 +96,7 @@ class MainListItems extends React.Component {
                     <ListItemIcon>
                       <CustomersIcon/>
                     </ListItemIcon>
-                    <ListItemText primary="Customers" />
+                    <ListItemText primary="Utility" />
                   </ListItem>
                 </Link>
               ) : null}
@@ -131,14 +131,14 @@ class MainListItems extends React.Component {
             <ListItemText primary="Reporting" className={classes.textEllipsis}/>
           </ListItem>
         </Link>
-        <Link component={ProjectViewerLink} underline="none">
+        {/* <Link component={ProjectViewerLink} underline="none">
           <ListItem button selected={itemsMenu.projects.viewer}>
             <ListItemIcon>
               <ProjectIcon/>
             </ListItemIcon>
             <ListItemText primary="Project Viewer" />
           </ListItem>
-        </Link>
+        </Link> */}
         {permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? (
           <Link component={ProjectsLink} underline="none">
             <ListItem button selected={itemsMenu.projects.list}>

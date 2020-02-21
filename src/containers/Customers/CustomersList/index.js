@@ -33,7 +33,7 @@ import { DialogDelete } from "../../../components";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
-  { name: "Customers", to: null }
+  { name: "Utility", to: null }
 ];
 
 class CustomersList extends React.Component {
@@ -98,11 +98,11 @@ class CustomersList extends React.Component {
     const { search, open } = this.state;
 
     return (
-      <Layout title="Customers">
+      <Layout title="Utility">
         {() => (
           <div>
             <DialogDelete
-              item="customer"
+              item="utility"
               open={open}
               closeModal={() => this.setState({ open: false })}
               remove={this.handleDelete}
@@ -121,7 +121,7 @@ class CustomersList extends React.Component {
                     to="/customers/create"
                   >
                     <Button variant="outlined" color="primary">
-                      Create Customer
+                      Create Utility
                     </Button>
                   </Link>
 

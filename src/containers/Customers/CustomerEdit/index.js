@@ -26,8 +26,8 @@ import InputFiles from "react-input-files";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
-  { name: "Customers", to: "/customers" },
-  { name: "Edit Customer", to: null }
+  { name: "Utility", to: "/customers" },
+  { name: "Edit Utility", to: null }
 ];
 
 class CustomerEdit extends React.Component {
@@ -80,7 +80,7 @@ class CustomerEdit extends React.Component {
       if (response.status === 200) {
         resetForm();
         this.props.history.push("/customers");
-        this.props.enqueueSnackbar("The customer has been created!", {
+        this.props.enqueueSnackbar("The utility has been created!", {
           variant: "success"
         });
       } else {
@@ -99,7 +99,7 @@ class CustomerEdit extends React.Component {
     const { classes, loading } = this.props;
 
     return (
-      <Layout title="Create Customer">
+      <Layout title="Create Utility">
         {() => (
           <div className={classes.root}>
             <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>

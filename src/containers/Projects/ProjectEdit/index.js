@@ -75,6 +75,7 @@ const breadcrumbs = [
 const status = [
   {id: 1, name: "ACTIVE"},
   {id: 2, name: "COMPLETED"},
+  {id: 3, name: "PLANNED"}
 ]
 class ProjectEdit extends React.Component {
   state = {
@@ -719,7 +720,7 @@ class ProjectEdit extends React.Component {
                   <Tab label="Inspectors" disabled={loading} />
                   <Tab label="Structures" disabled={loading} />
                   {type === 1 ? (<Tab label="Spans" disabled={loading}/>) : null}
-                  <Tab label="Set" disabled={loading} />
+                  <Tab label="Inspection Sets" disabled={loading} />
                   <Tab label="Interactions" disabled={loading} />
                   <Tab label="Map" disabled={loading} />
                 </Tabs>
