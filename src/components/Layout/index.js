@@ -98,7 +98,7 @@ const Layout= ({...props}) => {
                 color="inherit"
                 noWrap
               >
-                {title || 'Dashboard'}
+                {title || 'Project Dashboard'}
               </Typography>
             </Grid>
             <Grid item className={classes.divAvatar}>
