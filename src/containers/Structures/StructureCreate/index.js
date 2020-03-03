@@ -308,6 +308,7 @@ class StructureCreate extends React.Component {
                       handleSubmit={handleSubmit}
                       projectId={this.projectId}
                       isCreate={true}
+                      forLine={false}
                       showModal={() => this.setState({ open: true })}
                     />
                   );

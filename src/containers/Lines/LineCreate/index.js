@@ -24,8 +24,8 @@ const LineCreate = ({...props}) => {
   const { classes, createLine, enqueueSnackbar  } = props;
   const [form, setForm] = useState({
     name: "",
-    start_substation: "",
-    end_substation: "",
+    start_substation_id: "",
+    end_substation_id: "",
     accounting_code: "",
   })
   

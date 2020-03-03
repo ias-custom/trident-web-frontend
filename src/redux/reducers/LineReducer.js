@@ -1,30 +1,7 @@
 import { GET_LINES, DELETE_LINE } from '../actionTypes';
 
 const initialState = {
-  list: [
-    {
-      id: 1,
-      name: 'line 1',
-      accounting_code: 'SDFSDF',
-      start_substation: 'Hdsadsad',
-      end_substation: 'Fdsfird'
-    },
-    {
-      id: 2,
-      name: 'line 2',
-      accounting_code: 'SDCKD',
-      start_substation: 'Hdsadsad',
-      end_substation: 'Fdsfird'
-    },
-    {
-      id: 3,
-      name: 'line 3',
-      accounting_code: 'JGMVOR',
-      start_substation: 'Hdsadsad',
-      end_substation: 'Fdsfird'
-    }
-    
-  ]
+  list: []
 };
 
 export default (state=initialState, action) => {

@@ -16,7 +16,38 @@ const styles = theme => ({
     borderRadius: "4px",
     marginBottom: 30,
     marginTop: 11
-  }
+  },
+  upload: {
+    borderColor: "#ed5355",
+    color: "#ed5355",
+    '&:hover': {
+      backgroundColor: "rgba(237,83,85, 0.08)"
+    },
+    '& svg': {
+      margin: "-4px 5px 0 0"
+    },
+    marginLeft: 15
+  },
+  header: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20
+  },
+  iconDelete: {
+    '& svg': {
+      color: "#f50057"      
+    },
+    '&:hover': {
+      backgroundColor: "rgba(237,83,85, 0.08)"
+    },
+    '&:disabled': {
+      '& svg': {
+        color: "gray"      
+      },
+    },
+  },
 });
 
 export default styles;

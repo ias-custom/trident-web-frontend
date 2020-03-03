@@ -67,6 +67,7 @@ import AccessEdit from "./containers/Access/AccessEdit";
 import LinesList from "./containers/Lines/LinesList";
 import LineCreate from "./containers/Lines/LineCreate";
 import LineEdit from "./containers/Lines/LineEdit";
+import StructureLineCreate from "./containers/Lines/StructureLineCreate";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -145,6 +146,7 @@ class App extends Component {
           <Route exact path="/lines" component={LinesList} />
           <Route exact path="/lines/create" component={LineCreate} />
           <Route exact path="/lines/:id" component={LineEdit} />
+          <Route exact path="/lines/:lineId/structure/create" component={StructureLineCreate} />
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
         </Switch>

@@ -12,9 +12,12 @@ import {
 } from "../../../redux/actions/layoutActions";
 import { updateLine, getLine } from "../../../redux/actions/LineActions";
 import styles from "./styles";
-import { FormLine, Panel } from "../../../components";
-import { Tabs, Tab, Grid } from "@material-ui/core";
+import { FormLine, Panel, TextEmpty } from "../../../components";
+import { Tabs, Tab, Grid, Button, Table, TableHead, TableRow, TableCell, TableBody, Typography, Link, IconButton, Input } from "@material-ui/core";
 import SwipeableViews from "react-swipeable-views";
+import { Delete, Edit } from "@material-ui/icons";
+import InputFiles from "react-input-files";
+import { Link as RouterLink } from "react-router-dom";
 
 const breadcrumbs = [
   { name: "Home", to: "/home" },
@@ -25,11 +28,13 @@ const breadcrumbs = [
 const LineEdit = ({...props}) => {
   const { classes, loading, updateLine, getLine, enqueueSnackbar  } = props;
   const [value, setValue] = useState(0)
+  const [search, setSearch] = useState('')
   const [form, setForm] = useState({
     name: "",
-    start_substation: "",
-    end_substation: "",
+    start_substation_id: "",
+    end_substation_id: "",
     accounting_code: "",
+    structures: []
   })
   useEffect(() => {
     async function loadLine() {
@@ -70,6 +75,11 @@ const LineEdit = ({...props}) => {
     }
     setSubmitting(false);
   };
+
+  function filter () {
+
+  }
+  console.log(props)
   return (
     <Layout title="Edit Line">
       {() => (
@@ -103,7 +113,113 @@ const LineEdit = ({...props}) => {
               <FormLine isCreate={false} action={handleSubmit} form={form}/>
             </Grid>
             <Grid>
-              <Panel>sdasdasd</Panel>
+              <Panel>
+                <div className={classes.header}>
+                  <div>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      disabled={loading}
+                      onClick={() => {
+                        props.history.push(
+                          `/lines/${props.match.params.id}/structure/create`
+                        );
+                      }}
+                    >
+                      Add Structure
+                    </Button>
+                    {/* <InputFiles
+                      name="file"
+                      accept=".csv"
+                      onChange={(files, e) => {
+                        //this.uploadFile(files[0]);
+                        e.target.value = "";
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        disabled={loading}
+                        className={classes.upload}
+                      >
+                        <CloudUpload />
+                        Multiple structures
+                      </Button>
+                    </InputFiles> */}
+                  </div>
+                  <Input
+                    style={{ width: 300 }}
+                    defaultValue=""
+                    className={classes.search}
+                    inputProps={{
+                      placeholder: "Search...",
+                      onChange: (value) => { setSearch(value)}
+                    }}
+                  />
+                </div>
+              <div className={classes.divTable}>
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell style={{ width: "50%" }}>Number</TableCell>
+                      <TableCell style={{ width: "30%" }}>
+                        Name
+                      </TableCell>
+                      <TableCell colSpan={1}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  {!loading && (
+                    <TableBody>
+                      {form.structures.map(
+                        structure => (
+                          <TableRow key={structure.id}>
+                            <TableCell component="td">
+                              {structure.number}
+                            </TableCell>
+                            <TableCell component="td">
+                              {structure.name}
+                            </TableCell>
+                            <TableCell>
+                              <div style={{ display: "flex" }}>
+                                <Link
+                                  component={RouterLink}
+                                  to={`/lines/${props.match.params.id}/structures/${structure.id}`}
+                                >
+                                  <IconButton
+                                    aria-label="Edit"
+                                    color="primary"
+                                    disabled={loading}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Link>
+                                <IconButton
+                                  aria-label="Delete"
+                                  className={classes.iconDelete}
+                                  disabled={loading}
+                                  onClick={() =>
+                                    this.showModal(
+                                      structure.id,
+                                      "open",
+                                      "structure"
+                                    )
+                                  }
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )}
+                    </TableBody>
+                  )}
+                </Table>
+                <TextEmpty
+                  itemName="STRUCTURES"
+                  empty={form.structures.length === 0}
+                />
+              </div>
+              </Panel>
             </Grid>
           </SwipeableViews>
           

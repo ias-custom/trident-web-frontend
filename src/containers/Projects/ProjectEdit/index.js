@@ -112,6 +112,7 @@ class ProjectEdit extends React.Component {
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
         this.props.fetchLines()
+        console.log(response.data)
         this.setState({
           projectName: response.data.name,
           projectStatus: response.data.state_id || "",

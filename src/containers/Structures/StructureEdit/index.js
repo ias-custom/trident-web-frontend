@@ -474,6 +474,7 @@ class StructureEdit extends React.Component {
                             handleSubmit={handleSubmit}
                             projectId={this.projectId}
                             isCreate={false}
+                            forLine={false}
                           />
                         );
                       }}

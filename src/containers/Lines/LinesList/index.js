@@ -64,7 +64,10 @@ const LinesList = ({...props})  => {
 
       return (
         fields.filter(field => {
-          return typeof obj[field] === "string" && obj[field].match(regex);
+          if (field !== "start_substation" && field !== "end_substation") {
+            return typeof obj[field] === "string" && obj[field].match(regex)
+          }
+          return obj[field].name.match(regex)
         }).length > 0
       );
     });
@@ -150,10 +153,10 @@ const LinesList = ({...props})  => {
                           {line.accounting_code}
                         </TableCell>
                         <TableCell>
-                          {line.start_substation}
+                          {line.start_substation.name}
                         </TableCell>
                         <TableCell>
-                          {line.end_substation}
+                          {line.end_substation.name}
                         </TableCell>
                         <TableCell>
                           <div style={{ display: "flex" }}>

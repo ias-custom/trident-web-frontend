@@ -176,7 +176,7 @@ class MainListItems extends React.Component {
                     <ListItemIcon>
                       <FolderOpen/>
                     </ListItemIcon>
-                    <ListItemText primary="Sets" />
+                    <ListItemText primary="Inspection Sets" />
                   </ListItem>
                 </Link>
               ):null}

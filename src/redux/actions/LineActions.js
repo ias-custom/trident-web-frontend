@@ -15,7 +15,6 @@ import {
   
       try {
         const response = await service.list();
-  
         if (response.status === 200) {
           dispatch({ type: GET_LINES, payload: response.data });
         } 
@@ -87,6 +86,21 @@ import {
         if (response.status === 204) {
           dispatch({type: DELETE_LINE, payload: id});
         } 
+  
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+  export const addStructureLine = (lineId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.createStructure(lineId, form);
   
         return response;
       } catch (error) {

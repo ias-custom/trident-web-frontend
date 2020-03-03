@@ -19,12 +19,15 @@ const FormLine = ({ ...props }) => {
     action,
     isCreate
   } = props;
-
   useEffect(() => {
-    getSubstations();
+    async function fetchSubstations() {
+      // You can await here
+      await getSubstations();
+      // ...
+    }
+    fetchSubstations();
     return () => {};
   }, []);
-
   return (
     <div>
       <Panel>
@@ -33,14 +36,17 @@ const FormLine = ({ ...props }) => {
           validateOnChange
           enableReinitialize
           initialValues={{
-            ...form
+            name: form.name,
+            accounting_code: form.accounting_code,
+            start_substation_id: form.start_substation_id,
+            end_substation_id: form.end_substation_id
           }}
           validationSchema={Yup.object().shape({
             name: Yup.string().required("Name is required"),
-            start_substation: Yup.mixed().required(
+            start_substation_id: Yup.mixed().required(
               "Start substation is required"
             ),
-            end_substation: Yup.mixed().required("End substation is required")
+            end_substation_id: Yup.mixed().required("End substation is required")
           })}
         >
           {props => {
@@ -103,27 +109,26 @@ const FormLine = ({ ...props }) => {
                 <Grid container spacing={16}>
                   <Grid item xs={6}>
                     <TextField
-                      name="start_substation"
+                      name="start_substation_id"
                       select
                       label="Start substation"
                       required
-                      value={values.start_substation}
+                      value={values.start_substation_id}
                       margin="normal"
                       disabled={loading}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={
-                        !!touched.start_substation && !!errors.start_substation
+                        !!touched.start_substation_id && !!errors.start_substation_id
                       }
                       helperText={
-                        !!touched.start_substation &&
-                        !!errors.start_substation &&
-                        errors.start_substation
+                        !!touched.start_substation_id &&
+                        !!errors.start_substation_id &&
+                        errors.start_substation_id
                       }
                       fullWidth
                     >
                       {substations
-                        .filter(sub => sub.id !== values.end_substation)
                         .map(sub => {
                           return (
                             <MenuItem key={sub.id} value={sub.id}>
@@ -135,27 +140,26 @@ const FormLine = ({ ...props }) => {
                   </Grid>
                   <Grid item xs={6}>
                     <TextField
-                      name="end_substation"
+                      name="end_substation_id"
                       select
                       label="End substation"
                       required
-                      value={values.end_substation}
+                      value={values.end_substation_id}
                       margin="normal"
                       disabled={loading}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={
-                        !!touched.end_substation && !!errors.end_substation
+                        !!touched.end_substation_id && !!errors.end_substation_id
                       }
                       helperText={
-                        !!touched.end_substation &&
-                        !!errors.end_substation &&
-                        errors.end_substation
+                        !!touched.end_substation_id &&
+                        !!errors.end_substation_id &&
+                        errors.end_substation_id
                       }
                       fullWidth
                     >
                       {substations
-                        .filter(({ id }) => id !== values.start_substation)
                         .map(sub => {
                           return (
                             <MenuItem key={sub.id} value={sub.id}>

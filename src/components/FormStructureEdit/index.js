@@ -28,7 +28,8 @@ const FormStructureEdit= ({...props}) => {
     isSubmitting,
     isValid,
     states,
-    isCreate
+    isCreate,
+    forLine
   } = props;
 
   async function getProject(){
@@ -41,9 +42,11 @@ const FormStructureEdit= ({...props}) => {
     }
   }
   useEffect(() => {
-    props.fetchStructureTypes(props.projectId);
+    //props.fetchStructureTypes(props.projectId);
     props.fetchStates();
-    getProject();
+    if (!forLine) {
+      getProject();
+    }
     return () => {};
   }, []);
   return (
@@ -207,7 +210,7 @@ const FormStructureEdit= ({...props}) => {
                 </div>
               ) : null}
             </div> */}
-            <TextField
+            {!forLine && <TextField
               name="inspectionId"
               select
               label="Inspection"
@@ -232,7 +235,7 @@ const FormStructureEdit= ({...props}) => {
                   </MenuItem>
                 );
               })}
-            </TextField>
+            </TextField>}
           </Grid>
         </Grid>
         {/* <Grid container spacing={16}>

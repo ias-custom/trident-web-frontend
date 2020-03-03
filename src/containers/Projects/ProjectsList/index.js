@@ -162,8 +162,9 @@ class ProjectsList extends React.Component {
                 <Table className={classes.table}>
                   <TableHead>
                     <TableRow>
-                      <TableCell style={{width: '40%'}}>Name</TableCell>
-                      <TableCell style={{width: '40%'}}>Type</TableCell>
+                      <TableCell style={{width: '30%'}}>Name</TableCell>
+                      <TableCell style={{width: '25%'}}>Type</TableCell>
+                      <TableCell style={{width: '25%'}}>State</TableCell>
                       <TableCell style={{width: '20%'}}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
@@ -176,6 +177,9 @@ class ProjectsList extends React.Component {
                           </TableCell>
                           <TableCell>
                             {project.inspection_name || 'Constructability'}
+                          </TableCell>
+                          <TableCell>
+                            {project.state ? project.state.name : '-'}
                           </TableCell>
                           <TableCell>
                             <div style={{ display: "flex" }}>

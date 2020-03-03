@@ -1,10 +1,15 @@
 import Service from "./Service";
+import store from "../redux/store";
 
 class LineService extends Service {
 
+  getCustomerSelectedId () {
+    return store.getState().customers.customerSelectedId
+  }
+  
   async list() {
     try {
-      return await this.http.get(`/lines/`);
+      return await this.http.get(`/customers/${this.getCustomerSelectedId()}/lines/`);
     } catch (error) {
       return error.response;
     }
@@ -12,7 +17,7 @@ class LineService extends Service {
 
   async get(id) {
     try {
-      const url = `/lines/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/lines/${id}/`;
       return await this.http.get(url);
     } catch (error) {
       return error.response;
@@ -21,7 +26,7 @@ class LineService extends Service {
 
   async create(body = {}) {
     try {
-      return await this.http.post(`/lines/`, body);
+      return await this.http.post(`/customers/${this.getCustomerSelectedId()}/lines/`, body);
     } catch (error) {
       console.log('service', error);
       return error.response;
@@ -30,7 +35,7 @@ class LineService extends Service {
 
   async update(id, body = {}) {
     try {
-      const url = `/lines/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/lines/${id}/`;
       return await this.http.patch(url, body);
     } catch (error) {
       return error.response;
@@ -39,9 +44,18 @@ class LineService extends Service {
 
   async delete(id) {
     try {
-      const url = `/lines/${id}/`;
+      const url = `/customers/${this.getCustomerSelectedId()}/lines/${id}/`;
       return await this.http.delete(url);
     } catch (error) {
+      return error.response;
+    }
+  }
+
+  async createStructure(lineId, body = {}) {
+    try {
+      return await this.http.post(`/lines/${lineId}/structures/`, body);
+    } catch (error) {
+      console.log('service', error);
       return error.response;
     }
   }
