@@ -67,7 +67,10 @@ import AccessEdit from "./containers/Access/AccessEdit";
 import LinesList from "./containers/Lines/LinesList";
 import LineCreate from "./containers/Lines/LineCreate";
 import LineEdit from "./containers/Lines/LineEdit";
-import StructureLineCreate from "./containers/Lines/StructureLineCreate";
+import StructureLineCreate from "./containers/LineStructures/StructureLineCreate";
+import Dashboard from "./containers/Dashboard";
+import ProjectMap from "./containers/ProjectMap";
+import StructureLineEdit from "./containers/LineStructures/StructureLineEdit";
 
 const REFRESH_INTERVAL = 600000; // 10 minutes
 
@@ -116,7 +119,8 @@ class App extends Component {
           <PrivateRoute exact path="/customers/create" component={CustomerCreate} allowedPermission={null}></PrivateRoute>
           <PrivateRoute exact path="/customers/:id" component={CustomerEdit}></PrivateRoute>
 
-
+          <PrivateRoute exact path="/projects/dashboard" component={Dashboard} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          <PrivateRoute exact path="/projects/:id/map" component={ProjectMap} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects" component={ProjectsList} allowedPermission={CAN_VIEW_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/create" component={ProjectCreate} allowedPermission={CAN_ADD_PROJECT}></PrivateRoute>
           <PrivateRoute exact path="/projects/:projectId/spans/create" component={SpanCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
@@ -135,6 +139,7 @@ class App extends Component {
           <PrivateRoute exact path="/projects/:projectId/interactions/create" component={InteractionCreate} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
 
           <PrivateRoute exact path="/projects/:projectId/interactions/:interactionId" component={InteractionEdit} allowedPermission={CAN_CHANGE_PROJECT}></PrivateRoute>
+          
 
           <PrivateRoute exact path="/substations" component={SubstationsList} allowedPermission={CAN_VIEW_SUBSTATION}/>
           <PrivateRoute exact path="/substations/create" component={SubstationCreate} allowedPermission={CAN_ADD_SUBSTATION}/>
@@ -147,6 +152,7 @@ class App extends Component {
           <Route exact path="/lines/create" component={LineCreate} />
           <Route exact path="/lines/:id" component={LineEdit} />
           <Route exact path="/lines/:lineId/structure/create" component={StructureLineCreate} />
+          <Route exact path="/lines/:lineId/structures/:structureId" component={StructureLineEdit} />
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
         </Switch>

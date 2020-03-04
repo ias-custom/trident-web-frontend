@@ -95,12 +95,61 @@ import {
       }
     }
   };
+
   export const addStructureLine = (lineId, form) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
       try {
         const response = await service.createStructure(lineId, form);
+  
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
+  export const getStructureLine = (lineId, structureId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.getStructure(lineId, structureId);
+  
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
+  export const updateStructureLine = (lineId, structureId, form) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.updateStructure(lineId, structureId, form);
+  
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
+  export const deleteStructureLine = (lineId, structureId) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.deleteStructure(lineId, structureId);
   
         return response;
       } catch (error) {

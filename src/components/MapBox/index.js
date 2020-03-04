@@ -108,6 +108,7 @@ const MapBox = ({...props}) => {
   }
 
   useEffect(() => {
+    console.log(enabledMapFirst, enabledMap)
     if (!enabledMapFirst && enabledMap) {
       props.getSubstations(false);
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
@@ -132,7 +133,7 @@ const MapBox = ({...props}) => {
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
       center: [longitude, latitude],
-      zoom: 13
+      zoom: 0
     });
     // Add geolocate control to the map.
     map.addControl(
@@ -353,7 +354,8 @@ const MapBox = ({...props}) => {
       },
       layout: {
         "line-join": "round",
-        "line-cap": "round"
+        "line-cap": "round",
+
       },
       paint: {
         "line-color": {

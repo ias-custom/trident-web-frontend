@@ -334,9 +334,7 @@ class SpanCreate extends React.Component {
                         projectId={this.projectId}
                         structures={[
                           ...structures,
-                          ...substations.filter(({ project_ids }) =>
-                            project_ids.includes(parseInt(this.projectId))
-                          )
+                          ...substations
                         ]}
                         isCreate={true}
                         showModal={() => this.setState({ open: true })}

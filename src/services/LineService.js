@@ -59,6 +59,33 @@ class LineService extends Service {
       return error.response;
     }
   }
+
+  async getStructure(lineId, structureId) {
+    try {
+      return await this.http.get(`/lines/${lineId}/structures/${structureId}`);
+    } catch (error) {
+      console.log('service', error);
+      return error.response;
+    }
+  }
+
+  async updateStructure(lineId, structureId, form) {
+    try {
+      return await this.http.patch(`/lines/${lineId}/structures/${structureId}/`, form);
+    } catch (error) {
+      console.log('service', error);
+      return error.response;
+    }
+  }
+
+  async deleteStructure(lineId, structureId) {
+    try {
+      return await this.http.delete(`/lines/${lineId}/structures/${structureId}`);
+    } catch (error) {
+      console.log('service', error);
+      return error.response;
+    }
+  }
 }
 
 export default LineService; 

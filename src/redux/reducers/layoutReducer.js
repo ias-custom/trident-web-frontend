@@ -14,6 +14,9 @@ const initialState = {
     menu: {
       apps: false
     },
+    dashboard: {
+      main: false
+    },
     projects: {
       list: false,
       viewer: false

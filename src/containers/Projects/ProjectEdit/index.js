@@ -1322,24 +1322,24 @@ class ProjectEdit extends React.Component {
                     </Grid>
                   ) : (
                     <Grid style={{ height: "100%" }}>
-                      <MapBox
+                      {enabledMap && <MapBox
                         projectId={this.projectId}
                         openMenu={openDrawer}
                         tab={value}
                         type={type}
                         enabledMap={enabledMap}
-                      />
+                      />}
                     </Grid>
                   )}
                   {type === 1 && (
                     <Grid style={{ height: "100%" }}>
-                      <MapBox
+                      {enabledMap && <MapBox
                         projectId={this.projectId}
                         openMenu={openDrawer}
                         tab={value}
                         type={type}
                         enabledMap={enabledMap}
-                      />
+                      />}
                     </Grid>
                   )}
                 </SwipeableViews>

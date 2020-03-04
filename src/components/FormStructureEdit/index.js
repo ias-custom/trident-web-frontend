@@ -29,7 +29,8 @@ const FormStructureEdit= ({...props}) => {
     isValid,
     states,
     isCreate,
-    forLine
+    forLine,
+    isUpdated
   } = props;
 
   async function getProject(){
@@ -52,7 +53,7 @@ const FormStructureEdit= ({...props}) => {
   return (
     <Form onSubmit={props.handleSubmit}>
       <Prompt
-        when={dirty}
+        when={dirty && !isUpdated}
         message="Are you sure you want to leave?, You will lose your changes"
       />
       <Grid item sm={12} md={12}>

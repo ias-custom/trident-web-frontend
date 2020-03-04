@@ -10,13 +10,26 @@ import {
   toggleItemMenu,
   selectedItemMenu
 } from "../../../redux/actions/layoutActions";
-import { updateLine, getLine } from "../../../redux/actions/LineActions";
+import { updateLine, getLine, deleteStructureLine } from "../../../redux/actions/LineActions";
 import styles from "./styles";
-import { FormLine, Panel, TextEmpty } from "../../../components";
-import { Tabs, Tab, Grid, Button, Table, TableHead, TableRow, TableCell, TableBody, Typography, Link, IconButton, Input } from "@material-ui/core";
+import { FormLine, Panel, TextEmpty, DialogDelete } from "../../../components";
+import {
+  Tabs,
+  Tab,
+  Grid,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Link,
+  IconButton,
+  Input
+} from "@material-ui/core";
 import SwipeableViews from "react-swipeable-views";
 import { Delete, Edit } from "@material-ui/icons";
-import InputFiles from "react-input-files";
+//import InputFiles from "react-input-files";
 import { Link as RouterLink } from "react-router-dom";
 
 const breadcrumbs = [
@@ -25,34 +38,33 @@ const breadcrumbs = [
   { name: "Edit Line", to: null }
 ];
 
-const LineEdit = ({...props}) => {
-  const { classes, loading, updateLine, getLine, enqueueSnackbar  } = props;
-  const [value, setValue] = useState(0)
-  const [search, setSearch] = useState('')
+const LineEdit = ({ ...props }) => {
+  const { classes, loading, updateLine, getLine, enqueueSnackbar, deleteStructureLine } = props;
+  const [value, setValue] = useState(0);
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [structureId, setStructureId] = useState("");
   const [form, setForm] = useState({
     name: "",
     start_substation_id: "",
     end_substation_id: "",
     accounting_code: "",
     structures: []
-  })
+  });
   useEffect(() => {
     async function loadLine() {
-      const response = await getLine(props.match.params.id)
+      const response = await getLine(props.match.params.id);
       if (response.status === 200) {
-        setForm(response.data)
-      }
-      else {
+        setForm(response.data);
+      } else {
         //props.history.push('/404')
       }
     }
-    loadLine()
-    return () => {
-      
-    };
-  }, [props.match.params.id])
+    loadLine();
+    return () => {};
+  }, [props.match.params.id]);
 
-  async function handleSubmit (values, formikActions) {
+  async function handleSubmit(values, formikActions) {
     const { setSubmitting, resetForm } = formikActions;
     const form = { ...values };
 
@@ -74,22 +86,53 @@ const LineEdit = ({...props}) => {
       enqueueSnackbar(error.message, { variant: "error" });
     }
     setSubmitting(false);
-  };
-
-  function filter () {
-
   }
-  console.log(props)
+
+  function filter() {
+    if (search === "") return form.structures
+
+    return form.structures.filter(s => s.number.toLowerCase().includes(search.toLowerCase()) || s.name.toLowerCase().includes(search.toLowerCase()))
+  }
+  
+  async function deleteStructure() {
+    setOpen(false)
+    const response = await deleteStructureLine(props.match.params.id, structureId);
+    if (response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      setForm({
+        ...form,
+        structures: form.structures.filter(({id}) => id !== structureId)
+      })
+      enqueueSnackbar("Structure-line successfully removed!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  }
+
   return (
     <Layout title="Edit Line">
       {() => (
         <div>
-          <SimpleBreadcrumbs routes={breadcrumbs} classes={{root: classes.breadcrumbs}}/>
+          <DialogDelete
+            item="structure-line"
+            open={open}
+            closeModal={() => setOpen(false)}
+            remove={deleteStructure}
+          />
+          <SimpleBreadcrumbs
+            routes={breadcrumbs}
+            classes={{ root: classes.breadcrumbs }}
+          />
           <Grid className={classes.divTabs}>
             <Tabs
               value={value}
               onChange={(e, newValue) => {
-                setValue(newValue)
+                setValue(newValue);
               }}
               indicatorColor="primary"
               textColor="primary"
@@ -101,16 +144,16 @@ const LineEdit = ({...props}) => {
           </Grid>
           <SwipeableViews
             index={value}
-            onChangeIndex={index => setValue(index)} 
+            onChangeIndex={index => setValue(index)}
             slideStyle={{
               overflowX: "hidden",
               overflowY: "hidden",
               padding: "0 2px",
-              minHeight: "500px",
+              minHeight: "500px"
             }}
           >
             <Grid>
-              <FormLine isCreate={false} action={handleSubmit} form={form}/>
+              <FormLine isCreate={false} action={handleSubmit} form={form} />
             </Grid>
             <Grid>
               <Panel>
@@ -152,25 +195,24 @@ const LineEdit = ({...props}) => {
                     className={classes.search}
                     inputProps={{
                       placeholder: "Search...",
-                      onChange: (value) => { setSearch(value)}
+                      onChange: e => {
+                        setSearch(e.target.value);
+                      }
                     }}
                   />
                 </div>
-              <div className={classes.divTable}>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell style={{ width: "50%" }}>Number</TableCell>
-                      <TableCell style={{ width: "30%" }}>
-                        Name
-                      </TableCell>
-                      <TableCell colSpan={1}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  {!loading && (
-                    <TableBody>
-                      {form.structures.map(
-                        structure => (
+                <div className={classes.divTable}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ width: "50%" }}>Number</TableCell>
+                        <TableCell style={{ width: "30%" }}>Name</TableCell>
+                        <TableCell colSpan={1}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    {!loading && (
+                      <TableBody>
+                        {filter().map(structure => (
                           <TableRow key={structure.id}>
                             <TableCell component="td">
                               {structure.number}
@@ -196,43 +238,37 @@ const LineEdit = ({...props}) => {
                                   aria-label="Delete"
                                   className={classes.iconDelete}
                                   disabled={loading}
-                                  onClick={() =>
-                                    this.showModal(
-                                      structure.id,
-                                      "open",
-                                      "structure"
-                                    )
-                                  }
+                                  onClick={() => {
+                                    setStructureId(structure.id);
+                                    setOpen(true);
+                                  }}
                                 >
                                   <Delete />
                                 </IconButton>
                               </div>
                             </TableCell>
                           </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  )}
-                </Table>
-                <TextEmpty
-                  itemName="STRUCTURES"
-                  empty={form.structures.length === 0}
-                />
-              </div>
+                        ))}
+                      </TableBody>
+                    )}
+                  </Table>
+                  <TextEmpty
+                    itemName="STRUCTURES"
+                    empty={form.structures.length === 0}
+                  />
+                </div>
               </Panel>
             </Grid>
           </SwipeableViews>
-          
-          
         </div>
       )}
     </Layout>
   );
-}
+};
 
 const mapStateToProps = state => {
   return {
-    loading: state.global.loading,
+    loading: state.global.loading
   };
 };
 
@@ -240,15 +276,13 @@ const mapDispatchToProps = {
   toggleItemMenu,
   selectedItemMenu,
   updateLine,
-  getLine
+  getLine,
+  deleteStructureLine
 };
 
 export default compose(
   withRouter,
   withSnackbar,
   withStyles(styles, { name: "LineEdit" }),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(LineEdit);

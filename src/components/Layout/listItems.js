@@ -43,7 +43,7 @@ const CustomersLink = props => <RouterLink to="/customers" {...props} />;
 const ProjectsLink = props => <RouterLink to="/projects" {...props} />;
 const ProjectViewerLink = props => <RouterLink to="/project-viewer" {...props} />;
 const MenuLink = props => <RouterLink to="/home" {...props} />;
-const DashboardLink = props => <RouterLink to="/dashboard" {...props} />;
+const DashboardLink = props => <RouterLink to="/projects/dashboard" {...props} />;
 const ReportingLink = props => <RouterLink to="/reports" {...props} />;
 const SubstationsLink = props => <RouterLink to="/substations" {...props} />;
 const SetsLink = props => <RouterLink to="/sets" {...props} />;
@@ -106,7 +106,7 @@ class MainListItems extends React.Component {
         {/* permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || permissions.includes(CAN_VIEW_) || is_superuser ? (
           
         ): null */}
-        {permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ? <Divider /> : null}
+        {permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || permissions.includes(CAN_VIEW_PROJECT) || is_superuser ? <Divider /> : null}
         <Link component={MenuLink} underline="none">
           <ListItem button selected={itemsMenu.menu.apps}>
             <ListItemIcon>
@@ -116,7 +116,7 @@ class MainListItems extends React.Component {
           </ListItem>
         </Link>
         <Link component={DashboardLink} underline="none">
-          <ListItem button>
+          <ListItem button selected={itemsMenu.dashboard.main}>
             <ListItemIcon>
               <ReportingIcon />
             </ListItemIcon>
