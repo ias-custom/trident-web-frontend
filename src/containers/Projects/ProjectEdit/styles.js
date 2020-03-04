@@ -15,14 +15,12 @@ const styles = theme => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20
   },
   headerCenter: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
   },
   iconAdd: {
     color: `${theme.palette.green.main}`,
@@ -120,8 +118,8 @@ const styles = theme => ({
     marginTop: 20
   },
   dataPorcentage: {
-    padding: "0 20px",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    margin: "20px 0 0 0"
   },
   divSelectSet: {
     display: "flex",
@@ -144,7 +142,8 @@ const styles = theme => ({
     '& svg': {
       margin: "-4px 5px 0 0"
     },
-    marginLeft: 15
+    margin: "0 15px",
+    fontSize: 12
   },
   divTable: {
     overflowY: "auto",
@@ -154,6 +153,10 @@ const styles = theme => ({
   divViews: {
     height: "calc(100vh - 330px)",
     minHeight: 545
+  },
+  paragraphLine: {
+    fontSize: 13,
+    margin: "20px 0 0 0"
   }
 });
 

@@ -65,9 +65,9 @@ export const login = (username, password) => {
           .replace(/\s/g, "")
           .substr(0, 2)
           .toUpperCase();
-        const permissionsList = roles[0].permissions.map(
-          ({ codename }) => codename
-        );
+        const permissionsList = !is_superuser
+          ? roles[0].permissions.map(({ codename }) => codename)
+          : [];
         const auth = {
           id,
           fullName,

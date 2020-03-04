@@ -26,7 +26,14 @@ import {
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import { Edit, Delete, Save, Cancel, CloudUpload, Gif } from "@material-ui/icons";
+import {
+  Edit,
+  Delete,
+  Save,
+  Cancel,
+  CloudUpload,
+  Gif
+} from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -73,10 +80,10 @@ const breadcrumbs = [
 ];
 
 const status = [
-  {id: 1, name: "ACTIVE"},
-  {id: 2, name: "COMPLETED"},
-  {id: 3, name: "PLANNED"}
-]
+  { id: 1, name: "ACTIVE" },
+  { id: 2, name: "COMPLETED" },
+  { id: 3, name: "PLANNED" }
+];
 class ProjectEdit extends React.Component {
   state = {
     search: "",
@@ -99,7 +106,9 @@ class ProjectEdit extends React.Component {
     fileName: "",
     type: "",
     enabledMap: false,
-    projectLine: ""
+    projectLine: "",
+    lineDialog: false,
+    newLine: ""
   };
 
   projectId = null;
@@ -111,15 +120,21 @@ class ProjectEdit extends React.Component {
       this.projectId = this.props.match.params.id;
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
-        this.props.fetchLines()
+        this.props.fetchLines();
         this.setState({
           projectName: response.data.name,
           projectStatus: response.data.state_id || "",
           projectLine: response.data.line_id || "",
+          newLine: response.data.line_id || "",
           inputProjectName: response.data.name,
           set: response.data.set,
           setId: response.data.set_id,
-          value: fromMap === "true" ? (response.data.inspection_id === 1 ? 5 : 4) : 0,
+          value:
+            fromMap === "true"
+              ? response.data.inspection_id === 1
+                ? 5
+                : 4
+              : 0,
           type: response.data.inspection_id,
           enabledMap: true
         });
@@ -394,24 +409,27 @@ class ProjectEdit extends React.Component {
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
     } else {
-      this.setState({projectStatus: ""})
+      this.setState({ projectStatus: "" });
       this.props.enqueueSnackbar("The request could not be processed!", {
         variant: "error"
       });
     }
   };
 
-  changeLine = async line_id => {
-    const form = { line_id };
+  changeLine = async () => {
+    this.setState({ lineDialog: false });
+    const { newLine, projectLine } = this.state;
+    const form = { line_id: newLine };
     const response = await this.props.updateProject(this.projectId, form);
     if (response.status === 200 || response.status === 204) {
       // SHOW NOTIFICACION SUCCCESS
+      this.setState({ projectLine: newLine });
       this.props.enqueueSnackbar("¡Project updated successfully!", {
         variant: "success",
         anchorOrigin: { vertical: "top", horizontal: "center" }
       });
     } else {
-      this.setState({projectLine: ""})
+      this.setState({ newLine: projectLine });
       this.props.enqueueSnackbar("The request could not be processed!", {
         variant: "error"
       });
@@ -447,11 +465,14 @@ class ProjectEdit extends React.Component {
       type,
       enabledMap,
       projectStatus,
-      projectLine
+      projectLine,
+      lineDialog,
+      newLine
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
     });
+
     return (
       <Layout title="Projects">
         {openDrawer => (
@@ -474,7 +495,9 @@ class ProjectEdit extends React.Component {
                 !loading ? this.closeModal("openUser", null) : false
               }
             >
-              <DialogTitle id="alert-dialog-title">{"Add inspector"}</DialogTitle>
+              <DialogTitle id="alert-dialog-title">
+                {"Add inspector"}
+              </DialogTitle>
               <DialogContent>
                 <TextField
                   name="user_selected"
@@ -600,15 +623,84 @@ class ProjectEdit extends React.Component {
                 </div>
               </DialogContent>
             </Dialog>
+            <Dialog
+              open={lineDialog}
+              classes={{ paper: classes.dialog }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              onBackdropClick={() => {
+                this.setState({ lineDialog: false, newLine: projectLine });
+              }}
+              onEscapeKeyDown={() => {
+                this.setState({ lineDialog: false, newLine: projectLine });
+              }}
+            >
+              <DialogTitle id="alert-dialog-title">
+                Add structures from line
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  Select the line
+                </DialogContentText>
+                <TextField
+                  name="line_id"
+                  select
+                  label="Line"
+                  value={newLine}
+                  margin="none"
+                  fullWidth
+                  onChange={e => {
+                    const value = e.target.value;
+                    this.setState({ newLine: value });
+                  }}
+                  required
+                >
+                  {lines.map(line => {
+                    return (
+                      <MenuItem key={line.id} value={line.id}>
+                        {line.name}
+                      </MenuItem>
+                    );
+                  })}
+                </TextField>
+                <p
+                  className={classes.paragraphLine}
+                >{`Are you sure you want to add the structures from the Line ${
+                  lines.length > 0
+                    ? lines.find(({ id }) => id === newLine).name
+                    : ""
+                } ?`}</p>
+              </DialogContent>
+              <DialogActions style={{ padding: "0 10px 14px 10px", margin: 0 }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonCancel}
+                  onClick={() => {
+                    this.setState({ lineDialog: false, newLine: projectLine });
+                  }}
+                >
+                  No
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  className={classes.buttonAccept}
+                  onClick={this.changeLine}
+                >
+                  Yes, I'm Sure
+                </Button>
+              </DialogActions>
+            </Dialog>
             <div className={classes.root}>
               <SimpleBreadcrumbs
                 routes={breadcrumbs}
                 classes={{ root: classes.breadcrumbs }}
               />
-              <Grid container justify="space-between" style={{marginBottom: 20}}>
-                <Grid style={{paddingTop: 12}}>
+              <Grid container style={{ marginBottom: 20 }}>
+                <Grid style={{ paddingTop: 12 }}>
                   {editName ? (
-                    <Grid  style={{display: 'flex'}}>
+                    <Grid style={{ display: "flex" }}>
                       <TextField
                         name="name"
                         value={inputProjectName}
@@ -619,7 +711,7 @@ class ProjectEdit extends React.Component {
                         onChange={e =>
                           this.setState({ inputProjectName: e.target.value })
                         }
-                        style={{minWidth: 150, maxWidth: 250 }}
+                        style={{ minWidth: 150, maxWidth: 250 }}
                       />
                       <IconButton
                         className={classes.buttonSave}
@@ -658,7 +750,7 @@ class ProjectEdit extends React.Component {
                     </Typography>
                   )}
                 </Grid>
-                <Grid>
+                <Grid style={{ marginLeft: 40 }}>
                   <TextField
                     name="status"
                     select
@@ -666,41 +758,17 @@ class ProjectEdit extends React.Component {
                     value={projectStatus}
                     margin="none"
                     onChange={e => {
-                      const value = e.target.value
-                      this.setState({projectStatus: value})
-                      this.changeStatus(value)
+                      const value = e.target.value;
+                      this.setState({ projectStatus: value });
+                      this.changeStatus(value);
                     }}
-                    style={{width: 250}}
+                    style={{ width: 250 }}
                     required
                   >
                     {status.map(state => {
                       return (
                         <MenuItem key={state.id} value={state.id}>
                           {state.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </TextField>
-                </Grid>
-                <Grid>
-                  <TextField
-                    name="line_id"
-                    select
-                    label="Line"
-                    value={projectLine}
-                    margin="none"
-                    onChange={e => {
-                      const value = e.target.value
-                      this.setState({projectLine: value})
-                      this.changeLine(value)
-                    }}
-                    style={{width: 250}}
-                    required
-                  >
-                    {lines.map(line => {
-                      return (
-                        <MenuItem key={line.id} value={line.id}>
-                          {line.name}
                         </MenuItem>
                       );
                     })}
@@ -720,7 +788,7 @@ class ProjectEdit extends React.Component {
                 >
                   <Tab label="Inspectors" disabled={loading} />
                   <Tab label="Structures" disabled={loading} />
-                  {type === 1 ? (<Tab label="Spans" disabled={loading}/>) : null}
+                  {type === 1 ? <Tab label="Spans" disabled={loading} /> : null}
                   <Tab label="Inspection Sets" disabled={loading} />
                   <Tab label="Interactions" disabled={loading} />
                   <Tab label="Map" disabled={loading} />
@@ -735,7 +803,10 @@ class ProjectEdit extends React.Component {
                     overflowY: "hidden",
                     padding: "0 2px",
                     minHeight: "500px",
-                    height: ((type === 1 && value === 3) || (type === 2 && value === 2)) ? "auto" : "calc(100vh - 330px)"
+                    height:
+                      (type === 1 && value === 3) || (type === 2 && value === 2)
+                        ? "auto"
+                        : "calc(100vh - 330px)"
                   }}
                 >
                   <Grid>
@@ -819,7 +890,10 @@ class ProjectEdit extends React.Component {
                           </TableBody>
                         )}
                       </Table>
-                      <TextEmpty itemName="INSPECTORS" empty={users.length === 0} />
+                      <TextEmpty
+                        itemName="INSPECTORS"
+                        empty={users.length === 0}
+                      />
                     </div>
                   </Grid>
                   <Grid>
@@ -829,6 +903,7 @@ class ProjectEdit extends React.Component {
                           variant="outlined"
                           color="primary"
                           disabled={loading}
+                          style={{ fontSize: 12 }}
                           onClick={() => {
                             this.props.setPoint("", "");
                             this.props.setFromMap(false);
@@ -856,9 +931,17 @@ class ProjectEdit extends React.Component {
                             Multiple structures
                           </Button>
                         </InputFiles>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          style={{ fontSize: 12 }}
+                          disabled={loading}
+                          onClick={() => this.setState({ lineDialog: true })}
+                        >
+                          Add Structures from a line
+                        </Button>
                       </div>
                       <Input
-                        style={{ width: 300 }}
                         defaultValue=""
                         className={classes.search}
                         inputProps={{
@@ -872,7 +955,9 @@ class ProjectEdit extends React.Component {
                       <Table className={classes.table}>
                         <TableHead>
                           <TableRow>
-                            <TableCell style={{ width: "50%" }}>Number</TableCell>
+                            <TableCell style={{ width: "50%" }}>
+                              Number
+                            </TableCell>
                             <TableCell style={{ width: "30%" }}>
                               State
                             </TableCell>
@@ -972,8 +1057,12 @@ class ProjectEdit extends React.Component {
                         <Table className={classes.table}>
                           <TableHead>
                             <TableRow>
-                              <TableCell style={{ width: "50%" }}>Number</TableCell>
-                              <TableCell style={{ width: "30%" }}>State</TableCell>
+                              <TableCell style={{ width: "50%" }}>
+                                Number
+                              </TableCell>
+                              <TableCell style={{ width: "30%" }}>
+                                State
+                              </TableCell>
                               <TableCell>Actions</TableCell>
                             </TableRow>
                           </TableHead>
@@ -1036,7 +1125,7 @@ class ProjectEdit extends React.Component {
                       </div>
                       <TextEmpty itemName="SPANS" empty={spans.length === 0} />
                     </Grid>
-                  ): (
+                  ) : (
                     <Grid style={{ height: "100%" }}>
                       {/* <Grid item className={classes.divSelectSet} xs>
                         <Typography
@@ -1322,24 +1411,28 @@ class ProjectEdit extends React.Component {
                     </Grid>
                   ) : (
                     <Grid style={{ height: "100%" }}>
-                      {enabledMap && <MapBox
-                        projectId={this.projectId}
-                        openMenu={openDrawer}
-                        tab={value}
-                        type={type}
-                        enabledMap={enabledMap}
-                      />}
+                      {enabledMap && (
+                        <MapBox
+                          projectId={this.projectId}
+                          openMenu={openDrawer}
+                          tab={value}
+                          type={type}
+                          enabledMap={enabledMap}
+                        />
+                      )}
                     </Grid>
                   )}
                   {type === 1 && (
                     <Grid style={{ height: "100%" }}>
-                      {enabledMap && <MapBox
-                        projectId={this.projectId}
-                        openMenu={openDrawer}
-                        tab={value}
-                        type={type}
-                        enabledMap={enabledMap}
-                      />}
+                      {enabledMap && (
+                        <MapBox
+                          projectId={this.projectId}
+                          openMenu={openDrawer}
+                          tab={value}
+                          type={type}
+                          enabledMap={enabledMap}
+                        />
+                      )}
                     </Grid>
                   )}
                 </SwipeableViews>

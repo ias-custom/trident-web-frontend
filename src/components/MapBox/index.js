@@ -108,7 +108,6 @@ const MapBox = ({ ...props }) => {
   }
 
   useEffect(() => {
-    console.log(enabledMapFirst, enabledMap);
     if (!enabledMapFirst && enabledMap) {
       props.getSubstations(false);
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
