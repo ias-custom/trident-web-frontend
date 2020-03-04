@@ -72,7 +72,7 @@ export const createProject = body => {
 export const getProject = (id, saveData = true) => {
   return async dispatch => {
     dispatch(setLoading(true));
-
+    console.log("llegoooooooooo")
     try {
       const response = await service.get(id);
       if (response.status === 200) {
@@ -141,10 +141,10 @@ export const deleteProject = id => {
 export const updateProject = (id, body) => {
   return async dispatch => {
     dispatch(setLoading(true));
-
+    console.log("asdsdsa")
     try {
       const response = await service.update(id, body);
-
+      dispatch(getProject(id))
       return response;
     } catch (error) {
       console.error(error);

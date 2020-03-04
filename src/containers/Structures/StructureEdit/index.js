@@ -305,9 +305,9 @@ class StructureEdit extends React.Component {
       enabledEquipment,
       categories,
       items,
-      typeSet
+      typeSet,
+      inspection_id
     } = this.state;
-
     return (
       <Layout title="Projects">
         {() => (
@@ -411,7 +411,7 @@ class StructureEdit extends React.Component {
                   variant="fullWidth"
                 >
                   <Tab label="General" />
-                  <Tab label="Equipment" />
+                  <Tab label="Equipment"  disabled={inspection_id === "" || inspection_id === null}/>
                   <Tab label="Photos" />
                 </Tabs>
               </Grid>

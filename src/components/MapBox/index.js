@@ -62,16 +62,16 @@ import DialogDelete from "../DialogDelete";
 let map = null;
 // const reactMap = React.createRef();
 
-const MapBox = ({...props}) => {
-  const [latitude, setLatitude] = useState(-11.9890777)
-  const [longitude, setLongitude] = useState(-77.0838287)
-  const [link, setLink] = useState("")
-  const [itemValue, setItemValue] = useState(0)
+const MapBox = ({ ...props }) => {
+  const [latitude, setLatitude] = useState(-11.9890777);
+  const [longitude, setLongitude] = useState(-77.0838287);
+  const [link, setLink] = useState("");
+  const [itemValue, setItemValue] = useState(0);
   const [span, setSpan] = useState({
     id: "",
     name: ""
-  })
-  const [spanSelected, setSpanSelected] = useState("")
+  });
+  const [spanSelected, setSpanSelected] = useState("");
   const [structuresSelected, setStructuresSelected] = useState({
     first: {
       id: "",
@@ -83,19 +83,19 @@ const MapBox = ({...props}) => {
       name: "",
       type: ""
     }
-  })
-  const [addFirstStructure, setAddFirstStructure] = useState(true)
-  const [confirmStructures, setConfirmStructures] = useState(false)
-  const [categories, setCategories] = useState([])
-  const [items, setItems] = useState([])
-  const [marker, setMarker] = useState(null)
-  const [open, setOpen] = useState(false)
-  const [openPhoto, setOpenPhoto] = useState(false)
-  const [url, setUrl] = useState("")
-  const [item, setItem] = useState(null)
-  const [openDelete, setOpenDelete] = useState(false)
-  const [openDrawer, setOpenDrawer] = useState(true)
-  const [enabledMapFirst, setEnabledMapFirst] = useState(false)
+  });
+  const [addFirstStructure, setAddFirstStructure] = useState(true);
+  const [confirmStructures, setConfirmStructures] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [items, setItems] = useState([]);
+  const [marker, setMarker] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [openPhoto, setOpenPhoto] = useState(false);
+  const [url, setUrl] = useState("");
+  const [item, setItem] = useState(null);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(true);
+  const [enabledMapFirst, setEnabledMapFirst] = useState(false);
   const { classes, projectId, tab, type, enabledMap, openMenu } = props;
 
   if (openDrawer !== openMenu) {
@@ -104,16 +104,16 @@ const MapBox = ({...props}) => {
         map.resize();
       }
     }, 190);
-    setOpenDrawer(openMenu)
+    setOpenDrawer(openMenu);
   }
 
   useEffect(() => {
-    console.log(enabledMapFirst, enabledMap)
+    console.log(enabledMapFirst, enabledMap);
     if (!enabledMapFirst && enabledMap) {
       props.getSubstations(false);
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
       if ("geolocation" in navigator) {
-        createMap()
+        createMap();
         // FOR PAGE HTTPS
         /* navigator.geolocation.getCurrentPosition(({ coords }) => {
           setLatitude(coords.latitude)
@@ -121,9 +121,9 @@ const MapBox = ({...props}) => {
           this.createMap();
         }); */
       } else {
-        createMap()
+        createMap();
       }
-      setEnabledMapFirst(enabledMap)
+      setEnabledMapFirst(enabledMap);
     }
     return () => {};
   }, []);
@@ -167,12 +167,12 @@ const MapBox = ({...props}) => {
     const categoriesFilter = categories.filter(({ id }) => {
       return itemsFilter.map(({ category_id }) => category_id).includes(id);
     });
-    setCategories(categoriesFilter)
-    setItems(itemsFilter)
+    setCategories(categoriesFilter);
+    setItems(itemsFilter);
   }
 
-  async function deleteItem(){
-    setOpenDelete(false)
+  async function deleteItem() {
+    setOpenDelete(false);
     let response = "";
     if (
       marker.properties.itemName === "Structure" ||
@@ -198,7 +198,7 @@ const MapBox = ({...props}) => {
     }
     if (response.status === 204) {
       item.remove();
-      setOpen(false)
+      setOpen(false);
       props.enqueueSnackbar(
         `¡${marker.properties.itemName} removed succesfully!`,
         {
@@ -207,14 +207,12 @@ const MapBox = ({...props}) => {
         }
       );
     } else {
-      props.enqueueSnackbar("The request could not be processed",
-        {
-          variant: "error",
-          anchorOrigin: { vertical: "top", horizontal: "center" }
-        }
-      );
+      props.enqueueSnackbar("The request could not be processed", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
     }
-  };
+  }
 
   function getInfo(marker) {
     return (
@@ -235,7 +233,8 @@ const MapBox = ({...props}) => {
             <Delete />
           </IconButton>
         </Grid>
-        { (marker.properties.itemName === "Structure" || marker.properties.itemName === "Span") ? (
+        {marker.properties.itemName === "Structure" ||
+        marker.properties.itemName === "Span" ? (
           items.length > 0 ? (
             categories.map((category, index) => (
               <div key={category.id}>
@@ -275,8 +274,8 @@ const MapBox = ({...props}) => {
                                     key={p.id}
                                     className={classes.avatar}
                                     onClick={() => {
-                                      setOpenPhoto(true)
-                                      setUrl(p.photo)
+                                      setOpenPhoto(true);
+                                      setUrl(p.photo);
                                     }}
                                   />
                                 ))}
@@ -297,12 +296,8 @@ const MapBox = ({...props}) => {
     );
   }
 
-  async function getInfoSpan(span){
-    const response = await props.getSpan(
-      projectId,
-      span.id,
-      false
-    );
+  async function getInfoSpan(span) {
+    const response = await props.getSpan(projectId, span.id, false);
     let color = "";
     if (span.state_id !== 1) color = "#a9aaae";
     else {
@@ -326,9 +321,9 @@ const MapBox = ({...props}) => {
       categories: response.data.inspection.categories,
       color
     };
-  };
+  }
 
-  async function getLayers(){
+  async function getLayers() {
     let features = await Promise.all(
       props.spans.map(async span => {
         const info = await getInfoSpan(span);
@@ -354,8 +349,7 @@ const MapBox = ({...props}) => {
       },
       layout: {
         "line-join": "round",
-        "line-cap": "round",
-
+        "line-cap": "round"
       },
       paint: {
         "line-color": {
@@ -377,24 +371,20 @@ const MapBox = ({...props}) => {
       const spanId = span.properties.id;
       const number = span.properties.number;
       if ([3, 4].includes(itemValue)) {
-        setSpan({ id: spanId, number })
+        setSpan({ id: spanId, number });
       } else {
         formatterInfo(
           JSON.parse(span.properties.items),
           JSON.parse(span.properties.categories)
         );
-        setMarker(span)
-        setOpen(true)
+        setMarker(span);
+        setOpen(true);
       }
     });
-  };
+  }
 
   async function getInfoStructure(structure) {
-    const response = await props.getStructure(
-      projectId,
-      structure.id,
-      false
-    );
+    const response = await props.getStructure(projectId, structure.id, false);
     let color = "";
     if (structure.state_id !== 1) {
       color = "gray";
@@ -418,14 +408,20 @@ const MapBox = ({...props}) => {
       delete: props.deleteStructure,
       number: structure.number,
       items: response.data.items,
-      categories: response.data.inspection.categories,
+      categories: response.data.inspection
+        ? response.data.inspection.categories
+        : [],
       color,
       iconSize: [100, 60],
-      type: structure.inspection.name === "Wood Inspection" ? 1 : 2
+      type: structure.inspection
+        ? structure.inspection.name === "Wood Inspection"
+          ? 1
+          : 2
+        : ""
     };
-  };
+  }
 
-  async function getStructures(){
+  async function getStructures() {
     const features = await Promise.all(
       props.structures.map(async structure => {
         const info = await getInfoStructure(structure);
@@ -442,35 +438,41 @@ const MapBox = ({...props}) => {
 
     features.forEach(marker => {
       // create a HTML element for each feature
-      var el = document.createElement("img");
-      if (marker.properties.color === "gray") {
-        el.src =
+      var el = ""
+      if (marker.properties.type === "") {
+        el = document.createElement("i");
+        el.className = "fas fa-broadcast-tower"
+        el.style.fontSize = "25px"
+      } else {
+        el = document.createElement("img");
+        el.className = "marker";
+        if (marker.properties.color === "gray") {
+          el.src =
           marker.properties.type === 1 ? woodStructureGray : steelStructureGray;
-      }
-      if (marker.properties.color === "green") {
-        el.src =
+        }
+        if (marker.properties.color === "green") {
+          el.src =
           marker.properties.type === 1
-            ? woodStructureGreen
-            : steelStructureGreen;
-      }
-      if (marker.properties.color === "orange") {
-        el.src =
+          ? woodStructureGreen
+          : steelStructureGreen;
+        }
+        if (marker.properties.color === "orange") {
+          el.src =
           marker.properties.type === 1
-            ? woodStructureOrange
-            : steelStructureOrange;
-      }
-      if (marker.properties.color === "red") {
-        el.src =
+          ? woodStructureOrange
+          : steelStructureOrange;
+        }
+        if (marker.properties.color === "red") {
+          el.src =
           marker.properties.type === 1 ? woodStructureRed : steelStructureRed;
+        }
       }
-      el.className = "marker";
       el.style.cursor = "pointer";
+      
       //el.style.width = marker.properties.iconSize[0] + "px";
       //el.style.height = marker.properties.iconSize[1] + "px";
       // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(marker.geometry.coordinates)
-        .addTo(map);
+      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
       el.addEventListener("click", e => {
         e.stopPropagation();
         const { id, number, items, categories } = marker.properties;
@@ -478,14 +480,14 @@ const MapBox = ({...props}) => {
           if (addFirstStructure) {
             setStructuresSelected({
               first: { id, number, type: "st" },
-              second: { id: "", number: "", type: ""}
-            })
+              second: { id: "", number: "", type: "" }
+            });
           } else {
             if (id !== structuresSelected.first.id) {
               setStructuresSelected({
                 first: structuresSelected.first,
                 second: { id, number, type: "st" }
-              })
+              });
             } else {
               props.enqueueSnackbar("Cannot select the same structure", {
                 variant: "error",
@@ -495,13 +497,13 @@ const MapBox = ({...props}) => {
           }
         } else {
           formatterInfo(items, categories);
-          setMarker(marker)
-          setItem(el)
-          setOpen(true)
+          setMarker(marker);
+          setItem(el);
+          setOpen(true);
         }
       });
     });
-  };
+  }
 
   function getMarkings() {
     const features = props.markings.map(marking => {
@@ -527,16 +529,14 @@ const MapBox = ({...props}) => {
       var el = document.createElement("i");
       el.className = `fab fa-bandcamp ${classes.marking}`;
       // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(marker.geometry.coordinates)
-        .addTo(map);
-        el.addEventListener("click", e => {
-          e.stopPropagation();
-          formatterInfo([], []);
-          setMarker(marker)
-          setItem(el)
-          setOpen(true)
-        });
+      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
+      el.addEventListener("click", e => {
+        e.stopPropagation();
+        formatterInfo([], []);
+        setMarker(marker);
+        setItem(el);
+        setOpen(true);
+      });
     });
   }
 
@@ -564,25 +564,21 @@ const MapBox = ({...props}) => {
       var el = document.createElement("i");
       el.className = `fab fa-confluence ${classes.access}`;
       // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(marker.geometry.coordinates)
-        .addTo(map);
+      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
 
       el.addEventListener("click", e => {
         e.stopPropagation();
         formatterInfo([], []);
-        setMarker(marker)
-        setItem(el)
-        setOpen(true)
+        setMarker(marker);
+        setItem(el);
+        setOpen(true);
       });
     });
   }
 
   function getSubstations() {
     const features = props.substations
-      .filter(({ project_ids }) =>
-        project_ids.includes(parseInt(projectId))
-      )
+      .filter(({ project_ids }) => project_ids.includes(parseInt(projectId)))
       .map(sub => {
         return {
           type: "Feature",
@@ -611,9 +607,7 @@ const MapBox = ({...props}) => {
       el.style.height = marker.properties.iconSize[1] + "px";
 
       // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(marker.geometry.coordinates)
-        .addTo(map);
+      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
       el.addEventListener("click", e => {
         e.stopPropagation();
         const { id, number } = marker.properties;
@@ -622,14 +616,14 @@ const MapBox = ({...props}) => {
           if (addFirstStructure) {
             setStructuresSelected({
               first: { id, number, type: "sub" },
-              second: { id: "", number: "", type: ""}
-            })
+              second: { id: "", number: "", type: "" }
+            });
           } else {
             if (id !== structuresSelected.first.id) {
               setStructuresSelected({
                 first: structuresSelected.first,
                 second: { id, number, type: "sub" }
-              })
+              });
             } else {
               props.enqueueSnackbar("Cannot select the same substation", {
                 variant: "error",
@@ -641,9 +635,9 @@ const MapBox = ({...props}) => {
           el.addEventListener("click", e => {
             e.stopPropagation();
             formatterInfo([], []);
-            setMarker(marker)
-            setItem(el)
-            setOpen(true)
+            setMarker(marker);
+            setItem(el);
+            setOpen(true);
           });
         }
       });
@@ -672,27 +666,25 @@ const MapBox = ({...props}) => {
       var el = document.createElement("i");
       el.className = `fas fa-bacon ${classes.interaction}`;
       // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(marker.geometry.coordinates)
-        .addTo(map);
+      new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
       el.addEventListener("click", e => {
         e.stopPropagation();
         formatterInfo([], []);
-        setMarker(marker)
-        setItem(el)
-        setOpen(true)
+        setMarker(marker);
+        setItem(el);
+        setOpen(true);
       });
     });
   }
 
   function setItemSelected(value, link) {
-    setItemValue(value)
-    setLink(link)
+    setItemValue(value);
+    setLink(link);
     setSpan({
       id: "",
       name: ""
-    })
-    setSpanSelected("")
+    });
+    setSpanSelected("");
     setStructuresSelected({
       first: {
         id: "",
@@ -702,7 +694,7 @@ const MapBox = ({...props}) => {
         id: "",
         name: ""
       }
-    })
+    });
   }
 
   function confirmAddItem() {
@@ -757,13 +749,12 @@ const MapBox = ({...props}) => {
               <Button
                 variant="outlined"
                 className={classes.buttonCancel}
-                onClick={() =>{
-                  setItemValue(0)
-                  setLink("")
-                  setSpanSelected("")
-                  setAddFirstStructure(true)
-                }
-                }
+                onClick={() => {
+                  setItemValue(0);
+                  setLink("");
+                  setSpanSelected("");
+                  setAddFirstStructure(true);
+                }}
               >
                 Cancel
               </Button>
@@ -783,20 +774,20 @@ const MapBox = ({...props}) => {
   }
 
   function cancelAddMarkingOrAccess() {
-    setItemValue(0)
-    setLink("")
-    setSpanSelected("")
-    setSpan({ id: "", number: "" })
+    setItemValue(0);
+    setLink("");
+    setSpanSelected("");
+    setSpan({ id: "", number: "" });
   }
 
   function cancelAddSpan() {
-    setItemValue(0)
-    setLink("")
+    setItemValue(0);
+    setLink("");
     setStructuresSelected({
       first: { id: "", name: "", type: "" },
       second: { id: "", name: "", type: "" }
-    })
-    setAddFirstStructure(true)
+    });
+    setAddFirstStructure(true);
   }
 
   return (
@@ -846,9 +837,7 @@ const MapBox = ({...props}) => {
               >
                 Add span
                 {itemValue === 2 ? (
-                  <CheckCircle
-                    className={classes.iconButtonMenu}
-                  ></CheckCircle>
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
             )}
@@ -862,9 +851,7 @@ const MapBox = ({...props}) => {
               >
                 Add marking
                 {itemValue === 3 ? (
-                  <CheckCircle
-                    className={classes.iconButtonMenu}
-                  ></CheckCircle>
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
             )}
@@ -878,9 +865,7 @@ const MapBox = ({...props}) => {
               >
                 Add access
                 {itemValue === 4 ? (
-                  <CheckCircle
-                    className={classes.iconButtonMenu}
-                  ></CheckCircle>
+                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
             )}
@@ -945,9 +930,9 @@ const MapBox = ({...props}) => {
                       className={classes.buttonAccept}
                       onClick={() => {
                         if (addFirstStructure) {
-                          setAddFirstStructure(false)
+                          setAddFirstStructure(false);
                         } else {
-                          setConfirmStructures(true)
+                          setConfirmStructures(true);
                         }
                       }}
                     >
@@ -984,7 +969,7 @@ const MapBox = ({...props}) => {
                       variant="outlined"
                       className={classes.buttonAccept}
                       onClick={() => {
-                        setSpanSelected(span.id)
+                        setSpanSelected(span.id);
                       }}
                     >
                       Continue
@@ -1008,7 +993,7 @@ const MapBox = ({...props}) => {
       </div>
     </Grid>
   );
-}
+};
 
 const mapStateToProps = state => {
   return {

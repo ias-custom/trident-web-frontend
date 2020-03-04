@@ -112,7 +112,6 @@ class ProjectEdit extends React.Component {
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
         this.props.fetchLines()
-        console.log(response.data)
         this.setState({
           projectName: response.data.name,
           projectStatus: response.data.state_id || "",
@@ -143,12 +142,12 @@ class ProjectEdit extends React.Component {
 
   filter = (list, keyword, tab) => {
     if (keyword === "") return list;
-    let fields = "";
+    let fields = [];
     if (tab === "users") {
       fields = ["first_name", "last_name", "username", "email"];
     }
     if (tab === "structures") {
-      fields = ["name"];
+      fields = ["number"];
     }
     if (tab === "spans") {
       fields = ["id"];
@@ -401,6 +400,7 @@ class ProjectEdit extends React.Component {
       });
     }
   };
+
   changeLine = async line_id => {
     const form = { line_id };
     const response = await this.props.updateProject(this.projectId, form);
