@@ -119,7 +119,7 @@ const styles = theme => ({
   },
   dataPorcentage: {
     fontWeight: "bold",
-    margin: "20px 0 0 0"
+    margin: "20px 0 10px 0"
   },
   divSelectSet: {
     display: "flex",

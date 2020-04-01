@@ -127,7 +127,10 @@ const StructureLineCreate = ({...props}) => {
                 .lessThan(91, "The value must be between -90 and 90")
                 .moreThan(-91, "The value must be between -90 and 90")
                 .required("Longitude is required"),
-                number: Yup.string().required("Number is required")
+                number: Yup.string().required("Number is required"),
+                inspectionId: Yup.mixed().required(
+                  "Inspection is required"
+                ),
               })}
             >
               {props => {
@@ -154,7 +157,7 @@ const StructureLineCreate = ({...props}) => {
                     handleChange={handleChange}
                     handleBlur={handleBlur}
                     handleSubmit={handleSubmit}
-                    isCreate={true}
+                    isCreate
                     forLine
                   />
                 );

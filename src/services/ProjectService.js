@@ -234,6 +234,15 @@ class ProjectService extends Service {
       return error.response;
     }
   };
+
+  deleteStructures = async (projectId, ids) => {
+    try {
+      const form = {structure_ids: ids}
+        return await this.http.post(`/projects/${projectId}/clean-structures/`, form);
+    } catch (error) {
+        return error.response;
+    }
+  }
 }
 
 

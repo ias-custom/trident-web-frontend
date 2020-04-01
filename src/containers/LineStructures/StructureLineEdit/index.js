@@ -40,7 +40,7 @@ const StructureLineEdit = ({ ...props }) => {
       name: "Line edit",
       to: `/lines/${lineId}`
     },
-    { name: "Create Structure-Line", to: null }
+    { name: "Edit Structure-Line", to: null }
   ];
 
   useEffect(() => {
@@ -52,7 +52,8 @@ const StructureLineEdit = ({ ...props }) => {
     async function getStructure() {
       const response = await props.getStructureLine(lineId, structureId);
       if (response.status === 200) {
-        setForm({...response.data, stateId: 2});
+        console.log(response.data)
+        setForm({...response.data, inspectionId: response.data.inspection_id, stateId: 2});
       } else {
         props.history.push("/404");
       }
@@ -107,7 +108,7 @@ const StructureLineEdit = ({ ...props }) => {
   }
 
   return (
-    <Layout title="Create Structure-Line">
+    <Layout title="Edit Structure-Line">
       {() => (
         <div className={classes.root}>
           <SimpleBreadcrumbs
@@ -133,7 +134,10 @@ const StructureLineEdit = ({ ...props }) => {
                   .lessThan(91, "The value must be between -90 and 90")
                   .moreThan(-91, "The value must be between -90 and 90")
                   .required("Longitude is required"),
-                number: Yup.string().required("Number is required")
+                number: Yup.string().required("Number is required"),
+                inspectionId: Yup.mixed().required(
+                  "Inspection is required"
+                ),
               })}
             >
               {props => {

@@ -95,7 +95,7 @@ class Home extends React.Component {
                           color="primary"
                         />
                         <Typography component="p" variant="h6">
-                          Customers
+                          Utility
                         </Typography>
                       </CardContent>
                     </Card>
@@ -113,7 +113,7 @@ class Home extends React.Component {
                       <CardContent className={classes.card}>
                         <ProjectIcon className={classes.icon} color="primary" />
                         <Typography component="p" variant="h6">
-                          Projects
+                          Project Setup
                         </Typography>
                       </CardContent>
                     </Card>

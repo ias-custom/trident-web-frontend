@@ -384,6 +384,7 @@ const MapBox = ({ ...props }) => {
 
   async function getInfoStructure(structure) {
     const response = await props.getStructure(projectId, structure.id, false);
+    console.log(response.data)
     let color = "";
     if (structure.state_id !== 1) {
       color = "gray";

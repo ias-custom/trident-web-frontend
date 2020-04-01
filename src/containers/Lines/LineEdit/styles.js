@@ -48,6 +48,9 @@ const styles = theme => ({
       },
     },
   },
+  dialogFile: {
+    width: 600
+  },
 });
 
 export default styles;

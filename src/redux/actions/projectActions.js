@@ -22,7 +22,8 @@ import {
   GET_CATEGORIES_ACCESS,
   ADD_USER_PROJECT,
   DELETE_USER_PROJECT,
-  INSPECTIONS_PROJECT
+  INSPECTIONS_PROJECT,
+  DELETE_STRUCTURES
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -72,7 +73,6 @@ export const createProject = body => {
 export const getProject = (id, saveData = true) => {
   return async dispatch => {
     dispatch(setLoading(true));
-    console.log("llegoooooooooo")
     try {
       const response = await service.get(id);
       if (response.status === 200) {
@@ -387,6 +387,26 @@ export const addSet = (projectId, form) => {
 
     try {
       const response = await service.addSet(projectId, form);
+
+      return response;
+    } catch (error) {
+      console.error(error.log);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const deleteStructures = (projectId, ids) => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await service.deleteStructures(projectId, ids);
+
+      if (response.status === 200 || response.status === 204) {
+        dispatch({type: DELETE_STRUCTURES, payload: ids});
+      }
 
       return response;
     } catch (error) {

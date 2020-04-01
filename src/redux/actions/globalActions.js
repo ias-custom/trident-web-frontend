@@ -128,6 +128,21 @@ export const fetchStates = () => {
   };
 };
 
+export const fetchInspections = () => {
+  return async dispatch => {
+    dispatch(setLoading(true));
+
+    try {
+      const response = await globalService.getInspections();
+      return response;
+    } catch (error) {
+      return error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
 export const setHandleForm = handleForm => ({
   type: HANDLE_FORM,
   handleForm

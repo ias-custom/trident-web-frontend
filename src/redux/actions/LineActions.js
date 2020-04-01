@@ -144,12 +144,43 @@ import {
     }
   };
 
+  export const uploadStructuresLine = (lineId, formData) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.uploadStructures(lineId, formData);
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
   export const deleteStructureLine = (lineId, structureId) => {
     return async (dispatch) => {
       dispatch(setLoading(true));
   
       try {
         const response = await service.deleteStructure(lineId, structureId);
+  
+        return response;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+  };
+
+  export const deleteStructuresLine = (lineId, structureIds) => {
+    return async (dispatch) => {
+      dispatch(setLoading(true));
+  
+      try {
+        const response = await service.deleteStructures(lineId, structureIds);
   
         return response;
       } catch (error) {

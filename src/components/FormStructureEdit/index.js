@@ -14,10 +14,10 @@ import {
 } from "@material-ui/core";
 import { Form } from "formik";
 import { fetchStructureTypes } from "../../redux/actions/structureActions";
-import { fetchStates } from "../../redux/actions/globalActions";
+import { fetchStates, fetchInspections } from "../../redux/actions/globalActions";
 import { getProject } from "../../redux/actions/projectActions";
 
-const FormStructureEdit= ({...props}) => {
+const FormStructureEdit = ({ ...props }) => {
   const [inspections, setInspections] = useState([]);
   const {
     dirty,
@@ -29,23 +29,32 @@ const FormStructureEdit= ({...props}) => {
     isValid,
     states,
     isCreate,
-    forLine,
-    isUpdated
+    forLine
   } = props;
 
-  async function getProject(){
+  async function getProject() {
     const response = await props.getProject(props.projectId, false);
     if (response.status === 200) {
       const { set } = response.data;
-      setInspections(set.inspections.filter(
-        ({ belong_to }) => belong_to === "Structure"
-      ))
+      setInspections(
+        set.inspections.filter(({ belong_to }) => belong_to === "Structure")
+      );
     }
   }
+
+  async function getInspections() {
+    const response = await props.fetchInspections();
+    if (response.status === 200) {
+      setInspections(response.data);
+    }
+  }
+
   useEffect(() => {
     //props.fetchStructureTypes(props.projectId);
     props.fetchStates();
-    if (!forLine) {
+    if (forLine) {
+      getInspections()
+    } else {
       getProject();
     }
     return () => {};
@@ -53,7 +62,7 @@ const FormStructureEdit= ({...props}) => {
   return (
     <Form onSubmit={props.handleSubmit}>
       <Prompt
-        when={dirty && !isUpdated}
+        when={dirty}
         message="Are you sure you want to leave?, You will lose your changes"
       />
       <Grid item sm={12} md={12}>
@@ -71,13 +80,11 @@ const FormStructureEdit= ({...props}) => {
               fullWidth
               margin="normal"
               error={!!touched.number && !!errors.number}
-              helperText={
-                !!touched.number && !!errors.number && errors.number
-              }
+              helperText={!!touched.number && !!errors.number && errors.number}
               required
             />
           </Grid>
-        </Grid>
+        </Grid>{/* 
         <Grid container spacing={16}>
           <Grid item xs>
             <TextField
@@ -94,7 +101,7 @@ const FormStructureEdit= ({...props}) => {
               disabled={loading}
             />
           </Grid>
-        </Grid>
+        </Grid> */}
         <Grid container spacing={16}>
           <Grid item xs>
             <TextField
@@ -148,33 +155,62 @@ const FormStructureEdit= ({...props}) => {
           </Grid>
         </Grid>
         <Grid container spacing={16}>
-          <Grid item xs>
+          {!forLine && (
+            <Grid item xs>
+              <TextField
+                name="stateId"
+                select
+                label="State"
+                value={values.stateId}
+                margin="normal"
+                onChange={props.handleChange}
+                onBlur={props.handleBlur}
+                error={!!touched.stateId && !!errors.stateId}
+                helperText={
+                  !!touched.stateId && !!errors.stateId && errors.stateId
+                }
+                fullWidth
+                required
+                disabled
+              >
+                {states.map(state => {
+                  return (
+                    <MenuItem key={state.id} value={state.id}>
+                      {state.name}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
+            </Grid>
+          )}
+
+          <Grid item xs={6}>
             <TextField
-              name="stateId"
+              name="inspectionId"
               select
-              label="State"
-              value={values.stateId}
+              label="Inspection"
+              value={values.inspectionId}
               margin="normal"
               onChange={props.handleChange}
               onBlur={props.handleBlur}
-              error={!!touched.stateId && !!errors.stateId}
+              error={!!touched.inspectionId && !!errors.inspectionId}
               helperText={
-                !!touched.stateId && !!errors.stateId && errors.stateId
+                !!touched.inspectionId &&
+                !!errors.inspectionId &&
+                errors.inspectionId
               }
               fullWidth
               required
-              disabled
+              disabled={loading}
             >
-              {states.map(state => {
+              {inspections.map(inspection => {
                 return (
-                  <MenuItem key={state.id} value={state.id}>
-                    {state.name}
+                  <MenuItem key={inspection.id} value={inspection.id}>
+                    {inspection.name}
                   </MenuItem>
                 );
               })}
             </TextField>
-          </Grid>
-          <Grid item xs>
             {/* <div style={{display: "flex"}}>
               <TextField
                 name="structureTypeId"
@@ -211,62 +247,8 @@ const FormStructureEdit= ({...props}) => {
                 </div>
               ) : null}
             </div> */}
-            {!forLine && <TextField
-              name="inspectionId"
-              select
-              label="Inspection"
-              value={values.inspectionId}
-              margin="normal"
-              onChange={props.handleChange}
-              onBlur={props.handleBlur}
-              error={!!touched.inspectionId && !!errors.inspectionId}
-              helperText={
-                !!touched.inspectionId &&
-                !!errors.inspectionId &&
-                errors.inspectionId
-              }
-              fullWidth
-              required
-              disabled={loading}
-            >
-              {inspections.map(inspection => {
-                return (
-                  <MenuItem key={inspection.id} value={inspection.id}>
-                    {inspection.name}
-                  </MenuItem>
-                );
-              })}
-            </TextField>}
           </Grid>
         </Grid>
-        {/* <Grid container spacing={16}>
-          <Grid item xs={6}>
-            <TextField
-              name="inspectionId"
-              select
-              label="Inspection"
-              value={values.inspectionId}
-              margin="normal"
-              onChange={this.props.handleChange}
-              onBlur={this.props.handleBlur}
-              error={!!touched.inspectionId && !!errors.inspectionId}
-              helperText={
-                !!touched.inspectionId && !!errors.inspectionId && errors.inspectionId
-              }
-              fullWidth
-              required
-              disabled={loading}
-            >
-              {inspections.map(inspection => {
-                return (
-                  <MenuItem key={inspection.id} value={inspection.id}>
-                    {inspection.name}
-                  </MenuItem>
-                );
-              })}
-            </TextField>
-          </Grid>
-        </Grid> */}
       </Grid>
       <br />
       <Grid container justify="flex-end">
@@ -300,7 +282,7 @@ const FormStructureEdit= ({...props}) => {
       </Grid>
     </Form>
   );
-}
+};
 
 const mapStateToProps = state => {
   return {
@@ -313,7 +295,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = {
   fetchStructureTypes,
   fetchStates,
-  getProject
+  getProject,
+  fetchInspections
 };
 
 FormStructureEdit.propTypes = {

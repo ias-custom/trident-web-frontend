@@ -86,6 +86,28 @@ class LineService extends Service {
       return error.response;
     }
   }
+
+  async uploadStructures(lineId, formData) {
+    try {
+      const config = {     
+        headers: { 'content-type': 'multipart/form-data' }
+      }
+      return await this.http.post(`/lines/${lineId}/bulk-structures/`, formData, config);
+    } catch (error) {
+      console.log('service', error);
+      return error.response;
+    }
+  }
+
+  async deleteStructures(lineId, structureIds) {
+    try {
+      const form = { structure_ids: structureIds }
+      return await this.http.post(`/lines/${lineId}/clean-structures/`, form);
+    } catch (error) {
+      console.log('service', error);
+      return error.response;
+    }
+  }
 }
 
 export default LineService; 

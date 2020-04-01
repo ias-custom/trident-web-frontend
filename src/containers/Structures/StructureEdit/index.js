@@ -397,7 +397,7 @@ class StructureEdit extends React.Component {
                 classes={{ root: classes.breadcrumbs }}
               />
               <Typography component="h1" variant="h5">
-                {formGeneral.name}
+                {formGeneral.number}
               </Typography>
               <Grid className={classes.divTabs}>
                 <Tabs
@@ -432,7 +432,7 @@ class StructureEdit extends React.Component {
                         ...formGeneral
                       }}
                       validationSchema={Yup.object().shape({
-                        name: Yup.string().required("Name is required"),
+                        //name: Yup.string().required("Name is required"),
                         stateId: Yup.mixed().required("State is required"),
                         latitude: Yup.number()
                           .lessThan(91, "The value must be between -90 and 90")

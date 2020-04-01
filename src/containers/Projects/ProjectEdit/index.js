@@ -22,18 +22,12 @@ import {
   Grid,
   Typography,
   TextField,
-  MenuItem
+  MenuItem,
+  Checkbox
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import {
-  Edit,
-  Delete,
-  Save,
-  Cancel,
-  CloudUpload,
-  Gif
-} from "@material-ui/icons";
+import { Edit, Delete, Save, Cancel, CloudUpload } from "@material-ui/icons";
 import {
   toggleItemMenu,
   selectedItemMenu
@@ -46,7 +40,8 @@ import {
   addUser,
   setPoint,
   addSet,
-  setFromMap
+  setFromMap,
+  deleteStructures
 } from "../../../redux/actions/projectActions";
 import {
   deleteStructure,
@@ -108,7 +103,8 @@ class ProjectEdit extends React.Component {
     enabledMap: false,
     projectLine: "",
     lineDialog: false,
-    newLine: ""
+    newLine: "",
+    structureIds: []
   };
 
   projectId = null;
@@ -120,7 +116,8 @@ class ProjectEdit extends React.Component {
       this.projectId = this.props.match.params.id;
       const response = await this.props.getProject(this.projectId);
       if (response.status === 200) {
-        this.props.fetchLines();
+        console.log(response.data);
+        await this.props.fetchLines();
         this.setState({
           projectName: response.data.name,
           projectStatus: response.data.state_id || "",
@@ -162,7 +159,7 @@ class ProjectEdit extends React.Component {
       fields = ["first_name", "last_name", "username", "email"];
     }
     if (tab === "structures") {
-      fields = ["number"];
+      fields = ["number", "line"];
     }
     if (tab === "spans") {
       fields = ["id"];
@@ -436,6 +433,51 @@ class ProjectEdit extends React.Component {
     }
   };
 
+  onSelectAllStructures = e => {
+    const { structures } = this.props;
+    if (e.target.checked) {
+      this.setState({ structureIds: structures.map(({ id }) => id) });
+      return;
+    }
+    this.setState({ structureIds: [] });
+  };
+
+  onSelectStructure = (e, structureId) => {
+    const { structureIds } = this.state;
+    if (e.target.checked) {
+      structureIds.push(structureId);
+      this.setState({
+        structureIds: Array.from(new Set(structureIds))
+      });
+      return;
+    }
+    this.setState({
+      structureIds: Array.from(
+        new Set(structureIds.filter(id => id !== structureId))
+      )
+    });
+  };
+
+  deleteStructuresSelected = async () => {
+    const { structureIds } = this.state;
+    const response = await this.props.deleteStructures(
+      this.projectId,
+      structureIds
+    );
+    if (response.status === 200 || response.status === 204) {
+      // SHOW NOTIFICACION SUCCCESS
+      this.setState({ structureIds: [] });
+      this.props.enqueueSnackbar("Structures removed successfully!", {
+        variant: "success",
+        anchorOrigin: { vertical: "top", horizontal: "center" }
+      });
+    } else {
+      this.props.enqueueSnackbar("The request could not be processed!", {
+        variant: "error"
+      });
+    }
+  };
+
   render() {
     const {
       classes,
@@ -467,12 +509,12 @@ class ProjectEdit extends React.Component {
       projectStatus,
       projectLine,
       lineDialog,
-      newLine
+      newLine,
+      structureIds
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
     });
-
     return (
       <Layout title="Projects">
         {openDrawer => (
@@ -663,13 +705,15 @@ class ProjectEdit extends React.Component {
                     );
                   })}
                 </TextField>
-                <p
-                  className={classes.paragraphLine}
-                >{`Are you sure you want to add the structures from the Line ${
-                  lines.length > 0
-                    ? lines.find(({ id }) => id === newLine).name
-                    : ""
-                } ?`}</p>
+                {newLine !== "" && (
+                  <p
+                    className={classes.paragraphLine}
+                  >{`Are you sure you want to add the structures from the Line ${
+                    lines.length > 0
+                      ? lines.find(({ id }) => id === newLine).name
+                      : ""
+                  } ?`}</p>
+                )}
               </DialogContent>
               <DialogActions style={{ padding: "0 10px 14px 10px", margin: 0 }}>
                 <Button
@@ -951,16 +995,48 @@ class ProjectEdit extends React.Component {
                       />
                     </div>
                     <Grid>{this.dataPorcentage(structures)}</Grid>
+                    {structureIds.length > 0 && (
+                      <Grid
+                        container
+                        justify="flex-end"
+                        style={{ marginBottom: "10px" }}
+                      >
+                        <Button
+                          variant="outlined"
+                          disabled={loading}
+                          className={classes.upload}
+                          onClick={this.deleteStructuresSelected}
+                        >
+                          <Delete />
+                          Delete structures
+                        </Button>
+                      </Grid>
+                    )}
+
                     <div className={classes.divTable}>
                       <Table className={classes.table}>
                         <TableHead>
                           <TableRow>
-                            <TableCell style={{ width: "50%" }}>
+                            <TableCell
+                              padding="checkbox"
+                              style={{ width: "10%" }}
+                            >
+                              <Checkbox
+                                checked={
+                                  structures.length > 0
+                                    ? structures.length === structureIds.length
+                                    : false
+                                }
+                                onChange={this.onSelectAllStructures}
+                              />
+                            </TableCell>
+                            <TableCell style={{ width: "25%" }}>
                               Number
                             </TableCell>
-                            <TableCell style={{ width: "30%" }}>
+                            <TableCell style={{ width: "20%" }}>
                               State
                             </TableCell>
+                            <TableCell style={{ width: "25%" }}>Line</TableCell>
                             <TableCell colSpan={1}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
@@ -969,6 +1045,16 @@ class ProjectEdit extends React.Component {
                             {this.filter(structures, search, "structures").map(
                               structure => (
                                 <TableRow key={structure.id}>
+                                  <TableCell padding="checkbox" component="td">
+                                    <Checkbox
+                                      checked={structureIds.includes(
+                                        structure.id
+                                      )}
+                                      onChange={e =>
+                                        this.onSelectStructure(e, structure.id)
+                                      }
+                                    />
+                                  </TableCell>
                                   <TableCell component="td">
                                     {structure.number}
                                   </TableCell>
@@ -982,6 +1068,13 @@ class ProjectEdit extends React.Component {
                                         {structure.state.name}
                                       </Typography>
                                     )}
+                                  </TableCell>
+                                  <TableCell component="td">
+                                    {structure.line_id && lines.length > 0
+                                      ? lines.find(
+                                          ({ id }) => id === structure.line_id
+                                        ).name
+                                      : "-"}
                                   </TableCell>
                                   <TableCell>
                                     <div style={{ display: "flex" }}>
@@ -1482,7 +1575,8 @@ const mapDispatchToProps = {
   deleteInteraction,
   setFromMap,
   uploadStructures,
-  fetchLines
+  fetchLines,
+  deleteStructures
 };
 
 export default compose(

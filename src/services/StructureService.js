@@ -150,6 +150,14 @@ class StructureService extends Service {
     }
   }
 
+  deletePhoto = async (projectId, ids) => {
+    try {
+        return await this.http.delete(`/projects/${projectId}/structures`, ids);
+    } catch (error) {
+        return error.response;
+    }
+  }
+
 }
 
 export default StructureService;

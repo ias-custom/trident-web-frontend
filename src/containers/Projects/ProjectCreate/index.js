@@ -95,7 +95,7 @@ class ProjectCreate extends React.Component {
                 name: Yup.string().required("Name is required"),
                 inspection_id: Yup.mixed().required("Type is required"),
                 set_id: Yup.mixed().required("Set is required"),
-                line_id: Yup.mixed().required("Line is required"),
+                //line_id: Yup.mixed().required("Line is required"),
               })}
               enableReinitialize
             >
@@ -201,7 +201,6 @@ class ProjectCreate extends React.Component {
                                 label="Line"
                                 fullWidth
                                 margin="normal"
-                                required
                                 disabled={loading}
                               >
                                 {lines.map(l => (

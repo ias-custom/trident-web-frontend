@@ -60,6 +60,7 @@ class MainListItems extends React.Component {
     const { classes, itemsMenu, permissions, is_superuser } = this.props
     return (
       <div>
+        {permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || is_superuser ?
         <div>
           <ListItem button onClick={()=>{this.changeStateOpen('admin', !itemsMenu.admin.open)}} className={classes.listItem}>
             <ListItemIcon>
@@ -102,7 +103,7 @@ class MainListItems extends React.Component {
               ) : null}
             </List>
           </Collapse>
-        </div>
+        </div> : null }
         {/* permissions.includes(CAN_VIEW_USER) || permissions.includes(CAN_VIEW_ROLE) || permissions.includes(CAN_VIEW_) || is_superuser ? (
           
         ): null */}
