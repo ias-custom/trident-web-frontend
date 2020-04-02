@@ -106,19 +106,21 @@ const MapBox = ({ ...props }) => {
     }, 190);
     setOpenDrawer(openMenu);
   }
-
+  async function fetchSubstations() {
+    await props.getSubstations(false);
+  }
   useEffect(() => {
     if (!enabledMapFirst && enabledMap) {
-      props.getSubstations(false);
+      fetchSubstations();
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
       if ("geolocation" in navigator) {
         createMap();
         // FOR PAGE HTTPS
         /* navigator.geolocation.getCurrentPosition(({ coords }) => {
-          setLatitude(coords.latitude)
-          setLongitude(coords.longitude)
-          this.createMap();
-        }); */
+        setLatitude(coords.latitude)
+        setLongitude(coords.longitude)
+        this.createMap();
+      }); */
       } else {
         createMap();
       }
@@ -128,11 +130,43 @@ const MapBox = ({ ...props }) => {
   }, []);
 
   function createMap() {
+    console.log(
+      props.structures,
+      props.spans,
+      props.access,
+      props.markings,
+      props.substations,
+      props.interactions
+    );
+    const coordinates = props.structures
+      .concat(props.spans)
+      .concat(props.access)
+      .concat(props.markings)
+      .concat(props.interactions)
+      .concat(props.substations.filter(({ project_ids }) => project_ids.includes(parseInt(projectId)))
+      )
+      .map(({ latitude, longitude }) => [latitude, longitude]);
+    console.log(coordinates);
+    console.log(
+      coordinates.reduce((totalLat, coord) => {
+        return totalLat + Number(coord[0]);
+      }, 0) / coordinates.length,
+      coordinates.reduce((totalLat, coord) => {
+        return totalLat + Number(coord[1]);
+      }, 0) / coordinates.length
+    );
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
-      center: [longitude, latitude],
-      zoom: 0
+      center: [
+        coordinates.reduce((totalLat, coord) => {
+          return totalLat + Number(coord[1]);
+        }, 0) / coordinates.length,
+        coordinates.reduce((totalLat, coord) => {
+          return totalLat + Number(coord[0]);
+        }, 0) / coordinates.length
+      ],
+      zoom: 4
     });
     // Add geolocate control to the map.
     map.addControl(
@@ -384,7 +418,6 @@ const MapBox = ({ ...props }) => {
 
   async function getInfoStructure(structure) {
     const response = await props.getStructure(projectId, structure.id, false);
-    console.log(response.data)
     let color = "";
     if (structure.state_id !== 1) {
       color = "gray";
@@ -438,37 +471,39 @@ const MapBox = ({ ...props }) => {
 
     features.forEach(marker => {
       // create a HTML element for each feature
-      var el = ""
+      var el = "";
       if (marker.properties.type === "") {
         el = document.createElement("i");
-        el.className = "fas fa-broadcast-tower"
-        el.style.fontSize = "25px"
+        el.className = "fas fa-broadcast-tower";
+        el.style.fontSize = "25px";
       } else {
         el = document.createElement("img");
         el.className = "marker";
         if (marker.properties.color === "gray") {
           el.src =
-          marker.properties.type === 1 ? woodStructureGray : steelStructureGray;
+            marker.properties.type === 1
+              ? woodStructureGray
+              : steelStructureGray;
         }
         if (marker.properties.color === "green") {
           el.src =
-          marker.properties.type === 1
-          ? woodStructureGreen
-          : steelStructureGreen;
+            marker.properties.type === 1
+              ? woodStructureGreen
+              : steelStructureGreen;
         }
         if (marker.properties.color === "orange") {
           el.src =
-          marker.properties.type === 1
-          ? woodStructureOrange
-          : steelStructureOrange;
+            marker.properties.type === 1
+              ? woodStructureOrange
+              : steelStructureOrange;
         }
         if (marker.properties.color === "red") {
           el.src =
-          marker.properties.type === 1 ? woodStructureRed : steelStructureRed;
+            marker.properties.type === 1 ? woodStructureRed : steelStructureRed;
         }
       }
       el.style.cursor = "pointer";
-      
+
       //el.style.width = marker.properties.iconSize[0] + "px";
       //el.style.height = marker.properties.iconSize[1] + "px";
       // make a marker for each feature and add to the map

@@ -271,12 +271,12 @@ class StructureCreate extends React.Component {
                   //name: Yup.string().required("Name is required"),
                   stateId: Yup.mixed().required("State is required"),
                   latitude: Yup.number()
-                    .lessThan(91, "The value must be between -90 and 90")
-                    .moreThan(-91, "The value must be between -90 and 90")
+                  .lessThan(150, "The value must be between -150 and 150")
+                  .moreThan(-150, "The value must be between -150 and 150")
                     .required("Latitude is required"),
                   longitude: Yup.number()
-                  .lessThan(91, "The value must be between -90 and 90")
-                  .moreThan(-91, "The value must be between -90 and 90")
+                  .lessThan(150, "The value must be between -150 and 150")
+                  .moreThan(-150, "The value must be between -150 and 150")
                   .required("Longitude is required"),
                   inspectionId: Yup.mixed().required("Inspection is required"),
                   number: Yup.string().required("Number is required")

@@ -145,12 +145,12 @@ class InteractionCreate extends React.Component {
                   titleId: Yup.mixed().required("Title is required"),
                   typeId: Yup.mixed().required("Type is required"),
                   latitude: Yup.number()
-                  .lessThan(91, "The value must be between -90 and 90")
-                  .moreThan(-91, "The value must be between -90 and 90")
+                  .lessThan(150, "The value must be between -150 and 150")
+                  .moreThan(-150, "The value must be between -150 and 150")
                   .required("Latitude is required"),
                   longitude: Yup.number()
-                  .lessThan(91, "The value must be between -90 and 90")
-                  .moreThan(-91, "The value must be between -90 and 90")
+                  .lessThan(150, "The value must be between -150 and 150")
+                  .moreThan(-150, "The value must be between -150 and 150")
                   .required("Longitude is required"),
                 })}
               >

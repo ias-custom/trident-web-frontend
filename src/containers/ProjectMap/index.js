@@ -9,6 +9,9 @@ import styles from "./styles";
 import { compose } from "recompose";
 import { Layout, SimpleBreadcrumbs, MapBox } from "../../components";
 import { getProject } from "../../redux/actions/projectActions";
+import {
+  getSubstations
+} from "../../redux/actions/substationActions";
 
 const ProjectMap = ({ ...props }) => {
   const { classes } = props;
@@ -22,6 +25,7 @@ const ProjectMap = ({ ...props }) => {
 
   useEffect(() => {
     async function detailProject() {
+      await props.getSubstations(false)
       const response = await props.getProject(projectId);
       if (response.status === 200) {
         setType(response.data.inspection_id)
@@ -63,6 +67,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
   getProject,
+  getSubstations
 };
 
 export default compose(
