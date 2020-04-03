@@ -183,7 +183,25 @@ class ProjectsList extends React.Component {
                           </TableCell>
                           <TableCell>
                             <div style={{ display: "flex" }}>
-                              {canChangeProject || is_superuser ? (
+                              {canChangeProject || is_superuser ? 
+                              <Link
+                              component={RouterLink}
+                              to={`/projects/${project.id}`}
+                            >
+                              <IconButton
+                                aria-label="Edit"
+                                color="primary"
+                              >
+                                <Edit />
+                              </IconButton>
+                            </Link> : <IconButton
+                                      aria-label="Edit"
+                                      color="primary"
+                                      disabled
+                                    >
+                                      <Edit />
+                              </IconButton> }
+                              {/* {canChangeProject || is_superuser ? (
                                 is_superuser || project.assigned ? (
                                   <Link
                                     component={RouterLink}
@@ -217,15 +235,20 @@ class ProjectsList extends React.Component {
                                 >
                                   <Edit />
                                 </IconButton>
-                              )}
+                              )} */}
                               <IconButton
                                 aria-label="Delete"
                                 className={classes.iconDelete}
-                                disabled={
+                                /* disabled={
                                   is_superuser ? false : 
                                   loading ||
                                   (!canDeleteProject && !is_superuser) ||
                                   !project.assigned
+                                } */
+                                disabled={
+                                  is_superuser ? false : 
+                                  loading ||
+                                  (!canDeleteProject && !is_superuser)
                                 }
                                 onClick={() => this.showModal(project.id)}
                               >

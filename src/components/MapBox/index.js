@@ -106,12 +106,8 @@ const MapBox = ({ ...props }) => {
     }, 190);
     setOpenDrawer(openMenu);
   }
-  async function fetchSubstations() {
-    await props.getSubstations(false);
-  }
   useEffect(() => {
     if (!enabledMapFirst && enabledMap) {
-      fetchSubstations();
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
       if ("geolocation" in navigator) {
         createMap();
@@ -135,7 +131,9 @@ const MapBox = ({ ...props }) => {
       props.spans,
       props.access,
       props.markings,
-      props.substations,
+      props.substations.map(({ coordinate }) => {
+        return { longitude: coordinate[0], latitude: coordinate[1] };
+      }),
       props.interactions
     );
     const coordinates = props.structures
@@ -143,9 +141,12 @@ const MapBox = ({ ...props }) => {
       .concat(props.access)
       .concat(props.markings)
       .concat(props.interactions)
-      .concat(props.substations.filter(({ project_ids }) => project_ids.includes(parseInt(projectId)))
+      .concat(
+        props.substations.map(({ coordinate }) => {
+          return { longitude: coordinate[0], latitude: coordinate[1] };
+        }),
       )
-      .map(({ latitude, longitude }) => [latitude, longitude]);
+      .map(({ latitude, longitude }) => [longitude, latitude]);
     console.log(coordinates);
     console.log(
       coordinates.reduce((totalLat, coord) => {
@@ -158,14 +159,17 @@ const MapBox = ({ ...props }) => {
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
-      center: coordinates.length > 0 ? [
-        coordinates.reduce((totalLat, coord) => {
-          return totalLat + Number(coord[1]);
-        }, 0) / coordinates.length,
-        coordinates.reduce((totalLat, coord) => {
-          return totalLat + Number(coord[0]);
-        }, 0) / coordinates.length
-      ] : [-102.36945144162411, 41.08492193802903],
+      center:
+        coordinates.length > 0
+          ? [
+              coordinates.reduce((totalLat, coord) => {
+                return totalLat + Number(coord[0]);
+              }, 0) / coordinates.length,
+              coordinates.reduce((totalLat, coord) => {
+                return totalLat + Number(coord[1]);
+              }, 0) / coordinates.length
+            ]
+          : [-102.36945144162411, 41.08492193802903],
       zoom: 4
     });
     // Add geolocate control to the map.
@@ -612,25 +616,23 @@ const MapBox = ({ ...props }) => {
   }
 
   function getSubstations() {
-    const features = props.substations
-      .filter(({ project_ids }) => project_ids.includes(parseInt(projectId)))
-      .map(sub => {
-        return {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [parseFloat(sub.longitude), parseFloat(sub.latitude)]
-          },
-          properties: {
-            number: sub.number,
-            itemName: "Substation",
-            delete: props.deleteSubstation,
-            id: sub.id,
-            link: `/substations/${sub.id}`,
-            iconSize: [30, 30]
-          }
-        };
-      });
+    const features = props.substations.map(sub => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: sub.coordinate
+        },
+        properties: {
+          number: sub.number,
+          itemName: "Substation",
+          delete: props.deleteSubstation,
+          id: sub.id,
+          link: `/substations/${sub.id}`,
+          iconSize: [30, 30]
+        }
+      };
+    });
 
     features.forEach(marker => {
       // create a HTML element for each feature

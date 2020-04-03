@@ -23,7 +23,8 @@ import {
   ADD_USER_PROJECT,
   DELETE_USER_PROJECT,
   INSPECTIONS_PROJECT,
-  DELETE_STRUCTURES
+  DELETE_STRUCTURES,
+  GET_SUBSTATIONS
 } from "../actionTypes";
 import ProjectService from "../../services/ProjectService";
 
@@ -77,7 +78,7 @@ export const getProject = (id, saveData = true) => {
       const response = await service.get(id);
       if (response.status === 200) {
         if (saveData) {
-          const { structures, spans, users, interactions, crossings, access } = response.data
+          const { structures, spans, users, interactions, crossings, access, substations } = response.data
           dispatch({ type: GET_PROJECT, payload: response.data });
           dispatch({ type: GET_USERS_PROJECT, payload: users });
           dispatch({ type: GET_STRUCTURES, payload: structures });
@@ -85,6 +86,7 @@ export const getProject = (id, saveData = true) => {
           dispatch({ type: GET_MARKINGS, payload: crossings });
           dispatch({ type: GET_ACCESS, payload: access });
           dispatch({ type: GET_INTERACTIONS, payload: interactions });
+          dispatch({ type: GET_SUBSTATIONS, payload: substations });
         }
       }
 
