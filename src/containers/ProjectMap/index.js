@@ -17,6 +17,8 @@ const ProjectMap = ({ ...props }) => {
   const { classes } = props;
   const projectId = props.match.params.id
   const [type, setType] = useState("")
+  const [center, setCenter] = useState([])
+  const [maxDistance, setMaxDistance] = useState(0)
   const breadcrumbs = [
     { name: "Home", to: "/home" },
     { name: " Project Dashboard", to: "/projects/dashboard" },
@@ -28,6 +30,8 @@ const ProjectMap = ({ ...props }) => {
       await props.getSubstations(false)
       const response = await props.getProject(projectId);
       if (response.status === 200) {
+        setMaxDistance(response.data.max_distance)
+        setCenter(response.data.coordinate_center)
         setType(response.data.inspection_id)
       }
     }
@@ -50,6 +54,8 @@ const ProjectMap = ({ ...props }) => {
               tab={type === 1 ? 5 : 4}
               type={type}
               enabledMap
+              center={center}
+              maxDistance={maxDistance}
             />}
           </Grid>
           

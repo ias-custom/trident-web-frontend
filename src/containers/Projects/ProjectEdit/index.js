@@ -104,7 +104,9 @@ class ProjectEdit extends React.Component {
     projectLine: "",
     lineDialog: false,
     newLine: "",
-    structureIds: []
+    structureIds: [],
+    center: [],
+    maxDistance: 0
   };
 
   projectId = null;
@@ -133,6 +135,8 @@ class ProjectEdit extends React.Component {
                 : 4
               : 0,
           type: response.data.inspection_id,
+          center: response.data.coordinate_center,
+          maxDistance: response.data.max_distance,
           enabledMap: true
         });
         this.props.fetchSets();
@@ -510,7 +514,9 @@ class ProjectEdit extends React.Component {
       projectLine,
       lineDialog,
       newLine,
-      structureIds
+      structureIds,
+      center,
+      maxDistance
     } = this.state;
     const usersAvailable = users_customer.filter(({ id }) => {
       return !users.includes(id);
@@ -1511,6 +1517,8 @@ class ProjectEdit extends React.Component {
                           tab={value}
                           type={type}
                           enabledMap={enabledMap}
+                          maxDistance={maxDistance}
+                          center={center}
                         />
                       )}
                     </Grid>
@@ -1524,6 +1532,8 @@ class ProjectEdit extends React.Component {
                           tab={value}
                           type={type}
                           enabledMap={enabledMap}
+                          maxDistance={maxDistance}
+                          center={center}
                         />
                       )}
                     </Grid>

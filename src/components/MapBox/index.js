@@ -96,7 +96,7 @@ const MapBox = ({ ...props }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(true);
   const [enabledMapFirst, setEnabledMapFirst] = useState(false);
-  const { classes, projectId, tab, type, enabledMap, openMenu } = props;
+  const { classes, projectId, tab, type, enabledMap, openMenu, maxDistance, center } = props;
 
   if (openDrawer !== openMenu) {
     setTimeout(() => {
@@ -126,16 +126,6 @@ const MapBox = ({ ...props }) => {
   }, []);
 
   function createMap() {
-    console.log(
-      props.structures,
-      props.spans,
-      props.access,
-      props.markings,
-      props.substations.map(({ coordinate }) => {
-        return { longitude: coordinate[0], latitude: coordinate[1] };
-      }),
-      props.interactions
-    );
     const coordinates = props.structures
       .concat(props.spans)
       .concat(props.access)
@@ -156,21 +146,52 @@ const MapBox = ({ ...props }) => {
         return totalLat + Number(coord[1]);
       }, 0) / coordinates.length
     );
+    let zoom = 0
+    if (maxDistance <= 2) {
+      zoom = 15
+    }
+    if (maxDistance > 2 && maxDistance <= 3) {
+      zoom = 13
+    }
+    if (maxDistance > 3 && maxDistance <= 5) {
+      zoom = 12
+    }
+    if (maxDistance > 5 && maxDistance <= 10) {
+      zoom = 10
+    }
+    if (maxDistance > 10 && maxDistance <= 50) {
+      zoom = 9
+    }
+    if (maxDistance > 50 && maxDistance <= 100) {
+      zoom = 8
+    }
+    if (maxDistance > 100 && maxDistance <= 200) {
+      zoom = 7
+    }
+    if (maxDistance > 200 && maxDistance <= 300) {
+      zoom = 6
+    }
+    if (maxDistance > 300 && maxDistance <= 700) {
+      zoom = 5
+    }
+    if (maxDistance > 700 && maxDistance <= 1100) {
+      zoom = 4
+    }
+    if (maxDistance > 1100 && maxDistance <= 2500) {
+      zoom = 3
+    }
+    if (maxDistance > 2500) {
+      zoom = 1
+    }
+    console.log(zoom)
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
       center:
         coordinates.length > 0
-          ? [
-              coordinates.reduce((totalLat, coord) => {
-                return totalLat + Number(coord[0]);
-              }, 0) / coordinates.length,
-              coordinates.reduce((totalLat, coord) => {
-                return totalLat + Number(coord[1]);
-              }, 0) / coordinates.length
-            ]
+          ? center
           : [-102.36945144162411, 41.08492193802903],
-      zoom: 4
+      zoom: coordinates.length > 0 ? zoom : 3
     });
     // Add geolocate control to the map.
     map.addControl(
@@ -648,7 +669,6 @@ const MapBox = ({ ...props }) => {
       el.addEventListener("click", e => {
         e.stopPropagation();
         const { id, number } = marker.properties;
-        const { itemValue, structuresSelected, addFirstStructure } = this.state;
         if (itemValue === 2) {
           if (addFirstStructure) {
             setStructuresSelected({
