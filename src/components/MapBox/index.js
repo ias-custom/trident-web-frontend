@@ -158,14 +158,14 @@ const MapBox = ({ ...props }) => {
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
-      center: [
+      center: coordinates.length > 0 ? [
         coordinates.reduce((totalLat, coord) => {
           return totalLat + Number(coord[1]);
         }, 0) / coordinates.length,
         coordinates.reduce((totalLat, coord) => {
           return totalLat + Number(coord[0]);
         }, 0) / coordinates.length
-      ],
+      ] : [-102.36945144162411, 41.08492193802903],
       zoom: 4
     });
     // Add geolocate control to the map.

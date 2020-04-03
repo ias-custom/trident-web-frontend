@@ -37,7 +37,8 @@ class ProjectCreate extends React.Component {
   form = {
     name: "",
     inspection_id: "",
-    set_id: ""
+    set_id: "",
+    line_id: ""
   };
 
   componentDidMount() {
