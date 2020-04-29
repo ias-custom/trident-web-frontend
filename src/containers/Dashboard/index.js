@@ -24,7 +24,7 @@ import {
   Layout,
   SimpleBreadcrumbs,
   Panel,
-  MapBoxDashboard,
+  MapBox,
 } from "../../components";
 import { fetchProjects } from "../../redux/actions/projectActions";
 import { selectedItemMenu } from "../../redux/actions/layoutActions";
@@ -47,6 +47,9 @@ const Dashboard = ({ ...props }) => {
   ];
   const [items, setItems] = useState([]);
   const [statusList, setStatusList] = useState([]);
+  const [enabledMap, setEnabledMap] = useState(true);
+  const [maxDistance, setMaxDistance] = useState(0);
+  const [center, setCenter] = useState(null);
   const [typeList, setTypeList] = useState([]);
   const [filters, setFilters] = useState("");
   const { classes, loading } = props;
@@ -61,24 +64,23 @@ const Dashboard = ({ ...props }) => {
   function getItems(statusList, typeList, itemsList) {
     clearTimeout(timeOut);
     timeOut = setTimeout(() => {
+      setEnabledMap(false)
       if (statusList.length === 0) {
-        // set items map empty
+        // set items map empty create action
         console.log("status vacio");
-        return;
       }
       if (typeList.length === 0) {
-        // set items map empty
+        // set items map empty create action
         console.log("type vacio");
-        return;
       }
       if (itemsList.length === 0) {
         console.log("items vacio");
-        // set items map empty
-        return;
+        // set items map empty create action
       }
       console.log(statusList.join(','))
       console.log(typeList.join(','))
       console.log(itemsList.join(','))
+      setEnabledMap(true)
     }, 1000);
   }
   function changeStatus(status) {
@@ -225,7 +227,17 @@ const Dashboard = ({ ...props }) => {
               minHeight: 500,
             }}
           >
-            <MapBoxDashboard openMenu={openDrawer} projectId={0} />
+          { enabledMap && <MapBox
+              projectId={0}
+              openMenu={openDrawer}
+              tab={0}
+              type={0}
+              enabledMap={enabledMap}
+              maxDistance={maxDistance}
+              center={center}
+              isDashboard
+            />}
+            
           </Grid>
         </div>
       )}

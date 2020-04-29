@@ -1519,6 +1519,7 @@ class ProjectEdit extends React.Component {
                           enabledMap={enabledMap}
                           maxDistance={maxDistance}
                           center={center}
+                          isDashboard={false}
                         />
                       )}
                     </Grid>
@@ -1534,6 +1535,7 @@ class ProjectEdit extends React.Component {
                           enabledMap={enabledMap}
                           maxDistance={maxDistance}
                           center={center}
+                          isDashboard={false}
                         />
                       )}
                     </Grid>

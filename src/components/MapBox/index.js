@@ -58,7 +58,9 @@ import woodStructureGreen from "../../img/wood_structure_green.png";
 import steelStructureGreen from "../../img/steel_structure_green.png";
 //import { CAN_ADD_STRUCTURE, CAN_ADD_SPAM } from "../../redux/permissions";
 import DialogDelete from "../DialogDelete";
-import { useStateAndRef } from "../../hooks/Shared"
+import { useStateAndRef } from "../../hooks/Shared";
+import { ShowPhoto, ShowInfoMap } from "..";
+import DialogConfirmMap from "../DialogConfirmMap";
 
 let map = null;
 // const reactMap = React.createRef();
@@ -74,7 +76,11 @@ const MapBox = ({ ...props }) => {
     name: "",
   });
   const [spanSelected, setSpanSelected] = useState("");
-  const [structuresSelected, setStructuresSelected, structuresSelectedRef] = useStateAndRef({
+  const [
+    structuresSelected,
+    setStructuresSelected,
+    structuresSelectedRef,
+  ] = useStateAndRef({
     first: {
       id: "",
       name: "",
@@ -86,7 +92,11 @@ const MapBox = ({ ...props }) => {
       type: "",
     },
   });
-  const [addFirstStructure, setAddFirstStructure, addFirstStructureRef] = useStateAndRef(true);
+  const [
+    addFirstStructure,
+    setAddFirstStructure,
+    addFirstStructureRef,
+  ] = useStateAndRef(true);
   const [confirmStructures, setConfirmStructures] = useState(false);
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
@@ -107,6 +117,7 @@ const MapBox = ({ ...props }) => {
     openMenu,
     maxDistance,
     center,
+    isDashboard
   } = props;
 
   if (openDrawer !== openMenu) {
@@ -118,6 +129,7 @@ const MapBox = ({ ...props }) => {
     setOpenDrawer(openMenu);
   }
   useEffect(() => {
+    console.log("asdasd")
     if (!enabledMapFirst && enabledMap) {
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
       if ("geolocation" in navigator) {
@@ -227,145 +239,9 @@ const MapBox = ({ ...props }) => {
       });
     });
   }
-
-  function formatterInfo(items, categories) {
-    const itemsFilter = items.filter(
-      ({ deficiencies }) => deficiencies.length > 0
-    );
-    const categoriesFilter = categories.filter(({ id }) => {
-      return itemsFilter.map(({ category_id }) => category_id).includes(id);
-    });
-    setCategories(categoriesFilter);
-    setItems(itemsFilter);
-  }
-
-  async function deleteItem() {
-    setOpenDelete(false);
-    let response = "";
-    if (
-      marker.properties.itemName === "Structure" ||
-      marker.properties.itemName === "Span" ||
-      marker.properties.itemName === "Interaction"
-    ) {
-      response = await marker.properties.delete(
-        props.projectId,
-        marker.properties.id
-      );
-    }
-    if (
-      marker.properties.itemName === "Crossing" ||
-      marker.properties.itemName === "Access"
-    ) {
-      response = await marker.properties.delete(
-        marker.properties.span_id,
-        marker.properties.id
-      );
-    }
-    if (marker.properties.itemName === "Substation") {
-      response = await marker.properties.delete(marker.properties.id);
-    }
-    if (response.status === 204) {
-      item.remove();
-      setOpen(false);
-      props.enqueueSnackbar(
-        `¡${marker.properties.itemName} removed succesfully!`,
-        {
-          variant: "success",
-          anchorOrigin: { vertical: "top", horizontal: "center" },
-        }
-      );
-    } else {
-      props.enqueueSnackbar("The request could not be processed", {
-        variant: "error",
-        anchorOrigin: { vertical: "top", horizontal: "center" },
-      });
-    }
-  }
-
-  function getInfo(marker) {
-    return (
-      <div className={classes.divInfo}>
-        <a
-          href={marker.properties.link}
-          className={classes.link}
-          target={"_blank"}
-        >
-          <h3>{marker.properties.number}</h3>
-        </a>
-        <Grid container justify="center">
-          <IconButton
-            aria-label="Delete"
-            className={classes.iconDelete}
-            onClick={() => setOpenDelete(true)}
-          >
-            <Delete />
-          </IconButton>
-        </Grid>
-        {marker.properties.itemName === "Structure" ||
-        marker.properties.itemName === "Span" ? (
-          items.length > 0 ? (
-            categories.map((category, index) => (
-              <div key={category.id}>
-                <p className={classes.label}>
-                  {index + 1}. {category.name}
-                </p>
-                <div className={classes.divItems}>
-                  {items
-                    .filter(({ category_id }) => category_id === category.id)
-                    .map((item) => (
-                      <div key={item.id}>
-                        <span className={classes.label}>
-                          - Item "{item.item_parent.name}":
-                        </span>
-                        <div className={classes.divItems}>
-                          {item.deficiencies.map((d) => (
-                            <div key={d.id}>
-                              <p>
-                                {d.deficiency.name}{" "}
-                                {d.emergency ? (
-                                  <i
-                                    className="fas fa-exclamation-triangle"
-                                    style={{ color: "red" }}
-                                  ></i>
-                                ) : (
-                                  ""
-                                )}
-                              </p>
-                              {/* d.photos.map(p => (
-                                <Avatar alt="photo" src={p.url} key={p.id}/>
-                              )) */}
-                              <div>
-                                {d.photos.map((p) => (
-                                  <Avatar
-                                    alt="photo"
-                                    src={p.thumbnail}
-                                    key={p.id}
-                                    className={classes.avatar}
-                                    onClick={() => {
-                                      setOpenPhoto(true);
-                                      setUrl(p.photo);
-                                    }}
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <h3>WITHOUT DEFICIENCIES</h3>
-          )
-        ) : null}
-      </div>
-    );
-  }
-
+  // GET AND FORMATTED DATA
   async function getInfoSpan(span) {
-    const response = await props.getSpan(projectId, span.id, false);
+    const response = await props.getSpan(span.project_id, span.id, false);
     let color = "";
     if (span.state_id !== 1) color = "#a9aaae";
     else {
@@ -382,7 +258,7 @@ const MapBox = ({ ...props }) => {
     return {
       id: span.id,
       itemName: "Span",
-      link: `/projects/${projectId}/spans/${span.id}`,
+      link: `/projects/${span.project_id}/spans/${span.id}`,
       delete: props.deleteSpan,
       number: span.number,
       items: response.data.items,
@@ -452,7 +328,11 @@ const MapBox = ({ ...props }) => {
   }
 
   async function getInfoStructure(structure) {
-    const response = await props.getStructure(projectId, structure.id, false);
+    const response = await props.getStructure(
+      structure.project_id,
+      structure.id,
+      false
+    );
     let color = "";
     if (structure.state_id !== 1) {
       color = "gray";
@@ -472,7 +352,7 @@ const MapBox = ({ ...props }) => {
     return {
       id: structure.id,
       itemName: "Structure",
-      link: `/projects/${projectId}/structures/${structure.id}`,
+      link: `/projects/${structure.project_id}/structures/${structure.id}`,
       delete: props.deleteStructure,
       number: structure.number,
       items: response.data.items,
@@ -503,7 +383,6 @@ const MapBox = ({ ...props }) => {
         };
       })
     );
-
     features.forEach((marker) => {
       // create a HTML element for each feature
       var el = "";
@@ -543,8 +422,8 @@ const MapBox = ({ ...props }) => {
       //el.style.height = marker.properties.iconSize[1] + "px";
       // make a marker for each feature and add to the map
       new mapboxgl.Marker(el).setLngLat(marker.geometry.coordinates).addTo(map);
-      
-      el.addEventListener("click",(e) => {
+
+      el.addEventListener("click", (e) => {
         e.stopPropagation();
         const { id, number, items, categories } = marker.properties;
         if (itemValueRef.current === 2) {
@@ -590,7 +469,7 @@ const MapBox = ({ ...props }) => {
           delete: props.deleteMarking,
           id: marking.id,
           span_id: marking.span_id,
-          link: `/projects/${projectId}/spans/${marking.span_id}?marking=true&id=${marking.id}`,
+          link: `/projects/${marking.project_id}/spans/${marking.span_id}?marking=true&id=${marking.id}`,
         },
       };
     });
@@ -625,7 +504,7 @@ const MapBox = ({ ...props }) => {
           id: a.id,
           span_id: a.span_id,
           delete: props.deleteAccess,
-          link: `/projects/${projectId}/spans/${a.span_id}?access=true&id=${a.id}`,
+          link: `/projects/${a.project_id}/spans/${a.span_id}?access=true&id=${a.id}`,
         },
       };
     });
@@ -725,7 +604,7 @@ const MapBox = ({ ...props }) => {
           id: item.id,
           itemName: "Interaction",
           delete: props.deleteInteraction,
-          link: `/projects/${projectId}/interactions/${item.id}`,
+          link: `/projects/${item.project_id}/interactions/${item.id}`,
         },
       };
     });
@@ -745,6 +624,61 @@ const MapBox = ({ ...props }) => {
     });
   }
 
+  // ACTIONS
+  async function deleteItem() {
+    setOpenDelete(false);
+    let response = "";
+    if (
+      marker.properties.itemName === "Structure" ||
+      marker.properties.itemName === "Span" ||
+      marker.properties.itemName === "Interaction"
+    ) {
+      response = await marker.properties.delete(
+        props.projectId,
+        marker.properties.id
+      );
+    }
+    if (
+      marker.properties.itemName === "Crossing" ||
+      marker.properties.itemName === "Access"
+    ) {
+      response = await marker.properties.delete(
+        marker.properties.span_id,
+        marker.properties.id
+      );
+    }
+    if (marker.properties.itemName === "Substation") {
+      response = await marker.properties.delete(marker.properties.id);
+    }
+    if (response.status === 204) {
+      item.remove();
+      setOpen(false);
+      props.enqueueSnackbar(
+        `¡${marker.properties.itemName} removed succesfully!`,
+        {
+          variant: "success",
+          anchorOrigin: { vertical: "top", horizontal: "center" },
+        }
+      );
+    } else {
+      props.enqueueSnackbar("The request could not be processed", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" },
+      });
+    }
+  }
+
+  function formatterInfo(items, categories) {
+    const itemsFilter = items.filter(
+      ({ deficiencies }) => deficiencies.length > 0
+    );
+    const categoriesFilter = categories.filter(({ id }) => {
+      return itemsFilter.map(({ category_id }) => category_id).includes(id);
+    });
+    setCategories(categoriesFilter);
+    setItems(itemsFilter);
+  }
+
   function setItemSelected(value, link) {
     setItemValue(value);
     setLink(link);
@@ -762,8 +696,7 @@ const MapBox = ({ ...props }) => {
         id: "",
         name: "",
       },
-    }); 
-   
+    });
   }
 
   function confirmAddItem() {
@@ -782,66 +715,6 @@ const MapBox = ({ ...props }) => {
     props.history.push(link);
   }
 
-  function getDialogConfirm() {
-    return (
-      <div>
-        {itemValue !== 2 ? (
-          <i className={`fas fa-map-marker-alt ${classes.iconMarker}`}></i>
-        ) : null}
-        <div className={classes.detailsMarker}>
-          <div className={classes.triangle}></div>
-          <div className={classes.infoMarker}>
-            {itemValue === 2 ? (
-              <p className={classes.paragraph}>CONFIRM THE STR/SUB?</p>
-            ) : (
-              <p className={classes.paragraph}>¡SELECT TO LOCATION !</p>
-            )}
-            {spanSelected ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected span: {span.number}
-              </p>
-            ) : null}
-            {structuresSelected.first.id ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected str/sub start: {structuresSelected.first.number}
-              </p>
-            ) : null}
-            {structuresSelected.second.id ? (
-              <p className={classes.paragraph}>
-                {" "}
-                - Selected str/sub end: {structuresSelected.second.number}
-              </p>
-            ) : null}
-            <div>
-              <Button
-                variant="outlined"
-                className={classes.buttonCancel}
-                onClick={() => {
-                  setItemValue(0);
-                  setLink("");
-                  setSpanSelected("");
-                  setAddFirstStructure(true);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                style={{ marginLeft: 10 }}
-                variant="outlined"
-                className={classes.buttonAccept}
-                onClick={() => confirmAddItem()}
-              >
-                Yes, I sure
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   function cancelAddMarkingOrAccess() {
     setItemValue(0);
     setLink("");
@@ -858,7 +731,7 @@ const MapBox = ({ ...props }) => {
     });
     setAddFirstStructure(true);
   }
-  
+
   return (
     <Grid style={{ height: "100%", width: "100%" }}>
       {openDelete && (
@@ -869,201 +742,241 @@ const MapBox = ({ ...props }) => {
           remove={deleteItem}
         />
       )}
-      <Dialog
+
+      <ShowPhoto
+        url={url}
         open={openPhoto}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        onEscapeKeyDown={() => setOpenPhoto(false)}
-        onBackdropClick={() => setOpenPhoto(false)}
-      >
-        <DialogTitle>{""}</DialogTitle>
-        <DialogContent>
-          <img src={url} alt="deficiency" style={{ height: 400 }} />
-        </DialogContent>
-      </Dialog>
+        closeDialog={() => setOpenPhoto(false)}
+      />
+
       <div id="map" style={{ height: "100%", width: "100%" }}>
-        {((tab === 5 && type === 1) || (tab === 4 && type === 2)) && (
-          <div className={classes.divMenu}>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                setItemSelected(1, `/projects/${projectId}/structures/create`)
-              }
-            >
-              Add structure
-              {itemValue === 1 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            {type === 1 && (
+        {!isDashboard && (
+          ((tab === 5 && type === 1) || (tab === 4 && type === 2)) && (
+            <div className={classes.divMenu}>
               <Button
                 variant="outlined"
                 className={classes.buttonMenu}
                 onClick={() => {
-                  setItemSelected(2, `/projects/${projectId}/spans/create`);
+                  setItemSelected(1, `/projects/${projectId}/structures/create`)
                 }}
               >
-                Add span
-                {itemValue === 2 ? (
+                Add structure
+                {itemValue === 1 ? (
                   <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
-            )}
-            {type === 1 && (
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() => {
-                  setItemSelected(3, `/projects/${projectId}/markings/create`);
-                }}
-              >
-                Add marking
-                {itemValue === 3 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-            )}
-            {type === 1 && (
+              {type === 1 && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() => {
+                    setItemSelected(2, `/projects/${projectId}/spans/create`);
+                  }}
+                >
+                  Add span
+                  {itemValue === 2 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
+              {type === 1 && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() => {
+                    setItemSelected(3, `/projects/${projectId}/markings/create`);
+                  }}
+                >
+                  Add marking
+                  {itemValue === 3 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
+              {type === 1 && (
+                <Button
+                  variant="outlined"
+                  className={classes.buttonMenu}
+                  onClick={() =>
+                    setItemSelected(4, `/projects/${projectId}/access/create`)
+                  }
+                >
+                  Add access
+                  {itemValue === 4 ? (
+                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
+                  ) : null}
+                </Button>
+              )}
               <Button
                 variant="outlined"
                 className={classes.buttonMenu}
                 onClick={() =>
-                  setItemSelected(4, `/projects/${projectId}/access/create`)
+                  setItemSelected(5, `/projects/${projectId}/interactions/create`)
                 }
               >
-                Add access
-                {itemValue === 4 ? (
+                Add interaction
+                {itemValue === 5 ? (
                   <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
                 ) : null}
               </Button>
-            )}
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                setItemSelected(5, `/projects/${projectId}/interactions/create`)
-              }
-            >
-              Add interaction
-              {itemValue === 5 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-          </div>
+            </div>
+          )
         )}
-        {itemValue === 2 ? (
+        
+        {!isDashboard && (
           <div>
-            {structuresSelected.first.id &&
-            structuresSelected.second.id &&
-            confirmStructures ? (
-              getDialogConfirm()
-            ) : (
-              <div className={classes.detailsMarker}>
-                <div className={classes.triangle}></div>
-                <div className={classes.infoMarker}>
-                  {addFirstStructure ? (
+            {itemValue === 2 && (
+              structuresSelected.first.id &&
+              structuresSelected.second.id &&
+              confirmStructures ? (
+                <DialogConfirmMap
+                  itemValue={itemValue}
+                  spanSelected={spanSelected}
+                  structuresSelected={structuresSelected}
+                  span={span}
+                  cancelAdd={() => {
+                    setItemValue(0);
+                    setLink("");
+                    setSpanSelected("");
+                    setAddFirstStructure(true);
+                  }}
+                  addItem={() => confirmAddItem()}
+                />
+              ) : (
+                <div className={classes.detailsMarker}>
+                  <div className={classes.triangle}></div>
+                  <div className={classes.infoMarker}>
+                    {addFirstStructure ? (
+                      <div>
+                        <p className={classes.paragraph}>
+                          THE SELECTED STR/SUB START:
+                        </p>
+                        <p className={classes.paragraph}>
+                          {structuresSelected.first.id
+                            ? structuresSelected.first.number
+                            : "Not selected"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className={classes.paragraph}>
+                          THE SELECTED STR/SUB END:
+                        </p>
+                        <p className={classes.paragraph}>
+                          {structuresSelected.second.id
+                            ? structuresSelected.second.number
+                            : "Not selected"}
+                        </p>
+                      </div>
+                    )}
                     <div>
-                      <p className={classes.paragraph}>
-                        THE SELECTED STR/SUB START:
-                      </p>
-                      <p className={classes.paragraph}>
-                        {structuresSelected.first.id
-                          ? structuresSelected.first.number
-                          : "Not selected"}
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className={classes.paragraph}>
-                        THE SELECTED STR/SUB END:
-                      </p>
-                      <p className={classes.paragraph}>
-                        {structuresSelected.second.id
-                          ? structuresSelected.second.number
-                          : "Not selected"}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <Button
-                      variant="outlined"
-                      className={classes.buttonCancel}
-                      onClick={() => cancelAddSpan()}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 10 }}
-                      variant="outlined"
-                      className={classes.buttonAccept}
-                      disabled={
-                        addFirstStructure
-                          ? structuresSelected.first.id === ""
-                          : structuresSelected.second.id === ""
-                      }
-                      onClick={() => {
-                        if (addFirstStructure) {
-                          setAddFirstStructure(false);
-                        } else {
-                          setConfirmStructures(true);
+                      <Button
+                        variant="outlined"
+                        className={classes.buttonCancel}
+                        onClick={() => cancelAddSpan()}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        style={{ marginLeft: 10 }}
+                        variant="outlined"
+                        className={classes.buttonAccept}
+                        disabled={
+                          addFirstStructure
+                            ? structuresSelected.first.id === ""
+                            : structuresSelected.second.id === ""
                         }
-                      }}
-                    >
-                      Continue
-                    </Button>
+                        onClick={() => {
+                          if (addFirstStructure) {
+                            setAddFirstStructure(false);
+                          } else {
+                            setConfirmStructures(true);
+                          }
+                        }}
+                      >
+                        Continue
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
-          </div>
-        ) : null}
-        {itemValue === 3 || itemValue === 4 ? (
-          <div>
-            {spanSelected ? (
-              getDialogConfirm()
-            ) : (
-              <div className={classes.detailsMarker}>
-                <div className={classes.triangle}></div>
-                <div className={classes.infoMarker}>
-                  <p className={classes.paragraph}>THE SELECTED SPAN IS:</p>
-                  <p className={classes.paragraph}>
-                    {span.number ? span.number : "Not selected"}
-                  </p>
-                  <div>
-                    <Button
-                      variant="outlined"
-                      className={classes.buttonCancel}
-                      onClick={() => cancelAddMarkingOrAccess()}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 10 }}
-                      variant="outlined"
-                      className={classes.buttonAccept}
-                      onClick={() => {
-                        setSpanSelected(span.id);
-                      }}
-                    >
-                      Continue
-                    </Button>
+            {itemValue === 3 || itemValue === 4 && (
+              spanSelected ? (
+                <DialogConfirmMap
+                  itemValue={itemValue}
+                  spanSelected={spanSelected}
+                  structuresSelected={structuresSelected}
+                  span={span}
+                  cancelAdd={() => {
+                    setItemValue(0);
+                    setLink("");
+                    setSpanSelected("");
+                    setAddFirstStructure(true);
+                  }}
+                  addItem={() => confirmAddItem()}
+                />
+              ) : (
+                <div className={classes.detailsMarker}>
+                  <div className={classes.triangle}></div>
+                  <div className={classes.infoMarker}>
+                    <p className={classes.paragraph}>THE SELECTED SPAN IS:</p>
+                    <p className={classes.paragraph}>
+                      {span.number ? span.number : "Not selected"}
+                    </p>
+                    <div>
+                      <Button
+                        variant="outlined"
+                        className={classes.buttonCancel}
+                        onClick={() => cancelAddMarkingOrAccess()}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        style={{ marginLeft: 10 }}
+                        variant="outlined"
+                        className={classes.buttonAccept}
+                        onClick={() => {
+                          setSpanSelected(span.id);
+                        }}
+                      >
+                        Continue
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )
             )}
-          </div>
-        ) : null}
-        {itemValue === 1 || itemValue === 5 ? getDialogConfirm() : null}
-        {open && (
-          <div className={classes.drawer}>
-            <CancelOutlined
-              className={classes.close}
-              onClick={() => setOpen(false)}
-            />
-            {marker && getInfo(marker)}
+            {(itemValue === 1 || itemValue === 5) && (
+              <DialogConfirmMap
+                itemValue={itemValue}
+                spanSelected={spanSelected}
+                structuresSelected={structuresSelected}
+                span={span}
+                cancelAdd={() => {
+                  setItemValue(0);
+                  setLink("");
+                  setSpanSelected("");
+                  setAddFirstStructure(true);
+                }}
+                addItem={() => confirmAddItem()}
+              />
+            )}
           </div>
         )}
+        
+        <ShowInfoMap
+          open={open}
+          marker={marker}
+          categories={categories}
+          items={items}
+          closeInfo={() => setOpen(false)}
+          openDelete={() => setOpenDelete(true)}
+          showPhoto={photo => {
+            setOpenPhoto(true);
+            setUrl(photo);
+          }}
+        />
       </div>
     </Grid>
   );

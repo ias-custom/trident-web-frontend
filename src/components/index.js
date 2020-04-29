@@ -23,6 +23,9 @@ import FormAccess from './FormAccess';
 import ShowErrors from './ShowErrors';
 import FormLine from './FormLine';
 import MapBoxDashboard from './MapBoxDashboard';
+import ShowPhoto from './ShowPhoto';
+import DialogConfirmMap from './DialogConfirmMap';
+import ShowInfoMap from './ShowInfoMap';
 
 export {
   InputSearch,
@@ -50,5 +53,8 @@ export {
   FormAccess,
   ShowErrors,
   FormLine,
-  MapBoxDashboard
+  MapBoxDashboard,
+  ShowPhoto,
+  DialogConfirmMap,
+  ShowInfoMap
 }
