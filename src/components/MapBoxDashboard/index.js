@@ -63,7 +63,7 @@ import { useStateAndRef } from "../../hooks/Shared"
 let map = null;
 // const reactMap = React.createRef();
 
-const MapBox = ({ ...props }) => {
+const MapBoxDashboard = ({ ...props }) => {
   /* const [latitude, setLatitude] = useState(-11.9890777);
   const [longitude, setLongitude] = useState(-77.0838287); */
   const [link, setLink] = useState("");
@@ -98,7 +98,7 @@ const MapBox = ({ ...props }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(true);
   const [enabledMapFirst, setEnabledMapFirst] = useState(false);
-  const {
+  /* const {
     classes,
     projectId,
     tab,
@@ -107,6 +107,11 @@ const MapBox = ({ ...props }) => {
     openMenu,
     maxDistance,
     center,
+  } = props; */
+  const {
+    openMenu,
+    classes,
+    projectId
   } = props;
 
   if (openDrawer !== openMenu) {
@@ -118,26 +123,23 @@ const MapBox = ({ ...props }) => {
     setOpenDrawer(openMenu);
   }
   useEffect(() => {
-    if (!enabledMapFirst && enabledMap) {
-      mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
-      if ("geolocation" in navigator) {
-        createMap();
-        // FOR PAGE HTTPS
-        /* navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setLatitude(coords.latitude)
-        setLongitude(coords.longitude)
-        this.createMap();
-      }); */
-      } else {
-        createMap();
-      }
-      setEnabledMapFirst(enabledMap);
+    mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
+    if ("geolocation" in navigator) {
+      createMap();
+      // FOR PAGE HTTPS
+      /* navigator.geolocation.getCurrentPosition(({ coords }) => {
+      setLatitude(coords.latitude)
+      setLongitude(coords.longitude)
+      this.createMap();
+    }); */
+    } else {
+      createMap();
     }
     return () => {};
   }, []);
 
   function createMap() {
-    const coordinates = props.structures
+    /* const coordinates = props.structures
       .concat(props.spans)
       .concat(props.access)
       .concat(props.markings)
@@ -148,7 +150,7 @@ const MapBox = ({ ...props }) => {
         })
       )
       .map(({ latitude, longitude }) => [longitude, latitude]);
-    /* console.log(coordinates);
+    console.log(coordinates);
     console.log(
       coordinates.reduce((totalLat, coord) => {
         return totalLat + Number(coord[0]);
@@ -156,7 +158,7 @@ const MapBox = ({ ...props }) => {
       coordinates.reduce((totalLat, coord) => {
         return totalLat + Number(coord[1]);
       }, 0) / coordinates.length
-    ); */
+    );
     let zoom = 0;
     if (maxDistance <= 1) {
       zoom = 15;
@@ -164,9 +166,6 @@ const MapBox = ({ ...props }) => {
     if (maxDistance > 1 && maxDistance < 5) {
       zoom = 13;
     }
-    /* if (maxDistance > 3 && maxDistance <= 5) {
-      zoom = 12;
-    } */
     if (maxDistance > 5 && maxDistance <= 10) {
       zoom = 10;
     }
@@ -193,15 +192,16 @@ const MapBox = ({ ...props }) => {
     }
     if (maxDistance > 2500) {
       zoom = 1;
-    }
+    } */
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
-      center:
+      /* center:
         coordinates.length > 0
           ? center
-          : [-102.36945144162411, 41.08492193802903],
-      zoom: coordinates.length > 0 ? zoom : 3,
+          : [-102.36945144162411, 41.08492193802903], */
+      center: [-102.36945144162411, 41.08492193802903],
+      zoom: 3,
     });
     // Add geolocate control to the map.
     map.addControl(
@@ -216,12 +216,12 @@ const MapBox = ({ ...props }) => {
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
     map.on("load", () => {
-      getStructures();
+      /* getStructures();
       getLayers();
       getMarkings();
       getAccess();
       getInteractions();
-      getSubstations();
+      getSubstations(); */
       map.on("click", ({ lngLat }) => {
         map.flyTo({ center: [lngLat.lng, lngLat.lat] });
       });
@@ -861,14 +861,6 @@ const MapBox = ({ ...props }) => {
   
   return (
     <Grid style={{ height: "100%", width: "100%" }}>
-      {openDelete && (
-        <DialogDelete
-          item={marker.properties.itemName.toLowerCase()}
-          open={openDelete}
-          closeModal={() => setOpenDelete(false)}
-          remove={deleteItem}
-        />
-      )}
       <Dialog
         open={openPhoto}
         aria-labelledby="alert-dialog-title"
@@ -882,179 +874,6 @@ const MapBox = ({ ...props }) => {
         </DialogContent>
       </Dialog>
       <div id="map" style={{ height: "100%", width: "100%" }}>
-        {((tab === 5 && type === 1) || (tab === 4 && type === 2)) && (
-          <div className={classes.divMenu}>
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                setItemSelected(1, `/projects/${projectId}/structures/create`)
-              }
-            >
-              Add structure
-              {itemValue === 1 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-            {type === 1 && (
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() => {
-                  setItemSelected(2, `/projects/${projectId}/spans/create`);
-                }}
-              >
-                Add span
-                {itemValue === 2 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-            )}
-            {type === 1 && (
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() => {
-                  setItemSelected(3, `/projects/${projectId}/markings/create`);
-                }}
-              >
-                Add marking
-                {itemValue === 3 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-            )}
-            {type === 1 && (
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() =>
-                  setItemSelected(4, `/projects/${projectId}/access/create`)
-                }
-              >
-                Add access
-                {itemValue === 4 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-            )}
-            <Button
-              variant="outlined"
-              className={classes.buttonMenu}
-              onClick={() =>
-                setItemSelected(5, `/projects/${projectId}/interactions/create`)
-              }
-            >
-              Add interaction
-              {itemValue === 5 ? (
-                <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-              ) : null}
-            </Button>
-          </div>
-        )}
-        {itemValue === 2 ? (
-          <div>
-            {structuresSelected.first.id &&
-            structuresSelected.second.id &&
-            confirmStructures ? (
-              getDialogConfirm()
-            ) : (
-              <div className={classes.detailsMarker}>
-                <div className={classes.triangle}></div>
-                <div className={classes.infoMarker}>
-                  {addFirstStructure ? (
-                    <div>
-                      <p className={classes.paragraph}>
-                        THE SELECTED STR/SUB START:
-                      </p>
-                      <p className={classes.paragraph}>
-                        {structuresSelected.first.id
-                          ? structuresSelected.first.number
-                          : "Not selected"}
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className={classes.paragraph}>
-                        THE SELECTED STR/SUB END:
-                      </p>
-                      <p className={classes.paragraph}>
-                        {structuresSelected.second.id
-                          ? structuresSelected.second.number
-                          : "Not selected"}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <Button
-                      variant="outlined"
-                      className={classes.buttonCancel}
-                      onClick={() => cancelAddSpan()}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 10 }}
-                      variant="outlined"
-                      className={classes.buttonAccept}
-                      disabled={
-                        addFirstStructure
-                          ? structuresSelected.first.id === ""
-                          : structuresSelected.second.id === ""
-                      }
-                      onClick={() => {
-                        if (addFirstStructure) {
-                          setAddFirstStructure(false);
-                        } else {
-                          setConfirmStructures(true);
-                        }
-                      }}
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-        {itemValue === 3 || itemValue === 4 ? (
-          <div>
-            {spanSelected ? (
-              getDialogConfirm()
-            ) : (
-              <div className={classes.detailsMarker}>
-                <div className={classes.triangle}></div>
-                <div className={classes.infoMarker}>
-                  <p className={classes.paragraph}>THE SELECTED SPAN IS:</p>
-                  <p className={classes.paragraph}>
-                    {span.number ? span.number : "Not selected"}
-                  </p>
-                  <div>
-                    <Button
-                      variant="outlined"
-                      className={classes.buttonCancel}
-                      onClick={() => cancelAddMarkingOrAccess()}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      style={{ marginLeft: 10 }}
-                      variant="outlined"
-                      className={classes.buttonAccept}
-                      onClick={() => {
-                        setSpanSelected(span.id);
-                      }}
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-        {itemValue === 1 || itemValue === 5 ? getDialogConfirm() : null}
         {open && (
           <div className={classes.drawer}>
             <CancelOutlined
@@ -1108,4 +927,4 @@ export default compose(
   withSnackbar,
   withStyles(styles),
   connect(mapStateToProps, mapDispatchToProps)
-)(MapBox);
+)(MapBoxDashboard);

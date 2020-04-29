@@ -121,7 +121,7 @@ class MainListItems extends React.Component {
             <ListItemIcon>
               <ReportingIcon />
             </ListItemIcon>
-            <ListItemText primary="Project Dashboard" className={classes.textEllipsis}/>
+            <ListItemText primary="Utility Dashboard" className={classes.textEllipsis}/>
           </ListItem>
         </Link>
         <Link component={ReportingLink} underline="none">

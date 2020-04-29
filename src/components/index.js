@@ -22,6 +22,7 @@ import FormMarking from './FormMarking';
 import FormAccess from './FormAccess';
 import ShowErrors from './ShowErrors';
 import FormLine from './FormLine';
+import MapBoxDashboard from './MapBoxDashboard';
 
 export {
   InputSearch,
@@ -48,5 +49,6 @@ export {
   FormMarking,
   FormAccess,
   ShowErrors,
-  FormLine
+  FormLine,
+  MapBoxDashboard
 }
