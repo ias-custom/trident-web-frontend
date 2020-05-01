@@ -22,10 +22,12 @@ import FormMarking from './FormMarking';
 import FormAccess from './FormAccess';
 import ShowErrors from './ShowErrors';
 import FormLine from './FormLine';
-import MapBoxDashboard from './MapBoxDashboard';
 import ShowPhoto from './ShowPhoto';
 import DialogConfirmMap from './DialogConfirmMap';
 import ShowInfoMap from './ShowInfoMap';
+import ButtonsMap from './ButtonsMap'
+import DialogAddItemMap from './DialogAddItemMap'
+import MenuMap from './MenuMap'
 
 export {
   InputSearch,
@@ -53,8 +55,10 @@ export {
   FormAccess,
   ShowErrors,
   FormLine,
-  MapBoxDashboard,
   ShowPhoto,
   DialogConfirmMap,
-  ShowInfoMap
+  ShowInfoMap,
+  ButtonsMap,
+  DialogAddItemMap,
+  MenuMap
 }

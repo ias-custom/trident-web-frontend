@@ -347,7 +347,7 @@ class SpanEdit extends React.Component {
   goToAddMarking() {
     this.props.setPoint("", "");
     this.props.setSpan(this.spanId);
-    this.props.history.push(`/projects/${this.projectId}/markings/create`);
+    this.props.history.push(`/projects/${this.projectId}/crossings/create`);
   }
 
   goToAddAccess() {
@@ -597,7 +597,7 @@ class SpanEdit extends React.Component {
                                     <div style={{ display: "flex" }}>
                                       <Link
                                         component={RouterLink}
-                                        to={`/projects/${this.projectId}/markings/${marking.id}`}
+                                        to={`/projects/${this.projectId}/crossings/${marking.id}`}
                                       >
                                         <IconButton
                                           aria-label="Edit"

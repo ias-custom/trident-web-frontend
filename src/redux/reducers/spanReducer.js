@@ -9,7 +9,8 @@ import {
   SET_STRUCTURE_START,
   SET_STRUCTURE_END,
   DELETE_MARKING,
-  DELETE_ACCESS
+  DELETE_ACCESS,
+  DELETE_SPAM
 } from "../actionTypes";
 const spanId = localStorage.getItem("span_id")
   ? localStorage.getItem("span_id")
@@ -31,6 +32,9 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case GET_SPANS:
       return { ...state, spans: action.payload };
+
+    case DELETE_SPAM:
+      return { ...state, spans: state.spans.filter(s => s.id !== action.payload) };
 
     case GET_SPAN:
       return { ...state, spanId: action.payload };

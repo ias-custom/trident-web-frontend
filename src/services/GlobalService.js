@@ -1,6 +1,27 @@
 import Service from "./Service";
+import store from "../redux/store";
 
 class GlobalService extends Service {
+
+  getCustomerSelectedId () {
+    return store.getState().customers.customerSelectedId
+  }
+  
+  async getAll(statusList, typesList, itemsList, deficienciesList) {
+    try {
+      return await this.http.get(`/customer-maps/${this.getCustomerSelectedId()}/`, {
+        params: {
+          status: statusList,
+          type: typesList,
+          items: itemsList,
+          deficiency: deficienciesList
+        }
+      });
+    } catch (error) {
+      return error.response;
+    }
+  }
+
   async getStates() {
     try {
       return await this.http.get("/states/");

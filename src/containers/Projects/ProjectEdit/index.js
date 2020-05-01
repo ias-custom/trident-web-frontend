@@ -1512,7 +1512,7 @@ class ProjectEdit extends React.Component {
                     <Grid style={{ height: "100%" }}>
                       {enabledMap && (
                         <MapBox
-                          projectId={this.projectId}
+                          projectId={Number(this.projectId)}
                           openMenu={openDrawer}
                           tab={value}
                           type={type}
@@ -1528,7 +1528,7 @@ class ProjectEdit extends React.Component {
                     <Grid style={{ height: "100%" }}>
                       {enabledMap && (
                         <MapBox
-                          projectId={this.projectId}
+                          projectId={Number(this.projectId)}
                           openMenu={openDrawer}
                           tab={value}
                           type={type}

@@ -6,9 +6,10 @@ const styles = theme => ({
     right: 0,
     bottom: 0,
     background: "white",
-    zIndex: 2,
+    zIndex: 10,
+    borderRadius: "4px 0 4px 0",
     overflowY: "auto",
-    boxShadow: "-1px 1px 5px 0px rgba(0,0,0,0.75)"
+    boxShadow: "0 0 0 2px rgba(0, 0, 0, 0.1)",
   },
   close: {
     float: "right",

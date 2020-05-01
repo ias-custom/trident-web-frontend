@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { compose } from "recompose";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
 import { REACT_APP_MAP_TOKEN } from "../../config/environment";
 import styles from "./styles";
 import {
@@ -24,24 +25,8 @@ import {
   deleteMarking,
   deleteAccess,
 } from "../../redux/actions/spanActions";
-import {
-  withStyles,
-  Grid,
-  Button,
-  Avatar,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-} from "@material-ui/core";
+import { withStyles, Grid } from "@material-ui/core";
 import mapboxgl from "mapbox-gl";
-import {
-  CheckCircle,
-  CancelOutlined,
-  //Edit,
-  //Cancel,
-  Delete,
-} from "@material-ui/icons";
 import { withSnackbar } from "notistack";
 import {
   getSubstations,
@@ -59,8 +44,8 @@ import steelStructureGreen from "../../img/steel_structure_green.png";
 //import { CAN_ADD_STRUCTURE, CAN_ADD_SPAM } from "../../redux/permissions";
 import DialogDelete from "../DialogDelete";
 import { useStateAndRef } from "../../hooks/Shared";
-import { ShowPhoto, ShowInfoMap } from "..";
-import DialogConfirmMap from "../DialogConfirmMap";
+import { ShowPhoto, ShowInfoMap, ButtonsMap, MenuMap } from "..";
+import DialogAddItemMap from "../DialogAddItemMap";
 
 let map = null;
 // const reactMap = React.createRef();
@@ -70,7 +55,6 @@ const MapBox = ({ ...props }) => {
   const [longitude, setLongitude] = useState(-77.0838287); */
   const [link, setLink] = useState("");
   const [itemValue, setItemValue, itemValueRef] = useStateAndRef(0);
-  /**ya esta */
   const [span, setSpan] = useState({
     id: "",
     name: "",
@@ -97,7 +81,6 @@ const MapBox = ({ ...props }) => {
     setAddFirstStructure,
     addFirstStructureRef,
   ] = useStateAndRef(true);
-  const [confirmStructures, setConfirmStructures] = useState(false);
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
   const [marker, setMarker] = useState(null);
@@ -117,7 +100,7 @@ const MapBox = ({ ...props }) => {
     openMenu,
     maxDistance,
     center,
-    isDashboard
+    isDashboard,
   } = props;
 
   if (openDrawer !== openMenu) {
@@ -129,7 +112,6 @@ const MapBox = ({ ...props }) => {
     setOpenDrawer(openMenu);
   }
   useEffect(() => {
-    console.log("asdasd")
     if (!enabledMapFirst && enabledMap) {
       mapboxgl.accessToken = REACT_APP_MAP_TOKEN;
       if ("geolocation" in navigator) {
@@ -206,6 +188,7 @@ const MapBox = ({ ...props }) => {
     if (maxDistance > 2500) {
       zoom = 1;
     }
+    if (map) map.remove();
     map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/luiguisaenz/ck0cqa4ge03bu1cmvr30e45zs",
@@ -268,18 +251,24 @@ const MapBox = ({ ...props }) => {
   }
 
   async function getLayers() {
+    if (map.getLayer("span")) {
+      map.removeLayer("span")
+      map.removeSource("span")
+    }
     let features = await Promise.all(
-      props.spans.map(async (span) => {
-        const info = await getInfoSpan(span);
-        return {
-          type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: [span.coordinates[0], span.coordinates[1]],
-          },
-          properties: info,
-        };
-      })
+      props.spans
+        .filter(({ id }) => id !== (marker ? marker.properties.id : 0)) // FOR HIDE SPAN SELECTED FOR DELETE
+        .map(async (span) => {
+          const info = await getInfoSpan(span);
+          return {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: [span.coordinates[0], span.coordinates[1]],
+            },
+            properties: info,
+          };
+        })
     );
     map.addLayer({
       id: "span",
@@ -469,7 +458,9 @@ const MapBox = ({ ...props }) => {
           delete: props.deleteMarking,
           id: marking.id,
           span_id: marking.span_id,
-          link: `/projects/${marking.project_id}/spans/${marking.span_id}?marking=true&id=${marking.id}`,
+          link: `/projects/${marking.project_id || projectId}/crossings/${
+            marking.id
+          }`,
         },
       };
     });
@@ -504,7 +495,7 @@ const MapBox = ({ ...props }) => {
           id: a.id,
           span_id: a.span_id,
           delete: props.deleteAccess,
-          link: `/projects/${a.project_id}/spans/${a.span_id}?access=true&id=${a.id}`,
+          link: `/projects/${a.project_id || projectId}/access/${a.id}`,
         },
       };
     });
@@ -604,7 +595,9 @@ const MapBox = ({ ...props }) => {
           id: item.id,
           itemName: "Interaction",
           delete: props.deleteInteraction,
-          link: `/projects/${item.project_id}/interactions/${item.id}`,
+          link: `/projects/${item.project_id || projectId}/interactions/${
+            item.id
+          }`,
         },
       };
     });
@@ -628,9 +621,11 @@ const MapBox = ({ ...props }) => {
   async function deleteItem() {
     setOpenDelete(false);
     let response = "";
+    if (marker.properties.itemName === "Span") {
+      response = await props.deleteSpan(props.projectId, marker.properties.id);
+    }
     if (
       marker.properties.itemName === "Structure" ||
-      marker.properties.itemName === "Span" ||
       marker.properties.itemName === "Interaction"
     ) {
       response = await marker.properties.delete(
@@ -651,7 +646,11 @@ const MapBox = ({ ...props }) => {
       response = await marker.properties.delete(marker.properties.id);
     }
     if (response.status === 204) {
-      item.remove();
+      if (marker.properties.itemName === "Span") {
+        getLayers();
+      } else {
+        item.remove();
+      }
       setOpen(false);
       props.enqueueSnackbar(
         `¡${marker.properties.itemName} removed succesfully!`,
@@ -739,7 +738,7 @@ const MapBox = ({ ...props }) => {
           item={marker.properties.itemName.toLowerCase()}
           open={openDelete}
           closeModal={() => setOpenDelete(false)}
-          remove={deleteItem}
+          remove={() => deleteItem()}
         />
       )}
 
@@ -750,221 +749,42 @@ const MapBox = ({ ...props }) => {
       />
 
       <div id="map" style={{ height: "100%", width: "100%" }}>
+        {/* FOR SHOW BUTTONS ACTIONS */}
         {!isDashboard && (
-          ((tab === 5 && type === 1) || (tab === 4 && type === 2)) && (
-            <div className={classes.divMenu}>
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() => {
-                  setItemSelected(1, `/projects/${projectId}/structures/create`)
-                }}
-              >
-                Add structure
-                {itemValue === 1 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-              {type === 1 && (
-                <Button
-                  variant="outlined"
-                  className={classes.buttonMenu}
-                  onClick={() => {
-                    setItemSelected(2, `/projects/${projectId}/spans/create`);
-                  }}
-                >
-                  Add span
-                  {itemValue === 2 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                  ) : null}
-                </Button>
-              )}
-              {type === 1 && (
-                <Button
-                  variant="outlined"
-                  className={classes.buttonMenu}
-                  onClick={() => {
-                    setItemSelected(3, `/projects/${projectId}/markings/create`);
-                  }}
-                >
-                  Add marking
-                  {itemValue === 3 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                  ) : null}
-                </Button>
-              )}
-              {type === 1 && (
-                <Button
-                  variant="outlined"
-                  className={classes.buttonMenu}
-                  onClick={() =>
-                    setItemSelected(4, `/projects/${projectId}/access/create`)
-                  }
-                >
-                  Add access
-                  {itemValue === 4 ? (
-                    <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                  ) : null}
-                </Button>
-              )}
-              <Button
-                variant="outlined"
-                className={classes.buttonMenu}
-                onClick={() =>
-                  setItemSelected(5, `/projects/${projectId}/interactions/create`)
-                }
-              >
-                Add interaction
-                {itemValue === 5 ? (
-                  <CheckCircle className={classes.iconButtonMenu}></CheckCircle>
-                ) : null}
-              </Button>
-            </div>
-          )
+          <ButtonsMap
+            tab={tab}
+            type={type}
+            itemValue={itemValue}
+            addItem={(value, link) => {
+              setOpen(false);
+              setItemSelected(value, link);
+            }}
+            projectId={projectId}
+          />
         )}
-        
+
         {!isDashboard && (
-          <div>
-            {itemValue === 2 && (
-              structuresSelected.first.id &&
-              structuresSelected.second.id &&
-              confirmStructures ? (
-                <DialogConfirmMap
-                  itemValue={itemValue}
-                  spanSelected={spanSelected}
-                  structuresSelected={structuresSelected}
-                  span={span}
-                  cancelAdd={() => {
-                    setItemValue(0);
-                    setLink("");
-                    setSpanSelected("");
-                    setAddFirstStructure(true);
-                  }}
-                  addItem={() => confirmAddItem()}
-                />
-              ) : (
-                <div className={classes.detailsMarker}>
-                  <div className={classes.triangle}></div>
-                  <div className={classes.infoMarker}>
-                    {addFirstStructure ? (
-                      <div>
-                        <p className={classes.paragraph}>
-                          THE SELECTED STR/SUB START:
-                        </p>
-                        <p className={classes.paragraph}>
-                          {structuresSelected.first.id
-                            ? structuresSelected.first.number
-                            : "Not selected"}
-                        </p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className={classes.paragraph}>
-                          THE SELECTED STR/SUB END:
-                        </p>
-                        <p className={classes.paragraph}>
-                          {structuresSelected.second.id
-                            ? structuresSelected.second.number
-                            : "Not selected"}
-                        </p>
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        variant="outlined"
-                        className={classes.buttonCancel}
-                        onClick={() => cancelAddSpan()}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        style={{ marginLeft: 10 }}
-                        variant="outlined"
-                        className={classes.buttonAccept}
-                        disabled={
-                          addFirstStructure
-                            ? structuresSelected.first.id === ""
-                            : structuresSelected.second.id === ""
-                        }
-                        onClick={() => {
-                          if (addFirstStructure) {
-                            setAddFirstStructure(false);
-                          } else {
-                            setConfirmStructures(true);
-                          }
-                        }}
-                      >
-                        Continue
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
-            {itemValue === 3 || itemValue === 4 && (
-              spanSelected ? (
-                <DialogConfirmMap
-                  itemValue={itemValue}
-                  spanSelected={spanSelected}
-                  structuresSelected={structuresSelected}
-                  span={span}
-                  cancelAdd={() => {
-                    setItemValue(0);
-                    setLink("");
-                    setSpanSelected("");
-                    setAddFirstStructure(true);
-                  }}
-                  addItem={() => confirmAddItem()}
-                />
-              ) : (
-                <div className={classes.detailsMarker}>
-                  <div className={classes.triangle}></div>
-                  <div className={classes.infoMarker}>
-                    <p className={classes.paragraph}>THE SELECTED SPAN IS:</p>
-                    <p className={classes.paragraph}>
-                      {span.number ? span.number : "Not selected"}
-                    </p>
-                    <div>
-                      <Button
-                        variant="outlined"
-                        className={classes.buttonCancel}
-                        onClick={() => cancelAddMarkingOrAccess()}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        style={{ marginLeft: 10 }}
-                        variant="outlined"
-                        className={classes.buttonAccept}
-                        onClick={() => {
-                          setSpanSelected(span.id);
-                        }}
-                      >
-                        Continue
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )
-            )}
-            {(itemValue === 1 || itemValue === 5) && (
-              <DialogConfirmMap
-                itemValue={itemValue}
-                spanSelected={spanSelected}
-                structuresSelected={structuresSelected}
-                span={span}
-                cancelAdd={() => {
-                  setItemValue(0);
-                  setLink("");
-                  setSpanSelected("");
-                  setAddFirstStructure(true);
-                }}
-                addItem={() => confirmAddItem()}
-              />
-            )}
-          </div>
+          <DialogAddItemMap
+            itemValue={itemValue}
+            cancelAddItem={() => {
+              setItemValue(0);
+              setLink("");
+              setSpanSelected("");
+              setAddFirstStructure(true);
+            }}
+            confirmAddItem={confirmAddItem}
+            cancelAddSpan={cancelAddSpan}
+            cancelAddMarkingOrAccess={cancelAddMarkingOrAccess}
+            setSpanSelected={(id) => setSpanSelected(id)}
+            structuresSelected={structuresSelected}
+            addFirstStructure={addFirstStructure}
+            spanSelected={spanSelected}
+            span={span}
+            setAddFirstStructure={(value) => setAddFirstStructure(value)}
+          />
         )}
-        
+
+        {/* FOR SHOW RIGHT INFO */}
         <ShowInfoMap
           open={open}
           marker={marker}
@@ -972,11 +792,15 @@ const MapBox = ({ ...props }) => {
           items={items}
           closeInfo={() => setOpen(false)}
           openDelete={() => setOpenDelete(true)}
-          showPhoto={photo => {
+          showPhoto={(photo) => {
             setOpenPhoto(true);
             setUrl(photo);
           }}
+          isDashboard={isDashboard}
         />
+
+        {/* FOR SHOW LEFT INFO */}
+        {isDashboard && <MenuMap />}
       </div>
     </Grid>
   );
@@ -1014,6 +838,18 @@ const mapDispatchToProps = {
   deleteSubstation,
   deleteAccess,
   deleteInteraction,
+};
+
+MapBox.propTypes = {
+  projectId: PropTypes.number,
+  tab: PropTypes.number,
+  type: PropTypes.number,
+};
+
+MapBox.defaultProps = {
+  projectId: 0,
+  tab: 0,
+  type: 0,
 };
 
 export default compose(

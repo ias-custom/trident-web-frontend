@@ -15,20 +15,20 @@ import {
   FormGroup,
   FormControlLabel,
   FormLabel,
+  Button,
 } from "@material-ui/core";
 import { withSnackbar } from "notistack";
 import { withRouter } from "react-router-dom";
 import styles from "./styles";
 import { compose } from "recompose";
+import { Layout, SimpleBreadcrumbs, Panel, MapBox } from "../../components";
 import {
-  Layout,
-  SimpleBreadcrumbs,
-  Panel,
-  MapBox,
-} from "../../components";
-import { fetchProjects } from "../../redux/actions/projectActions";
+  setEmptyMap,
+  fetchInfoCustomer,
+} from "../../redux/actions/globalActions";
 import { selectedItemMenu } from "../../redux/actions/layoutActions";
 import _ from "lodash";
+import { SearchOutlined } from "@material-ui/icons";
 
 let timeOut = null;
 
@@ -47,66 +47,121 @@ const Dashboard = ({ ...props }) => {
   ];
   const [items, setItems] = useState([]);
   const [statusList, setStatusList] = useState([]);
-  const [enabledMap, setEnabledMap] = useState(true);
-  const [maxDistance, setMaxDistance] = useState(0);
-  const [center, setCenter] = useState(null);
   const [typeList, setTypeList] = useState([]);
+  const [deficienciesList, setDeficienciesList] = useState(["true", "false"]);
+  const [enabledMap, setEnabledMap] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(1200);
+  const [center, setCenter] = useState([
+    -102.36945144162411,
+    41.08492193802903,
+  ]);
   const [filters, setFilters] = useState("");
-  const { classes, loading } = props;
+  const {
+    classes,
+    loading,
+    enqueueSnackbar,
+    setEmptyMap,
+    fetchInfoCustomer,
+  } = props;
 
   useEffect(() => {
+    setEmptyMap();
+    setEnabledMap(true);
     const nameItem = "dashboard";
     const nameSubItem = "main";
     props.selectedItemMenu({ nameItem, nameSubItem });
     return () => {};
   }, []);
 
-  function getItems(statusList, typeList, itemsList) {
+  function getItems() {
     clearTimeout(timeOut);
-    timeOut = setTimeout(() => {
-      setEnabledMap(false)
+    timeOut = setTimeout(async () => {
+      setEnabledMap(false);
       if (statusList.length === 0) {
-        // set items map empty create action
-        console.log("status vacio");
+        setEmptyMap();
+        setEnabledMap(true);
+        return;
       }
       if (typeList.length === 0) {
-        // set items map empty create action
-        console.log("type vacio");
+        setEmptyMap();
+        setEnabledMap(true);
+        return;
       }
-      if (itemsList.length === 0) {
-        console.log("items vacio");
-        // set items map empty create action
+      if (items.length === 0) {
+        setEmptyMap();
+        setEnabledMap(true);
+        return;
       }
-      console.log(statusList.join(','))
-      console.log(typeList.join(','))
-      console.log(itemsList.join(','))
-      setEnabledMap(true)
-    }, 1000);
+      const response = await fetchInfoCustomer(
+        statusList.join(","),
+        typeList.join(","),
+        items.join(","),
+        deficienciesList.join(",")
+      );
+      if (response.status !== 200) {
+        setEmptyMap();
+        enqueueSnackbar("The request could not be processed", {
+          variant: "error",
+          anchorOrigin: { vertical: "top", horizontal: "center" },
+        });
+      } else {
+        const { coordinate_center, max_distance} = response.data
+        if (coordinate_center) {
+          setCenter(coordinate_center)
+          setMaxDistance(max_distance)
+        }
+      }
+      setEnabledMap(true);
+    }, 500);
   }
+
   function changeStatus(status) {
     let newList = statusList.includes(status)
       ? statusList.filter((s) => s !== status)
       : statusList.concat(status);
     setStatusList(newList);
-    getItems(newList, typeList, items);
+    //getItems(newList, typeList, items, deficienciesList);
   }
+
   function changeType(type) {
     let newList = typeList.includes(type)
       ? typeList.filter((s) => s !== type)
       : typeList.concat(type);
     setTypeList(newList);
-    getItems(statusList, newList, items);
+    //getItems(statusList, newList, items, deficienciesList);
   }
+
   function changeItems(newItems) {
     if (newItems.length > 0) {
-      if (_.difference(newItems, items).length > 0 || newItems.length < items.length) {
+      if (
+        _.difference(newItems, items).length > 0 ||
+        newItems.length < items.length
+      ) {
+        if(newItems.includes("spans") && !newItems.includes("structures")) {
+          newItems.push("structures")
+        }
         setItems(newItems);
-        getItems(statusList, typeList, newItems);
+        //getItems(statusList, typeList, newItems, deficienciesList);
       }
     } else {
       setItems([]);
-      getItems(statusList, typeList, []);
+      //getItems(statusList, typeList, [], deficienciesList);
     }
+  }
+
+  function changeDeficiencie(newValue) {
+    let newList = deficienciesList.includes(newValue)
+      ? deficienciesList.filter((d) => d !== newValue)
+      : deficienciesList.concat(newValue);
+    if (newList.length === 0) {
+      enqueueSnackbar("Opps! At least one must be selected", {
+        variant: "error",
+        anchorOrigin: { vertical: "top", horizontal: "center" },
+      });
+      return;
+    }
+    setDeficienciesList(newList);
+    //getItems(statusList, typeList, items, newList);
   }
 
   return (
@@ -119,7 +174,7 @@ const Dashboard = ({ ...props }) => {
           />
           <Panel>
             <Grid spacing={16} container direction="row">
-              <Grid item xs={4} style={{ borderRadius: 4 }}>
+              <Grid item xs={3} style={{ borderRadius: 4 }}>
                 <FormControl fullWidth margin="none">
                   <FormLabel component="legend">Project Status</FormLabel>
                   <FormGroup>
@@ -157,7 +212,7 @@ const Dashboard = ({ ...props }) => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={4} style={{ borderRadius: 4 }}>
+              <Grid item xs={3} style={{ borderRadius: 4 }}>
                 <FormControl fullWidth margin="none">
                   <FormLabel component="legend">Project Type</FormLabel>
                   <FormGroup>
@@ -186,37 +241,74 @@ const Dashboard = ({ ...props }) => {
               </Grid>
 
               <Grid item xs={4} style={{ borderRadius: 4 }}>
-                <FormControl fullWidth margin="none">
-                  <InputLabel htmlFor="select-multiple-chip" style={{fontSize: 17}}>Items</InputLabel>
-                  <Select
-                    multiple
-                    name="items"
-                    value={items}
-                    onChange={(e) => changeItems(e.target.value)}
-                    input={<Input id="select-multiple-chip" />}
-                    renderValue={(selected) => (
-                      <div className={classes.chips}>
-                        {selected.map((name) => (
-                          <Chip
-                            key={`${name}-chip`}
-                            label={name}
-                            className={classes.chip}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    fullWidth
-                  >
-                    {itemsGeneral.map((i) => (
-                      <MenuItem key={i} value={i}>
-                        <Checkbox
-                          checked={!!items.find((item) => item === i)}
+                <InputLabel
+                  htmlFor="select-multiple-chip"
+                  style={{ fontSize: 17 }}
+                >
+                  Items
+                </InputLabel>
+                <Select
+                  multiple
+                  name="items"
+                  value={items}
+                  onChange={(e) => changeItems(e.target.value)}
+                  input={<Input id="select-multiple-chip" />}
+                  renderValue={(selected) => (
+                    <div className={classes.chips}>
+                      {selected.map((name) => (
+                        <Chip
+                          key={`${name}-chip`}
+                          label={name}
+                          className={classes.chip}
                         />
-                        <ListItemText primary={i} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                      ))}
+                    </div>
+                  )}
+                  fullWidth
+                >
+                  {itemsGeneral.map((i) => (
+                    <MenuItem key={i} value={i}>
+                      <Checkbox checked={!!items.find((item) => item === i)} />
+                      <ListItemText primary={i} />
+                    </MenuItem>
+                  ))}
+                </Select>
+                {(items.includes("structures") || items.includes("spans")) && (
+                  <FormControl
+                    fullWidth
+                    margin="none"
+                    style={{ marginTop: 30 }}
+                  >
+                    <FormLabel component="legend">Spans/Structures</FormLabel>
+                    <FormGroup>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={deficienciesList.includes("true")}
+                            onChange={() => changeDeficiencie("true")}
+                            value="true"
+                          />
+                        }
+                        label="With deficiencies"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={deficienciesList.includes("false")}
+                            onChange={() => changeDeficiencie("false")}
+                            value="false"
+                          />
+                        }
+                        label="Without deficiencies"
+                      />
+                    </FormGroup>
+                  </FormControl>
+                )}
+              </Grid>
+              <Grid container item xs={2} alignItems="center" justify="center">
+                <Button className={classes.buttonSearch} onClick={() => getItems()} disabled={loading}>
+                  SEARCH  <SearchOutlined />
+                </Button>
               </Grid>
             </Grid>
           </Panel>
@@ -227,17 +319,15 @@ const Dashboard = ({ ...props }) => {
               minHeight: 500,
             }}
           >
-          { enabledMap && <MapBox
-              projectId={0}
-              openMenu={openDrawer}
-              tab={0}
-              type={0}
-              enabledMap={enabledMap}
-              maxDistance={maxDistance}
-              center={center}
-              isDashboard
-            />}
-            
+            {enabledMap && (
+              <MapBox
+                openMenu={openDrawer}
+                enabledMap={enabledMap}
+                maxDistance={maxDistance}
+                center={center}
+                isDashboard
+              />
+            )}
           </Grid>
         </div>
       )}
@@ -247,13 +337,13 @@ const Dashboard = ({ ...props }) => {
 
 const mapStateToProps = (state) => {
   return {
-    projects: state.projects.projects,
     loading: state.global.loading,
   };
 };
 
 const mapDispatchToProps = {
-  fetchProjects,
+  setEmptyMap,
+  fetchInfoCustomer,
   selectedItemMenu,
 };
 
