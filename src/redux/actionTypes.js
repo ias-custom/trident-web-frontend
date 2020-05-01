@@ -9,6 +9,7 @@ export const CHANGE_OPEN_MENU = 'CHANGE_OPEN_MENU';
 export const CHANGE_SELECTED_MENU = 'CHANGE_SELECTED_MENU';
 export const GET_ITEM_STATES = 'GET_ITEM_STATES';
 export const LOADED_CATEGORIES = 'LOADED_CATEGORIES';
+export const GET_STATISTICS = 'GET_STATISTICS';
 
 // Auth types
 export const LOGIN = 'LOGIN';

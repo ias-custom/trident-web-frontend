@@ -91,6 +91,7 @@ const MapBox = ({ ...props }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openDrawer, setOpenDrawer] = useState(true);
   const [enabledMapFirst, setEnabledMapFirst] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const {
     classes,
     projectId,
@@ -252,8 +253,8 @@ const MapBox = ({ ...props }) => {
 
   async function getLayers() {
     if (map.getLayer("span")) {
-      map.removeLayer("span")
-      map.removeSource("span")
+      map.removeLayer("span");
+      map.removeSource("span");
     }
     let features = await Promise.all(
       props.spans
@@ -797,10 +798,17 @@ const MapBox = ({ ...props }) => {
             setUrl(photo);
           }}
           isDashboard={isDashboard}
+          closeMenuMap={() => setShowMenu(false)}
         />
 
         {/* FOR SHOW LEFT INFO */}
-        {isDashboard && <MenuMap />}
+        {isDashboard && (
+          <MenuMap
+            closeInfoMap={() => setOpen(false)}
+            showMenu={showMenu}
+            setShowMenu={(value) => setShowMenu(value)}
+          />
+        )}
       </div>
     </Grid>
   );

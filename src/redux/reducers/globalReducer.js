@@ -5,7 +5,8 @@ import {
   HANDLE_FORM,
   SET_CURRENT_FORM,
   GET_STATES,
-  GET_ITEM_STATES
+  GET_ITEM_STATES,
+  GET_STATISTICS
 } from '../actionTypes';
 
 const initialState = {
@@ -14,11 +15,34 @@ const initialState = {
   currentForm: null,
   notifications: [],
   states: [],
-  item_states: []
+  item_states: [],
+  statistics: {
+    projects: {
+      active: 0,
+      planned: 0,
+      completed: 0
+    },
+    structures: {
+      total_collected: 0,
+      with_out_deficiencies: 0,
+      with_deficiencies: 0,
+    },
+    deficiencies: {
+      total_recorded_for_structures: 0,
+      total_recorded_for_spans: 0
+    },
+    interactions: {
+      positive: 0,
+      negative: 0
+    }
+  }
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case GET_STATISTICS:
+      return {...state, statistics: action.payload};
+
     case ON_LOADING:
       return {...state, loading: action.loading};
 

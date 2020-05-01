@@ -16,6 +16,7 @@ import {
   FormControlLabel,
   FormLabel,
   Button,
+  Typography,
 } from "@material-ui/core";
 import { withSnackbar } from "notistack";
 import { withRouter } from "react-router-dom";
@@ -55,7 +56,6 @@ const Dashboard = ({ ...props }) => {
     -102.36945144162411,
     41.08492193802903,
   ]);
-  const [filters, setFilters] = useState("");
   const {
     classes,
     loading,
@@ -105,10 +105,11 @@ const Dashboard = ({ ...props }) => {
           anchorOrigin: { vertical: "top", horizontal: "center" },
         });
       } else {
-        const { coordinate_center, max_distance} = response.data
+        console.log(response.data);
+        const { coordinate_center, max_distance } = response.data;
         if (coordinate_center) {
-          setCenter(coordinate_center)
-          setMaxDistance(max_distance)
+          setCenter(coordinate_center);
+          setMaxDistance(max_distance);
         }
       }
       setEnabledMap(true);
@@ -137,8 +138,8 @@ const Dashboard = ({ ...props }) => {
         _.difference(newItems, items).length > 0 ||
         newItems.length < items.length
       ) {
-        if(newItems.includes("spans") && !newItems.includes("structures")) {
-          newItems.push("structures")
+        if (newItems.includes("spans") && !newItems.includes("structures")) {
+          newItems.push("structures");
         }
         setItems(newItems);
         //getItems(statusList, typeList, newItems, deficienciesList);
@@ -306,8 +307,12 @@ const Dashboard = ({ ...props }) => {
                 )}
               </Grid>
               <Grid container item xs={2} alignItems="center" justify="center">
-                <Button className={classes.buttonSearch} onClick={() => getItems()} disabled={loading}>
-                  SEARCH  <SearchOutlined />
+                <Button
+                  className={classes.buttonSearch}
+                  onClick={() => getItems()}
+                  disabled={loading}
+                >
+                  SEARCH <SearchOutlined />
                 </Button>
               </Grid>
             </Grid>
@@ -319,6 +324,22 @@ const Dashboard = ({ ...props }) => {
               minHeight: 500,
             }}
           >
+            {loading && !enabledMap && (
+              <Grid
+                container
+                justify="center"
+                alignItems="center"
+                className={classes.divEmpty}
+              >
+                <Typography
+                  variant="display1"
+                  align="center"
+                  style={{ color: "#aba5a5" }}
+                >
+                  LOADING THE MAP DATA...
+                </Typography>
+              </Grid>
+            )}
             {enabledMap && (
               <MapBox
                 openMenu={openDrawer}

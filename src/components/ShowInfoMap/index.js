@@ -1,9 +1,17 @@
 import React from "react";
 import { compose } from "recompose";
-import { withStyles, Grid, IconButton, Avatar, Slide } from "@material-ui/core";
+import {
+  withStyles,
+  Grid,
+  IconButton,
+  Avatar,
+  Slide,
+  Typography,
+} from "@material-ui/core";
 import styles from "./styles";
-import PropTypes from 'prop-types';
-import { Delete, CancelOutlined } from "@material-ui/icons";
+import PropTypes from "prop-types";
+import { Delete, CancelOutlined, FiberManualRecord } from "@material-ui/icons";
+import classNames from "classnames";
 
 const ShowInfoMap = ({ ...props }) => {
   const {
@@ -16,12 +24,22 @@ const ShowInfoMap = ({ ...props }) => {
     openDelete,
     showPhoto,
     isDashboard,
+    closeMenuMap,
   } = props;
   return (
     open && (
-      <Slide in={open} unmountOnExit mountOnEnter direction="left">
+      <Slide
+        in={open}
+        unmountOnExit
+        mountOnEnter
+        direction="left"
+        onEnter={() => closeMenuMap()}
+      >
         <div className={classes.drawer}>
-          <CancelOutlined className={classes.close} onClick={() => closeInfo()} />
+          <CancelOutlined
+            className={classes.close}
+            onClick={() => closeInfo()}
+          />
           {marker && (
             <div className={classes.divInfo}>
               <a
@@ -29,7 +47,12 @@ const ShowInfoMap = ({ ...props }) => {
                 className={classes.link}
                 target={"_blank"}
               >
-                <h3>{marker.properties.number}</h3>
+                <Typography
+                  component="h3"
+                  style={{ fontWeight: "bold", margin: "10px 0" }}
+                >
+                  {marker.properties.number}
+                </Typography>
               </a>
               {!isDashboard && (
                 <Grid container justify="center">
@@ -47,9 +70,9 @@ const ShowInfoMap = ({ ...props }) => {
                 items.length > 0 ? (
                   categories.map((category, index) => (
                     <div key={category.id}>
-                      <p className={classes.label}>
+                      <Typography component="h4" className={classes.label}>
                         {index + 1}. {category.name}
-                      </p>
+                      </Typography>
                       <div className={classes.divItems}>
                         {items
                           .filter(
@@ -57,13 +80,22 @@ const ShowInfoMap = ({ ...props }) => {
                           )
                           .map((item) => (
                             <div key={item.id}>
-                              <span className={classes.label}>
+                              <Typography
+                                component="span"
+                                className={classes.label}
+                              >
                                 - Item "{item.item_parent.name}":
-                              </span>
+                              </Typography>
                               <div className={classes.divItems}>
                                 {item.deficiencies.map((d) => (
                                   <div key={d.id}>
-                                    <p>
+                                    <Typography
+                                      component="p"
+                                      style={{ marginBottom: 10 }}
+                                    >
+                                      <FiberManualRecord
+                                        style={{ fontSize: 8 }}
+                                      />{" "}
                                       {d.deficiency.name}{" "}
                                       {d.emergency ? (
                                         <i
@@ -73,10 +105,7 @@ const ShowInfoMap = ({ ...props }) => {
                                       ) : (
                                         ""
                                       )}
-                                    </p>
-                                    {/* d.photos.map(p => (
-                                <Avatar alt="photo" src={p.url} key={p.id}/>
-                              )) */}
+                                    </Typography>
                                     <div>
                                       {d.photos.map((p) => (
                                         <Avatar
@@ -87,6 +116,14 @@ const ShowInfoMap = ({ ...props }) => {
                                           onClick={() => showPhoto(p.photo)}
                                         />
                                       ))}
+                                      {d.photos.length === 0 && (
+                                        <Typography
+                                          component="h4"
+                                          className={classes.empty}
+                                        >
+                                          WITHOUT PHOTOS
+                                        </Typography>
+                                      )}
                                     </div>
                                   </div>
                                 ))}
@@ -97,7 +134,14 @@ const ShowInfoMap = ({ ...props }) => {
                     </div>
                   ))
                 ) : (
-                  <h3>WITHOUT DEFICIENCIES</h3>
+                  <div className={classes.flexInfo}>
+                    <Typography
+                      component="h3"
+                      style={{ color: "#aba5a5", fontWeight: "bold" }}
+                    >
+                      WITHOUT DEFICIENCIES
+                    </Typography>
+                  </div>
                 )
               ) : null}
             </div>
@@ -108,7 +152,6 @@ const ShowInfoMap = ({ ...props }) => {
   );
 };
 
-    
 ShowInfoMap.propTypes = {
   open: PropTypes.bool.isRequired,
   marker: PropTypes.object,
@@ -117,7 +160,7 @@ ShowInfoMap.propTypes = {
   closeInfo: PropTypes.func,
   openDelete: PropTypes.func,
   showPhoto: PropTypes.func,
-  isDashboard: PropTypes.bool
+  isDashboard: PropTypes.bool,
 };
 
 ShowInfoMap.defaultProps = {
@@ -128,6 +171,6 @@ ShowInfoMap.defaultProps = {
   closeInfo: () => {},
   openDelete: () => {},
   showPhoto: () => {},
-  isDashboard: false
-}
+  isDashboard: false,
+};
 export default compose(withStyles(styles))(ShowInfoMap);

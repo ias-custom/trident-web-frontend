@@ -19,8 +19,9 @@ const styles = theme => ({
     left: 0,
     bottom: 0,
     width: 300,
+    overflowY: "auto",
     background: "white",
-    zIndex: 2,
+    zIndex: 10,
     boxShadow: "0 0 0 2px rgba(0, 0, 0, 0.1)",
   },
   close: {
@@ -31,6 +32,27 @@ const styles = theme => ({
   title: {
     textAlign: "center",
     marginTop: 10
+  },
+  nested: {
+    padding: "0 20px 0 40px",
+    marginTop: 4
+  },
+  icon: {
+    color: "black",
+    fontSize: 15
+  },
+  listItemIcon: {
+    marginRight: 0
+  },
+  item: {
+    fontWeight:"bold"
+  },
+  denseItem: {
+    padding: "0 8px"
+  },
+  divider: {
+    border: "none",
+    height: 1
   }
 })
 

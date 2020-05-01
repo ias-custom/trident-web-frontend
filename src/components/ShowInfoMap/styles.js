@@ -18,6 +18,7 @@ const styles = theme => ({
   },
   divInfo: {
     width: 250,
+    height: "calc(100% - 10px)",
     "&>h3": {
       color: "#bdbdbd",
       textAlign: "center"
@@ -43,6 +44,7 @@ const styles = theme => ({
   },
   label: {
     fontWeight: "bold",
+    marginBottom: 10
   },
   divItems: {
     marginLeft: 12
@@ -52,6 +54,19 @@ const styles = theme => ({
     display: "inline-block",
     cursor: "pointer"
   },
+  empty: {
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "#aba5a5",
+    fontSize: 13
+  },
+  flexInfo: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "center",
+    height: "calc(100% - 10px)",
+    flexDirection: "column"
+  }
 })
 
 export default styles

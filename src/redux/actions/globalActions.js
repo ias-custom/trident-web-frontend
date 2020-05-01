@@ -12,6 +12,7 @@ import {
   GET_ACCESS,
   GET_INTERACTIONS,
   GET_SUBSTATIONS,
+  GET_STATISTICS
 } from "../actionTypes";
 import GlobalService from "../../services/GlobalService";
 
@@ -67,6 +68,7 @@ export const fetchInfoCustomer = (
           crossings,
           access,
           substations,
+          statistics
         } = response.data;
         dispatch({ type: GET_STRUCTURES, payload: structures });
         dispatch({ type: GET_SPANS, payload: spans });
@@ -74,6 +76,7 @@ export const fetchInfoCustomer = (
         dispatch({ type: GET_ACCESS, payload: access });
         dispatch({ type: GET_INTERACTIONS, payload: interactions });
         dispatch({ type: GET_SUBSTATIONS, payload: substations });
+        dispatch({ type: GET_STATISTICS, payload: statistics });
       }
       return response;
     } catch (error) {
