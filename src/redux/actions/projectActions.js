@@ -78,7 +78,7 @@ export const getProject = (id, saveData = true) => {
       const response = await service.get(id);
       if (response.status === 200) {
         if (saveData) {
-          const { structures, spans, users, interactions, crossings, access, substations } = response.data
+          const { structures, spans, users, interactions, crossings, access, substations } = response.data;
           dispatch({ type: GET_PROJECT, payload: response.data });
           dispatch({ type: GET_USERS_PROJECT, payload: users });
           dispatch({ type: GET_STRUCTURES, payload: structures });
@@ -143,7 +143,6 @@ export const deleteProject = id => {
 export const updateProject = (id, body) => {
   return async dispatch => {
     dispatch(setLoading(true));
-    console.log("asdsdsa")
     try {
       const response = await service.update(id, body);
       dispatch(getProject(id))

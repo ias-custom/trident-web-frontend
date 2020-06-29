@@ -48,7 +48,9 @@ const styles = theme => ({
     fontWeight:"bold"
   },
   denseItem: {
-    padding: "0 8px"
+    padding: "0 8px",
+    margin: "5px",
+    background: "gray"
   },
   divider: {
     border: "none",

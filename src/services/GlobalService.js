@@ -7,12 +7,13 @@ class GlobalService extends Service {
     return store.getState().customers.customerSelectedId
   }
   
-  async getAll(statusList, typesList, itemsList, deficienciesList) {
+  async getAll(statusList, typesList, projectIdList , itemsList, deficienciesList) {
     try {
       return await this.http.get(`/customer-maps/${this.getCustomerSelectedId()}/`, {
         params: {
           status: statusList,
           type: typesList,
+          projectId: projectIdList,
           items: itemsList,
           deficiency: deficienciesList
         }
