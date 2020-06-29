@@ -1,176 +1,230 @@
-import React from "react";
-import { compose } from "recompose";
-import {
-  withStyles,
-  Grid,
-  IconButton,
-  Avatar,
-  Slide,
-  Typography,
-} from "@material-ui/core";
-import styles from "./styles";
+import {Avatar, Grid, IconButton, List, ListItem, ListItemText, Slide, Typography, withStyles} from "@material-ui/core";
+import {CancelOutlined, Delete} from "@material-ui/icons";
 import PropTypes from "prop-types";
-import { Delete, CancelOutlined, FiberManualRecord } from "@material-ui/icons";
-import classNames from "classnames";
+import React, {useState} from "react";
+import {compose} from "recompose";
+import styles from "./styles";
 
-const ShowInfoMap = ({ ...props }) => {
-  const {
-    open,
-    marker,
-    items,
-    categories,
-    classes,
-    closeInfo,
-    openDelete,
-    showPhoto,
-    isDashboard,
-    closeMenuMap,
-  } = props;
-  return (
-    open && (
-      <Slide
-        in={open}
-        unmountOnExit
-        mountOnEnter
-        direction="left"
-        onEnter={() => closeMenuMap()}
-      >
-        <div className={classes.drawer}>
-          <CancelOutlined
-            className={classes.close}
-            onClick={() => closeInfo()}
-          />
-          {marker && (
-            <div className={classes.divInfo}>
-              <a
-                href={marker.properties.link}
-                className={classes.link}
-                target={"_blank"}
-              >
-                <Typography
-                  component="h3"
-                  style={{ fontWeight: "bold", margin: "10px 0" }}
-                >
-                  {marker.properties.number}
-                </Typography>
-              </a>
-              {!isDashboard && (
-                <Grid container justify="center">
-                  <IconButton
-                    aria-label="Delete"
-                    className={classes.iconDelete}
-                    onClick={() => openDelete()}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Grid>
-              )}
-              {marker.properties.itemName === "Structure" ||
-              marker.properties.itemName === "Span" ? (
-                items.length > 0 ? (
-                  categories.map((category, index) => (
-                    <div key={category.id}>
-                      <Typography component="h4" className={classes.label}>
-                        {index + 1}. {category.name}
-                      </Typography>
-                      <div className={classes.divItems}>
-                        {items
-                          .filter(
-                            ({ category_id }) => category_id === category.id
-                          )
-                          .map((item) => (
-                            <div key={item.id}>
-                              <Typography
-                                component="span"
-                                className={classes.label}
-                              >
-                                - Item "{item.item_parent.name}":
-                              </Typography>
-                              <div className={classes.divItems}>
-                                {item.deficiencies.map((d) => (
-                                  <div key={d.id}>
-                                    <Typography
-                                      component="p"
-                                      style={{ marginBottom: 10 }}
-                                    >
-                                      <FiberManualRecord
-                                        style={{ fontSize: 8 }}
-                                      />{" "}
-                                      {d.deficiency.name}{" "}
-                                      {d.emergency ? (
-                                        <i
-                                          className="fas fa-exclamation-triangle"
-                                          style={{ color: "red" }}
-                                        ></i>
-                                      ) : (
-                                        ""
-                                      )}
-                                    </Typography>
-                                    <div>
-                                      {d.photos.map((p) => (
-                                        <Avatar
-                                          alt="photo"
-                                          src={p.thumbnail}
-                                          key={p.id}
-                                          className={classes.avatar}
-                                          onClick={() => showPhoto(p.photo)}
-                                        />
-                                      ))}
-                                      {d.photos.length === 0 && (
-                                        <Typography
-                                          component="h4"
-                                          className={classes.empty}
-                                        >
-                                          WITHOUT PHOTOS
-                                        </Typography>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className={classes.flexInfo}>
-                    <Typography
-                      component="h3"
-                      style={{ color: "#aba5a5", fontWeight: "bold" }}
-                    >
-                      WITHOUT DEFICIENCIES
-                    </Typography>
-                  </div>
-                )
-              ) : null}
-            </div>
-          )}
-        </div>
-      </Slide>
-    )
-  );
+const ShowInfoMap = ({...props}) => {
+
+	const [preview, setPreview] = useState([]);
+
+
+	function onClosePreview() {
+		setPreview([]);
+	}
+
+	function getState() {
+		let struc = structures.filter((struc) => struc.id == marker.properties.id)[0];
+		console.log("struc==", struc);
+		if (struc != undefined) {
+			return struc.state.name;
+		}
+		return null;
+	}
+
+	function getInspection() {
+		let struc = structures.filter((struc) => struc.id == marker.properties.id)[0];
+		console.log("struc==", struc);
+		if (struc != undefined) {
+			return struc.inspection.name;
+		}
+		return null;
+	}
+
+	const {
+		open,
+		marker,
+		items,
+		structures,
+		categories,
+		imagePrincipal,
+		classes,
+		closeInfo,
+		openDelete,
+		showPhoto,
+		isDashboard,
+		closeMenuMap
+	} = props;
+	//console.log("marker=", marker);
+	//console.log("items=", items);
+	//console.log("structures=", structures);
+	//console.log("categories=", categories);
+	//console.log("imagePrincipal=", imagePrincipal);
+	return (
+		open && (
+			<Slide
+				in={open}
+				unmountOnExit
+				mountOnEnter
+				direction="left"
+				//  onEnter={() => closeMenuMap()}
+			>
+				<div className={classes.drawer}>
+					<CancelOutlined
+						className={classes.close}
+						onClick={() => closeInfo()}
+					/>
+					{marker && (
+						<div className={classes.divInfo}>
+							<a
+								href={marker.properties.link}
+								className={classes.link}
+								target={"_blank"}
+							>
+								<h2 className={classes.title}>{marker.properties.number}</h2>
+							</a>
+							{!isDashboard && (
+								<Grid container justify="center">
+									<IconButton
+										aria-label="Delete"
+										className={classes.iconDelete}
+										onClick={() => openDelete()}
+									>
+										<Delete/>
+									</IconButton>
+								</Grid>
+							)}
+							{marker.geometry.coordinates ? (
+								<Grid container>
+									<List component="div" disablePadding className={classes.list}>
+										<ListItem classes={{dense: classes.denseItem}}>
+											<ListItemText
+												primary="Number"
+												classes={{
+													textDense: classes.item,
+													dense: classes.denseItem
+												}}
+											/>
+										</ListItem>
+										<ListItem className={classes.nested}>
+											<Typography className={classes.item}>
+												{marker.properties.number}
+											</Typography>
+										</ListItem>
+										<hr className={classes.divider}/>
+									</List>
+									{getState() ? (
+										<List component="div" disablePadding className={classes.list}>
+											<ListItem classes={{dense: classes.denseItem}}>
+												<ListItemText
+													primary="State"
+													classes={{
+														textDense: classes.item,
+														dense: classes.denseItem
+													}}
+												/>
+											</ListItem>
+											<ListItem className={classes.nested}>
+												<Typography className={classes.item}>
+													{getState()}
+												</Typography>
+											</ListItem>
+											<hr className={classes.divider}/>
+										</List>
+									):(null)}
+									{getInspection() ? (
+										<List component="div" disablePadding className={classes.list}>
+											<ListItem classes={{dense: classes.denseItem}}>
+												<ListItemText
+													primary="Inspection"
+													classes={{
+														textDense: classes.item,
+														dense: classes.denseItem
+													}}
+												/>
+											</ListItem>
+											<ListItem className={classes.nested}>
+												<Typography className={classes.item}>
+													{getInspection()}
+												</Typography>
+											</ListItem>
+											<hr className={classes.divider}/>
+										</List>
+									):(null)}
+									<List component="div" disablePadding className={classes.list}>
+										<ListItem classes={{dense: classes.denseItem}}>
+											<ListItemText
+												primary="Latitude"
+												classes={{
+													textDense: classes.item,
+													dense: classes.denseItem
+												}}
+											/>
+										</ListItem>
+										<ListItem className={classes.nested}>
+											<Typography className={classes.item}>
+												{marker.geometry.coordinates[0]}
+											</Typography>
+										</ListItem>
+										<hr className={classes.divider}/>
+									</List>
+									<List component="div" disablePadding className={classes.list}>
+										<ListItem classes={{dense: classes.denseItem}}>
+											<ListItemText
+												primary="Longitude"
+												classes={{
+													textDense: classes.item,
+													dense: classes.denseItem
+												}}
+											/>
+										</ListItem>
+										<ListItem className={classes.nested}>
+											<Typography className={classes.item}>
+												{marker.geometry.coordinates[1]}
+											</Typography>
+										</ListItem>
+										<hr className={classes.divider}/>
+									</List>
+								</Grid>
+							) : (null)}
+							{imagePrincipal.length ? (
+								<Grid container>
+									{imagePrincipal.map((p) => (
+										<Avatar
+											alt="photo"
+											src={p.thumbnail}
+											key={p.id}
+											className={classes.avatar}
+											onClick={() => showPhoto(p.photo)}
+										/>
+									))}
+								</Grid>
+							) : (null)}
+						</div>
+					)}
+				</div>
+			</Slide>
+		)
+	);
 };
 
 ShowInfoMap.propTypes = {
-  open: PropTypes.bool.isRequired,
-  marker: PropTypes.object,
-  items: PropTypes.array,
-  categories: PropTypes.array,
-  closeInfo: PropTypes.func,
-  openDelete: PropTypes.func,
-  showPhoto: PropTypes.func,
-  isDashboard: PropTypes.bool,
+	open: PropTypes.bool.isRequired,
+	marker: PropTypes.object,
+	structures: PropTypes.array,
+	items: PropTypes.array,
+	imagePrincipal: PropTypes.array,
+	categories: PropTypes.array,
+	closeInfo: PropTypes.func,
+	openDelete: PropTypes.func,
+	showPhoto: PropTypes.func,
+	isDashboard: PropTypes.bool
 };
 
 ShowInfoMap.defaultProps = {
-  open: false,
-  marker: {},
-  items: [],
-  categories: [],
-  closeInfo: () => {},
-  openDelete: () => {},
-  showPhoto: () => {},
-  isDashboard: false,
+	open: false,
+	marker: {},
+	structures: [],
+	items: [],
+	imagePrincipal: [],
+	categories: [],
+	closeInfo: () => {
+	},
+	openDelete: () => {
+	},
+	showPhoto: () => {
+	},
+	isDashboard: false
 };
 export default compose(withStyles(styles))(ShowInfoMap);

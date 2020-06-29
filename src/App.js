@@ -67,6 +67,7 @@ import AccessEdit from "./containers/Access/AccessEdit";
 import LinesList from "./containers/Lines/LinesList";
 import LineCreate from "./containers/Lines/LineCreate";
 import LineEdit from "./containers/Lines/LineEdit";
+import Imagen from  "./containers/Imagen"
 import StructureLineCreate from "./containers/LineStructures/StructureLineCreate";
 import Dashboard from "./containers/Dashboard";
 import ProjectMap from "./containers/ProjectMap";
@@ -153,6 +154,9 @@ class App extends Component {
           <Route exact path="/lines/:id" component={LineEdit} />
           <Route exact path="/lines/:lineId/structure/create" component={StructureLineCreate} />
           <Route exact path="/lines/:lineId/structures/:structureId" component={StructureLineEdit} />
+
+          <Route exact path="/imagen" component={Imagen}></Route>
+
           <Route exact path="/404" component={Error404} />
           <Route component={Error404} />
         </Switch>

@@ -49,6 +49,7 @@ class ProjectsList extends React.Component {
   componentDidMount() {
     try {
       this.props.fetchProjects();
+      console.log("Entro");
       const nameItem = "projects";
       const nameSubItem = "list";
       this.props.selectedItemMenu({ nameItem, nameSubItem });

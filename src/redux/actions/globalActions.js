@@ -47,6 +47,7 @@ export const removeSnackbar = (key) => ({
 export const fetchInfoCustomer = (
   statusList,
   typesList,
+  projectIdList,
   itemsList,
   deficienciesList
 ) => {
@@ -57,9 +58,14 @@ export const fetchInfoCustomer = (
       const response = await globalService.getAll(
         statusList,
         typesList,
+        projectIdList,
         itemsList,
         deficienciesList
       );
+      console.log("dispatch");
+      console.log(dispatch);
+      console.log("response1");
+      console.log(response);
       if (response.status === 200) {
         const {
           structures,

@@ -825,7 +825,6 @@ class ProjectEdit extends React.Component {
                   </TextField>
                 </Grid>
               </Grid>
-
               <Grid className={classes.divTabs}>
                 <Tabs
                   value={value}

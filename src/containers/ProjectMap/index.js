@@ -28,10 +28,10 @@ const ProjectMap = ({ ...props }) => {
   useEffect(() => {
     async function detailProject() {
       const response = await props.getProject(projectId);
-      console.log(response.data)
+      console.log(response.data);
       if (response.status === 200) {
-        setMaxDistance(response.data.max_distance)
-        setCenter(response.data.coordinate_center)
+        setMaxDistance(response.data.max_distance);
+        setCenter(response.data.coordinate_center);
         setType(response.data.inspection_id)
       }
     }

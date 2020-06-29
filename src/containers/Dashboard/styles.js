@@ -40,7 +40,14 @@ const styles = (theme) => ({
       backgroundColor: "#3f51b5",
     },
   },
-  buttonSearch: {
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: theme.spacing.unit / 4,
+  },
+  buttonForm: {
     padding: "10px 20px",
     background: "#3f51b5",
     color: "white",
@@ -48,6 +55,9 @@ const styles = (theme) => ({
     "&:hover": {
       background: "#3f51b5",
       padding: "12px 22px",
+    },
+    "&:disabled": {
+      background: "gray",
     },
   },
   divEmpty: {
